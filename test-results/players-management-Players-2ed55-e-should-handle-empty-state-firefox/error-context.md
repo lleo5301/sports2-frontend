@@ -1,0 +1,78 @@
+# Page snapshot
+
+```yaml
+- heading "Baseball Scouting" [level=1]
+- navigation:
+  - link "Dashboard":
+    - /url: /
+    - img
+    - text: Dashboard
+  - link "Players":
+    - /url: /players
+    - img
+    - text: Players
+  - link "Create Player":
+    - /url: /players/create
+    - img
+    - text: Create Player
+  - link "Recruiting Board":
+    - /url: /recruiting
+    - img
+    - text: Recruiting Board
+  - link "Preference Lists":
+    - /url: /preference-lists
+    - img
+    - text: Preference Lists
+  - link "Daily Reports":
+    - /url: /daily-reports
+    - img
+    - text: Daily Reports
+  - link "Scouting Reports":
+    - /url: /scouting-reports
+    - img
+    - text: Scouting Reports
+  - link "Depth Chart":
+    - /url: /depth-chart
+    - img
+    - text: Depth Chart
+  - link "Team Settings":
+    - /url: /team-settings
+    - img
+    - text: Team Settings
+- img
+- text: Coach Smith Head Coach
+- button "Logout":
+  - img
+  - text: Logout
+- main:
+  - heading "Players" [level=1]
+  - paragraph: Manage your team's player roster and information.
+  - link "Add Player":
+    - /url: /players/create
+    - img
+    - text: Add Player
+  - img
+  - paragraph: Total Players
+  - paragraph: "25"
+  - img
+  - paragraph: Active Recruits
+  - paragraph: "15"
+  - img
+  - paragraph: Recent Reports
+  - paragraph: "8"
+  - img
+  - paragraph: Team Avg
+  - paragraph: "0.285"
+  - img
+  - textbox "Search players by name, school, city, state..."
+  - button "Filters":
+    - img
+    - text: Filters
+  - img
+  - heading "No players found" [level=3]
+  - paragraph: Get started by adding your first player.
+  - link "Add Player":
+    - /url: /players/create
+    - img
+    - text: Add Player
+```

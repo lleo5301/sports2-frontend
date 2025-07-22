@@ -1,0 +1,127 @@
+# Page snapshot
+
+```yaml
+- heading "Baseball Scouting" [level=1]
+- navigation:
+  - link "Dashboard":
+    - /url: /
+    - img
+    - text: Dashboard
+  - link "Players":
+    - /url: /players
+    - img
+    - text: Players
+  - link "Create Player":
+    - /url: /players/create
+    - img
+    - text: Create Player
+  - link "Recruiting Board":
+    - /url: /recruiting
+    - img
+    - text: Recruiting Board
+  - link "Preference Lists":
+    - /url: /preference-lists
+    - img
+    - text: Preference Lists
+  - link "Daily Reports":
+    - /url: /daily-reports
+    - img
+    - text: Daily Reports
+  - link "Scouting Reports":
+    - /url: /scouting-reports
+    - img
+    - text: Scouting Reports
+  - link "Depth Chart":
+    - /url: /depth-chart
+    - img
+    - text: Depth Chart
+  - link "Team Settings":
+    - /url: /team-settings
+    - img
+    - text: Team Settings
+- img
+- text: Coach Smith Head Coach
+- button "Logout":
+  - img
+  - text: Logout
+- main:
+  - heading "Players" [level=1]
+  - paragraph: Manage your team's player roster and information.
+  - link "Add Player":
+    - /url: /players/create
+    - img
+    - text: Add Player
+  - img
+  - paragraph: Total Players
+  - paragraph: "25"
+  - img
+  - paragraph: Active Recruits
+  - paragraph: "15"
+  - img
+  - paragraph: Recent Reports
+  - paragraph: "8"
+  - img
+  - paragraph: Team Avg
+  - paragraph: "0.285"
+  - img
+  - textbox "Search players by name, school, city, state..."
+  - button "Filters":
+    - img
+    - text: Filters
+  - text: School Type
+  - combobox:
+    - option "All Types" [selected]
+    - option "HS"
+    - option "COLL"
+  - text: Position
+  - combobox:
+    - option "All Positions" [selected]
+    - option "P"
+    - option "C"
+    - option "1B"
+    - option "2B"
+    - option "3B"
+    - option "SS"
+    - option "LF"
+    - option "CF"
+    - option "RF"
+    - option "OF"
+    - option "DH"
+  - text: Status
+  - combobox:
+    - option "Active" [selected]
+    - option "Inactive"
+    - option "Graduated"
+    - option "Transferred"
+  - button "Clear Filters"
+  - heading "John Doe" [level=3]
+  - paragraph: SS • HS
+  - link "View Details":
+    - /url: /players/1
+    - img
+  - link "Edit Player":
+    - /url: /players/1/edit
+    - img
+  - button "Delete Player":
+    - img
+  - paragraph: "School: Central High"
+  - paragraph: "Location: Springfield, IL"
+  - paragraph: "Grad Year: 2025"
+  - paragraph: "Size: 6'0\" • 180 lbs"
+  - text: AVG:0.35 HR:8 Active
+  - heading "Mike Johnson" [level=3]
+  - paragraph: P • COLL
+  - link "View Details":
+    - /url: /players/2
+    - img
+  - link "Edit Player":
+    - /url: /players/2/edit
+    - img
+  - button "Delete Player":
+    - img
+  - paragraph: "School: State University"
+  - paragraph: "Location: Chicago, IL"
+  - paragraph: "Grad Year: 2024"
+  - paragraph: "Size: 6'2\" • 195 lbs"
+  - text: ERA:2.85 SO:95 Active Showing 1 to 2 of 2 players
+```

@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   LogOut,
-  User
+  User,
+  Palette
 } from 'lucide-react'
 
 const navigation = [
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Scouting Reports', href: '/scouting-reports', icon: FileText },
   { name: 'Depth Chart', href: '/depth-chart', icon: BarChart3 },
   { name: 'Team Settings', href: '/team-settings', icon: Settings },
+  { name: 'Pines UI Demo', href: '/pines-demo', icon: Palette },
 ]
 
 export default function Layout({ children }) {

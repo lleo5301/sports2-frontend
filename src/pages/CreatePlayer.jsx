@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
 import api from '../services/api'
+import { Button, Card, CardHeader, CardTitle, CardContent, Input, Select } from '../utils/pines.jsx'
 
 const positions = [
   'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'
@@ -84,21 +85,26 @@ export default function CreatePlayer() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Create Player</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">Create Player</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Add a new player to your team roster.
         </p>
       </div>
-      <form className="card p-6 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Player Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">First Name *</label>
-            <input className="input mt-1" {...register('first_name')} />
+            <Input className="mt-1" {...register('first_name')} />
             {errors.first_name && <p className="text-red-600 text-sm">{errors.first_name.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Last Name *</label>
-            <input className="input mt-1" {...register('last_name')} />
+            <Input className="mt-1" {...register('last_name')} />
             {errors.last_name && <p className="text-red-600 text-sm">{errors.last_name.message}</p>}
           </div>
           <div>
@@ -117,27 +123,27 @@ export default function CreatePlayer() {
           </div>
           <div>
             <label className="block text-sm font-medium">Height</label>
-            <input className="input mt-1" {...register('height')} placeholder="e.g. 6'1\"" />
+            <Input className="mt-1" {...register('height')} placeholder="e.g. 6'1&quot;" />
             {errors.height && <p className="text-red-600 text-sm">{errors.height.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Weight (lbs)</label>
-            <input className="input mt-1" type="number" {...register('weight')} />
+            <Input className="mt-1" type="number" {...register('weight')} />
             {errors.weight && <p className="text-red-600 text-sm">{errors.weight.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Birth Date</label>
-            <input className="input mt-1" type="date" {...register('birth_date')} />
+            <Input className="mt-1" type="date" {...register('birth_date')} />
             {errors.birth_date && <p className="text-red-600 text-sm">{errors.birth_date.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Graduation Year</label>
-            <input className="input mt-1" type="number" {...register('graduation_year')} />
+            <Input className="mt-1" type="number" {...register('graduation_year')} />
             {errors.graduation_year && <p className="text-red-600 text-sm">{errors.graduation_year.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">School</label>
-            <input className="input mt-1" {...register('school')} />
+            <Input className="mt-1" {...register('school')} />
             {errors.school && <p className="text-red-600 text-sm">{errors.school.message}</p>}
           </div>
           <div>
@@ -241,14 +247,17 @@ export default function CreatePlayer() {
           )}
         </div>
         <div className="pt-4">
-          <button
+          <Button
             type="submit"
             disabled={isLoading}
-            className="btn btn-primary w-full"
+            variant="primary"
+            className="w-full"
           >
             {isLoading ? 'Saving...' : 'Create Player'}
-          </button>
+          </Button>
         </div>
+          </CardContent>
+        </Card>
       </form>
     </div>
   )

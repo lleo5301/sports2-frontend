@@ -1,0 +1,63 @@
+# Page snapshot
+
+```yaml
+- button:
+  - img
+- img
+- text: John Smith Head Coach
+- button:
+  - img
+- main:
+  - heading "Dashboard" [level=1]
+  - paragraph: Welcome back, John! Here's what's happening with your team.
+  - img
+  - term: Total Players
+  - definition: "0"
+  - img
+  - term: Active Recruits
+  - definition: "0"
+  - img
+  - term: Recent Reports
+  - definition: "0"
+  - img
+  - term: Team Average
+  - definition: ".000"
+  - heading "Quick Actions" [level=2]
+  - link "Create Player Add a new player to the system":
+    - /url: /players/create
+    - img
+    - heading "Create Player" [level=3]
+    - paragraph: Add a new player to the system
+  - link "View Players Browse and manage all players":
+    - /url: /players
+    - img
+    - heading "View Players" [level=3]
+    - paragraph: Browse and manage all players
+  - link "Recruiting Board View recruiting targets and prospects":
+    - /url: /recruiting
+    - img
+    - heading "Recruiting Board" [level=3]
+    - paragraph: View recruiting targets and prospects
+  - link "Daily Report Create or view daily practice/game reports":
+    - /url: /daily-reports
+    - img
+    - heading "Daily Report" [level=3]
+    - paragraph: Create or view daily practice/game reports
+  - link "Depth Chart View team depth chart and positions":
+    - /url: /depth-chart
+    - img
+    - heading "Depth Chart" [level=3]
+    - paragraph: View team depth chart and positions
+  - link "Search Players Search for specific players":
+    - /url: /players
+    - img
+    - heading "Search Players" [level=3]
+    - paragraph: Search for specific players
+  - heading "Recent Activity" [level=2]
+  - img
+  - heading "No recent activity" [level=3]
+  - paragraph: Get started by creating your first player or report.
+- status: An error occurred
+- status: An error occurred
+- status: An error occurred
+```

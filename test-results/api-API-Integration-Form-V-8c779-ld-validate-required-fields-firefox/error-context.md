@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- link "Back to login":
+  - /url: /login
+  - img
+  - text: Back to login
+- heading "Create your account" [level=2]
+- paragraph: Join the Collegiate Baseball Scouting Platform
+- text: First Name
+- textbox "First Name"
+- paragraph: First name is required
+- text: Last Name
+- textbox "Last Name"
+- paragraph: Last name is required
+- text: Email address
+- textbox "Email address"
+- paragraph: Please enter a valid email address
+- text: Phone Number (Optional)
+- textbox "Phone Number (Optional)"
+- text: Role
+- combobox "Role":
+  - option "Select your role" [selected]
+  - option "Head Coach"
+  - option "Assistant Coach"
+- paragraph: Invalid enum value. Expected 'head_coach' | 'assistant_coach', received ''
+- text: Password
+- textbox "Password"
+- button:
+  - img
+- paragraph: Password must be at least 6 characters
+- text: Confirm Password
+- textbox "Confirm Password"
+- button:
+  - img
+- paragraph: Please confirm your password
+- button "Create Account"
+- paragraph:
+  - text: Already have an account?
+  - link "Sign in":
+    - /url: /login
+```

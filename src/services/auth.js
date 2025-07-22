@@ -12,12 +12,12 @@ export const register = async (userData) => {
 
 export const getProfile = async () => {
   const response = await api.get('/auth/me')
-  return response.data
+  return response.data.data
 }
 
 export const updateProfile = async (profileData) => {
   const response = await api.put('/auth/me', profileData)
-  return response.data
+  return response.data.data
 }
 
 export const changePassword = async (passwordData) => {

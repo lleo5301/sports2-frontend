@@ -8,29 +8,29 @@
   }
   
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-base-100 text-base-content;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-white;
+    @apply inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
   
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700;
+    @apply bg-primary text-primary-content hover:bg-primary/90;
   }
   
   .btn-secondary {
-    @apply bg-secondary-100 text-secondary-900 hover:bg-secondary-200;
+    @apply bg-secondary text-secondary-content hover:bg-secondary/80;
   }
   
   .btn-outline {
-    @apply border border-secondary-300 bg-transparent hover:bg-secondary-50;
+    @apply border border-base-300 hover:bg-base-200 hover:text-base-content;
   }
   
   .btn-sm {
-    @apply h-8 px-3 text-xs;
+    @apply h-9 px-3 text-xs;
   }
   
   .btn-md {
@@ -38,15 +38,15 @@
   }
   
   .btn-lg {
-    @apply h-12 px-6 text-base;
+    @apply h-11 px-8 text-base;
   }
   
   .input {
-    @apply flex h-10 w-full rounded-md border border-secondary-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-secondary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-base-content/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
   
   .card {
-    @apply rounded-lg border border-secondary-200 bg-white shadow-sm;
+    @apply rounded-lg border border-base-300 bg-base-100 text-base-content shadow-sm;
   }
   
   .card-header {
@@ -58,7 +58,7 @@
   }
   
   .card-description {
-    @apply text-sm text-secondary-600;
+    @apply text-sm text-base-content/70;
   }
   
   .card-content {

@@ -26,7 +26,7 @@ api.interceptors.request.use(
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    return response.data
+    return response
   },
   (error) => {
     const message = error.response?.data?.error || 'An error occurred'

@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- button:
+  - img
+- img
+- text: Coach Smith Head Coach
+- button:
+  - img
+- main:
+  - heading "Players" [level=1]
+  - paragraph: Manage your team's player roster and information.
+  - link "Add Player":
+    - /url: /players/create
+    - img
+    - text: Add Player
+  - img
+  - paragraph: Total Players
+  - paragraph: "25"
+  - img
+  - paragraph: Active Recruits
+  - paragraph: "15"
+  - img
+  - paragraph: Recent Reports
+  - paragraph: "8"
+  - img
+  - paragraph: Team Avg
+  - paragraph: "0.285"
+  - img
+  - textbox "Search players by name, school, city, state..."
+  - button "Filters":
+    - img
+    - text: Filters
+  - img
+  - heading "No players found" [level=3]
+  - paragraph: Get started by adding your first player.
+  - link "Add Player":
+    - /url: /players/create
+    - img
+    - text: Add Player
+```

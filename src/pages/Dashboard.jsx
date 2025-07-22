@@ -1,211 +1,270 @@
-import { useQuery } from 'react-query'
-import { Link } from 'react-router-dom'
-import { Users, Target, FileText, BarChart3, Plus, Search } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
-import api from '../services/api'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { playersService } from '../services/players';
+import { teamsService } from '../services/teams';
+import { reportsService } from '../services/reports';
 
-export default function Dashboard() {
-  const { user } = useAuth()
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalPlayers: 0,
+    activePlayers: 0,
+    totalReports: 0,
+    recentReports: 0
+  });
+  const [recentPlayers, setRecentPlayers] = useState([]);
+  const [recentReports, setRecentReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const { data: stats, isLoading, error } = useQuery('dashboard-stats', async () => {
-    const response = await api.get('/players/stats/summary')
-    return response.data
-  }, {
-    retry: 2,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch data in parallel
+        const [playersResponse, reportsResponse, teamResponse] = await Promise.all([
+          playersService.getPlayers({ limit: 5 }),
+          reportsService.getScoutingReports({ limit: 5 }),
+          teamsService.getMyTeam()
+        ]);
 
-  const quickActions = [
-    {
-      name: 'Create Player',
-      href: '/players/create',
-      icon: Plus,
-      description: 'Add a new player to the system',
-      color: 'bg-blue-500'
-    },
-    {
-      name: 'View Players',
-      href: '/players',
-      icon: Users,
-      description: 'Browse and manage all players',
-      color: 'bg-green-500'
-    },
-    {
-      name: 'Recruiting Board',
-      href: '/recruiting',
-      icon: Target,
-      description: 'View recruiting targets and prospects',
-      color: 'bg-purple-500'
-    },
-    {
-      name: 'Daily Report',
-      href: '/daily-reports',
-      icon: FileText,
-      description: 'Create or view daily practice/game reports',
-      color: 'bg-orange-500'
-    },
-    {
-      name: 'Depth Chart',
-      href: '/depth-chart',
-      icon: BarChart3,
-      description: 'View team depth chart and positions',
-      color: 'bg-red-500'
-    },
-    {
-      name: 'Search Players',
-      href: '/players',
-      icon: Search,
-      description: 'Search for specific players',
-      color: 'bg-indigo-500'
+        // Calculate stats
+        const totalPlayers = playersResponse?.pagination?.total || 0;
+        const activePlayers = playersResponse?.data?.filter(p => p.status === 'active').length || 0;
+        const totalReports = reportsResponse?.pagination?.total || 0;
+        const recentReports = reportsResponse?.data?.length || 0;
+
+        setStats({
+          totalPlayers,
+          activePlayers,
+          totalReports,
+          recentReports
+        });
+
+        setRecentPlayers(playersResponse?.data || []);
+        setRecentReports(reportsResponse?.data || []);
+        
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        console.error('Error details:', {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status
+        });
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Quick action handlers
+  const handleAddPlayer = () => {
+    try {
+      navigate('/players/create');
+    } catch (error) {
+      console.error('Navigation error:', error);
     }
-  ]
+  };
 
-  // Update the stats display to handle errors gracefully
-  const displayStats = (field, defaultValue = 0) => {
-    if (isLoading) return '...'
-    if (error) return defaultValue
-    return stats?.[field] ?? defaultValue
+  const handleCreateReport = () => {
+    try {
+      navigate('/scouting/create');
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
+
+  const handleViewAnalytics = () => {
+    try {
+      navigate('/reports');
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="loading loading-spinner loading-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="alert alert-error">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Welcome back, {user?.first_name}! Here's what's happening with your team.
-        </p>
-      </div>
+    <div className="p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-base-content mb-2">
+            Dashboard
+          </h1>
+          <p className="text-base-content/70">
+            Welcome back! Here's an overview of your team's data.
+          </p>
+        </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <div className="card-content">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Users className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Players
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {displayStats('total_players', 0)}
-                  </dd>
-                </dl>
-              </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-primary">Total Players</h2>
+              <p className="text-3xl font-bold">{stats.totalPlayers}</p>
+              <div className="text-sm text-success">Active: {stats.activePlayers}</div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-secondary">Scouting Reports</h2>
+              <p className="text-3xl font-bold">{stats.totalReports}</p>
+              <div className="text-sm text-info">Recent: {stats.recentReports}</div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-accent">Team Status</h2>
+              <p className="text-3xl font-bold">Active</p>
+              <div className="text-sm text-success">All systems operational</div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-neutral">Quick Actions</h2>
+              <p className="text-3xl font-bold">3</p>
+              <div className="text-sm text-base-content/70">Available tasks</div>
             </div>
           </div>
         </div>
 
-        <div className="card">
-          <div className="card-content">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Target className="h-8 w-8 text-green-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Active Recruits
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {displayStats('active_recruits', 0)}
-                  </dd>
-                </dl>
-              </div>
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Players */}
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Recent Players</h2>
+              <p className="card-description">Latest players added to your roster</p>
             </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-content">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <FileText className="h-8 w-8 text-purple-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Recent Reports
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {displayStats('recent_reports', 0)}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-content">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <BarChart3 className="h-8 w-8 text-orange-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Team Average
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {displayStats('team_avg', '.000')}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {quickActions.map((action) => (
-            <Link
-              key={action.name}
-              to={action.href}
-              className="card hover:shadow-md transition-shadow duration-200"
-            >
-              <div className="card-content">
-                <div className="flex items-center">
-                  <div className={`flex-shrink-0 p-2 rounded-lg ${action.color}`}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-sm font-medium text-gray-900">
-                      {action.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {action.description}
-                    </p>
-                  </div>
+            <div className="card-content">
+              {recentPlayers.length > 0 ? (
+                <div className="space-y-4">
+                  {recentPlayers.map((player) => (
+                    <div key={player.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                      <div>
+                        <h3 className="font-medium">
+                          {player.first_name} {player.last_name}
+                        </h3>
+                        <p className="text-sm text-base-content/70">
+                          {player.position} • {player.school}
+                        </p>
+                      </div>
+                      <div className="badge badge-outline">{player.status}</div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+              ) : (
+                <p className="text-base-content/70 text-center py-4">No recent players</p>
+              )}
+            </div>
+          </div>
 
-      {/* Recent Activity */}
-      <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
-        <div className="card">
-          <div className="card-content">
-            <div className="text-center py-8">
-              <FileText className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first player or report.
-              </p>
+          {/* Recent Reports */}
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Recent Reports</h2>
+              <p className="card-description">Latest scouting reports</p>
+            </div>
+            <div className="card-content">
+              {recentReports.length > 0 ? (
+                <div className="space-y-4">
+                  {recentReports.map((report) => (
+                    <div key={report.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                      <div>
+                        <h3 className="font-medium">
+                          {report.Player?.first_name} {report.Player?.last_name}
+                        </h3>
+                        <p className="text-sm text-base-content/70">
+                          {report.overall_grade} • {new Date(report.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="badge badge-primary">{report.overall_grade}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-base-content/70 text-center py-4">No recent reports</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-8">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Quick Actions</h2>
+              <p className="card-description">Common tasks and shortcuts</p>
+            </div>
+            <div className="card-content">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button 
+                  className="btn btn-primary hover:btn-primary-focus" 
+                  onClick={handleAddPlayer}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Add New Player
+                </button>
+                <button 
+                  className="btn btn-secondary hover:btn-secondary-focus" 
+                  onClick={handleCreateReport}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Create Report
+                </button>
+                <button 
+                  className="btn btn-accent hover:btn-accent-focus" 
+                  onClick={handleViewAnalytics}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  View Analytics
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
-} 
+  );
+};
+
+export default Dashboard; 

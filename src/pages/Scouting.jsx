@@ -1,0 +1,246 @@
+import React, { useState, useEffect } from 'react';
+import { reportsService } from '../services/reports';
+
+const Scouting = () => {
+  const [scoutingReports, setScoutingReports] = useState([]);
+  const [stats, setStats] = useState({
+    totalReports: 0,
+    inProgress: 0,
+    averageRating: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    pages: 0
+  });
+
+  useEffect(() => {
+    fetchScoutingReports();
+  }, [pagination.page]);
+
+  const fetchScoutingReports = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: pagination.page,
+        limit: pagination.limit
+      };
+      
+      const response = await reportsService.getScoutingReports(params);
+      setScoutingReports(response.data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: response.pagination?.total || 0,
+        pages: response.pagination?.pages || 0
+      }));
+
+      // Calculate stats
+      const totalReports = response.pagination?.total || 0;
+      const inProgress = response.data?.filter(r => r.status === 'in_progress').length || 0;
+      const completedReports = response.data?.filter(r => r.overall_grade);
+      const averageRating = completedReports.length > 0 
+        ? completedReports.reduce((sum, r) => sum + (r.overall_grade || 0), 0) / completedReports.length 
+        : 0;
+
+      setStats({
+        totalReports,
+        inProgress,
+        averageRating: Math.round(averageRating * 10) / 10
+      });
+
+    } catch (err) {
+      console.error('Error fetching scouting reports:', err);
+      setError('Failed to load scouting reports');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const getGradeColor = (grade) => {
+    if (!grade) return 'badge-neutral';
+    const gradeValue = grade.replace(/[+-]/g, '');
+    if (gradeValue === 'A') return 'badge-success';
+    if (gradeValue === 'B') return 'badge-warning';
+    if (gradeValue === 'C') return 'badge-info';
+    return 'badge-error';
+  };
+
+  if (loading && scoutingReports.length === 0) {
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="loading loading-spinner loading-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-base-content mb-2">
+            Scouting Reports
+          </h1>
+          <p className="text-base-content/70">
+            Manage and view scouting reports
+          </p>
+        </div>
+
+        {error && (
+          <div className="alert alert-error mb-6">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-primary">Total Reports</h2>
+              <p className="text-3xl font-bold">{stats.totalReports}</p>
+              <div className="text-sm text-success">All time reports</div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-secondary">In Progress</h2>
+              <p className="text-3xl font-bold">{stats.inProgress}</p>
+              <div className="text-sm text-warning">Needs attention</div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-accent">Average Rating</h2>
+              <p className="text-3xl font-bold">{stats.averageRating}</p>
+              <div className="text-sm text-info">Out of 10</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reports Table */}
+        <div className="card">
+          <div className="card-body">
+            <div className="overflow-x-auto">
+              <table className="table table-zebra">
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Scout</th>
+                    <th>Date</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scoutingReports.map((report) => (
+                    <tr key={report.id}>
+                      <td className="font-medium">
+                        {report.Player?.first_name} {report.Player?.last_name}
+                      </td>
+                      <td>
+                        {report.User?.first_name} {report.User?.last_name}
+                      </td>
+                      <td>{new Date(report.created_at).toLocaleDateString()}</td>
+                      <td>
+                        {report.overall_grade ? (
+                          <div className={`badge ${getGradeColor(report.overall_grade)}`}>
+                            {report.overall_grade}
+                          </div>
+                        ) : (
+                          <span className="text-base-content/50">-</span>
+                        )}
+                      </td>
+                      <td>
+                        <div className={`badge ${
+                          report.status === 'completed' ? 'badge-success' :
+                          report.status === 'in_progress' ? 'badge-warning' :
+                          'badge-neutral'
+                        }`}>
+                          {report.status}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="flex space-x-2">
+                          <button className="btn btn-sm btn-outline">View</button>
+                          <button className="btn btn-sm btn-primary">Edit</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {pagination.pages > 1 && (
+              <div className="flex justify-center mt-6">
+                <div className="join">
+                  <button
+                    className="join-item btn"
+                    disabled={pagination.page === 1}
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                  >
+                    «
+                  </button>
+                  {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <button
+                        key={pageNum}
+                        className={`join-item btn ${pagination.page === pageNum ? 'btn-active' : ''}`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  <button
+                    className="join-item btn"
+                    disabled={pagination.page === pagination.pages}
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                  >
+                    »
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Results Info */}
+            <div className="text-center mt-4 text-sm text-base-content/70">
+              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} reports
+            </div>
+          </div>
+        </div>
+
+        {/* Add Report Button */}
+        <div className="mt-8 text-center">
+          <button className="btn btn-primary">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Create New Report
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Scouting; 
