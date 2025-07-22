@@ -11,6 +11,8 @@ const Navigation = () => {
     { path: '/players', label: 'Players', icon: '👥' },
     { path: '/teams', label: 'Teams', icon: '🏟️' },
     { path: '/scouting', label: 'Scouting', icon: '📊' },
+    { path: '/depth-chart', label: 'Depth Chart', icon: '📈' },
+    { path: '/team-schedule', label: 'Team Schedule', icon: '📅' },
     { path: '/reports', label: 'Reports', icon: '📋' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
   ];

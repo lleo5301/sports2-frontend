@@ -55,206 +55,218 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <Link
             to="/login"
-            className="inline-flex items-center text-sm text-primary-600 hover:text-primary-500 mb-4"
+            className="inline-flex items-center text-sm text-primary hover:text-primary-focus mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to login
           </Link>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="text-center text-3xl font-extrabold text-base-content">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-base-content/70">
             Join the Collegiate Baseball Scouting Platform
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-                  First Name
-                </label>
-                <input
-                  id="first_name"
-                  type="text"
-                  autoComplete="given-name"
-                  {...register('first_name')}
-                  className="mt-1 input"
-                  placeholder="John"
-                />
-                {errors.first_name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.first_name.message}</p>
-                )}
-              </div>
+        <div className="card">
+          <div className="card-body">
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              <div className="space-y-4">
+                {/* Name Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">First Name</span>
+                    </label>
+                    <input
+                      id="first_name"
+                      type="text"
+                      autoComplete="given-name"
+                      {...register('first_name')}
+                      className={`input input-bordered ${errors.first_name ? 'input-error' : ''}`}
+                      placeholder="John"
+                    />
+                    {errors.first_name && (
+                      <label className="label">
+                        <span className="label-text-alt text-error">{errors.first_name.message}</span>
+                      </label>
+                    )}
+                  </div>
 
-              <div>
-                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-                  Last Name
-                </label>
-                <input
-                  id="last_name"
-                  type="text"
-                  autoComplete="family-name"
-                  {...register('last_name')}
-                  className="mt-1 input"
-                  placeholder="Smith"
-                />
-                {errors.last_name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.last_name.message}</p>
-                )}
-              </div>
-            </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Last Name</span>
+                    </label>
+                    <input
+                      id="last_name"
+                      type="text"
+                      autoComplete="family-name"
+                      {...register('last_name')}
+                      className={`input input-bordered ${errors.last_name ? 'input-error' : ''}`}
+                      placeholder="Smith"
+                    />
+                    {errors.last_name && (
+                      <label className="label">
+                        <span className="label-text-alt text-error">{errors.last_name.message}</span>
+                      </label>
+                    )}
+                  </div>
+                </div>
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                {...register('email')}
-                className="mt-1 input"
-                placeholder="john.smith@example.edu"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone Number (Optional)
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                autoComplete="tel"
-                {...register('phone')}
-                className="mt-1 input"
-                placeholder="555-0123"
-              />
-              {errors.phone && (
-                <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
-              )}
-            </div>
-
-            {/* Role */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Role
-              </label>
-              <select
-                id="role"
-                {...register('role')}
-                className="mt-1 input"
-              >
-                <option value="">Select your role</option>
-                <option value="head_coach">Head Coach</option>
-                <option value="assistant_coach">Assistant Coach</option>
-              </select>
-              {errors.role && (
-                <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
-              )}
-            </div>
-
-
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  {...register('password')}
-                  className="input pr-10"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                {/* Email */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Email address</span>
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    {...register('email')}
+                    className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
+                    placeholder="john.smith@example.edu"
+                  />
+                  {errors.email && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{errors.email.message}</span>
+                    </label>
                   )}
+                </div>
+
+                {/* Phone */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Phone Number (Optional)</span>
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    {...register('phone')}
+                    className={`input input-bordered ${errors.phone ? 'input-error' : ''}`}
+                    placeholder="555-0123"
+                  />
+                  {errors.phone && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{errors.phone.message}</span>
+                    </label>
+                  )}
+                </div>
+
+                {/* Role */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Role</span>
+                  </label>
+                  <select
+                    id="role"
+                    {...register('role')}
+                    className={`select select-bordered ${errors.role ? 'select-error' : ''}`}
+                  >
+                    <option value="">Select your role</option>
+                    <option value="head_coach">Head Coach</option>
+                    <option value="assistant_coach">Assistant Coach</option>
+                  </select>
+                  {errors.role && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{errors.role.message}</span>
+                    </label>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Password</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      {...register('password')}
+                      className={`input input-bordered pr-10 ${errors.password ? 'input-error' : ''}`}
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-base-content/50" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-base-content/50" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{errors.password.message}</span>
+                    </label>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Confirm Password</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      {...register('confirmPassword')}
+                      className={`input input-bordered pr-10 ${errors.confirmPassword ? 'input-error' : ''}`}
+                      placeholder="Confirm your password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5 text-base-content/50" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-base-content/50" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{errors.confirmPassword.message}</span>
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-control">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`btn btn-primary w-full ${isLoading ? 'loading' : ''}`}
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
                 </button>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-              )}
-            </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  {...register('confirmPassword')}
-                  className="input pr-10"
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+              <div className="text-center">
+                <p className="text-sm text-base-content/70">
+                  Already have an account?{' '}
+                  <Link to="/login" className="link link-primary">
+                    Sign in
+                  </Link>
+                </p>
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
-              )}
-            </div>
+            </form>
           </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                'Create Account'
-              )}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   )

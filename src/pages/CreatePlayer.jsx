@@ -95,162 +95,309 @@ export default function CreatePlayer() {
             <h2 className="card-title">Player Information</h2>
             <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium">First Name *</label>
-            <input className="input input-bordered mt-1 w-full" {...register('first_name')} />
-            {errors.first_name && <p className="text-red-600 text-sm">{errors.first_name.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">First Name *</span>
+            </label>
+            <input className={`input input-bordered ${errors.first_name ? 'input-error' : ''}`} {...register('first_name')} />
+            {errors.first_name && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.first_name.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Last Name *</label>
-            <input className="input input-bordered mt-1 w-full" {...register('last_name')} />
-            {errors.last_name && <p className="text-red-600 text-sm">{errors.last_name.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Last Name *</span>
+            </label>
+            <input className={`input input-bordered ${errors.last_name ? 'input-error' : ''}`} {...register('last_name')} />
+            {errors.last_name && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.last_name.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">School Type *</label>
-            <select className="select select-bordered mt-1 w-full" {...register('school_type')}>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">School Type *</span>
+            </label>
+            <select className={`select select-bordered ${errors.school_type ? 'select-error' : ''}`} {...register('school_type')}>
               {schoolTypes.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
-            {errors.school_type && <p className="text-red-600 text-sm">{errors.school_type.message}</p>}
+            {errors.school_type && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.school_type.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Position *</label>
-            <select className="select select-bordered mt-1 w-full" {...register('position')}>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Position *</span>
+            </label>
+            <select className={`select select-bordered ${errors.position ? 'select-error' : ''}`} {...register('position')}>
               {positions.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
             </select>
-            {errors.position && <p className="text-red-600 text-sm">{errors.position.message}</p>}
+            {errors.position && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.position.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Height</label>
-            <input className="input input-bordered mt-1 w-full" {...register('height')} placeholder="e.g. 6'1&quot;" />
-            {errors.height && <p className="text-red-600 text-sm">{errors.height.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Height</span>
+            </label>
+            <input className={`input input-bordered ${errors.height ? 'input-error' : ''}`} {...register('height')} placeholder="e.g. 6'1&quot;" />
+            {errors.height && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.height.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Weight (lbs)</label>
-            <input className="input input-bordered mt-1 w-full" type="number" {...register('weight')} />
-            {errors.weight && <p className="text-red-600 text-sm">{errors.weight.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Weight (lbs)</span>
+            </label>
+            <input className={`input input-bordered ${errors.weight ? 'input-error' : ''}`} type="number" {...register('weight')} />
+            {errors.weight && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.weight.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Birth Date</label>
-            <input className="input input-bordered mt-1 w-full" type="date" {...register('birth_date')} />
-            {errors.birth_date && <p className="text-red-600 text-sm">{errors.birth_date.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Birth Date</span>
+            </label>
+            <input className={`input input-bordered ${errors.birth_date ? 'input-error' : ''}`} type="date" {...register('birth_date')} />
+            {errors.birth_date && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.birth_date.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Graduation Year</label>
-            <input className="input input-bordered mt-1 w-full" type="number" {...register('graduation_year')} />
-            {errors.graduation_year && <p className="text-red-600 text-sm">{errors.graduation_year.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Graduation Year</span>
+            </label>
+            <input className={`input input-bordered ${errors.graduation_year ? 'input-error' : ''}`} type="number" {...register('graduation_year')} />
+            {errors.graduation_year && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.graduation_year.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">School</label>
-            <input className="input input-bordered mt-1 w-full" {...register('school')} />
-            {errors.school && <p className="text-red-600 text-sm">{errors.school.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">School</span>
+            </label>
+            <input className={`input input-bordered ${errors.school ? 'input-error' : ''}`} {...register('school')} />
+            {errors.school && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.school.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">City</label>
-            <input className="input input-bordered mt-1 w-full" {...register('city')} />
-            {errors.city && <p className="text-red-600 text-sm">{errors.city.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">City</span>
+            </label>
+            <input className={`input input-bordered ${errors.city ? 'input-error' : ''}`} {...register('city')} />
+            {errors.city && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.city.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">State (2-letter)</label>
-            <input className="input input-bordered mt-1 w-full" {...register('state')} maxLength={2} />
-            {errors.state && <p className="text-red-600 text-sm">{errors.state.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">State (2-letter)</span>
+            </label>
+            <input className={`input input-bordered ${errors.state ? 'input-error' : ''}`} {...register('state')} maxLength={2} />
+            {errors.state && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.state.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Phone</label>
-            <input className="input input-bordered mt-1 w-full" {...register('phone')} />
-            {errors.phone && <p className="text-red-600 text-sm">{errors.phone.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Phone</span>
+            </label>
+            <input className={`input input-bordered ${errors.phone ? 'input-error' : ''}`} {...register('phone')} />
+            {errors.phone && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.phone.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Email</label>
-            <input className="input input-bordered mt-1 w-full" type="email" {...register('email')} />
-            {errors.email && <p className="text-red-600 text-sm">{errors.email.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Email</span>
+            </label>
+            <input className={`input input-bordered ${errors.email ? 'input-error' : ''}`} type="email" {...register('email')} />
+            {errors.email && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.email.message}</span>
+              </label>
+            )}
           </div>
         </div>
-        <hr />
-        <h2 className="text-lg font-semibold">Batting Stats</h2>
+        <div className="divider">Batting Statistics</div>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium">Batting Avg</label>
-            <input className="input input-bordered mt-1 w-full" type="number" step="0.001" min="0" max="1" {...register('batting_avg')} />
-            {errors.batting_avg && <p className="text-red-600 text-sm">{errors.batting_avg.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Batting Avg</span>
+            </label>
+            <input className={`input input-bordered ${errors.batting_avg ? 'input-error' : ''}`} type="number" step="0.001" min="0" max="1" {...register('batting_avg')} />
+            {errors.batting_avg && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.batting_avg.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Home Runs</label>
-            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('home_runs')} />
-            {errors.home_runs && <p className="text-red-600 text-sm">{errors.home_runs.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Home Runs</span>
+            </label>
+            <input className={`input input-bordered ${errors.home_runs ? 'input-error' : ''}`} type="number" min="0" {...register('home_runs')} />
+            {errors.home_runs && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.home_runs.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">RBI</label>
-            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('rbi')} />
-            {errors.rbi && <p className="text-red-600 text-sm">{errors.rbi.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">RBI</span>
+            </label>
+            <input className={`input input-bordered ${errors.rbi ? 'input-error' : ''}`} type="number" min="0" {...register('rbi')} />
+            {errors.rbi && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.rbi.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Stolen Bases</label>
-            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('stolen_bases')} />
-            {errors.stolen_bases && <p className="text-red-600 text-sm">{errors.stolen_bases.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Stolen Bases</span>
+            </label>
+            <input className={`input input-bordered ${errors.stolen_bases ? 'input-error' : ''}`} type="number" min="0" {...register('stolen_bases')} />
+            {errors.stolen_bases && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.stolen_bases.message}</span>
+              </label>
+            )}
           </div>
         </div>
-        <hr />
-        <h2 className="text-lg font-semibold">Pitching Stats</h2>
+        
+        <div className="divider">Pitching Statistics</div>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium">ERA</label>
-            <input className="input input-bordered mt-1 w-full" type="number" step="0.01" min="0" {...register('era')} />
-            {errors.era && <p className="text-red-600 text-sm">{errors.era.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">ERA</span>
+            </label>
+            <input className={`input input-bordered ${errors.era ? 'input-error' : ''}`} type="number" step="0.01" min="0" {...register('era')} />
+            {errors.era && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.era.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Wins</label>
-            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('wins')} />
-            {errors.wins && <p className="text-red-600 text-sm">{errors.wins.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Wins</span>
+            </label>
+            <input className={`input input-bordered ${errors.wins ? 'input-error' : ''}`} type="number" min="0" {...register('wins')} />
+            {errors.wins && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.wins.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Losses</label>
-            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('losses')} />
-            {errors.losses && <p className="text-red-600 text-sm">{errors.losses.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Losses</span>
+            </label>
+            <input className={`input input-bordered ${errors.losses ? 'input-error' : ''}`} type="number" min="0" {...register('losses')} />
+            {errors.losses && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.losses.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Strikeouts</label>
-            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('strikeouts')} />
-            {errors.strikeouts && <p className="text-red-600 text-sm">{errors.strikeouts.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Strikeouts</span>
+            </label>
+            <input className={`input input-bordered ${errors.strikeouts ? 'input-error' : ''}`} type="number" min="0" {...register('strikeouts')} />
+            {errors.strikeouts && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.strikeouts.message}</span>
+              </label>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium">Innings Pitched</label>
-            <input className="input input-bordered mt-1 w-full" type="number" step="0.1" min="0" {...register('innings_pitched')} />
-            {errors.innings_pitched && <p className="text-red-600 text-sm">{errors.innings_pitched.message}</p>}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Innings Pitched</span>
+            </label>
+            <input className={`input input-bordered ${errors.innings_pitched ? 'input-error' : ''}`} type="number" step="0.1" min="0" {...register('innings_pitched')} />
+            {errors.innings_pitched && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.innings_pitched.message}</span>
+              </label>
+            )}
           </div>
         </div>
-        <hr />
-        <h2 className="text-lg font-semibold">Medical & Comparison</h2>
+        
+        <div className="divider">Medical & Comparison</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="has_medical_issues" {...register('has_medical_issues')} />
-            <label htmlFor="has_medical_issues" className="text-sm font-medium">Has Medical Issues?</label>
+          <div className="form-control">
+            <label className="label cursor-pointer">
+              <span className="label-text">Has Medical Issues?</span>
+              <input type="checkbox" className="checkbox checkbox-primary" {...register('has_medical_issues')} />
+            </label>
           </div>
           {hasMedical && (
-            <div>
-              <label className="block text-sm font-medium">Injury Details</label>
-              <input className="input input-bordered mt-1 w-full" {...register('injury_details')} />
-              {errors.injury_details && <p className="text-red-600 text-sm">{errors.injury_details.message}</p>}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Injury Details</span>
+              </label>
+              <input className={`input input-bordered ${errors.injury_details ? 'input-error' : ''}`} {...register('injury_details')} />
+              {errors.injury_details && (
+                <label className="label">
+                  <span className="label-text-alt text-error">{errors.injury_details.message}</span>
+                </label>
+              )}
             </div>
           )}
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="has_comparison" {...register('has_comparison')} />
-            <label htmlFor="has_comparison" className="text-sm font-medium">Has Comparison?</label>
+          <div className="form-control">
+            <label className="label cursor-pointer">
+              <span className="label-text">Has Comparison?</span>
+              <input type="checkbox" className="checkbox checkbox-primary" {...register('has_comparison')} />
+            </label>
           </div>
           {hasComparison && (
-            <div>
-              <label className="block text-sm font-medium">Comparison Player</label>
-              <input className="input input-bordered mt-1 w-full" {...register('comparison_player')} />
-              {errors.comparison_player && <p className="text-red-600 text-sm">{errors.comparison_player.message}</p>}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Comparison Player</span>
+              </label>
+              <input className={`input input-bordered ${errors.comparison_player ? 'input-error' : ''}`} {...register('comparison_player')} />
+              {errors.comparison_player && (
+                <label className="label">
+                  <span className="label-text-alt text-error">{errors.comparison_player.message}</span>
+                </label>
+              )}
             </div>
           )}
         </div>
-        <div className="pt-4">
+        <div className="form-control pt-6">
           <button
             type="submit"
             disabled={isLoading}
-            className="btn btn-primary w-full"
+            className={`btn btn-primary w-full ${isLoading ? 'loading' : ''}`}
           >
-            {isLoading ? 'Saving...' : 'Create Player'}
+            {isLoading ? 'Creating Player...' : 'Create Player'}
           </button>
         </div>
             </div>

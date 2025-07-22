@@ -54,13 +54,21 @@ export default function DepthChart() {
   // Fetch players for depth chart
   const { data: playersData, isLoading, error, refetch } = useQuery(
     ['depth-chart-players', filters],
-    () => {
+    async () => {
       const cleanParams = Object.fromEntries(
         Object.entries(filters).filter(([key, value]) => 
           value !== '' && value !== null && value !== undefined
         )
       )
-      return api.get('/players', { params: { ...cleanParams, limit: 100 } })
+      const response = await api.get('/players', { params: { ...cleanParams, limit: 100 } })
+      
+      // Ensure the response has the expected structure
+      if (!response.data || !Array.isArray(response.data.data)) {
+        console.warn('Unexpected API response structure:', response.data)
+        return { data: [] }
+      }
+      
+      return response.data
     },
     {
       keepPreviousData: true,
@@ -83,7 +91,7 @@ export default function DepthChart() {
   }
 
   const getPositionPlayers = (positionId) => {
-    if (!playersData?.data) return []
+    if (!Array.isArray(playersData?.data)) return []
     
     return playersData.data
       .filter(player => player.position === positionId)
@@ -141,19 +149,20 @@ export default function DepthChart() {
     return { label: 'Active', color: statusColors.active }
   }
 
-  const players = playersData?.data || []
+  const players = Array.isArray(playersData?.data) ? playersData.data : []
   const totalPlayers = players.length
   const activePlayers = players.filter(p => p.status === 'active').length
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Depth Chart</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          View your team's current roster organized by position.
-        </p>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Depth Chart</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            View your team's current roster organized by position.
+          </p>
+        </div>
 
       {/* Team Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -457,6 +466,7 @@ export default function DepthChart() {
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }

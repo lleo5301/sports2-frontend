@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Navigation from './components/Navigation';
+import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Import pages
@@ -18,12 +18,14 @@ import TeamDetail from './pages/TeamDetail';
 import ScoutingReport from './pages/ScoutingReport';
 import CreatePlayer from './pages/CreatePlayer';
 import ScoutingReports from './pages/ScoutingReports';
+import DepthChart from './pages/DepthChart';
+import TeamSchedule from './pages/TeamSchedule';
 import OAuthCallback from './pages/OAuthCallback';
 import NotFound from './pages/NotFound';
 
 function App() {
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="bg-base-100">
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
@@ -33,80 +35,107 @@ function App() {
         {/* Protected routes */}
         <Route path="/" element={
           <ProtectedRoute>
-            <Navigation />
-            <Dashboard />
+            <Layout>
+              <Dashboard />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <Navigation />
-            <Dashboard />
+            <Layout>
+              <Dashboard />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/players" element={
           <ProtectedRoute>
-            <Navigation />
-            <Players />
+            <Layout>
+              <Players />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/players/:id" element={
           <ProtectedRoute>
-            <Navigation />
-            <PlayerDetail />
+            <Layout>
+              <PlayerDetail />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/players/create" element={
           <ProtectedRoute>
-            <Navigation />
-            <CreatePlayer />
+            <Layout>
+              <CreatePlayer />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/teams" element={
           <ProtectedRoute>
-            <Navigation />
-            <Teams />
+            <Layout>
+              <Teams />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/teams/:id" element={
           <ProtectedRoute>
-            <Navigation />
-            <TeamDetail />
+            <Layout>
+              <TeamDetail />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/scouting" element={
           <ProtectedRoute>
-            <Navigation />
-            <Scouting />
+            <Layout>
+              <Scouting />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/scouting/:id" element={
           <ProtectedRoute>
-            <Navigation />
-            <ScoutingReport />
+            <Layout>
+              <ScoutingReport />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/scouting/create" element={
           <ProtectedRoute>
-            <Navigation />
-            <ScoutingReports />
+            <Layout>
+              <ScoutingReports />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/depth-chart" element={
+          <ProtectedRoute>
+            <Layout>
+              <DepthChart />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/team-schedule" element={
+          <ProtectedRoute>
+            <Layout>
+              <TeamSchedule />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/reports" element={
           <ProtectedRoute>
-            <Navigation />
-            <Reports />
+            <Layout>
+              <Reports />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/settings" element={
           <ProtectedRoute>
-            <Navigation />
-            <Settings />
+            <Layout>
+              <Settings />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="/profile" element={
           <ProtectedRoute>
-            <Navigation />
-            <Profile />
+            <Layout>
+              <Profile />
+            </Layout>
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />

@@ -1,154 +1,134 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { 
-  Home, 
-  Users, 
-  UserPlus, 
-  Target, 
-  List, 
-  FileText, 
-  BarChart3, 
-  Settings,
-  Menu,
-  X,
-  LogOut,
-  User,
-  Palette
-} from 'lucide-react'
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'Players', href: '/players', icon: Users },
-  { name: 'Create Player', href: '/players/create', icon: UserPlus },
-  { name: 'Recruiting Board', href: '/recruiting', icon: Target },
-  { name: 'Preference Lists', href: '/preference-lists', icon: List },
-  { name: 'Daily Reports', href: '/daily-reports', icon: FileText },
-  { name: 'Scouting Reports', href: '/scouting-reports', icon: FileText },
-  { name: 'Depth Chart', href: '/depth-chart', icon: BarChart3 },
-  { name: 'Team Settings', href: '/team-settings', icon: Settings },
-  { name: 'Pines UI Demo', href: '/pines-demo', icon: Palette },
-]
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const { theme, changeTheme } = useTheme();
+  const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
 
-export default function Layout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user, logout, isHeadCoach } = useAuth()
-  const location = useLocation()
+  const navItems = [
+    { path: '/', label: 'Dashboard', icon: '🏠' },
+    { path: '/players', label: 'Players', icon: '👥' },
+    { path: '/teams', label: 'Teams', icon: '🏟️' },
+    { path: '/scouting', label: 'Scouting', icon: '📊' },
+    { path: '/depth-chart', label: 'Depth Chart', icon: '📈' },
+    { path: '/team-schedule', label: 'Team Schedule', icon: '📅' },
+    { path: '/reports', label: 'Reports', icon: '📋' },
+    { path: '/settings', label: 'Settings', icon: '⚙️' },
+  ];
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    changeTheme(newTheme);
+  };
+
+  const toggleDrawer = () => {
+    setIsDrawerCollapsed(!isDrawerCollapsed);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
-          <div className="flex h-16 items-center justify-between px-4">
-            <h1 className="text-xl font-semibold text-gray-900">Baseball Scouting</h1>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
+    <div className={`drawer lg:drawer-open ${isDrawerCollapsed ? 'lg:drawer-collapsed' : ''}`}>
+      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+      
+      {/* Page content */}
+      <div className="drawer-content flex flex-col">
+        {/* Top navbar */}
+        <div className="w-full navbar bg-base-100 shadow-lg">
+          <div className="flex-none lg:hidden">
+            <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </label>
+          </div>
+          <div className="flex-1 px-2 mx-2">
+            <Link to="/" className="btn btn-ghost text-xl">⚾ Baseball Scout</Link>
+          </div>
+          <div className="flex-none">
+            <button 
+              className="btn btn-ghost btn-circle mr-2"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
-              <X className="h-6 w-6" />
+              {theme === 'light' ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              )}
             </button>
-          </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    isActive
-                      ? 'bg-primary-100 text-primary-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-      </div>
-
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
-          <div className="flex h-16 items-center px-4">
-            <h1 className="text-xl font-semibold text-gray-900">Baseball Scouting</h1>
-          </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    isActive
-                      ? 'bg-primary-100 text-primary-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top header */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-
-          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <div className="flex flex-1"></div>
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              {/* Team info */}
-              <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" />
-              <div className="flex items-center gap-x-2">
-                <User className="h-5 w-5 text-gray-400" />
-                <span className="text-sm font-medium text-gray-900">
-                  {user?.first_name} {user?.last_name}
-                </span>
-                {isHeadCoach && (
-                  <span className="inline-flex items-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-primary-800">
-                    Head Coach
-                  </span>
-                )}
+            <div className="dropdown dropdown-end">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                <div className="w-10 rounded-full">
+                  <img alt="User" src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                </div>
               </div>
-              
-              {/* Logout button */}
-              <button
-                onClick={logout}
-                className="flex items-center gap-x-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                <LogOut className="h-5 w-5" />
-                <span className="hidden lg:block">Logout</span>
-              </button>
+              <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li><Link to="/profile">Profile</Link></li>
+                <li><Link to="/settings">Settings</Link></li>
+                <li><a>Logout</a></li>
+              </ul>
             </div>
           </div>
         </div>
-
+        
         {/* Page content */}
-        <main className="py-6">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {children}
+        <div className="flex-1 p-4">
+          {children}
+        </div>
+      </div>
+      
+      {/* Sidebar */}
+      <div className="drawer-side">
+        <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+        <aside className={`min-h-full bg-base-200 text-base-content transition-all duration-300 ${isDrawerCollapsed ? 'w-16' : 'w-80'}`}>
+          {/* Sidebar header */}
+          <div className="bg-base-100 p-4 border-b border-base-300 flex items-center justify-between">
+            {!isDrawerCollapsed && (
+              <Link to="/" className="text-2xl font-bold">
+                ⚾ Baseball Scout
+              </Link>
+            )}
+            <button
+              onClick={toggleDrawer}
+              className="btn btn-ghost btn-sm btn-circle"
+              title={isDrawerCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isDrawerCollapsed ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+              )}
+            </button>
           </div>
-        </main>
+          
+          {/* Navigation menu */}
+          <ul className="menu p-4 min-h-full bg-base-200 text-base-content">
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <Link 
+                  to={item.path}
+                  className={`${location.pathname === item.path ? 'active' : ''} ${isDrawerCollapsed ? 'justify-center' : ''}`}
+                  title={isDrawerCollapsed ? item.label : ''}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  {!isDrawerCollapsed && item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </aside>
       </div>
     </div>
-  )
-} 
+  );
+};
+
+export default Layout; 
