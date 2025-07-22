@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
 import api from '../services/api'
-import { Button, Card, CardHeader, CardTitle, CardContent, Input, Select } from '../utils/pines.jsx'
 
 const positions = [
   'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'
@@ -91,79 +90,78 @@ export default function CreatePlayer() {
         </p>
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Player Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <div className="card">
+          <div className="card-body">
+            <h2 className="card-title">Player Information</h2>
+            <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">First Name *</label>
-            <Input className="mt-1" {...register('first_name')} />
+            <input className="input input-bordered mt-1 w-full" {...register('first_name')} />
             {errors.first_name && <p className="text-red-600 text-sm">{errors.first_name.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Last Name *</label>
-            <Input className="mt-1" {...register('last_name')} />
+            <input className="input input-bordered mt-1 w-full" {...register('last_name')} />
             {errors.last_name && <p className="text-red-600 text-sm">{errors.last_name.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">School Type *</label>
-            <select className="input mt-1" {...register('school_type')}>
+            <select className="select select-bordered mt-1 w-full" {...register('school_type')}>
               {schoolTypes.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
             {errors.school_type && <p className="text-red-600 text-sm">{errors.school_type.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Position *</label>
-            <select className="input mt-1" {...register('position')}>
+            <select className="select select-bordered mt-1 w-full" {...register('position')}>
               {positions.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
             </select>
             {errors.position && <p className="text-red-600 text-sm">{errors.position.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Height</label>
-            <Input className="mt-1" {...register('height')} placeholder="e.g. 6'1&quot;" />
+            <input className="input input-bordered mt-1 w-full" {...register('height')} placeholder="e.g. 6'1&quot;" />
             {errors.height && <p className="text-red-600 text-sm">{errors.height.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Weight (lbs)</label>
-            <Input className="mt-1" type="number" {...register('weight')} />
+            <input className="input input-bordered mt-1 w-full" type="number" {...register('weight')} />
             {errors.weight && <p className="text-red-600 text-sm">{errors.weight.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Birth Date</label>
-            <Input className="mt-1" type="date" {...register('birth_date')} />
+            <input className="input input-bordered mt-1 w-full" type="date" {...register('birth_date')} />
             {errors.birth_date && <p className="text-red-600 text-sm">{errors.birth_date.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Graduation Year</label>
-            <Input className="mt-1" type="number" {...register('graduation_year')} />
+            <input className="input input-bordered mt-1 w-full" type="number" {...register('graduation_year')} />
             {errors.graduation_year && <p className="text-red-600 text-sm">{errors.graduation_year.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">School</label>
-            <Input className="mt-1" {...register('school')} />
+            <input className="input input-bordered mt-1 w-full" {...register('school')} />
             {errors.school && <p className="text-red-600 text-sm">{errors.school.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">City</label>
-            <input className="input mt-1" {...register('city')} />
+            <input className="input input-bordered mt-1 w-full" {...register('city')} />
             {errors.city && <p className="text-red-600 text-sm">{errors.city.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">State (2-letter)</label>
-            <input className="input mt-1" {...register('state')} maxLength={2} />
+            <input className="input input-bordered mt-1 w-full" {...register('state')} maxLength={2} />
             {errors.state && <p className="text-red-600 text-sm">{errors.state.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Phone</label>
-            <input className="input mt-1" {...register('phone')} />
+            <input className="input input-bordered mt-1 w-full" {...register('phone')} />
             {errors.phone && <p className="text-red-600 text-sm">{errors.phone.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Email</label>
-            <input className="input mt-1" type="email" {...register('email')} />
+            <input className="input input-bordered mt-1 w-full" type="email" {...register('email')} />
             {errors.email && <p className="text-red-600 text-sm">{errors.email.message}</p>}
           </div>
         </div>
@@ -172,22 +170,22 @@ export default function CreatePlayer() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">Batting Avg</label>
-            <input className="input mt-1" type="number" step="0.001" min="0" max="1" {...register('batting_avg')} />
+            <input className="input input-bordered mt-1 w-full" type="number" step="0.001" min="0" max="1" {...register('batting_avg')} />
             {errors.batting_avg && <p className="text-red-600 text-sm">{errors.batting_avg.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Home Runs</label>
-            <input className="input mt-1" type="number" min="0" {...register('home_runs')} />
+            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('home_runs')} />
             {errors.home_runs && <p className="text-red-600 text-sm">{errors.home_runs.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">RBI</label>
-            <input className="input mt-1" type="number" min="0" {...register('rbi')} />
+            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('rbi')} />
             {errors.rbi && <p className="text-red-600 text-sm">{errors.rbi.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Stolen Bases</label>
-            <input className="input mt-1" type="number" min="0" {...register('stolen_bases')} />
+            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('stolen_bases')} />
             {errors.stolen_bases && <p className="text-red-600 text-sm">{errors.stolen_bases.message}</p>}
           </div>
         </div>
@@ -196,27 +194,27 @@ export default function CreatePlayer() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">ERA</label>
-            <input className="input mt-1" type="number" step="0.01" min="0" {...register('era')} />
+            <input className="input input-bordered mt-1 w-full" type="number" step="0.01" min="0" {...register('era')} />
             {errors.era && <p className="text-red-600 text-sm">{errors.era.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Wins</label>
-            <input className="input mt-1" type="number" min="0" {...register('wins')} />
+            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('wins')} />
             {errors.wins && <p className="text-red-600 text-sm">{errors.wins.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Losses</label>
-            <input className="input mt-1" type="number" min="0" {...register('losses')} />
+            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('losses')} />
             {errors.losses && <p className="text-red-600 text-sm">{errors.losses.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Strikeouts</label>
-            <input className="input mt-1" type="number" min="0" {...register('strikeouts')} />
+            <input className="input input-bordered mt-1 w-full" type="number" min="0" {...register('strikeouts')} />
             {errors.strikeouts && <p className="text-red-600 text-sm">{errors.strikeouts.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Innings Pitched</label>
-            <input className="input mt-1" type="number" step="0.1" min="0" {...register('innings_pitched')} />
+            <input className="input input-bordered mt-1 w-full" type="number" step="0.1" min="0" {...register('innings_pitched')} />
             {errors.innings_pitched && <p className="text-red-600 text-sm">{errors.innings_pitched.message}</p>}
           </div>
         </div>
@@ -230,7 +228,7 @@ export default function CreatePlayer() {
           {hasMedical && (
             <div>
               <label className="block text-sm font-medium">Injury Details</label>
-              <input className="input mt-1" {...register('injury_details')} />
+              <input className="input input-bordered mt-1 w-full" {...register('injury_details')} />
               {errors.injury_details && <p className="text-red-600 text-sm">{errors.injury_details.message}</p>}
             </div>
           )}
@@ -241,23 +239,23 @@ export default function CreatePlayer() {
           {hasComparison && (
             <div>
               <label className="block text-sm font-medium">Comparison Player</label>
-              <input className="input mt-1" {...register('comparison_player')} />
+              <input className="input input-bordered mt-1 w-full" {...register('comparison_player')} />
               {errors.comparison_player && <p className="text-red-600 text-sm">{errors.comparison_player.message}</p>}
             </div>
           )}
         </div>
         <div className="pt-4">
-          <Button
+          <button
             type="submit"
             disabled={isLoading}
-            variant="primary"
-            className="w-full"
+            className="btn btn-primary w-full"
           >
             {isLoading ? 'Saving...' : 'Create Player'}
-          </Button>
+          </button>
         </div>
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+        </div>
       </form>
     </div>
   )

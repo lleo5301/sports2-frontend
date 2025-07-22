@@ -18,6 +18,7 @@ import TeamDetail from './pages/TeamDetail';
 import ScoutingReport from './pages/ScoutingReport';
 import CreatePlayer from './pages/CreatePlayer';
 import ScoutingReports from './pages/ScoutingReports';
+import OAuthCallback from './pages/OAuthCallback';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/oauth-callback" element={<OAuthCallback />} />
         
         {/* Protected routes */}
         <Route path="/" element={

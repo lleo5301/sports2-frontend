@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { login } from '../services/auth'
 import toast from 'react-hot-toast'
+import OAuthButtons from '../components/OAuthButtons'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
@@ -157,6 +158,9 @@ export default function Login() {
                   {isLoading ? 'Signing in...' : 'Sign in'}
                 </button>
               </div>
+
+              {/* OAuth Buttons */}
+              <OAuthButtons onError={(message) => toast.error(message)} />
 
               <div className="text-center">
                 <p className="text-sm text-base-content/70">

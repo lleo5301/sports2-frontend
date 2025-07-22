@@ -366,7 +366,7 @@ const Players = () => {
             <div className="modal-action">
               <button 
                 className="btn btn-primary"
-                onClick={() => navigate(`/players/${selectedPlayer.id}/edit`)}
+                onClick={() => navigate(`/players/${selectedPlayer.id}`)}
               >
                 Edit Player
               </button>
