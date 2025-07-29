@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { 
   Calendar, 
   Clock, 
@@ -11,10 +11,14 @@ import {
   Save,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Building2
 } from 'lucide-react'
+import { DayPicker } from 'react-day-picker'
 import api from '../services/api'
+import { teamsService } from '../services/teams'
 import toast from 'react-hot-toast'
+import 'react-day-picker/dist/style.css'
 
 const scheduleTypes = [
   { id: 'general', name: 'General Schedule', color: 'bg-blue-100 text-blue-800' },
@@ -40,11 +44,13 @@ const locations = [
 ]
 
 export default function TeamSchedule() {
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [showDatePicker, setShowDatePicker] = useState(false)
   const [scheduleData, setScheduleData] = useState({
+    team_id: '',
     team_name: '',
     program_name: '',
-    date: selectedDate,
+    date: selectedDate.toISOString().split('T')[0],
     motto: '',
     sections: []
   })
@@ -67,39 +73,68 @@ export default function TeamSchedule() {
 
   const queryClient = useQueryClient()
 
-  // Fetch existing schedules
-  const { data: schedules, isLoading } = useQuery(
-    ['team-schedules'],
-    () => api.get('/schedules'),
-    {
-      keepPreviousData: true
+  // Fetch available teams
+  const { data: teamsResponse, isLoading: teamsLoading } = useQuery({
+    queryKey: ['teams'],
+    queryFn: teamsService.getAllTeams,
+    onError: (error) => {
+      console.error('Error fetching teams:', error)
     }
-  )
+  })
+
+  // Ensure teams is always an array
+  const teams = teamsResponse?.data || teamsResponse || []
+
+  // Fetch existing schedules
+  const { data: schedules, isLoading } = useQuery({
+    queryKey: ['team-schedules'],
+    queryFn: () => api.get('/schedules'),
+    keepPreviousData: true
+  })
 
   // Save schedule mutation
-  const saveScheduleMutation = useMutation(
-    (scheduleData) => api.post('/schedules', scheduleData),
-    {
-      onSuccess: () => {
-        toast.success('Schedule saved successfully!')
-        queryClient.invalidateQueries(['team-schedules'])
-        setScheduleData({
-          team_name: '',
-          program_name: '',
-          date: selectedDate,
-          motto: '',
-          sections: []
-        })
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.error || 'Failed to save schedule')
-      }
+  const saveScheduleMutation = useMutation({
+    mutationFn: (scheduleData) => api.post('/schedules', scheduleData),
+    onSuccess: () => {
+      toast.success('Schedule saved successfully!')
+      queryClient.invalidateQueries(['team-schedules'])
+      setScheduleData({
+        team_id: '',
+        team_name: '',
+        program_name: '',
+        date: selectedDate.toISOString().split('T')[0],
+        motto: '',
+        sections: []
+      })
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to save schedule')
     }
-  )
+  })
+
+  const handleDateSelect = (date) => {
+    if (date) {
+      setSelectedDate(date)
+      setScheduleData(prev => ({
+        ...prev,
+        date: date.toISOString().split('T')[0]
+      }))
+      setShowDatePicker(false)
+    }
+  }
+
+  const handleTeamSelect = (teamId) => {
+    const selectedTeam = teams.find(team => team.id === parseInt(teamId))
+    setScheduleData(prev => ({
+      ...prev,
+      team_id: teamId,
+      team_name: selectedTeam ? selectedTeam.name : ''
+    }))
+  }
 
   const handleSaveSchedule = () => {
-    if (!scheduleData.team_name || !scheduleData.program_name) {
-      toast.error('Please fill in team name and program name')
+    if (!scheduleData.team_id || !scheduleData.program_name) {
+      toast.error('Please select a team and enter program name')
       return
     }
     saveScheduleMutation.mutate(scheduleData)
@@ -178,14 +213,38 @@ export default function TeamSchedule() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
-              <input
-                type="text"
-                className="input w-full"
-                placeholder="e.g., Los Angeles Angels"
-                value={scheduleData.team_name}
-                onChange={(e) => setScheduleData(prev => ({ ...prev, team_name: e.target.value }))}
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
+              <div className="dropdown w-full">
+                <div 
+                  tabIndex={0} 
+                  role="button" 
+                  className="input w-full flex items-center justify-between cursor-pointer"
+                  onClick={() => document.activeElement?.blur()}
+                >
+                  <span className={scheduleData.team_name ? 'text-base-content' : 'text-base-content/50'}>
+                    {scheduleData.team_name || 'Select a team...'}
+                  </span>
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full z-50 max-h-60 overflow-y-auto">
+                  {teamsLoading ? (
+                    <li className="text-center py-2 text-gray-500">Loading teams...</li>
+                  ) : teams.length === 0 ? (
+                    <li className="text-center py-2 text-gray-500">No teams available</li>
+                  ) : (
+                    teams.map((team) => (
+                      <li key={team.id}>
+                        <button
+                          onClick={() => handleTeamSelect(team.id)}
+                          className="text-left"
+                        >
+                          {team.name}
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
             </div>
             
             <div>
@@ -201,12 +260,49 @@ export default function TeamSchedule() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-              <input
-                type="date"
-                className="input w-full"
-                value={scheduleData.date}
-                onChange={(e) => setScheduleData(prev => ({ ...prev, date: e.target.value }))}
-              />
+              <div className="relative">
+                <button
+                  type="button"
+                  className="input w-full flex items-center justify-between cursor-pointer"
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                >
+                  <span>{selectedDate.toLocaleDateString()}</span>
+                  <Calendar className="w-4 h-4" />
+                </button>
+                
+                {showDatePicker && (
+                  <div className="absolute top-full left-0 mt-1 z-50 bg-base-100 border border-base-300 rounded-box shadow-lg">
+                    <DayPicker
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={handleDateSelect}
+                      className="react-day-picker"
+                      classNames={{
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption: "flex justify-center pt-1 relative items-center",
+                        caption_label: "text-sm font-medium",
+                        nav: "space-x-1 flex items-center",
+                        nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse space-y-1",
+                        head_row: "flex",
+                        head_cell: "text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]",
+                        row: "flex w-full mt-2",
+                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                        day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md",
+                        day_selected: "bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content",
+                        day_today: "bg-accent text-accent-content",
+                        day_outside: "text-base-content/30 opacity-50",
+                        day_disabled: "text-base-content/30 opacity-50",
+                        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-content",
+                        day_hidden: "invisible",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             
             <div>

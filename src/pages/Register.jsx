@@ -69,7 +69,7 @@ export default function Register() {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-base-content/70">
-            Join the Collegiate Baseball Scouting Platform
+            Join The Program
           </p>
         </div>
         

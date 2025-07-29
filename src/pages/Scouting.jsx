@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { reportsService } from '../services/reports';
 
 const Scouting = () => {
@@ -178,8 +179,12 @@ const Scouting = () => {
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <button className="btn btn-sm btn-outline">View</button>
-                          <button className="btn btn-sm btn-primary">Edit</button>
+                          <Link to={`/scouting/${report.id}`} className="btn btn-sm btn-outline">
+                            View
+                          </Link>
+                          <Link to={`/scouting/${report.id}/edit`} className="btn btn-sm btn-primary">
+                            Edit
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -231,12 +236,12 @@ const Scouting = () => {
 
         {/* Add Report Button */}
         <div className="mt-8 text-center">
-          <button className="btn btn-primary">
+          <Link to="/scouting/create" className="btn btn-primary">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Create New Report
-          </button>
+          </Link>
         </div>
       </div>
     </div>

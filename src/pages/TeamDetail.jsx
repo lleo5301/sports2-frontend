@@ -1,184 +1,485 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { teamsService } from '../services/teams';
+import { toast } from 'react-hot-toast';
+import { 
+  ArrowLeft, 
+  Save, 
+  Edit, 
+  Building2, 
+  MapPin, 
+  Palette,
+  Users,
+  Calendar,
+  BarChart3
+} from 'lucide-react';
 
 const TeamDetail = () => {
-  const team = {
-    id: 1,
-    name: 'State University Tigers',
-    division: 'NCAA D1',
-    location: 'State City, ST',
-    coach: 'Mike Johnson',
-    players: 28,
-    record: '25-15',
-    conference: 'Big Conference'
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({});
+
+  // Fetch team data
+  const { data: teamData, isLoading, error } = useQuery({
+    queryKey: ['team', id],
+    queryFn: () => teamsService.getTeam(id),
+    onSuccess: (data) => {
+      setFormData(data.data);
+    }
+  });
+
+  // Update team mutation
+  const updateTeamMutation = useMutation({
+    mutationFn: teamsService.updateMyTeam,
+    onSuccess: (data) => {
+      toast.success('Team updated successfully!');
+      queryClient.invalidateQueries(['team', id]);
+      queryClient.invalidateQueries(['teams']);
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update team');
+    }
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const players = [
-    { id: 1, name: 'John Smith', position: 'Pitcher', year: 'Senior', avg: '.342', hr: 15 },
-    { id: 2, name: 'David Wilson', position: 'Catcher', year: 'Junior', avg: '.298', hr: 8 },
-    { id: 3, name: 'Chris Brown', position: 'First Base', year: 'Sophomore', avg: '.315', hr: 22 },
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    updateTeamMutation.mutate(formData);
+  };
+
+  const handleCancel = () => {
+    setFormData(teamData.data);
+    setIsEditing(false);
+  };
+
+  const divisions = ['D1', 'D2', 'D3', 'NAIA', 'JUCO'];
+  const states = [
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+    'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+    'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+    'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+    'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
   ];
+
+  if (isLoading) {
+    return (
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="loading loading-spinner loading-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="alert alert-error">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Failed to load team details</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const team = teamData?.data;
 
   return (
     <div className="p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => navigate('/teams')}
+              className="btn btn-ghost btn-sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Teams
+            </button>
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-base-content mb-2">
-                {team.name}
+                {isEditing ? 'Edit Team' : team?.name}
               </h1>
               <p className="text-base-content/70">
-                {team.division} • {team.location}
+                {isEditing ? 'Update team information' : 'Team details and information'}
               </p>
             </div>
-            <div className="flex space-x-2">
-              <button className="btn btn-outline">Edit Team</button>
-              <button className="btn btn-primary">Add Player</button>
-            </div>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="btn btn-primary"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Team
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Team Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-primary">Record</h2>
-              <p className="text-3xl font-bold">{team.record}</p>
-              <div className="text-sm text-success">+5 games over .500</div>
-            </div>
-          </div>
+        {isEditing ? (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Basic Information */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <Building2 className="w-5 h-5" />
+                  Basic Information
+                </h2>
+              </div>
+              <div className="card-body">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Team Name</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name || ''}
+                      onChange={handleInputChange}
+                      className="input input-bordered"
+                    />
+                  </div>
 
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-secondary">Players</h2>
-              <p className="text-3xl font-bold">{team.players}</p>
-              <div className="text-sm text-info">Active roster</div>
-            </div>
-          </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Program Name</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="program_name"
+                      value={formData.program_name || ''}
+                      onChange={handleInputChange}
+                      className="input input-bordered"
+                    />
+                  </div>
 
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-accent">Conference</h2>
-              <p className="text-3xl font-bold">{team.conference}</p>
-              <div className="text-sm text-warning">3rd place</div>
-            </div>
-          </div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Conference</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="conference"
+                      value={formData.conference || ''}
+                      onChange={handleInputChange}
+                      className="input input-bordered"
+                    />
+                  </div>
 
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-neutral">Head Coach</h2>
-              <p className="text-3xl font-bold">{team.coach}</p>
-              <div className="text-sm text-base-content/70">5th season</div>
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Division</span>
+                    </label>
+                    <select
+                      name="division"
+                      value={formData.division || ''}
+                      onChange={handleInputChange}
+                      className="select select-bordered"
+                    >
+                      <option value="">Select division...</option>
+                      {divisions.map(division => (
+                        <option key={division} value={division}>{division}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Team Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="card">
-            <div className="card-header">
-              <h2 className="card-title">Team Information</h2>
+            {/* Location Information */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Location Information
+                </h2>
+              </div>
+              <div className="card-body">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">City</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city || ''}
+                      onChange={handleInputChange}
+                      className="input input-bordered"
+                    />
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">State</span>
+                    </label>
+                    <select
+                      name="state"
+                      value={formData.state || ''}
+                      onChange={handleInputChange}
+                      className="select select-bordered"
+                    >
+                      <option value="">Select state...</option>
+                      {states.map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="card-content">
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="font-medium">Division:</span>
-                  <span>{team.division}</span>
+
+            {/* Team Colors */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <Palette className="w-5 h-5" />
+                  Team Colors
+                </h2>
+              </div>
+              <div className="card-body">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Primary Color</span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        name="primary_color"
+                        value={formData.primary_color || '#3B82F6'}
+                        onChange={handleInputChange}
+                        className="w-12 h-12 rounded border cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        name="primary_color"
+                        value={formData.primary_color || ''}
+                        onChange={handleInputChange}
+                        className="input input-bordered flex-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Secondary Color</span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        name="secondary_color"
+                        value={formData.secondary_color || '#EF4444'}
+                        onChange={handleInputChange}
+                        className="w-12 h-12 rounded border cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        name="secondary_color"
+                        value={formData.secondary_color || ''}
+                        onChange={handleInputChange}
+                        className="input input-bordered flex-1"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Location:</span>
-                  <span>{team.location}</span>
+              </div>
+            </div>
+
+            {/* Submit Buttons */}
+            <div className="flex justify-end gap-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={updateTeamMutation.isLoading}
+              >
+                {updateTeamMutation.isLoading ? (
+                  <>
+                    <div className="loading loading-spinner loading-sm"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="space-y-8">
+            {/* Team Overview */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <Building2 className="w-5 h-5" />
+                  Team Overview
+                </h2>
+              </div>
+              <div className="card-body">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="stat">
+                    <div className="stat-title">Team Name</div>
+                    <div className="stat-value text-lg">{team?.name}</div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Program</div>
+                    <div className="stat-value text-lg">{team?.program_name || 'N/A'}</div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Division</div>
+                    <div className="stat-value text-lg">{team?.division || 'N/A'}</div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Conference</div>
+                    <div className="stat-value text-lg">{team?.conference || 'N/A'}</div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Location</div>
+                    <div className="stat-value text-lg">
+                      {team?.city && team?.state ? `${team.city}, ${team.state}` : 'N/A'}
+                    </div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Team Members</div>
+                    <div className="stat-value text-lg">{team?.Users?.length || 0}</div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Conference:</span>
-                  <span>{team.conference}</span>
+              </div>
+            </div>
+
+            {/* Team Colors Preview */}
+            {(team?.primary_color || team?.secondary_color) && (
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title flex items-center gap-2">
+                    <Palette className="w-5 h-5" />
+                    Team Colors
+                  </h2>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Head Coach:</span>
-                  <span>{team.coach}</span>
+                <div className="card-body">
+                  <div className="flex gap-4">
+                    {team?.primary_color && (
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-8 h-8 rounded border"
+                          style={{ backgroundColor: team.primary_color }}
+                        ></div>
+                        <span>Primary: {team.primary_color}</span>
+                      </div>
+                    )}
+                    {team?.secondary_color && (
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-8 h-8 rounded border"
+                          style={{ backgroundColor: team.secondary_color }}
+                        ></div>
+                        <span>Secondary: {team.secondary_color}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Season Record:</span>
-                  <span>{team.record}</span>
+              </div>
+            )}
+
+            {/* Team Members */}
+            {team?.Users && team.Users.length > 0 && (
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Team Members
+                  </h2>
+                </div>
+                <div className="card-body">
+                  <div className="overflow-x-auto">
+                    <table className="table table-zebra w-full">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Role</th>
+                          <th>Joined</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {team.Users.map((user) => (
+                          <tr key={user.id}>
+                            <td className="font-medium">
+                              {user.first_name} {user.last_name}
+                            </td>
+                            <td>{user.email}</td>
+                            <td>
+                              <span className="badge badge-outline">{user.role}</span>
+                            </td>
+                            <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Quick Actions</h2>
+              </div>
+              <div className="card-body">
+                <div className="flex flex-wrap gap-4">
+                  <button className="btn btn-outline">
+                    <Users className="w-4 h-4 mr-2" />
+                    Manage Members
+                  </button>
+                  <button className="btn btn-outline">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    View Schedule
+                  </button>
+                  <button className="btn btn-outline">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Team Stats
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-
-          <div className="card">
-            <div className="card-header">
-              <h2 className="card-title">Quick Actions</h2>
-            </div>
-            <div className="card-content">
-              <div className="space-y-4">
-                <button className="btn btn-primary w-full">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Add New Player
-                </button>
-                <button className="btn btn-secondary w-full">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Create Report
-                </button>
-                <button className="btn btn-outline w-full">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  View Analytics
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Players List */}
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title">Roster</h2>
-            <p className="card-description">Current team roster</p>
-          </div>
-          <div className="card-content">
-            <div className="overflow-x-auto">
-              <table className="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Year</th>
-                    <th>AVG</th>
-                    <th>HR</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {players.map((player) => (
-                    <tr key={player.id}>
-                      <td className="font-medium">{player.name}</td>
-                      <td>
-                        <div className="badge badge-outline">{player.position}</div>
-                      </td>
-                      <td>{player.year}</td>
-                      <td>
-                        <div className="text-success font-semibold">{player.avg}</div>
-                      </td>
-                      <td>{player.hr}</td>
-                      <td>
-                        <div className="flex space-x-2">
-                          <button className="btn btn-sm btn-outline">View</button>
-                          <button className="btn btn-sm btn-primary">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -7,9 +7,21 @@ export const teamsService = {
     return response.data
   },
 
+  // Get a single team by ID
+  getTeam: async (id) => {
+    const response = await api.get(`/teams/byId/${id}`)
+    return response.data
+  },
+
   // Get current user's team
   getMyTeam: async () => {
     const response = await api.get('/teams/me')
+    return response.data
+  },
+
+  // Create a new team
+  createTeam: async (teamData) => {
+    const response = await api.post('/teams', teamData)
     return response.data
   },
 

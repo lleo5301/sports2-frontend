@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { 
   Settings, 
   Save, 
@@ -14,9 +14,19 @@ import {
   Upload,
   Trash2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  UserPlus,
+  UserMinus,
+  Lock,
+  Unlock,
+  Clock,
+  Calendar,
+  Plus,
+  Edit,
+  X
 } from 'lucide-react'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
 const divisions = [
@@ -35,27 +45,76 @@ const states = [
   'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ]
 
+const permissionTypes = [
+  { value: 'depth_chart_view', label: 'View Depth Charts', description: 'Can view depth charts and player assignments' },
+  { value: 'depth_chart_create', label: 'Create Depth Charts', description: 'Can create new depth charts' },
+  { value: 'depth_chart_edit', label: 'Edit Depth Charts', description: 'Can edit existing depth charts' },
+  { value: 'depth_chart_delete', label: 'Delete Depth Charts', description: 'Can delete depth charts' },
+  { value: 'depth_chart_manage_positions', label: 'Manage Positions', description: 'Can configure position settings' },
+  { value: 'player_assign', label: 'Assign Players', description: 'Can assign players to positions' },
+  { value: 'player_unassign', label: 'Unassign Players', description: 'Can remove players from positions' },
+  { value: 'schedule_view', label: 'View Schedule', description: 'Can view team schedule' },
+  { value: 'schedule_create', label: 'Create Schedule', description: 'Can create new schedule items' },
+  { value: 'schedule_edit', label: 'Edit Schedule', description: 'Can edit schedule items' },
+  { value: 'schedule_delete', label: 'Delete Schedule', description: 'Can delete schedule items' },
+  { value: 'reports_view', label: 'View Reports', description: 'Can view reports and analytics' },
+  { value: 'reports_create', label: 'Create Reports', description: 'Can create new reports' },
+  { value: 'reports_edit', label: 'Edit Reports', description: 'Can edit existing reports' },
+  { value: 'reports_delete', label: 'Delete Reports', description: 'Can delete reports' },
+  { value: 'team_settings', label: 'Team Settings', description: 'Can modify team settings' },
+  { value: 'user_management', label: 'User Management', description: 'Can manage user accounts and permissions' }
+]
+
 export default function TeamSettings() {
+  const { user } = useAuth();
   const [showPassword, setShowPassword] = useState(false)
   const [showLogoUpload, setShowLogoUpload] = useState(false)
   const [logoFile, setLogoFile] = useState(null)
+  const [activeTab, setActiveTab] = useState('general')
+  const [showAddPermissionModal, setShowAddPermissionModal] = useState(false)
+  const [editingPermission, setEditingPermission] = useState(null)
+  const [newPermission, setNewPermission] = useState({
+    user_id: '',
+    permission_type: '',
+    expires_at: '',
+    notes: ''
+  })
   const queryClient = useQueryClient()
 
   // Fetch team data
   const { data: teamData, isLoading, error, refetch } = useQuery(
-    ['team-settings'],
-    () => api.get('/teams/me'),
+    ['team-settings', user?.team_id],
+    () => api.get(`/teams/${user.team_id}`),
     {
-      staleTime: 300000 // 5 minutes
+      staleTime: 300000, // 5 minutes
+      enabled: !!user?.team_id
+    }
+  )
+
+  // Fetch team users
+  const { data: teamUsers } = useQuery(
+    ['team-users'],
+    () => api.get('/teams/users'),
+    {
+      staleTime: 300000
+    }
+  )
+
+  // Fetch user permissions
+  const { data: userPermissions } = useQuery(
+    ['user-permissions'],
+    () => api.get('/teams/permissions'),
+    {
+      staleTime: 300000
     }
   )
 
   // Update team settings mutation
   const updateTeam = useMutation(
-    (data) => api.put('/teams/me', data),
+    (data) => api.put(`/teams/${user.team_id}`, data),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['team-settings'])
+        queryClient.invalidateQueries(['team-settings', user?.team_id])
         toast.success('Team settings updated successfully')
       },
       onError: () => {
@@ -73,6 +132,56 @@ export default function TeamSettings() {
       },
       onError: () => {
         toast.error('Failed to update password')
+      }
+    }
+  )
+
+  // Add permission mutation
+  const addPermission = useMutation(
+    (data) => api.post('/teams/permissions', data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['user-permissions'])
+        setShowAddPermissionModal(false)
+        setNewPermission({
+          user_id: '',
+          permission_type: '',
+          expires_at: '',
+          notes: ''
+        })
+        toast.success('Permission added successfully')
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to add permission')
+      }
+    }
+  )
+
+  // Update permission mutation
+  const updatePermission = useMutation(
+    ({ permissionId, data }) => api.put(`/teams/permissions/${permissionId}`, data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['user-permissions'])
+        setEditingPermission(null)
+        toast.success('Permission updated successfully')
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to update permission')
+      }
+    }
+  )
+
+  // Delete permission mutation
+  const deletePermission = useMutation(
+    (permissionId) => api.delete(`/teams/permissions/${permissionId}`),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['user-permissions'])
+        toast.success('Permission removed successfully')
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to remove permission')
       }
     }
   )
@@ -101,532 +210,589 @@ export default function TeamSettings() {
       new_password: formData.get('new_password'),
       confirm_password: formData.get('confirm_password')
     }
-    
-    if (data.new_password !== data.confirm_password) {
-      toast.error('New passwords do not match')
-      return
-    }
-    
     updatePassword.mutate(data)
   }
 
-  const handleLogoUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('Logo file size must be less than 5MB')
-        return
-      }
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file')
-        return
-      }
-      setLogoFile(file)
-    }
+  const handleAddPermission = () => {
+    addPermission.mutate(newPermission)
   }
 
-  const handleLogoSave = () => {
-    if (!logoFile) {
-      toast.error('Please select a logo file')
-      return
+  const handleUpdatePermission = () => {
+    updatePermission.mutate({
+      permissionId: editingPermission.id,
+      data: editingPermission
+    })
+  }
+
+  const handleDeletePermission = (permissionId) => {
+    if (window.confirm('Are you sure you want to remove this permission?')) {
+      deletePermission.mutate(permissionId)
     }
-    
-    // In a real app, you would upload to a file service
-    // For now, we'll just simulate success
-    toast.success('Logo uploaded successfully')
-    setLogoFile(null)
-    setShowLogoUpload(false)
   }
 
   const team = teamData?.data
-  const currentDivision = divisions.find(d => d.value === team?.division)
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team Settings</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage your team's configuration and branding settings.
-          </p>
-        </div>
-        <div className="card p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading team settings...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team Settings</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage your team's configuration and branding settings.
-          </p>
-        </div>
-        <div className="card p-8">
-          <div className="text-center">
-            <p className="text-red-600">Error loading team settings. Please try again.</p>
-            <button onClick={() => refetch()} className="btn btn-primary mt-2">
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const users = teamUsers?.data || []
+  const permissions = userPermissions?.data || []
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Team Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Manage your team's configuration and branding settings.
-        </p>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Team Settings</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Manage your team configuration and user permissions.
+            </p>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Team Information */}
-        <div className="card">
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <Building className="h-6 w-6 text-gray-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Team Information</h2>
-            </div>
+        {/* Tabs */}
+        <div className="tabs tabs-boxed">
+          <button
+            className={`tab ${activeTab === 'general' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('general')}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            General
+          </button>
+          <button
+            className={`tab ${activeTab === 'permissions' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('permissions')}
+          >
+            <Shield className="h-4 w-4 mr-2" />
+            Permissions
+          </button>
+        </div>
 
-            <form onSubmit={handleTeamUpdate}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Team Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    className="input"
-                    defaultValue={team?.name}
-                    placeholder="e.g. State University Baseball"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
-                  <input
-                    type="text"
-                    name="program_name"
-                    className="input"
-                    defaultValue={team?.program_name}
-                    placeholder="e.g. State Baseball Program"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Conference</label>
-                    <input
-                      type="text"
-                      name="conference"
-                      className="input"
-                      defaultValue={team?.conference}
-                      placeholder="e.g. Big 12 Conference"
-                    />
+        {/* General Settings */}
+        {activeTab === 'general' && (
+          <div className="space-y-6">
+            {/* Team Information */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Team Information</h2>
+                <p className="card-description">Update your team's basic information</p>
+              </div>
+              <div className="card-content">
+                <form onSubmit={handleTeamUpdate} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Team Name *</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        className="input input-bordered w-full"
+                        defaultValue={team?.name}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Program Name</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="program_name"
+                        className="input input-bordered w-full"
+                        defaultValue={team?.program_name}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Division</label>
-                    <select name="division" className="input">
-                      <option value="">Select Division</option>
-                      {divisions.map(division => (
-                        <option 
-                          key={division.value} 
-                          value={division.value}
-                          selected={team?.division === division.value}
-                        >
-                          {division.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Conference</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="conference"
+                        className="input input-bordered w-full"
+                        defaultValue={team?.conference}
+                      />
+                    </div>
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Division</span>
+                      </label>
+                      <select name="division" className="select select-bordered w-full">
+                        <option value="">Select Division</option>
+                        {divisions.map(division => (
+                          <option key={division.value} value={division.value} selected={team?.division === division.value}>
+                            {division.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">
+                        <span className="label-text">State</span>
+                      </label>
+                      <select name="state" className="select select-bordered w-full">
+                        <option value="">Select State</option>
+                        {states.map(state => (
+                          <option key={state} value={state} selected={team?.state === state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <label className="label">
+                      <span className="label-text">City</span>
+                    </label>
                     <input
                       type="text"
                       name="city"
-                      className="input"
+                      className="input input-bordered w-full"
                       defaultValue={team?.city}
-                      placeholder="e.g. Austin"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                    <select name="state" className="input">
-                      <option value="">Select State</option>
-                      {states.map(state => (
-                        <option 
-                          key={state} 
-                          value={state}
-                          selected={team?.state === state}
-                        >
-                          {state}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={updateTeam.isLoading}
-                  className="btn btn-primary w-full"
-                >
-                  {updateTeam.isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Update Team Info
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Branding & Colors */}
-        <div className="card">
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <Palette className="h-6 w-6 text-gray-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Branding & Colors</h2>
-            </div>
-
-            <form onSubmit={handleTeamUpdate}>
-              <div className="space-y-4">
-                {/* Current Logo */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Team Logo</label>
-                  <div className="flex items-center space-x-4">
-                    {team?.school_logo_url ? (
-                      <img
-                        src={team.school_logo_url}
-                        alt="Team Logo"
-                        className="h-16 w-16 object-contain border border-gray-200 rounded"
-                      />
-                    ) : (
-                      <div className="h-16 w-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No Logo</span>
-                      </div>
-                    )}
-                    <div className="flex space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowLogoUpload(true)}
-                        className="btn btn-outline btn-sm"
-                      >
-                        <Upload className="h-4 w-4 mr-1" />
-                        Upload
-                      </button>
-                      {team?.school_logo_url && (
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Logo Upload Modal */}
-                {showLogoUpload && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Team Logo</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Image</label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoUpload}
-                            className="input"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
-                          </p>
-                        </div>
-                        <div className="flex justify-end space-x-3">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowLogoUpload(false)
-                              setLogoFile(null)
-                            }}
-                            className="btn btn-secondary"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleLogoSave}
-                            className="btn btn-primary"
-                          >
-                            Upload Logo
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Primary Color</label>
-                    <div className="flex items-center space-x-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Primary Color</span>
+                      </label>
                       <input
                         type="color"
                         name="primary_color"
-                        className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                        className="input input-bordered w-full h-12"
                         defaultValue={team?.primary_color || '#3B82F6'}
-                      />
-                      <input
-                        type="text"
-                        name="primary_color"
-                        className="input flex-1"
-                        defaultValue={team?.primary_color || '#3B82F6'}
-                        placeholder="#3B82F6"
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Secondary Color</label>
-                    <div className="flex items-center space-x-2">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Secondary Color</span>
+                      </label>
                       <input
                         type="color"
                         name="secondary_color"
-                        className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                        className="input input-bordered w-full h-12"
                         defaultValue={team?.secondary_color || '#EF4444'}
-                      />
-                      <input
-                        type="text"
-                        name="secondary_color"
-                        className="input flex-1"
-                        defaultValue={team?.secondary_color || '#EF4444'}
-                        placeholder="#EF4444"
                       />
                     </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={updateTeam.isLoading}
-                  className="btn btn-primary w-full"
-                >
-                  {updateTeam.isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Update Branding
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Team Members */}
-        <div className="card">
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <Users className="h-6 w-6 text-gray-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
-            </div>
-
-            <div className="space-y-3">
-              {team?.Users?.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {user.first_name} {user.last_name}
-                    </p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    user.role === 'head_coach' 
-                      ? 'bg-purple-100 text-purple-800' 
-                      : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    {user.role === 'head_coach' ? 'Head Coach' : 'Assistant Coach'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Account Security */}
-        <div className="card">
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <Shield className="h-6 w-6 text-gray-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Account Security</h2>
-            </div>
-
-            <form onSubmit={handlePasswordUpdate}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="current_password"
-                      required
-                      className="input pr-10"
-                      placeholder="Enter current password"
-                    />
+                  <div className="flex justify-end">
                     <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={updateTeam.isLoading}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {updateTeam.isLoading ? (
+                        <>
+                          <div className="loading loading-spinner loading-sm"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
                     </button>
                   </div>
-                </div>
+                </form>
+              </div>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="new_password"
-                    required
-                    className="input"
-                    placeholder="Enter new password"
-                    minLength="8"
-                  />
-                </div>
+            {/* Password Change */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Change Password</h2>
+                <p className="card-description">Update your account password</p>
+              </div>
+              <div className="card-content">
+                <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Current Password</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="current_password"
+                        className="input input-bordered w-full pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="confirm_password"
-                    required
-                    className="input"
-                    placeholder="Confirm new password"
-                    minLength="8"
-                  />
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">New Password</span>
+                      </label>
+                      <input
+                        type="password"
+                        name="new_password"
+                        className="input input-bordered w-full"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Confirm New Password</span>
+                      </label>
+                      <input
+                        type="password"
+                        name="confirm_password"
+                        className="input input-bordered w-full"
+                        required
+                      />
+                    </div>
+                  </div>
 
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={updatePassword.isLoading}
+                    >
+                      {updatePassword.isLoading ? (
+                        <>
+                          <div className="loading loading-spinner loading-sm"></div>
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Update Password
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Permissions Management */}
+        {activeTab === 'permissions' && (
+          <div className="space-y-6">
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">User Permissions</h2>
+                <p className="card-description">Manage access permissions for team members</p>
                 <button
-                  type="submit"
-                  disabled={updatePassword.isLoading}
-                  className="btn btn-primary w-full"
+                  onClick={() => setShowAddPermissionModal(true)}
+                  className="btn btn-primary btn-sm"
                 >
-                  {updatePassword.isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Update Password
-                    </>
-                  )}
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Permission
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      </div>
+              <div className="card-content">
+                <div className="overflow-x-auto">
+                  <table className="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Permission</th>
+                        <th>Status</th>
+                        <th>Expires</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {permissions.map((permission) => {
+                        const user = users.find(u => u.id === permission.user_id)
+                        const permissionType = permissionTypes.find(p => p.value === permission.permission_type)
+                        const isExpired = permission.expires_at && new Date() > new Date(permission.expires_at)
+                        
+                        return (
+                          <tr key={permission.id}>
+                            <td>
+                              <div className="flex items-center space-x-3">
+                                <div className="avatar placeholder">
+                                  <div className="bg-neutral text-neutral-content rounded-full w-8">
+                                    <span className="text-xs">
+                                      {user ? `${user.first_name[0]}${user.last_name[0]}` : '??'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="font-bold">
+                                    {user ? `${user.first_name} ${user.last_name}` : 'Unknown User'}
+                                  </div>
+                                  <div className="text-sm opacity-50">{user?.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div>
+                                <div className="font-medium">{permissionType?.label || permission.permission_type}</div>
+                                <div className="text-sm text-gray-500">{permissionType?.description}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="flex items-center gap-2">
+                                {permission.is_granted ? (
+                                  <span className="badge badge-success gap-1">
+                                    <CheckCircle className="h-3 w-3" />
+                                    Granted
+                                  </span>
+                                ) : (
+                                  <span className="badge badge-error gap-1">
+                                    <X className="h-3 w-3" />
+                                    Denied
+                                  </span>
+                                )}
+                                {isExpired && (
+                                  <span className="badge badge-warning gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    Expired
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              {permission.expires_at ? (
+                                <div className="text-sm">
+                                  <div>{new Date(permission.expires_at).toLocaleDateString()}</div>
+                                  <div className="text-gray-500">
+                                    {new Date(permission.expires_at).toLocaleTimeString()}
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-sm text-gray-500">Never</span>
+                              )}
+                            </td>
+                            <td>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => setEditingPermission(permission)}
+                                  className="btn btn-ghost btn-xs"
+                                  title="Edit Permission"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeletePermission(permission.id)}
+                                  className="btn btn-ghost btn-xs text-red-600"
+                                  title="Remove Permission"
+                                  disabled={deletePermission.isLoading}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
 
-      {/* Current Settings Summary */}
-      <div className="card">
-        <div className="p-6">
-          <div className="flex items-center mb-6">
-            <Award className="h-6 w-6 text-gray-600 mr-3" />
-            <h2 className="text-lg font-semibold text-gray-900">Current Settings</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Team Information</h3>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">Name:</span> {team?.name || 'Not set'}
-                </p>
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">Program:</span> {team?.program_name || 'Not set'}
-                </p>
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">Conference:</span> {team?.conference || 'Not set'}
-                </p>
-                {currentDivision && (
-                  <span className={`inline-block text-xs px-2 py-1 rounded-full font-medium ${currentDivision.color}`}>
-                    {currentDivision.label}
-                  </span>
+                {permissions.length === 0 && (
+                  <div className="text-center py-8">
+                    <Shield className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">No permissions configured</p>
+                    <button
+                      onClick={() => setShowAddPermissionModal(true)}
+                      className="btn btn-outline btn-sm mt-2"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add First Permission
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
+          </div>
+        )}
+      </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Location</h3>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">City:</span> {team?.city || 'Not set'}
-                </p>
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">State:</span> {team?.state || 'Not set'}
-                </p>
+      {/* Add Permission Modal */}
+      {showAddPermissionModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Add User Permission</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="label">
+                  <span className="label-text">User *</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={newPermission.user_id}
+                  onChange={(e) => setNewPermission(prev => ({ ...prev, user_id: e.target.value }))}
+                >
+                  <option value="">Select a user...</option>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.first_name} {user.last_name} ({user.email})
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Branding</h3>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">Logo:</span> {team?.school_logo_url ? 'Uploaded' : 'Not uploaded'}
-                </p>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-gray-900">Colors:</span>
-                  {team?.primary_color && (
-                    <div
-                      className="w-4 h-4 rounded border border-gray-300"
-                      style={{ backgroundColor: team.primary_color }}
-                    />
-                  )}
-                  {team?.secondary_color && (
-                    <div
-                      className="w-4 h-4 rounded border border-gray-300"
-                      style={{ backgroundColor: team.secondary_color }}
-                    />
-                  )}
+              <div>
+                <label className="label">
+                  <span className="label-text">Permission Type *</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={newPermission.permission_type}
+                  onChange={(e) => setNewPermission(prev => ({ ...prev, permission_type: e.target.value }))}
+                >
+                  <option value="">Select permission...</option>
+                  {permissionTypes.map((permission) => (
+                    <option key={permission.value} value={permission.value}>
+                      {permission.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text">Expires At</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  className="input input-bordered w-full"
+                  value={newPermission.expires_at}
+                  onChange={(e) => setNewPermission(prev => ({ ...prev, expires_at: e.target.value }))}
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  Leave empty for permanent permission
                 </div>
               </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text">Notes</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={newPermission.notes}
+                  onChange={(e) => setNewPermission(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Optional notes about this permission"
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="modal-action">
+              <button
+                className="btn"
+                onClick={() => setShowAddPermissionModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleAddPermission}
+                disabled={!newPermission.user_id || !newPermission.permission_type || addPermission.isLoading}
+              >
+                {addPermission.isLoading ? 'Adding...' : 'Add Permission'}
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Edit Permission Modal */}
+      {editingPermission && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Edit Permission</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="label">
+                  <span className="label-text">User</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={users.find(u => u.id === editingPermission.user_id)?.email || 'Unknown User'}
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text">Permission Type</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={permissionTypes.find(p => p.value === editingPermission.permission_type)?.label || editingPermission.permission_type}
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text">Status</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={editingPermission.is_granted ? 'true' : 'false'}
+                  onChange={(e) => setEditingPermission(prev => ({ ...prev, is_granted: e.target.value === 'true' }))}
+                >
+                  <option value="true">Granted</option>
+                  <option value="false">Denied</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text">Expires At</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  className="input input-bordered w-full"
+                  value={editingPermission.expires_at ? editingPermission.expires_at.slice(0, 16) : ''}
+                  onChange={(e) => setEditingPermission(prev => ({ ...prev, expires_at: e.target.value }))}
+                />
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text">Notes</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={editingPermission.notes || ''}
+                  onChange={(e) => setEditingPermission(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Optional notes about this permission"
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="modal-action">
+              <button
+                className="btn"
+                onClick={() => setEditingPermission(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleUpdatePermission}
+                disabled={updatePermission.isLoading}
+              >
+                {updatePermission.isLoading ? 'Updating...' : 'Update Permission'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

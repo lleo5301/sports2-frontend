@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { 
   FileText, 
@@ -101,7 +101,7 @@ export default function ScoutingReports() {
 
   // Delete scouting report mutation
   const deleteReport = useMutation(
-    (id) => api.delete(`/reports/scouting/${id}`),
+    (id) => api.delete(`/reports/scouting/byId/${id}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['scouting-reports'])

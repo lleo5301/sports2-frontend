@@ -9,7 +9,7 @@ export const playersService = {
 
   // Get a single player by ID
   getPlayer: async (id) => {
-    const response = await api.get(`/players/${id}`)
+    const response = await api.get(`/players/byId/${id}`)
     return response.data
   },
 
@@ -21,19 +21,19 @@ export const playersService = {
 
   // Update a player
   updatePlayer: async (id, playerData) => {
-    const response = await api.put(`/players/${id}`, playerData)
+    const response = await api.put(`/players/byId/${id}`, playerData)
     return response.data
   },
 
   // Delete a player
   deletePlayer: async (id) => {
-    const response = await api.delete(`/players/${id}`)
+    const response = await api.delete(`/players/byId/${id}`)
     return response.data
   },
 
   // Get player statistics
   getPlayerStats: async (id) => {
-    const response = await api.get(`/players/${id}/stats`)
+    const response = await api.get(`/players/byId/${id}/stats`)
     return response.data
   }
 } 

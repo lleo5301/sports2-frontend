@@ -1,65 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
 import { teamsService } from '../services/teams';
 import { reportsService } from '../services/reports';
+import { useAuth } from '../contexts/AuthContext';
+import TeamStatistics from '../components/TeamStatistics';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    totalPlayers: 0,
-    activePlayers: 0,
-    totalReports: 0,
-    recentReports: 0
+  const { user } = useAuth();
+
+  // Fetch players
+  const { data: playersResponse, isLoading: playersLoading, error: playersError } = useQuery({
+    queryKey: ['players', { limit: 5 }],
+    queryFn: () => playersService.getPlayers({ limit: 5 }),
   });
-  const [recentPlayers, setRecentPlayers] = useState([]);
-  const [recentReports, setRecentReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch data in parallel
-        const [playersResponse, reportsResponse, teamResponse] = await Promise.all([
-          playersService.getPlayers({ limit: 5 }),
-          reportsService.getScoutingReports({ limit: 5 }),
-          teamsService.getMyTeam()
-        ]);
+  // Fetch scouting reports
+  const { data: reportsResponse, isLoading: reportsLoading, error: reportsError } = useQuery({
+    queryKey: ['scouting-reports', { limit: 5 }],
+    queryFn: () => reportsService.getScoutingReports({ limit: 5 }),
+  });
 
-        // Calculate stats
-        const totalPlayers = playersResponse?.pagination?.total || 0;
-        const activePlayers = playersResponse?.data?.filter(p => p.status === 'active').length || 0;
-        const totalReports = reportsResponse?.pagination?.total || 0;
-        const recentReports = reportsResponse?.data?.length || 0;
+  // Fetch user's team if they have a team_id
+  const { data: teamResponse, isLoading: teamLoading, error: teamError } = useQuery({
+    queryKey: ['team', user?.team_id],
+    queryFn: () => teamsService.getTeam(user.team_id),
+    enabled: !!user?.team_id,
+  });
 
-        setStats({
-          totalPlayers,
-          activePlayers,
-          totalReports,
-          recentReports
-        });
+  // Calculate stats
+  const totalPlayers = playersResponse?.pagination?.total || 0;
+  const activePlayers = playersResponse?.data?.filter(p => p.status === 'active').length || 0;
+  const totalReports = reportsResponse?.pagination?.total || 0;
+  const recentReports = reportsResponse?.data?.length || 0;
 
-        setRecentPlayers(playersResponse?.data || []);
-        setRecentReports(reportsResponse?.data || []);
-        
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        console.error('Error details:', {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status
-        });
-        setError('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const stats = {
+    totalPlayers,
+    activePlayers,
+    totalReports,
+    recentReports
+  };
 
-    fetchDashboardData();
-  }, []);
+  const recentPlayers = playersResponse?.data || [];
+  const recentReportsData = reportsResponse?.data || [];
+  const loading = playersLoading || reportsLoading || teamLoading;
+  const error = playersError || reportsError || teamError;
 
   // Quick action handlers
   const handleAddPlayer = () => {
@@ -106,7 +93,7 @@ const Dashboard = () => {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{error}</span>
+            <span>{error.message || 'Failed to load dashboard data'}</span>
           </div>
         </div>
       </div>
@@ -199,9 +186,9 @@ const Dashboard = () => {
               <p className="card-description">Latest scouting reports</p>
             </div>
             <div className="card-content">
-              {recentReports.length > 0 ? (
+              {recentReportsData.length > 0 ? (
                 <div className="space-y-4">
-                  {recentReports.map((report) => (
+                  {recentReportsData.map((report) => (
                     <div key={report.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
                       <div>
                         <h3 className="font-medium">
@@ -261,6 +248,11 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Team Statistics */}
+        <div className="mt-8">
+          <TeamStatistics />
         </div>
       </div>
     </div>

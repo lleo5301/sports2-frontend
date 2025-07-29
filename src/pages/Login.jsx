@@ -81,7 +81,7 @@ export default function Login() {
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-base-content/70">
-            Collegiate Baseball Scouting Platform
+            The Program
           </p>
         </div>
         

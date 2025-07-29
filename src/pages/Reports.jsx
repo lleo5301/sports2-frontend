@@ -1,15 +1,78 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { reportsService, pdfUtils } from '../services/reports';
+import { toast } from 'react-hot-toast';
+import { 
+  Download, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  Plus,
+  BarChart3,
+  FileText,
+  Users,
+  Target,
+  Calendar
+} from 'lucide-react';
 
 const Reports = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [selectedReport, setSelectedReport] = useState(null);
-  const reports = [
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(null);
+
+  // Fetch reports
+  const { data: reportsData, isLoading } = useQuery({
+    queryKey: ['reports'],
+    queryFn: reportsService.getAllReports,
+    onError: (error) => {
+      console.error('Error fetching reports:', error);
+    }
+  });
+
+  const reports = reportsData?.data || [
     { id: 1, title: 'Monthly Player Performance', type: 'Performance', date: '2024-01-15', author: 'John Doe', status: 'Published' },
     { id: 2, title: 'Team Statistics Summary', type: 'Statistics', date: '2024-01-14', author: 'Jane Smith', status: 'Draft' },
     { id: 3, title: 'Scouting Analysis Q4', type: 'Scouting', date: '2024-01-13', author: 'Mike Johnson', status: 'Published' },
     { id: 4, title: 'Recruitment Pipeline', type: 'Recruitment', date: '2024-01-12', author: 'John Doe', status: 'In Review' },
   ];
+
+  // Generate report mutation
+  const generateReportMutation = useMutation({
+    mutationFn: async ({ type, filters }) => {
+      let data;
+      switch (type) {
+        case 'player-performance':
+          data = await reportsService.getPlayerPerformance(filters);
+          break;
+        case 'team-statistics':
+          data = await reportsService.getTeamStatistics(filters);
+          break;
+        case 'scouting-analysis':
+          data = await reportsService.getScoutingAnalysis(filters);
+          break;
+        case 'recruitment-pipeline':
+          data = await reportsService.getRecruitmentPipeline(filters);
+          break;
+        default:
+          throw new Error(`Unknown report type: ${type}`);
+      }
+      // Return the data directly, not data.data
+      return { type, data: data };
+    },
+    onSuccess: ({ type, data }) => {
+      const filename = `${type.replace('-', '_')}_${new Date().toISOString().split('T')[0]}`;
+      pdfUtils.generateAndDownloadReport(type, data, filename);
+      setGeneratingReport(null);
+      toast.success('Report generated and downloaded successfully!');
+    },
+    onError: (error) => {
+      setGeneratingReport(null);
+      toast.error('Failed to generate report');
+    }
+  });
 
   return (
     <div className="p-8">
@@ -28,40 +91,54 @@ const Reports = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <button 
             className="btn btn-primary"
-            onClick={() => navigate('/players')}
+            onClick={() => {
+              setGeneratingReport('player-performance');
+              generateReportMutation.mutate({ type: 'player-performance', filters: {} });
+            }}
+            disabled={generatingReport === 'player-performance'}
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            {generatingReport === 'player-performance' ? (
+              <div className="loading loading-spinner loading-sm mr-2"></div>
+            ) : (
+              <Users className="w-5 h-5 mr-2" />
+            )}
             Performance Report
           </button>
           <button 
             className="btn btn-secondary"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => {
+              setGeneratingReport('team-statistics');
+              generateReportMutation.mutate({ type: 'team-statistics', filters: {} });
+            }}
+            disabled={generatingReport === 'team-statistics'}
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+            {generatingReport === 'team-statistics' ? (
+              <div className="loading loading-spinner loading-sm mr-2"></div>
+            ) : (
+              <BarChart3 className="w-5 h-5 mr-2" />
+            )}
             Statistics Report
           </button>
           <button 
             className="btn btn-accent"
-            onClick={() => navigate('/scouting/create')}
+            onClick={() => {
+              setGeneratingReport('scouting-analysis');
+              generateReportMutation.mutate({ type: 'scouting-analysis', filters: {} });
+            }}
+            disabled={generatingReport === 'scouting-analysis'}
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            {generatingReport === 'scouting-analysis' ? (
+              <div className="loading loading-spinner loading-sm mr-2"></div>
+            ) : (
+              <Target className="w-5 h-5 mr-2" />
+            )}
             Scouting Report
           </button>
           <button 
             className="btn btn-outline"
-            onClick={() => {
-              alert('Custom report functionality coming soon!');
-            }}
+            onClick={() => navigate('/reports/create-custom')}
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+            <Plus className="w-5 h-5 mr-2" />
             Custom Report
           </button>
         </div>
@@ -119,13 +196,20 @@ const Reports = () => {
                           <button 
                             className="btn btn-sm btn-ghost"
                             onClick={() => {
-                              alert(`Downloading report: ${report.title}`);
+                              setGeneratingReport(report.type.toLowerCase());
+                              generateReportMutation.mutate({ 
+                                type: report.type.toLowerCase().replace(' ', '-'), 
+                                filters: {} 
+                              });
                             }}
                             title="Download Report"
+                            disabled={generatingReport === report.type.toLowerCase()}
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                            {generatingReport === report.type.toLowerCase() ? (
+                              <div className="loading loading-spinner loading-xs"></div>
+                            ) : (
+                              <Download className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                       </td>
@@ -171,11 +255,26 @@ const Reports = () => {
               <button 
                 className="btn btn-primary"
                 onClick={() => {
-                  alert(`Downloading ${selectedReport.title}`);
+                  setGeneratingReport(selectedReport.type.toLowerCase());
+                  generateReportMutation.mutate({ 
+                    type: selectedReport.type.toLowerCase().replace(' ', '-'), 
+                    filters: {} 
+                  });
                   setSelectedReport(null);
                 }}
+                disabled={generatingReport === selectedReport.type.toLowerCase()}
               >
-                Download
+                {generatingReport === selectedReport.type.toLowerCase() ? (
+                  <>
+                    <div className="loading loading-spinner loading-sm mr-2"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
               </button>
               <button 
                 className="btn btn-outline"

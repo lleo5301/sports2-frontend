@@ -1,36 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { teamsService } from '../services/teams';
+import { useAuth } from '../contexts/AuthContext';
 
 const Teams = () => {
-  const [teams, setTeams] = useState([]);
-  const [myTeam, setMyTeam] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch all teams and current user's team in parallel
-        const [allTeamsResponse, myTeamResponse] = await Promise.all([
-          teamsService.getAllTeams(),
-          teamsService.getMyTeam().catch(() => null) // Don't fail if user doesn't have a team
-        ]);
+  // Fetch all teams
+  const { data: teamsResponse, isLoading: teamsLoading, error: teamsError } = useQuery({
+    queryKey: ['teams'],
+    queryFn: teamsService.getAllTeams,
+  });
 
-        setTeams(allTeamsResponse.data || []);
-        setMyTeam(myTeamResponse?.data || null);
-        
-      } catch (err) {
-        console.error('Error fetching teams:', err);
-        setError('Failed to load teams');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch user's team if they have a team_id
+  const { data: myTeamResponse, isLoading: myTeamLoading } = useQuery({
+    queryKey: ['team', user?.team_id],
+    queryFn: () => teamsService.getTeam(user.team_id),
+    enabled: !!user?.team_id,
+  });
 
-    fetchTeams();
-  }, []);
+  const teams = teamsResponse?.data || [];
+  const myTeam = myTeamResponse?.data || null;
+  const loading = teamsLoading || myTeamLoading;
+  const error = teamsError;
 
   if (loading) {
     return (
@@ -52,7 +46,7 @@ const Teams = () => {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{error}</span>
+            <span>{error.message || 'Failed to load teams'}</span>
           </div>
         </div>
       </div>
@@ -89,8 +83,18 @@ const Teams = () => {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="btn btn-sm btn-primary">View Details</button>
-                    <button className="btn btn-sm btn-outline">Edit Team</button>
+                    <button 
+                      onClick={() => navigate(`/teams/${myTeam.id}`)}
+                      className="btn btn-sm btn-primary"
+                    >
+                      View Details
+                    </button>
+                    <button 
+                      onClick={() => navigate(`/teams/${myTeam.id}`)}
+                      className="btn btn-sm btn-outline"
+                    >
+                      Edit Team
+                    </button>
                   </div>
                 </div>
               </div>
@@ -125,9 +129,19 @@ const Teams = () => {
                     </div>
                   </div>
                   <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-sm btn-outline">View</button>
+                    <button 
+                      onClick={() => navigate(`/teams/${team.id}`)}
+                      className="btn btn-sm btn-outline"
+                    >
+                      View
+                    </button>
                     {myTeam?.id === team.id && (
-                      <button className="btn btn-sm btn-primary">Edit</button>
+                      <button 
+                        onClick={() => navigate(`/teams/${team.id}`)}
+                        className="btn btn-sm btn-primary"
+                      >
+                        Edit
+                      </button>
                     )}
                   </div>
                 </div>
@@ -138,7 +152,10 @@ const Teams = () => {
 
         {/* Add Team Button */}
         <div className="mt-8 text-center">
-          <button className="btn btn-primary">
+          <button 
+            onClick={() => navigate('/teams/create')}
+            className="btn btn-primary"
+          >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>

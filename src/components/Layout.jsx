@@ -1,6 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { 
+  Home, 
+  Users, 
+  Building2, 
+  Target, 
+  BarChart3, 
+  Calendar, 
+  FileText, 
+  Settings,
+  Menu,
+  ChevronRight,
+  ChevronLeft,
+  Moon,
+  Sun,
+  User
+} from 'lucide-react';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -8,14 +24,14 @@ const Layout = ({ children }) => {
   const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: '🏠' },
-    { path: '/players', label: 'Players', icon: '👥' },
-    { path: '/teams', label: 'Teams', icon: '🏟️' },
-    { path: '/scouting', label: 'Scouting', icon: '📊' },
-    { path: '/depth-chart', label: 'Depth Chart', icon: '📈' },
-    { path: '/team-schedule', label: 'Team Schedule', icon: '📅' },
-    { path: '/reports', label: 'Reports', icon: '📋' },
-    { path: '/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/', label: 'Dashboard', icon: Home },
+    { path: '/players', label: 'Players', icon: Users },
+    { path: '/teams', label: 'Teams', icon: Building2 },
+    { path: '/scouting', label: 'Scouting', icon: Target },
+    { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
+    { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
+    { path: '/reports', label: 'Reports', icon: FileText },
+    { path: '/settings', label: 'Settings', icon: Settings },
   ];
 
   const toggleTheme = () => {
@@ -33,17 +49,15 @@ const Layout = ({ children }) => {
       
       {/* Page content */}
       <div className="drawer-content flex flex-col">
-        {/* Top navbar */}
-        <div className="w-full navbar bg-base-100 shadow-lg">
+        {/* Fixed Top navbar */}
+        <div className="w-full navbar bg-base-100 shadow-lg fixed top-0 z-50">
           <div className="flex-none lg:hidden">
             <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
+              <Menu className="w-6 h-6" />
             </label>
           </div>
           <div className="flex-1 px-2 mx-2">
-            <Link to="/" className="btn btn-ghost text-xl">⚾ Baseball Scout</Link>
+            {/* Removed the heading since it's in the drawer */}
           </div>
           <div className="flex-none">
             <button 
@@ -52,19 +66,19 @@ const Layout = ({ children }) => {
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
+                <Moon className="w-5 h-5" />
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
+                <Sun className="w-5 h-5" />
               )}
             </button>
             <div className="dropdown dropdown-end">
               <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 rounded-full">
-                  <img alt="User" src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                  <div className="avatar placeholder">
+                    <div className="bg-neutral text-neutral-content rounded-full w-10">
+                      <User className="w-5 h-5" />
+                    </div>
+                  </div>
                 </div>
               </div>
               <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
@@ -76,8 +90,8 @@ const Layout = ({ children }) => {
           </div>
         </div>
         
-        {/* Page content */}
-        <div className="flex-1 p-4">
+        {/* Page content with top padding to account for fixed navbar */}
+        <div className="flex-1 p-4 mt-16">
           {children}
         </div>
       </div>
@@ -90,7 +104,7 @@ const Layout = ({ children }) => {
           <div className="bg-base-100 p-4 border-b border-base-300 flex items-center justify-between">
             {!isDrawerCollapsed && (
               <Link to="/" className="text-2xl font-bold">
-                ⚾ Baseball Scout
+                The Program
               </Link>
             )}
             <button
@@ -99,31 +113,30 @@ const Layout = ({ children }) => {
               title={isDrawerCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isDrawerCollapsed ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg>
+                <ChevronRight className="w-4 h-4" />
               ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                </svg>
+                <ChevronLeft className="w-4 h-4" />
               )}
             </button>
           </div>
           
           {/* Navigation menu */}
           <ul className="menu p-4 min-h-full bg-base-200 text-base-content">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <Link 
-                  to={item.path}
-                  className={`${location.pathname === item.path ? 'active' : ''} ${isDrawerCollapsed ? 'justify-center' : ''}`}
-                  title={isDrawerCollapsed ? item.label : ''}
-                >
-                  <span className="text-lg">{item.icon}</span>
-                  {!isDrawerCollapsed && item.label}
-                </Link>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <li key={item.path}>
+                  <Link 
+                    to={item.path}
+                    className={`${location.pathname === item.path ? 'active' : ''} ${isDrawerCollapsed ? 'justify-center' : ''}`}
+                    title={isDrawerCollapsed ? item.label : ''}
+                  >
+                    <IconComponent className="w-5 h-5" />
+                    {!isDrawerCollapsed && item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </aside>
       </div>

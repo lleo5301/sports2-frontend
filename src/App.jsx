@@ -15,9 +15,12 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import PlayerDetail from './pages/PlayerDetail';
 import TeamDetail from './pages/TeamDetail';
+import CreateTeam from './pages/CreateTeam';
 import ScoutingReport from './pages/ScoutingReport';
 import CreatePlayer from './pages/CreatePlayer';
 import ScoutingReports from './pages/ScoutingReports';
+import CreateScoutingReport from './pages/CreateScoutingReport';
+import CreateCustomReport from './pages/CreateCustomReport';
 import DepthChart from './pages/DepthChart';
 import TeamSchedule from './pages/TeamSchedule';
 import OAuthCallback from './pages/OAuthCallback';
@@ -82,6 +85,13 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+        <Route path="/teams/create" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreateTeam />
+            </Layout>
+          </ProtectedRoute>
+        } />
         <Route path="/scouting" element={
           <ProtectedRoute>
             <Layout>
@@ -99,7 +109,7 @@ function App() {
         <Route path="/scouting/create" element={
           <ProtectedRoute>
             <Layout>
-              <ScoutingReports />
+              <CreateScoutingReport />
             </Layout>
           </ProtectedRoute>
         } />
@@ -121,6 +131,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Reports />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/create-custom" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreateCustomReport />
             </Layout>
           </ProtectedRoute>
         } />

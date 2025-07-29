@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
@@ -12,29 +12,25 @@ export default function PlayerDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // Fetch player details
-  const { data: playerData, isLoading, error } = useQuery(
-    ['player', id],
-    () => api.get(`/players/${id}`),
-    {
-      staleTime: 30000
-    }
-  )
+  const { data: player, isLoading, error } = useQuery({
+    queryKey: ['player', id],
+    queryFn: () => api.get(`/players/byId/${id}`),
+    enabled: !!id
+  })
 
   // Delete player mutation
-  const deletePlayer = useMutation(
-    () => api.delete(`/players/${id}`),
-    {
-      onSuccess: () => {
-        toast.success('Player deleted successfully')
-        navigate('/players')
-      },
-      onError: () => {
-        toast.error('Failed to delete player')
-      }
+  const deletePlayerMutation = useMutation({
+    mutationFn: () => api.delete(`/players/byId/${id}`),
+    onSuccess: () => {
+      toast.success('Player deleted successfully')
+      navigate('/players')
+    },
+    onError: () => {
+      toast.error('Failed to delete player')
     }
-  )
+  })
 
-  const player = playerData?.data?.data
+  const playerData = player?.data?.data
   
   // Debug logging
   console.log('PlayerDetail - id:', id)
@@ -55,7 +51,7 @@ export default function PlayerDetail() {
     )
   }
 
-  if (error || !player) {
+  if (error || !playerData) {
     return (
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
@@ -76,7 +72,7 @@ export default function PlayerDetail() {
   }
 
   const handleDelete = () => {
-    deletePlayer.mutate()
+    deletePlayerMutation.mutate()
   }
 
   return (
@@ -91,10 +87,10 @@ export default function PlayerDetail() {
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-base-content">
-                {player.first_name || 'Unknown'} {player.last_name || 'Player'}
+                {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}
               </h1>
               <p className="text-base-content/70">
-                {player.position || 'N/A'} • {player.school_type || 'N/A'} • {player.status || 'Unknown'}
+                {playerData.position || 'N/A'} • {playerData.school_type || 'N/A'} • {playerData.status || 'Unknown'}
               </p>
             </div>
           </div>
@@ -125,34 +121,34 @@ export default function PlayerDetail() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-base-content/70">Position:</span>
-                  <span className="font-medium">{player.position || 'N/A'}</span>
+                  <span className="font-medium">{playerData.position || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-base-content/70">School Type:</span>
-                  <span className="font-medium">{player.school_type || 'N/A'}</span>
+                  <span className="font-medium">{playerData.school_type || 'N/A'}</span>
                 </div>
-                {player.height && (
+                {playerData.height && (
                   <div className="flex justify-between">
                     <span className="text-base-content/70">Height:</span>
-                    <span className="font-medium">{player.height}</span>
+                    <span className="font-medium">{playerData.height}</span>
                   </div>
                 )}
-                {player.weight && (
+                {playerData.weight && (
                   <div className="flex justify-between">
                     <span className="text-base-content/70">Weight:</span>
-                    <span className="font-medium">{player.weight} lbs</span>
+                    <span className="font-medium">{playerData.weight} lbs</span>
                   </div>
                 )}
-                {player.birth_date && (
+                {playerData.birth_date && (
                   <div className="flex justify-between">
                     <span className="text-base-content/70">Birth Date:</span>
-                    <span className="font-medium">{new Date(player.birth_date).toLocaleDateString()}</span>
+                    <span className="font-medium">{new Date(playerData.birth_date).toLocaleDateString()}</span>
                   </div>
                 )}
-                {player.graduation_year && (
+                {playerData.graduation_year && (
                   <div className="flex justify-between">
                     <span className="text-base-content/70">Grad Year:</span>
-                    <span className="font-medium">{player.graduation_year}</span>
+                    <span className="font-medium">{playerData.graduation_year}</span>
                   </div>
                 )}
               </div>
@@ -164,28 +160,28 @@ export default function PlayerDetail() {
             <div className="card-body">
               <h2 className="card-title">Contact Information</h2>
               <div className="space-y-3">
-                {player.school && (
+                {playerData.school && (
                   <div className="flex items-center">
                     <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
-                    <span className="text-sm">{player.school}</span>
+                    <span className="text-sm">{playerData.school}</span>
                   </div>
                 )}
-                {(player.city || player.state) && (
+                {(playerData.city || playerData.state) && (
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 text-base-content/50 mr-2" />
-                    <span className="text-sm">{[player.city, player.state].filter(Boolean).join(', ')}</span>
+                    <span className="text-sm">{[playerData.city, playerData.state].filter(Boolean).join(', ')}</span>
                   </div>
                 )}
-                {player.phone && (
+                {playerData.phone && (
                   <div className="flex items-center">
                     <Phone className="h-4 w-4 text-base-content/50 mr-2" />
-                    <span className="text-sm">{player.phone}</span>
+                    <span className="text-sm">{playerData.phone}</span>
                   </div>
                 )}
-                {player.email && (
+                {playerData.email && (
                   <div className="flex items-center">
                     <Mail className="h-4 w-4 text-base-content/50 mr-2" />
-                    <span className="text-sm">{player.email}</span>
+                    <span className="text-sm">{playerData.email}</span>
                   </div>
                 )}
               </div>
@@ -200,31 +196,31 @@ export default function PlayerDetail() {
                 <div className="flex justify-between">
                   <span className="text-base-content/70">Status:</span>
                   <div className={`badge ${
-                    !player.status ? 'badge-neutral' :
-                    player.status === 'active' ? 'badge-success' :
-                    player.status === 'inactive' ? 'badge-neutral' :
-                    player.status === 'graduated' ? 'badge-info' :
+                    !playerData.status ? 'badge-neutral' :
+                    playerData.status === 'active' ? 'badge-success' :
+                    playerData.status === 'inactive' ? 'badge-neutral' :
+                    playerData.status === 'graduated' ? 'badge-info' :
                     'badge-warning'
                   }`}>
-                    {player.status ? player.status.charAt(0).toUpperCase() + player.status.slice(1) : 'Unknown'}
+                    {playerData.status ? playerData.status.charAt(0).toUpperCase() + playerData.status.slice(1) : 'Unknown'}
                   </div>
                 </div>
-                {player.has_medical_issues && (
+                {playerData.has_medical_issues && (
                   <div className="flex items-center text-error">
                     <AlertTriangle className="h-4 w-4 mr-2" />
                     <span className="text-sm font-medium">Medical Issues</span>
                   </div>
                 )}
-                {player.injury_details && (
+                {playerData.injury_details && (
                   <div className="text-sm text-base-content/70">
                     <span className="font-medium">Injury Details:</span>
-                    <p className="mt-1">{player.injury_details}</p>
+                    <p className="mt-1">{playerData.injury_details}</p>
                   </div>
                 )}
-                {player.has_comparison && player.comparison_player && (
+                {playerData.has_comparison && playerData.comparison_player && (
                   <div className="text-sm">
                     <span className="text-base-content/70">Comparison:</span>
-                    <p className="font-medium">{player.comparison_player}</p>
+                    <p className="font-medium">{playerData.comparison_player}</p>
                   </div>
                 )}
               </div>
@@ -239,27 +235,27 @@ export default function PlayerDetail() {
             <div className="card-body">
               <h2 className="card-title">Batting Statistics</h2>
               <div className="grid grid-cols-2 gap-4">
-                {player.batting_avg && (
+                {playerData.batting_avg && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{player.batting_avg}</div>
+                    <div className="text-2xl font-bold text-primary">{playerData.batting_avg}</div>
                     <div className="text-sm text-base-content/70">Batting Average</div>
                   </div>
                 )}
-                {player.home_runs && (
+                {playerData.home_runs && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{player.home_runs}</div>
+                    <div className="text-2xl font-bold text-primary">{playerData.home_runs}</div>
                     <div className="text-sm text-base-content/70">Home Runs</div>
                   </div>
                 )}
-                {player.rbi && (
+                {playerData.rbi && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{player.rbi}</div>
+                    <div className="text-2xl font-bold text-primary">{playerData.rbi}</div>
                     <div className="text-sm text-base-content/70">RBI</div>
                   </div>
                 )}
-                {player.stolen_bases && (
+                {playerData.stolen_bases && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{player.stolen_bases}</div>
+                    <div className="text-2xl font-bold text-primary">{playerData.stolen_bases}</div>
                     <div className="text-sm text-base-content/70">Stolen Bases</div>
                   </div>
                 )}
@@ -272,33 +268,33 @@ export default function PlayerDetail() {
             <div className="card-body">
               <h2 className="card-title">Pitching Statistics</h2>
               <div className="grid grid-cols-2 gap-4">
-                {player.era && (
+                {playerData.era && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-success">{player.era}</div>
+                    <div className="text-2xl font-bold text-success">{playerData.era}</div>
                     <div className="text-sm text-base-content/70">ERA</div>
                   </div>
                 )}
-                {player.wins && (
+                {playerData.wins && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-success">{player.wins}</div>
+                    <div className="text-2xl font-bold text-success">{playerData.wins}</div>
                     <div className="text-sm text-base-content/70">Wins</div>
                   </div>
                 )}
-                {player.losses && (
+                {playerData.losses && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-error">{player.losses}</div>
+                    <div className="text-2xl font-bold text-error">{playerData.losses}</div>
                     <div className="text-sm text-base-content/70">Losses</div>
                   </div>
                 )}
-                {player.strikeouts && (
+                {playerData.strikeouts && (
                   <div className="text-center p-3 bg-base-200 rounded-lg">
-                    <div className="text-2xl font-bold text-success">{player.strikeouts}</div>
+                    <div className="text-2xl font-bold text-success">{playerData.strikeouts}</div>
                     <div className="text-sm text-base-content/70">Strikeouts</div>
                   </div>
                 )}
-                {player.innings_pitched && (
+                {playerData.innings_pitched && (
                   <div className="text-center p-3 bg-base-200 rounded-lg col-span-2">
-                    <div className="text-2xl font-bold text-success">{player.innings_pitched}</div>
+                    <div className="text-2xl font-bold text-success">{playerData.innings_pitched}</div>
                     <div className="text-sm text-base-content/70">Innings Pitched</div>
                   </div>
                 )}
@@ -308,12 +304,12 @@ export default function PlayerDetail() {
         </div>
 
         {/* Scouting Reports */}
-        {player.ScoutingReports && player.ScoutingReports.length > 0 && (
+        {playerData.ScoutingReports && playerData.ScoutingReports.length > 0 && (
           <div className="card mb-8">
             <div className="card-body">
               <h2 className="card-title">Recent Scouting Reports</h2>
               <div className="space-y-4">
-                {player.ScoutingReports.map((report) => (
+                {playerData.ScoutingReports.map((report) => (
                   <div key={report.id} className="border border-base-300 rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -346,7 +342,7 @@ export default function PlayerDetail() {
             <div className="modal-box">
               <h3 className="font-bold text-lg">Delete Player</h3>
               <p className="py-4">
-                Are you sure you want to delete {player.first_name || 'Unknown'} {player.last_name || 'Player'}? This action cannot be undone.
+                Are you sure you want to delete {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}? This action cannot be undone.
               </p>
               <div className="modal-action">
                 <button
@@ -358,9 +354,9 @@ export default function PlayerDetail() {
                 <button
                   onClick={handleDelete}
                   className="btn btn-error"
-                  disabled={deletePlayer.isLoading}
+                  disabled={deletePlayerMutation.isLoading}
                 >
-                  {deletePlayer.isLoading ? 'Deleting...' : 'Delete Player'}
+                  {deletePlayerMutation.isLoading ? 'Deleting...' : 'Delete Player'}
                 </button>
               </div>
             </div>
