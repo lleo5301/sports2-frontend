@@ -20,69 +20,73 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
   // Calculate realistic position coordinates based on field geometry
   const getPositionCoords = (width, height) => {
     const centerX = width / 2;
-    const bottomY = height * 0.9;
-    const fieldRadius = Math.min(width, height) * 0.45;
-    const infieldSize = fieldRadius * 0.5;
-    const baseDistance = infieldSize * 0.6;
+    const bottomY = height * 0.95; // Move field lower
+    const fieldRadius = Math.min(width, height) * 0.4;
+    const infieldRadius = fieldRadius * 0.35; // Smaller infield
+    
+    // Standard baseball diamond angles and distances
+    const pitcherDistance = infieldRadius * 0.65;
+    const infieldDistance = infieldRadius * 0.85;
+    const outfieldDistance = fieldRadius * 0.75;
     
     return {
-      'P': { 
-        x: centerX, 
-        y: bottomY - baseDistance * 0.6, 
-        label: 'Pitcher', 
-        color: '#EF4444' 
-      },
       'C': { 
         x: centerX, 
-        y: bottomY - 30, 
+        y: bottomY - 20, 
         label: 'Catcher', 
         color: '#3B82F6' 
       },
+      'P': { 
+        x: centerX, 
+        y: bottomY - pitcherDistance, 
+        label: 'Pitcher', 
+        color: '#EF4444' 
+      },
       '1B': { 
-        x: centerX + baseDistance * Math.cos(-Math.PI/4) + 20, 
-        y: bottomY - baseDistance * Math.sin(-Math.PI/4), 
+        x: centerX + infieldDistance * 0.7, 
+        y: bottomY - infieldDistance * 0.7, 
         label: 'First Base', 
         color: '#10B981' 
       },
       '2B': { 
-        x: centerX + 20, 
-        y: bottomY - baseDistance * 0.75, 
+        x: centerX + infieldDistance * 0.3, 
+        y: bottomY - infieldDistance, 
         label: 'Second Base', 
         color: '#F59E0B' 
       },
-      '3B': { 
-        x: centerX - baseDistance * Math.cos(-Math.PI/4) - 20, 
-        y: bottomY - baseDistance * Math.sin(-Math.PI/4), 
-        label: 'Third Base', 
-        color: '#8B5CF6' 
-      },
       'SS': { 
-        x: centerX - 20, 
-        y: bottomY - baseDistance * 0.75, 
+        x: centerX - infieldDistance * 0.3, 
+        y: bottomY - infieldDistance, 
         label: 'Shortstop', 
         color: '#6366F1' 
       },
-      'LF': { 
-        x: centerX + fieldRadius * Math.cos(-Math.PI/2.2 + Math.PI/1.1) * 0.7, 
-        y: bottomY - fieldRadius * Math.sin(-Math.PI/2.2 + Math.PI/1.1) * 0.7, 
-        label: 'Left Field', 
-        color: '#EC4899' 
-      },
-      'CF': { 
-        x: centerX, 
-        y: bottomY - fieldRadius * 0.8, 
-        label: 'Center Field', 
-        color: '#14B8A6' 
+      '3B': { 
+        x: centerX - infieldDistance * 0.7, 
+        y: bottomY - infieldDistance * 0.7, 
+        label: 'Third Base', 
+        color: '#8B5CF6' 
       },
       'RF': { 
-        x: centerX + fieldRadius * Math.cos(-Math.PI/2.2) * 0.7, 
-        y: bottomY - fieldRadius * Math.sin(-Math.PI/2.2) * 0.7, 
+        x: centerX + outfieldDistance * 0.8, 
+        y: bottomY - outfieldDistance * 0.6, 
         label: 'Right Field', 
         color: '#F97316' 
       },
+      'CF': { 
+        x: centerX, 
+        y: bottomY - outfieldDistance, 
+        label: 'Center Field', 
+        color: '#14B8A6' 
+      },
+      'LF': { 
+        x: centerX - outfieldDistance * 0.8, 
+        y: bottomY - outfieldDistance * 0.6, 
+        label: 'Left Field', 
+        color: '#EC4899' 
+      },
       'DH': { 
-        x: centerX + fieldRadius * 0.8, 
-        y: bottomY - 50, 
+        x: centerX + fieldRadius * 0.9, 
+        y: bottomY - 40, 
         label: 'Designated Hitter', 
         color: '#84CC16' 
       }
@@ -161,142 +165,94 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
     // Calculate field dimensions
     const centerX = width / 2;
-    const bottomY = height * 0.9;
-    const fieldRadius = Math.min(width, height) * 0.45;
-    
-    // Create realistic fan-shaped outfield using arc path
-    const outfieldPath = d3.arc()
-      .innerRadius(0)
-      .outerRadius(fieldRadius)
-      .startAngle(-Math.PI / 2.2) // Left field foul line
-      .endAngle(-Math.PI / 2.2 + Math.PI / 1.1); // Right field foul line
+    const bottomY = height * 0.99; // push apex lower to reduce top padding
+    const fieldRadius = Math.min(width, height) * 0.95; // make shape much larger
 
-    // Draw outfield (fan shape)
-    svg.append("path")
-      .attr("d", outfieldPath)
-      .attr("transform", `translate(${centerX}, ${bottomY})`)
-      .attr("fill", "url(#outfieldGradient)")
-      .attr("stroke", "#15803D")
-      .attr("stroke-width", 2);
-
-    // Create infield diamond shape
-    const infieldSize = fieldRadius * 0.5;
-    const infieldPath = d3.arc()
-      .innerRadius(0)
-      .outerRadius(infieldSize)
-      .startAngle(-Math.PI / 2.5)
-      .endAngle(-Math.PI / 2.5 + Math.PI / 1.25);
-
-    // Draw infield dirt (smaller fan)
-    svg.append("path")
-      .attr("d", infieldPath)
-      .attr("transform", `translate(${centerX}, ${bottomY})`)
-      .attr("fill", "url(#infieldGradient)")
-      .attr("stroke", "#D97706")
-      .attr("stroke-width", 1);
-
-    // Home plate (pentagon shape)
+    // Apex (home plate area)
     const homeX = centerX;
-    const homeY = bottomY - 10;
-    const plateSize = 8;
-    svg.append("polygon")
-      .attr("points", `${homeX-plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY+plateSize/2} ${homeX},${homeY+plateSize} ${homeX-plateSize},${homeY+plateSize/2}`)
-      .attr("fill", "white")
-      .attr("stroke", "#374151")
-      .attr("stroke-width", 2);
+    const homeY = bottomY - 8;
 
-    // Calculate base positions for proper diamond
-    const baseDistance = infieldSize * 0.6;
-    const baseSize = 8;
-    
-    // First base
-    const firstBaseX = homeX + baseDistance * Math.cos(-Math.PI/4);
-    const firstBaseY = homeY - baseDistance * Math.sin(-Math.PI/4);
-    svg.append("rect")
-      .attr("x", firstBaseX - baseSize/2)
-      .attr("y", firstBaseY - baseSize/2)
-      .attr("width", baseSize)
-      .attr("height", baseSize)
-      .attr("fill", "white")
-      .attr("stroke", "#374151")
-      .attr("stroke-width", 2)
-      .attr("transform", `rotate(45 ${firstBaseX} ${firstBaseY})`);
+    // Left and right foul line endpoints (45° from horizontal)
+    // Use steeper foul-line angle (≈60° from horizontal) to lift arc higher
+    const angle = (60 * Math.PI) / 180; // radians
+    const leftPoint = [
+      homeX + fieldRadius * Math.cos(-Math.PI + angle),
+      homeY + fieldRadius * Math.sin(-Math.PI + angle)
+    ];
+    const rightPoint = [
+      homeX + fieldRadius * Math.cos(-angle),
+      homeY + fieldRadius * Math.sin(-angle)
+    ];
 
-    // Second base (center field)
-    const secondBaseX = homeX;
-    const secondBaseY = homeY - baseDistance * Math.sqrt(2);
-    svg.append("rect")
-      .attr("x", secondBaseX - baseSize/2)
-      .attr("y", secondBaseY - baseSize/2)
-      .attr("width", baseSize)
-      .attr("height", baseSize)
-      .attr("fill", "white")
-      .attr("stroke", "#374151")
-      .attr("stroke-width", 2)
-      .attr("transform", `rotate(45 ${secondBaseX} ${secondBaseY})`);
+    // Draw outline path like provided icon: arc + two foul lines meeting at home
+    const R = fieldRadius;
+    const pathD = `M ${leftPoint[0]} ${leftPoint[1]} A ${R} ${R} 0 0 1 ${rightPoint[0]} ${rightPoint[1]} L ${homeX} ${homeY} Z`;
+    svg.append('path')
+      .attr('d', pathD)
+      .attr('fill', 'none')
+      .attr('stroke', '#2E2E2E')
+      .attr('stroke-width', 6)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round');
 
-    // Third base
-    const thirdBaseX = homeX - baseDistance * Math.cos(-Math.PI/4);
-    const thirdBaseY = homeY - baseDistance * Math.sin(-Math.PI/4);
-    svg.append("rect")
-      .attr("x", thirdBaseX - baseSize/2)
-      .attr("y", thirdBaseY - baseSize/2)
-      .attr("width", baseSize)
-      .attr("height", baseSize)
-      .attr("fill", "white")
-      .attr("stroke", "#374151")
-      .attr("stroke-width", 2)
-      .attr("transform", `rotate(45 ${thirdBaseX} ${thirdBaseY})`);
+    // Inner diamond (infield)
+    const diamondDist = R * 0.35;
+    const first = [homeX + diamondDist * Math.SQRT1_2, homeY - diamondDist * Math.SQRT1_2];
+    const second = [homeX, homeY - diamondDist * 1.4];
+    const third = [homeX - diamondDist * Math.SQRT1_2, homeY - diamondDist * Math.SQRT1_2];
+    const diamondPath = `M ${homeX} ${homeY} L ${first[0]} ${first[1]} L ${second[0]} ${second[1]} L ${third[0]} ${third[1]} Z`;
+    svg.append('path')
+      .attr('d', diamondPath)
+      .attr('fill', 'none')
+      .attr('stroke', '#2E2E2E')
+      .attr('stroke-width', 4)
+      .attr('stroke-linejoin', 'round');
+
+    // Bases as small rotated squares
+    const baseSize = 10;
+    const addBase = ([x, y]) => {
+      svg.append('rect')
+        .attr('x', x - baseSize / 2)
+        .attr('y', y - baseSize / 2)
+        .attr('width', baseSize)
+        .attr('height', baseSize)
+        .attr('fill', 'white')
+        .attr('stroke', '#2E2E2E')
+        .attr('stroke-width', 4)
+        .attr('transform', `rotate(45 ${x} ${y})`);
+    };
+    addBase(first);
+    addBase(second);
+    addBase(third);
 
     // Pitcher's mound
-    const pitcherX = homeX;
-    const pitcherY = homeY - baseDistance * 0.6;
-    svg.append("circle")
-      .attr("cx", pitcherX)
-      .attr("cy", pitcherY)
-      .attr("r", 10)
-      .attr("fill", "#D97706")
-      .attr("stroke", "#92400E")
-      .attr("stroke-width", 2);
-    
-    // Pitcher's rubber
-    svg.append("rect")
-      .attr("x", pitcherX - 3)
-      .attr("y", pitcherY - 1)
-      .attr("width", 6)
-      .attr("height", 2)
-      .attr("fill", "white")
-      .attr("stroke", "#374151");
+    const moundX = (homeX + second[0]) / 2;
+    const moundY = (homeY + second[1]) / 2;
+    svg.append('circle')
+      .attr('cx', moundX)
+      .attr('cy', moundY)
+      .attr('r', 10)
+      .attr('fill', 'none')
+      .attr('stroke', '#2E2E2E')
+      .attr('stroke-width', 4);
 
-    // Draw foul lines
-    const lineGenerator = d3.line();
-    
-    // First base foul line
-    svg.append("path")
-      .attr("d", lineGenerator([
-        [homeX, homeY], 
-        [homeX + fieldRadius * Math.cos(-Math.PI/2.2), homeY - fieldRadius * Math.sin(-Math.PI/2.2)]
-      ]))
-      .attr("stroke", "white")
-      .attr("stroke-width", 3)
-      .attr("fill", "none");
+    // Home-plate ring
+    const homeRingY = Math.min(homeY + 14, height - 18);
+    svg.append('circle')
+      .attr('cx', homeX)
+      .attr('cy', homeRingY)
+      .attr('r', 16)
+      .attr('fill', 'none')
+      .attr('stroke', '#2E2E2E')
+      .attr('stroke-width', 4);
 
-    // Third base foul line
-    svg.append("path")
-      .attr("d", lineGenerator([
-        [homeX, homeY], 
-        [homeX + fieldRadius * Math.cos(-Math.PI/2.2 + Math.PI/1.1), homeY - fieldRadius * Math.sin(-Math.PI/2.2 + Math.PI/1.1)]
-      ]))
-      .attr("stroke", "white")
-      .attr("stroke-width", 3)
-      .attr("fill", "none");
-
-    // Infield base paths
-    svg.append("path")
-      .attr("d", lineGenerator([[homeX, homeY], [firstBaseX, firstBaseY], [secondBaseX, secondBaseY], [thirdBaseX, thirdBaseY], [homeX, homeY]]))
-      .attr("stroke", "white")
-      .attr("stroke-width", 2)
-      .attr("fill", "none");
+    // Home plate shape
+    const plateSize = 10;
+    svg.append('polygon')
+      .attr('points', `${homeX-plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY} ${homeX},${homeY+plateSize/1.2} ${homeX-plateSize},${homeY}`)
+      .attr('fill', 'white')
+      .attr('stroke', '#2E2E2E')
+      .attr('stroke-width', 4);
 
     // Position players with enhanced styling
     Object.entries(positionCoords).forEach(([positionCode, coords]) => {
