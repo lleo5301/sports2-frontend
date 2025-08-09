@@ -49,49 +49,15 @@ const Layout = ({ children }) => {
       
       {/* Page content */}
       <div className="drawer-content flex flex-col">
-        {/* Fixed Top navbar */}
-        <div className="w-full navbar bg-base-100 shadow-lg fixed top-0 z-50">
-          <div className="flex-none lg:hidden">
-            <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
-              <Menu className="w-6 h-6" />
-            </label>
-          </div>
-          <div className="flex-1 px-2 mx-2">
-            {/* Removed the heading since it's in the drawer */}
-          </div>
-          <div className="flex-none">
-            <button 
-              className="btn btn-ghost btn-circle mr-2"
-              onClick={toggleTheme}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-              {theme === 'light' ? (
-                <Moon className="w-5 h-5" />
-              ) : (
-                <Sun className="w-5 h-5" />
-              )}
-            </button>
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                <div className="w-10 rounded-full">
-                  <div className="avatar placeholder">
-                    <div className="bg-neutral text-neutral-content rounded-full w-10">
-                      <User className="w-5 h-5" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                <li><Link to="/profile">Profile</Link></li>
-                <li><Link to="/settings">Settings</Link></li>
-                <li><a>Logout</a></li>
-              </ul>
-            </div>
-          </div>
+        {/* Mobile menu toggle - only visible on mobile */}
+        <div className="lg:hidden p-4 border-b border-base-300">
+          <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
+            <Menu className="w-6 h-6" />
+          </label>
         </div>
         
-        {/* Page content with top padding to account for fixed navbar */}
-        <div className="flex-1 p-4 mt-16">
+        {/* Page content */}
+        <div className="flex-1 p-4">
           {children}
         </div>
       </div>
