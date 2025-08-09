@@ -303,6 +303,22 @@ export default function PlayerDetail() {
           </div>
         </div>
 
+        {/* Player Video */}
+        {playerData.video_url && (
+          <div className="card mb-8">
+            <div className="card-body">
+              <h2 className="card-title">Player Video</h2>
+              <video 
+                controls 
+                className="w-full max-w-2xl h-auto bg-black rounded-lg"
+                src={`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}${playerData.video_url}`}
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        )}
+
         {/* Scouting Reports */}
         {playerData.ScoutingReports && playerData.ScoutingReports.length > 0 && (
           <div className="card mb-8">

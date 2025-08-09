@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
+import { Upload, X } from 'lucide-react'
 import api from '../services/api'
 
 const positions = [
@@ -42,6 +43,8 @@ const playerSchema = z.object({
 
 export default function CreatePlayer() {
   const [isLoading, setIsLoading] = useState(false)
+  const [videoFile, setVideoFile] = useState(null)
+  const [videoPreview, setVideoPreview] = useState(null)
   const navigate = useNavigate()
   const {
     register,
@@ -62,16 +65,70 @@ export default function CreatePlayer() {
   const hasMedical = watch('has_medical_issues')
   const hasComparison = watch('has_comparison')
 
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Validate file type
+      const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/ogg']
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please select a valid video file (MP4, MOV, AVI, WebM, OGV)')
+        return
+      }
+
+      // Validate file size (100MB max)
+      if (file.size > 100 * 1024 * 1024) {
+        toast.error('Video file must be less than 100MB')
+        return
+      }
+
+      setVideoFile(file)
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file)
+      setVideoPreview(previewUrl)
+    }
+  }
+
+  const removeVideo = () => {
+    setVideoFile(null)
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview)
+      setVideoPreview(null)
+    }
+    // Reset file input
+    const fileInput = document.getElementById('video-upload')
+    if (fileInput) {
+      fileInput.value = ''
+    }
+  }
+
   const onSubmit = async (data) => {
     setIsLoading(true)
     try {
-      // Clean up NaN/empty values
-      const cleaned = Object.fromEntries(
-        Object.entries(data).map(([k, v]) => [k, (typeof v === 'number' && isNaN(v)) || v === '' ? undefined : v])
-      )
-      await api.post('/players', cleaned)
+      // Create FormData for multipart upload
+      const formData = new FormData()
+      
+      // Clean up NaN/empty values and append to FormData
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== '' && !(typeof value === 'number' && isNaN(value))) {
+          formData.append(key, value)
+        }
+      })
+
+      // Add video file if selected
+      if (videoFile) {
+        formData.append('video', videoFile)
+      }
+
+      await api.post('/players', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
       toast.success('Player created!')
       reset()
+      removeVideo()
       navigate('/players')
     } catch (error) {
       const msg = error.response?.data?.error || 'Failed to create player'
@@ -243,6 +300,50 @@ export default function CreatePlayer() {
             )}
           </div>
         </div>
+
+        <div className="divider">Player Video</div>
+        <div className="space-y-4">
+          <p className="text-sm text-base-content/70">
+            Upload a video showcasing the player's skills (Max 100MB, MP4/MOV/AVI/WebM/OGV)
+          </p>
+          
+          <div className="form-control">
+            <input
+              id="video-upload"
+              type="file"
+              accept="video/*"
+              onChange={handleVideoChange}
+              className="file-input file-input-bordered file-input-primary w-full"
+            />
+          </div>
+
+          {videoPreview && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="label-text">Video Preview</span>
+                <button
+                  type="button"
+                  onClick={removeVideo}
+                  className="btn btn-sm btn-outline btn-error"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Remove
+                </button>
+              </div>
+              <video 
+                controls 
+                className="w-full max-w-md h-48 bg-black rounded-lg"
+                src={videoPreview}
+              >
+                Your browser does not support the video tag.
+              </video>
+              <p className="text-sm text-base-content/70">
+                File: {videoFile?.name} ({(videoFile?.size / (1024 * 1024)).toFixed(2)} MB)
+              </p>
+            </div>
+          )}
+        </div>
+
         <div className="divider">Batting Statistics</div>
         <div className="grid grid-cols-2 gap-4">
           <div className="form-control">
@@ -397,7 +498,17 @@ export default function CreatePlayer() {
             disabled={isLoading}
             className={`btn btn-primary w-full ${isLoading ? 'loading' : ''}`}
           >
-            {isLoading ? 'Creating Player...' : 'Create Player'}
+            {isLoading ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Creating Player...
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-2" />
+                Create Player
+              </>
+            )}
           </button>
         </div>
             </div>

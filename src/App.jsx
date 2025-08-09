@@ -18,6 +18,7 @@ import TeamDetail from './pages/TeamDetail';
 import CreateTeam from './pages/CreateTeam';
 import ScoutingReport from './pages/ScoutingReport';
 import CreatePlayer from './pages/CreatePlayer';
+import EditPlayer from './pages/EditPlayer';
 import ScoutingReports from './pages/ScoutingReports';
 import CreateScoutingReport from './pages/CreateScoutingReport';
 import CreateCustomReport from './pages/CreateCustomReport';
@@ -68,6 +69,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <CreatePlayer />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/players/:id/edit" element={
+          <ProtectedRoute>
+            <Layout>
+              <EditPlayer />
             </Layout>
           </ProtectedRoute>
         } />

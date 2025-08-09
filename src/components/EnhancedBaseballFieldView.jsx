@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick, selectedPosition }) => {
   const svgRef = useRef();
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [dimensions, setDimensions] = useState({ width: 1000, height: 750 });
 
   // Helper functions
   const getAssignmentPlayer = (assignment) => assignment?.Player || assignment?.player || null;
@@ -17,78 +17,108 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
     return p?.jersey_number;
   };
 
-  // Calculate realistic position coordinates based on field geometry
+  // Calculate realistic position coordinates based on the current outline geometry
   const getPositionCoords = (width, height) => {
     const centerX = width / 2;
-    const bottomY = height * 0.95; // Move field lower
-    const fieldRadius = Math.min(width, height) * 0.4;
-    const infieldRadius = fieldRadius * 0.35; // Smaller infield
-    
-    // Standard baseball diamond angles and distances
-    const pitcherDistance = infieldRadius * 0.65;
-    const infieldDistance = infieldRadius * 0.85;
-    const outfieldDistance = fieldRadius * 0.75;
-    
+    const bottomY = height * 0.99;
+    const R = Math.min(width, height) * 0.95; // match outline radius
+    const homeX = centerX;
+    const homeY = bottomY - 8;
+    const angle = (45 * Math.PI) / 180; // should match outline's angle
+
+    // Helper to convert polar (relative to home) to cartesian
+    const polar = (radius, theta) => ({
+      x: homeX + radius * Math.cos(theta),
+      y: homeY + radius * Math.sin(theta)
+    });
+
+    // Infield/diamond distances
+    const rDiamond = R * 0.38; // distance from home to bases
+    const rPitcher = R * 0.26;
+    const rOutfield = R * 0.78; // move OF farther out for more spacing
+
+    // Base angles relative to home
+    const thetaHomeTo1B = -Math.PI / 4; // 45°
+    const thetaHomeTo2B = -Math.PI / 2; // straight up
+    const thetaHomeTo3B = -3 * Math.PI / 4; // 135°
+
+    // Base points
+    const p1B = polar(rDiamond, thetaHomeTo1B);
+    const p2B = polar(rDiamond, thetaHomeTo2B);
+    const p3B = polar(rDiamond, thetaHomeTo3B);
+
+    // Offsets to push markers away from diamond edges (to avoid overlaps)
+    const offset = 28;
+    const normal = (theta, dist) => ({
+      x: dist * Math.cos(theta),
+      y: dist * Math.sin(theta)
+    });
+
+    // Outfield angles (midpoints between foul lines and center field)
+    // Spread LF / CF / RF with larger separation
+    const thetaLeft = (-Math.PI + angle + thetaHomeTo2B) / 2 - 0.08;
+    const thetaRight = (thetaHomeTo2B - angle) / 2 + 0.08;
+
     return {
-      'C': { 
-        x: centerX, 
-        y: bottomY - 20, 
-        label: 'Catcher', 
-        color: '#3B82F6' 
+      C: {
+        x: homeX,
+        y: homeY - 22,
+        label: 'Catcher',
+        color: '#3B82F6'
       },
-      'P': { 
-        x: centerX, 
-        y: bottomY - pitcherDistance, 
-        label: 'Pitcher', 
-        color: '#EF4444' 
+      P: {
+        x: polar(rPitcher, thetaHomeTo2B).x,
+        y: polar(rPitcher, thetaHomeTo2B).y,
+        label: 'Pitcher',
+        color: '#EF4444'
       },
-      '1B': { 
-        x: centerX + infieldDistance * 0.7, 
-        y: bottomY - infieldDistance * 0.7, 
-        label: 'First Base', 
-        color: '#10B981' 
+      '1B': {
+        x: p1B.x + normal(thetaHomeTo1B, offset).x,
+        y: p1B.y + normal(thetaHomeTo1B, offset).y,
+        label: 'First Base',
+        color: '#10B981'
       },
-      '2B': { 
-        x: centerX + infieldDistance * 0.3, 
-        y: bottomY - infieldDistance, 
-        label: 'Second Base', 
-        color: '#F59E0B' 
+      '2B': {
+        x: p2B.x + 30, // push right of 2B
+        y: p2B.y + 6,
+        label: 'Second Base',
+        color: '#F59E0B'
       },
-      'SS': { 
-        x: centerX - infieldDistance * 0.3, 
-        y: bottomY - infieldDistance, 
-        label: 'Shortstop', 
-        color: '#6366F1' 
+      SS: {
+        x: p2B.x - 30, // push left of 2B
+        y: p2B.y + 6,
+        label: 'Shortstop',
+        color: '#6366F1'
       },
-      '3B': { 
-        x: centerX - infieldDistance * 0.7, 
-        y: bottomY - infieldDistance * 0.7, 
-        label: 'Third Base', 
-        color: '#8B5CF6' 
+      '3B': {
+        x: p3B.x + normal(thetaHomeTo3B, offset).x,
+        y: p3B.y + normal(thetaHomeTo3B, offset).y,
+        label: 'Third Base',
+        color: '#8B5CF6'
       },
-      'RF': { 
-        x: centerX + outfieldDistance * 0.8, 
-        y: bottomY - outfieldDistance * 0.6, 
-        label: 'Right Field', 
-        color: '#F97316' 
+      LF: {
+        x: polar(rOutfield, thetaLeft).x,
+        y: polar(rOutfield, thetaLeft).y,
+        label: 'Left Field',
+        color: '#EC4899'
       },
-      'CF': { 
-        x: centerX, 
-        y: bottomY - outfieldDistance, 
-        label: 'Center Field', 
-        color: '#14B8A6' 
+      CF: {
+        x: polar(rOutfield, thetaHomeTo2B).x,
+        y: polar(rOutfield, thetaHomeTo2B).y,
+        label: 'Center Field',
+        color: '#14B8A6'
       },
-      'LF': { 
-        x: centerX - outfieldDistance * 0.8, 
-        y: bottomY - outfieldDistance * 0.6, 
-        label: 'Left Field', 
-        color: '#EC4899' 
+      RF: {
+        x: polar(rOutfield, thetaRight).x,
+        y: polar(rOutfield, thetaRight).y,
+        label: 'Right Field',
+        color: '#F97316'
       },
-      'DH': { 
-        x: centerX + fieldRadius * 0.9, 
-        y: bottomY - 40, 
-        label: 'Designated Hitter', 
-        color: '#84CC16' 
+      DH: {
+        x: polar(R * 0.88, -angle).x + 30,
+        y: polar(R * 0.88, -angle).y,
+        label: 'Designated Hitter',
+        color: '#84CC16'
       }
     };
   };
@@ -105,8 +135,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       if (container) {
         const rect = container.getBoundingClientRect();
         setDimensions({
-          width: Math.min(rect.width, 800),
-          height: Math.min(rect.width * 0.75, 600)
+          width: Math.min(rect.width, 1200),
+          height: Math.min(rect.width * 0.8, 850)
         });
       }
     };
@@ -173,8 +203,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
     const homeY = bottomY - 8;
 
     // Left and right foul line endpoints (45° from horizontal)
-    // Use steeper foul-line angle (≈60° from horizontal) to lift arc higher
-    const angle = (60 * Math.PI) / 180; // radians
+    // Use steeper foul-line angle (≈70° from horizontal) to lift arc higher
+    const angle = (45* Math.PI) / 180; // radians
     const leftPoint = [
       homeX + fieldRadius * Math.cos(-Math.PI + angle),
       homeY + fieldRadius * Math.sin(-Math.PI + angle)
@@ -237,7 +267,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       .attr('stroke-width', 4);
 
     // Home-plate ring
-    const homeRingY = Math.min(homeY + 14, height - 18);
+    const homeRingY = Math.min(homeY + 12, height - 18);
     svg.append('circle')
       .attr('cx', homeX)
       .attr('cy', homeRingY)
@@ -247,7 +277,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       .attr('stroke-width', 4);
 
     // Home plate shape
-    const plateSize = 10;
+    const plateSize = 9;
     svg.append('polygon')
       .attr('points', `${homeX-plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY} ${homeX},${homeY+plateSize/1.2} ${homeX-plateSize},${homeY}`)
       .attr('fill', 'white')
@@ -273,29 +303,30 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         const jerseyNumber = getAssignmentJerseyNumber(primaryPlayer);
 
         // Player background circle
+        // Background with smaller radius to reduce overlap
         positionGroup.append("circle")
           .attr("cx", playerX)
           .attr("cy", playerY)
-          .attr("r", 35)
+          .attr("r", 28)
           .attr("fill", "rgba(255, 255, 255, 0.95)")
           .attr("stroke", coords.color)
-          .attr("stroke-width", 3)
+          .attr("stroke-width", 2)
           .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
 
         // Player photo placeholder (circular)
         positionGroup.append("circle")
           .attr("cx", playerX)
-          .attr("cy", playerY - 8)
-          .attr("r", 18)
+          .attr("cy", playerY - 6)
+          .attr("r", 14)
           .attr("fill", "#E5E7EB")
           .attr("stroke", coords.color)
-          .attr("stroke-width", 2);
+          .attr("stroke-width", 1.5);
 
         // Player initials or photo
         const initials = playerName.split(' ').map(n => n[0]).join('').substring(0, 2);
         positionGroup.append("text")
           .attr("x", playerX)
-          .attr("y", playerY - 4)
+          .attr("y", playerY - 2)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("font-weight", "bold")
@@ -303,15 +334,13 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .text(initials);
 
         // Player name
-        const displayName = playerName.length > 12 ? 
-          playerName.split(' ').map(n => n.substring(0, 1) + '.').join(' ') : 
-          playerName;
+        const displayName = playerName; // always display full name
         
         positionGroup.append("text")
           .attr("x", playerX)
-          .attr("y", playerY + 18)
+          .attr("y", playerY + 14)
           .attr("text-anchor", "middle")
-          .attr("font-size", "10px")
+          .attr("font-size", "11px")
           .attr("font-weight", "bold")
           .attr("fill", "#1F2937")
           .text(displayName);
@@ -320,7 +349,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         if (jerseyNumber) {
           positionGroup.append("text")
             .attr("x", playerX)
-            .attr("y", playerY + 30)
+            .attr("y", playerY + 24)
             .attr("text-anchor", "middle")
             .attr("font-size", "8px")
             .attr("fill", "#6B7280")
@@ -330,7 +359,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Position code
         positionGroup.append("text")
           .attr("x", playerX + 30)
-          .attr("y", playerY - 20)
+          .attr("y", playerY - 16)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("font-weight", "bold")
@@ -341,15 +370,15 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         if (players.length > 1) {
           positionGroup.append("circle")
             .attr("cx", playerX + 25)
-            .attr("cy", playerY + 20)
-            .attr("r", 8)
+            .attr("cy", playerY + 16)
+            .attr("r", 7)
             .attr("fill", "#EF4444")
             .attr("stroke", "white")
             .attr("stroke-width", 1);
           
           positionGroup.append("text")
             .attr("x", playerX + 25)
-            .attr("y", playerY + 24)
+            .attr("y", playerY + 20)
             .attr("text-anchor", "middle")
             .attr("font-size", "8px")
             .attr("font-weight", "bold")
@@ -363,14 +392,14 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
             d3.select(this).select("circle")
               .transition()
               .duration(200)
-              .attr("r", 40)
+              .attr("r", 32)
               .attr("stroke-width", 4);
           })
           .on("mouseleave", function() {
             d3.select(this).select("circle")
               .transition()
               .duration(200)
-              .attr("r", 35)
+              .attr("r", 28)
               .attr("stroke-width", 3);
           });
 
@@ -379,7 +408,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         positionGroup.append("circle")
           .attr("cx", playerX)
           .attr("cy", playerY)
-          .attr("r", 25)
+          .attr("r", 22)
           .attr("fill", "rgba(255, 255, 255, 0.8)")
           .attr("stroke", "#9CA3AF")
           .attr("stroke-width", 2)
@@ -398,7 +427,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("x", playerX)
           .attr("y", playerY + 8)
           .attr("text-anchor", "middle")
-          .attr("font-size", "8px")
+          .attr("font-size", "9px")
           .attr("fill", "#9CA3AF")
           .text("OPEN");
 
@@ -408,14 +437,14 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
             d3.select(this).select("circle")
               .transition()
               .duration(200)
-              .attr("r", 30)
+              .attr("r", 26)
               .attr("stroke-width", 3);
           })
           .on("mouseleave", function() {
             d3.select(this).select("circle")
               .transition()
               .duration(200)
-              .attr("r", 25)
+              .attr("r", 22)
               .attr("stroke-width", 2);
           });
       }
