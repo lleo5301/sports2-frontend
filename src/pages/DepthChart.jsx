@@ -42,6 +42,7 @@ import api from '../services/api'
 import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import BaseballFieldView from '../components/BaseballFieldView'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
+import DepthChartSheetView from '../components/DepthChartSheetView'
 
 // Default position configurations
 const defaultPositions = [
@@ -74,7 +75,7 @@ export default function DepthChart() {
   const [showPermissionsModal, setShowPermissionsModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState(null)
   const [activeTab, setActiveTab] = useState('chart') // 'chart', 'positions', 'history', 'permissions'
-  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'field', or 'enhanced'
+  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'field', 'enhanced', 'sheet'
   const [filters, setFilters] = useState({
     search: '',
     position: '',
@@ -588,6 +589,13 @@ export default function DepthChart() {
                       <Users className="h-4 w-4 mr-2" />
                       Pro View
                     </button>
+                    <button
+                      className={`btn btn-sm ${chartViewMode === 'sheet' ? 'btn-active' : 'btn-outline'}`}
+                      onClick={() => setChartViewMode('sheet')}
+                    >
+                      <Layers className="h-4 w-4 mr-2" />
+                      Sheet View
+                    </button>
                   </div>
                 </div>
 
@@ -631,6 +639,11 @@ export default function DepthChart() {
                     }}
                     selectedPosition={selectedPosition?.position_code}
                   />
+                )}
+
+                {/* Sheet View */}
+                {chartViewMode === 'sheet' && (
+                  <DepthChartSheetView depthChart={depthChart} />
                 )}
 
                 {/* List View */}
