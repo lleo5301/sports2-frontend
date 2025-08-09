@@ -78,16 +78,16 @@ export default function DepthChartSheetView({ depthChart }) {
             <div className="col-start-5 col-span-4 row-span-2">{listBox('CF', take(center, 3))}</div>
             <div className="col-start-10 col-span-3 row-span-2">{listBox('RF', take(right, 3))}</div>
 
-            {/* Mid row between outfield and bases: SS and 2B */}
-            <div className="col-start-2 col-span-3 row-start-4 row-span-2">{listBox('SS', take(short, 3))}</div>
-            <div className="col-start-9 col-span-3 row-start-4 row-span-2">{listBox('2B', take(second, 3))}</div>
+            {/* Mid row between outfield and bases: SS and 2B (moved up to reduce top spacing) */}
+            <div className="col-start-2 col-span-3 row-start-3 row-span-2">{listBox('SS', take(short, 3))}</div>
+            <div className="col-start-9 col-span-3 row-start-3 row-span-2">{listBox('2B', take(second, 3))}</div>
 
             {/* Infield corners: 3B and 1B */}
             <div className="col-start-2 col-span-3 row-start-6 row-span-2">{listBox('3B', take(third, 3))}</div>
             <div className="col-start-9 col-span-3 row-start-6 row-span-2">{listBox('1B', take(first, 3))}</div>
 
-            {/* Center column: Starting Pitcher/Relief & Closer */}
-            <div className="col-start-5 col-span-4 row-start-6 row-span-3 flex flex-col">
+            {/* Left column: Starting Pitcher/Relief & Closer (moved up) */}
+            <div className="col-start-1 col-span-4 row-start-5 row-span-3 flex flex-col">
               <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0">
                 <div className="font-semibold text-center mb-2">Starting Pitcher/Relief</div>
                 <ol className="text-sm space-y-1">
@@ -112,12 +112,12 @@ export default function DepthChartSheetView({ depthChart }) {
             {/* Catcher below home area */}
             <div className="col-start-5 col-span-4 row-start-9 row-span-2">{listBox('C', take(catcher, 4), 4)}</div>
 
-            {/* Left pane: Pitchers list */}
-            <div className="col-start-1 col-span-4 row-start-6 row-span-6">
+            {/* Center pane: Pitchers list (moved to middle, shifted up) */}
+            <div className="col-start-5 col-span-4 row-start-5 row-span-3">
               <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full">
                 <div className="font-semibold text-center mb-2">Pitchers</div>
                 <ol className="text-sm space-y-1 max-h-full overflow-y-auto pr-1">
-                  {Array.from({ length: 12 }).map((_, i) => (
+                  {Array.from({ length: 10 }).map((_, i) => (
                     <li key={i} className="flex items-center">
                       <span className="w-5 text-gray-400">{i + 1}.</span>
                       <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
@@ -133,8 +133,8 @@ export default function DepthChartSheetView({ depthChart }) {
               </div>
             </div>
 
-            {/* Right pane: Batting Order Starters/Sub */}
-            <div className="col-start-9 col-span-4 row-start-6 row-span-6">
+            {/* Right pane: Batting Order Starters/Sub (shifted up) */}
+            <div className="col-start-9 col-span-4 row-start-5 row-span-6">
               <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full">
                 <div className="font-semibold text-center mb-2">Batting Order</div>
                 <div className="grid grid-cols-2 gap-3">
