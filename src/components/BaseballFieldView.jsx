@@ -4,6 +4,17 @@ import { Users, Target, Shield, Zap, Heart, User, Calendar } from 'lucide-react'
 const BaseballFieldView = ({ positions, assignedPlayers, onPositionClick, selectedPosition }) => {
   const [hoveredPosition, setHoveredPosition] = useState(null);
   
+  const getAssignmentPlayer = (assignment) => assignment?.Player || assignment?.player || null;
+  const getAssignmentPlayerName = (assignment) => {
+    const p = getAssignmentPlayer(assignment);
+    if (!p) return '';
+    return `${p.first_name || ''} ${p.last_name || ''}`.trim();
+  };
+  const getAssignmentJerseyNumber = (assignment) => {
+    const p = getAssignmentPlayer(assignment);
+    return p?.jersey_number;
+  };
+  
   // Updated position coordinates to match realistic baseball field layout
   const positionCoords = {
     'P': { x: 50, y: 65, label: 'Pitcher', color: '#EF4444' },
@@ -75,17 +86,17 @@ const BaseballFieldView = ({ positions, assignedPlayers, onPositionClick, select
               <div className="font-bold text-sm mb-2 text-gray-800">
                 {positionCoords[hoveredPosition]?.label} ({hoveredPosition})
               </div>
-              {getAssignedPlayers(hoveredPosition).length > 0 ? (
+                  {getAssignedPlayers(hoveredPosition).length > 0 ? (
                 <div className="space-y-1">
-                  {getAssignedPlayers(hoveredPosition).slice(0, 3).map((assignment, index) => (
-                    <div key={assignment.id} className="flex items-center gap-2 text-xs">
-                      <span className="font-semibold text-blue-600">{index + 1}.</span>
-                      <span className="font-medium">{assignment.player?.first_name} {assignment.player?.last_name}</span>
-                      {assignment.player?.jersey_number && (
-                        <span className="text-gray-500">#{assignment.player.jersey_number}</span>
-                      )}
-                    </div>
-                  ))}
+                      {getAssignedPlayers(hoveredPosition).slice(0, 3).map((assignment, index) => (
+                        <div key={assignment.id} className="flex items-center gap-2 text-xs">
+                          <span className="font-semibold text-blue-600">{index + 1}.</span>
+                          <span className="font-medium">{getAssignmentPlayerName(assignment)}</span>
+                          {getAssignmentJerseyNumber(assignment) && (
+                            <span className="text-gray-500">#{getAssignmentJerseyNumber(assignment)}</span>
+                          )}
+                        </div>
+                      ))}
                   {getAssignedPlayers(hoveredPosition).length > 3 && (
                     <div className="text-xs text-gray-500">
                       +{getAssignedPlayers(hoveredPosition).length - 3} more
@@ -261,10 +272,10 @@ const BaseballFieldView = ({ positions, assignedPlayers, onPositionClick, select
                     {players.slice(0, 2).map((assignment, index) => (
                       <div key={assignment.id} className="text-xs bg-gray-50 p-1 rounded">
                         <span className="font-semibold text-blue-600">
-                          {index + 1}. {assignment.player?.first_name} {assignment.player?.last_name}
+                          {index + 1}. {getAssignmentPlayerName(assignment)}
                         </span>
-                        {assignment.player?.jersey_number && (
-                          <span className="text-gray-500 ml-1">#{assignment.player.jersey_number}</span>
+                        {getAssignmentJerseyNumber(assignment) && (
+                          <span className="text-gray-500 ml-1">#{getAssignmentJerseyNumber(assignment)}</span>
                         )}
                       </div>
                     ))}
@@ -300,10 +311,10 @@ const BaseballFieldView = ({ positions, assignedPlayers, onPositionClick, select
                       </span>
                       <div>
                         <span className="font-semibold text-gray-800">
-                          {assignment.player?.first_name} {assignment.player?.last_name}
+                          {getAssignmentPlayerName(assignment)}
                         </span>
-                        {assignment.player?.jersey_number && (
-                          <span className="text-gray-500 ml-2">#{assignment.player.jersey_number}</span>
+                        {getAssignmentJerseyNumber(assignment) && (
+                          <span className="text-gray-500 ml-2">#{getAssignmentJerseyNumber(assignment)}</span>
                         )}
                       </div>
                     </div>

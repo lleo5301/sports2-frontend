@@ -41,6 +41,7 @@ import {
 import api from '../services/api'
 import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import BaseballFieldView from '../components/BaseballFieldView'
+import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 
 // Default position configurations
 const defaultPositions = [
@@ -73,7 +74,7 @@ export default function DepthChart() {
   const [showPermissionsModal, setShowPermissionsModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState(null)
   const [activeTab, setActiveTab] = useState('chart') // 'chart', 'positions', 'history', 'permissions'
-  const [chartViewMode, setChartViewMode] = useState('list') // 'list' or 'field'
+  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'field', or 'enhanced'
   const [filters, setFilters] = useState({
     search: '',
     position: '',
@@ -580,12 +581,40 @@ export default function DepthChart() {
                       <Target className="h-4 w-4 mr-2" />
                       Field View
                     </button>
+                    <button
+                      className={`btn btn-sm ${chartViewMode === 'enhanced' ? 'btn-active' : 'btn-outline'}`}
+                      onClick={() => setChartViewMode('enhanced')}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Pro View
+                    </button>
                   </div>
                 </div>
 
                 {/* Field View */}
                 {chartViewMode === 'field' && (
                   <BaseballFieldView
+                    positions={depthChart.DepthChartPositions || []}
+                    assignedPlayers={depthChart.DepthChartPositions?.flatMap(pos => 
+                      pos.DepthChartPlayers?.map(player => ({
+                        ...player,
+                        position_code: pos.position_code
+                      })) || []
+                    ) || []}
+                    onPositionClick={(positionCode) => {
+                      const position = depthChart.DepthChartPositions?.find(p => p.position_code === positionCode);
+                      if (position) {
+                        setSelectedPosition(position);
+                        setShowAssignPlayerModal(true);
+                      }
+                    }}
+                    selectedPosition={selectedPosition?.position_code}
+                  />
+                )}
+
+                {/* Enhanced Field View */}
+                {chartViewMode === 'enhanced' && (
+                  <EnhancedBaseballFieldView
                     positions={depthChart.DepthChartPositions || []}
                     assignedPlayers={depthChart.DepthChartPositions?.flatMap(pos => 
                       pos.DepthChartPlayers?.map(player => ({
