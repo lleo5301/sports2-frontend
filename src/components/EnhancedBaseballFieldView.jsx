@@ -31,9 +31,11 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       x: homeX + radius * Math.cos(theta),
       y: homeY + radius * Math.sin(theta)
     });
+    const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 
-    // Infield/diamond distances
-    const rDiamond = R * 0.38; // distance from home to bases
+    // Distances aligned with outline drawing
+    const diamondDist = R * 0.35; // for 1B/3B centers (scaled by sqrt(1/2))
+    const secondDist = diamondDist * 1.4; // for 2B center
     const rPitcher = R * 0.26;
     const rOutfield = R * 0.78; // move OF farther out for more spacing
 
@@ -42,17 +44,17 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
     const thetaHomeTo2B = -Math.PI / 2; // straight up
     const thetaHomeTo3B = -3 * Math.PI / 4; // 135°
 
-    // Base points
-    const p1B = polar(rDiamond, thetaHomeTo1B);
-    const p2B = polar(rDiamond, thetaHomeTo2B);
-    const p3B = polar(rDiamond, thetaHomeTo3B);
+    // Base centers to match the outline squares
+    const p1B = { x: homeX + diamondDist * Math.SQRT1_2, y: homeY - diamondDist * Math.SQRT1_2 };
+    const p2B = { x: homeX, y: homeY - secondDist };
+    const p3B = { x: homeX - diamondDist * Math.SQRT1_2, y: homeY - diamondDist * Math.SQRT1_2 };
 
-    // Offsets to push markers away from diamond edges (to avoid overlaps)
-    const offset = 28;
-    const normal = (theta, dist) => ({
-      x: dist * Math.cos(theta),
-      y: dist * Math.sin(theta)
-    });
+    // Position bubbles directly above each base (toward center field)
+    const baseSize = 10; // matches outline
+    const bubbleRadius = 28;
+    const baseHalfDiagonal = baseSize / Math.SQRT2;
+    const bubbleGap = 2;
+    const baseBubbleYOffset = bubbleRadius + baseHalfDiagonal + bubbleGap;
 
     // Outfield angles (midpoints between foul lines and center field)
     // Spread LF / CF / RF with larger separation
@@ -73,26 +75,26 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         color: '#EF4444'
       },
       '1B': {
-        x: p1B.x + normal(thetaHomeTo1B, offset).x,
-        y: p1B.y + normal(thetaHomeTo1B, offset).y,
+        x: p1B.x,
+        y: p1B.y - baseBubbleYOffset,
         label: 'First Base',
         color: '#10B981'
       },
       '2B': {
-        x: p2B.x + 30, // push right of 2B
-        y: p2B.y + 6,
+        x: p2B.x,
+        y: p2B.y - baseBubbleYOffset,
         label: 'Second Base',
         color: '#F59E0B'
       },
       SS: {
-        x: p2B.x - 30, // push left of 2B
-        y: p2B.y + 6,
+        // Place SS strictly between 3B and 2B along the baseline
+        ...(() => { const base = lerp(p3B, p2B, 0.59); return { x: base.x+.1, y: base.y - baseBubbleYOffset }; })(),
         label: 'Shortstop',
         color: '#6366F1'
       },
       '3B': {
-        x: p3B.x + normal(thetaHomeTo3B, offset).x,
-        y: p3B.y + normal(thetaHomeTo3B, offset).y,
+        x: p3B.x,
+        y: p3B.y - baseBubbleYOffset,
         label: 'Third Base',
         color: '#8B5CF6'
       },
@@ -298,9 +300,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
       if (players.length > 0) {
         const primaryPlayer = players[0]; // Show first string player
-        const player = getAssignmentPlayer(primaryPlayer);
         const playerName = getAssignmentPlayerName(primaryPlayer);
-        const jerseyNumber = getAssignmentJerseyNumber(primaryPlayer);
 
         // Player background circle
         // Background with smaller radius to reduce overlap
@@ -313,25 +313,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("stroke-width", 2)
           .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
 
-        // Player photo placeholder (circular)
-        positionGroup.append("circle")
-          .attr("cx", playerX)
-          .attr("cy", playerY - 6)
-          .attr("r", 14)
-          .attr("fill", "#E5E7EB")
-          .attr("stroke", coords.color)
-          .attr("stroke-width", 1.5);
-
-        // Player initials or photo
-        const initials = playerName.split(' ').map(n => n[0]).join('').substring(0, 2);
-        positionGroup.append("text")
-          .attr("x", playerX)
-          .attr("y", playerY - 2)
-          .attr("text-anchor", "middle")
-          .attr("font-size", "12px")
-          .attr("font-weight", "bold")
-          .attr("fill", coords.color)
-          .text(initials);
+        // Removed initials/inner icon — only show the full name for the position
 
         // Player name
         const displayName = playerName; // always display full name
@@ -345,26 +327,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("fill", "#1F2937")
           .text(displayName);
 
-        // Jersey number
-        if (jerseyNumber) {
-          positionGroup.append("text")
-            .attr("x", playerX)
-            .attr("y", playerY + 24)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "8px")
-            .attr("fill", "#6B7280")
-            .text(`#${jerseyNumber}`);
-        }
-
-        // Position code
-        positionGroup.append("text")
-          .attr("x", playerX + 30)
-          .attr("y", playerY - 16)
-          .attr("text-anchor", "middle")
-          .attr("font-size", "12px")
-          .attr("font-weight", "bold")
-          .attr("fill", coords.color)
-          .text(positionCode);
+        // No jersey number or position code text — keep the UI minimal per request
 
         // Depth indicator (if multiple players)
         if (players.length > 1) {
