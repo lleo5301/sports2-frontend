@@ -19,7 +19,7 @@ export default function DepthChartSheetView({ depthChart }) {
   const take = (arr, n) => arr.slice(0, n)
 
   const listBox = (title, items = [], lines = 3) => (
-    <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-[260px]">
+    <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0">
       {title && <div className="font-semibold text-center mb-2">{title}</div>}
       <ol className="text-sm space-y-1">
         {Array.from({ length: lines }).map((_, i) => (
@@ -72,123 +72,123 @@ export default function DepthChartSheetView({ depthChart }) {
 
         {/* Letter size ~ 816x1056 px at 96 DPI. A4 ~ 794x1123. Choose 980x1200 for on-screen, scale in print. */}
         <div className="relative h-[1200px] bg-gradient-to-b from-white/50 to-white/30 rounded-lg border border-gray-200">
-          {/* Top row: LF - CF - RF */}
-          <div className="absolute top-6 left-6">{listBox('LF', take(left, 3))}</div>
-          <div className="absolute top-6 left-1/2 -translate-x-1/2">{listBox('CF', take(center, 3))}</div>
-          <div className="absolute top-6 right-6">{listBox('RF', take(right, 3))}</div>
+          <div className="absolute inset-0 p-6 grid grid-cols-12 grid-rows-12 gap-4">
+            {/* Top row: LF - CF - RF */}
+            <div className="col-span-3 row-span-2">{listBox('LF', take(left, 3))}</div>
+            <div className="col-start-5 col-span-4 row-span-2">{listBox('CF', take(center, 3))}</div>
+            <div className="col-start-10 col-span-3 row-span-2">{listBox('RF', take(right, 3))}</div>
 
-          {/* Mid row between outfield and bases: SS and 2B */}
-          <div className="absolute top-[210px] left-[120px]">{listBox('SS', take(short, 3))}</div>
-          <div className="absolute top-[210px] right-[120px]">{listBox('2B', take(second, 3))}</div>
+            {/* Mid row between outfield and bases: SS and 2B */}
+            <div className="col-start-2 col-span-3 row-start-4 row-span-2">{listBox('SS', take(short, 3))}</div>
+            <div className="col-start-9 col-span-3 row-start-4 row-span-2">{listBox('2B', take(second, 3))}</div>
 
-          {/* Infield corners: 3B and 1B */}
-          <div className="absolute top-[360px] left-[60px]">{listBox('3B', take(third, 3))}</div>
-          <div className="absolute top-[360px] right-[60px]">{listBox('1B', take(first, 3))}</div>
+            {/* Infield corners: 3B and 1B */}
+            <div className="col-start-2 col-span-3 row-start-6 row-span-2">{listBox('3B', take(third, 3))}</div>
+            <div className="col-start-9 col-span-3 row-start-6 row-span-2">{listBox('1B', take(first, 3))}</div>
 
-          {/* Center column: Starting Pitcher/Relief & Closer */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-[340px] w-[320px]">
-            <div className="bg-white/90 border border-gray-300 rounded shadow p-3">
-              <div className="font-semibold text-center mb-2">Starting Pitcher/Relief</div>
-              <ol className="text-sm space-y-1">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <li key={i} className="flex items-center">
-                    <span className="w-5 text-gray-400">{i + 1}.</span>
-                    <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
-                      {pitchers[i]?.name || ''}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <div className="bg-white/90 border border-gray-300 rounded shadow p-3 mt-3">
-              <div className="font-semibold text-center mb-2">Closer</div>
-              <div className="border-b border-dashed border-gray-300 h-6 text-sm text-gray-800 truncate">
-                {pitchers[0]?.name || ''}
+            {/* Center column: Starting Pitcher/Relief & Closer */}
+            <div className="col-start-5 col-span-4 row-start-6 row-span-3 flex flex-col">
+              <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0">
+                <div className="font-semibold text-center mb-2">Starting Pitcher/Relief</div>
+                <ol className="text-sm space-y-1">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <li key={i} className="flex items-center">
+                      <span className="w-5 text-gray-400">{i + 1}.</span>
+                      <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
+                        {pitchers[i]?.name || ''}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
               </div>
-            </div>
-          </div>
-
-          {/* Catcher below home area */}
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-[220px]">
-            {listBox('C', take(catcher, 4), 4)}
-          </div>
-
-          {/* Left pane: Pitchers list (A/N/A just a legend) */}
-          <div className="absolute left-4 bottom-[120px] w-[320px]">
-            <div className="bg-white/90 border border-gray-300 rounded shadow p-3">
-              <div className="font-semibold text-center mb-2">Pitchers</div>
-              <ol className="text-sm space-y-1 max-h-[320px] overflow-y-auto pr-1">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <li key={i} className="flex items-center">
-                    <span className="w-5 text-gray-400">{i + 1}.</span>
-                    <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
-                      {pitchers[i]?.name || ''}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <div className="flex justify-between text-[11px] text-gray-500 mt-2">
-                <span>A - Available</span>
-                <span>N/A - Not Available</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right pane: Batting Order Starters/Sub */}
-          <div className="absolute right-4 bottom-[120px] w-[340px]">
-            <div className="bg-white/90 border border-gray-300 rounded shadow p-3">
-              <div className="font-semibold text-center mb-2">Batting Order</div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <div className="text-xs font-semibold mb-1">Starters</div>
-                  <ol className="text-sm space-y-1">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <li key={i} className="flex items-center">
-                        <span className="w-5 text-gray-400">{i + 1}.</span>
-                        <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
-                          {starters[i]?.name || ''}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold mb-1">Sub</div>
-                  <ol className="text-sm space-y-1">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <li key={i} className="flex items-center">
-                        <span className="w-5 text-gray-400">{i + 1}.</span>
-                        <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
-                          {subs[i]?.name || ''}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
+              <div className="bg-white/90 border border-gray-300 rounded shadow p-3 mt-3 w-full min-w-0">
+                <div className="font-semibold text-center mb-2">Closer</div>
+                <div className="border-b border-dashed border-gray-300 h-6 text-sm text-gray-800 truncate">
+                  {pitchers[0]?.name || ''}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Bench list across bottom */}
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-2 w-[90%]">
-            <div className="bg-white/90 border border-gray-300 rounded shadow p-3">
-              <div className="font-semibold text-center mb-2">Bench/Player List</div>
-              <div className="grid grid-cols-3 gap-6">
-                {[0, 1, 2].map((col) => (
-                  <ol key={col} className="text-sm space-y-1">
-                    {Array.from({ length: 5 }).map((_, i) => {
-                      const idx = col * 5 + i
-                      return (
-                        <li key={idx} className="flex items-center">
-                          <span className="w-5 text-gray-400">{idx + 1}.</span>
+            {/* Catcher below home area */}
+            <div className="col-start-5 col-span-4 row-start-9 row-span-2">{listBox('C', take(catcher, 4), 4)}</div>
+
+            {/* Left pane: Pitchers list */}
+            <div className="col-start-1 col-span-4 row-start-6 row-span-6">
+              <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full">
+                <div className="font-semibold text-center mb-2">Pitchers</div>
+                <ol className="text-sm space-y-1 max-h-full overflow-y-auto pr-1">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <li key={i} className="flex items-center">
+                      <span className="w-5 text-gray-400">{i + 1}.</span>
+                      <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
+                        {pitchers[i]?.name || ''}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <div className="flex justify-between text-[11px] text-gray-500 mt-2">
+                  <span>A - Available</span>
+                  <span>N/A - Not Available</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right pane: Batting Order Starters/Sub */}
+            <div className="col-start-9 col-span-4 row-start-6 row-span-6">
+              <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full">
+                <div className="font-semibold text-center mb-2">Batting Order</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs font-semibold mb-1">Starters</div>
+                    <ol className="text-sm space-y-1">
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <li key={i} className="flex items-center">
+                          <span className="w-5 text-gray-400">{i + 1}.</span>
                           <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
-                            {bench[idx]?.name || ''}
+                            {starters[i]?.name || ''}
                           </div>
                         </li>
-                      )
-                    })}
-                  </ol>
-                ))}
+                      ))}
+                    </ol>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold mb-1">Sub</div>
+                    <ol className="text-sm space-y-1">
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <li key={i} className="flex items-center">
+                          <span className="w-5 text-gray-400">{i + 1}.</span>
+                          <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
+                            {subs[i]?.name || ''}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bench list across bottom */}
+            <div className="col-start-2 col-span-10 row-start-11 row-span-2">
+              <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full">
+                <div className="font-semibold text-center mb-2">Bench/Player List</div>
+                <div className="grid grid-cols-3 gap-6 h-full">
+                  {[0, 1, 2].map((col) => (
+                    <ol key={col} className="text-sm space-y-1">
+                      {Array.from({ length: 5 }).map((_, i) => {
+                        const idx = col * 5 + i
+                        return (
+                          <li key={idx} className="flex items-center">
+                            <span className="w-5 text-gray-400">{idx + 1}.</span>
+                            <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate">
+                              {bench[idx]?.name || ''}
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ol>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
