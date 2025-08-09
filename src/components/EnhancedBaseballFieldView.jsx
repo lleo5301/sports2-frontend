@@ -17,18 +17,76 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
     return p?.jersey_number;
   };
 
-  // Realistic baseball field coordinates (adjusted for better spacing)
-  const positionCoords = {
-    'P': { x: 400, y: 320, label: 'Pitcher', color: '#EF4444' },
-    'C': { x: 400, y: 480, label: 'Catcher', color: '#3B82F6' },
-    '1B': { x: 520, y: 280, label: 'First Base', color: '#10B981' },
-    '2B': { x: 350, y: 240, label: 'Second Base', color: '#F59E0B' },
-    '3B': { x: 280, y: 280, label: 'Third Base', color: '#8B5CF6' },
-    'SS': { x: 320, y: 240, label: 'Shortstop', color: '#6366F1' },
-    'LF': { x: 180, y: 180, label: 'Left Field', color: '#EC4899' },
-    'CF': { x: 400, y: 120, label: 'Center Field', color: '#14B8A6' },
-    'RF': { x: 620, y: 180, label: 'Right Field', color: '#F97316' },
-    'DH': { x: 650, y: 400, label: 'Designated Hitter', color: '#84CC16' }
+  // Calculate realistic position coordinates based on field geometry
+  const getPositionCoords = (width, height) => {
+    const centerX = width / 2;
+    const bottomY = height * 0.9;
+    const fieldRadius = Math.min(width, height) * 0.45;
+    const infieldSize = fieldRadius * 0.5;
+    const baseDistance = infieldSize * 0.6;
+    
+    return {
+      'P': { 
+        x: centerX, 
+        y: bottomY - baseDistance * 0.6, 
+        label: 'Pitcher', 
+        color: '#EF4444' 
+      },
+      'C': { 
+        x: centerX, 
+        y: bottomY - 30, 
+        label: 'Catcher', 
+        color: '#3B82F6' 
+      },
+      '1B': { 
+        x: centerX + baseDistance * Math.cos(-Math.PI/4) + 20, 
+        y: bottomY - baseDistance * Math.sin(-Math.PI/4), 
+        label: 'First Base', 
+        color: '#10B981' 
+      },
+      '2B': { 
+        x: centerX + 20, 
+        y: bottomY - baseDistance * 0.75, 
+        label: 'Second Base', 
+        color: '#F59E0B' 
+      },
+      '3B': { 
+        x: centerX - baseDistance * Math.cos(-Math.PI/4) - 20, 
+        y: bottomY - baseDistance * Math.sin(-Math.PI/4), 
+        label: 'Third Base', 
+        color: '#8B5CF6' 
+      },
+      'SS': { 
+        x: centerX - 20, 
+        y: bottomY - baseDistance * 0.75, 
+        label: 'Shortstop', 
+        color: '#6366F1' 
+      },
+      'LF': { 
+        x: centerX + fieldRadius * Math.cos(-Math.PI/2.2 + Math.PI/1.1) * 0.7, 
+        y: bottomY - fieldRadius * Math.sin(-Math.PI/2.2 + Math.PI/1.1) * 0.7, 
+        label: 'Left Field', 
+        color: '#EC4899' 
+      },
+      'CF': { 
+        x: centerX, 
+        y: bottomY - fieldRadius * 0.8, 
+        label: 'Center Field', 
+        color: '#14B8A6' 
+      },
+      'RF': { 
+        x: centerX + fieldRadius * Math.cos(-Math.PI/2.2) * 0.7, 
+        y: bottomY - fieldRadius * Math.sin(-Math.PI/2.2) * 0.7, 
+        label: 'Right Field', 
+        color: '#F97316' 
+      },
+      'DH': { 
+        x: centerX + fieldRadius * 0.8, 
+        y: bottomY - 50, 
+        label: 'Designated Hitter', 
+        color: '#84CC16' 
+      }
+    };
   };
 
   const getAssignedPlayers = (positionCode) => {
@@ -62,126 +120,180 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
     const { width, height } = dimensions;
     
-    // Scale coordinates to current dimensions
-    const scaleX = width / 800;
-    const scaleY = height / 600;
+    // Get position coordinates based on current dimensions
+    const positionCoords = getPositionCoords(width, height);
 
     // Create field background
     const defs = svg.append("defs");
     
     // Gradients for field
-    const outfieldGradient = defs.append("linearGradient")
+    const outfieldGradient = defs.append("radialGradient")
       .attr("id", "outfieldGradient")
-      .attr("gradientUnits", "userSpaceOnUse")
-      .attr("x1", 0).attr("y1", 0)
-      .attr("x2", width).attr("y2", height);
+      .attr("cx", "50%")
+      .attr("cy", "80%")
+      .attr("r", "60%");
     
     outfieldGradient.append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "#22C55E")
-      .attr("stop-opacity", 0.9);
+      .attr("stop-color", "#4ADE80")
+      .attr("stop-opacity", 1);
     
     outfieldGradient.append("stop")
       .attr("offset", "100%")
       .attr("stop-color", "#15803D")
       .attr("stop-opacity", 1);
 
-    const infieldGradient = defs.append("linearGradient")
+    const infieldGradient = defs.append("radialGradient")
       .attr("id", "infieldGradient")
-      .attr("gradientUnits", "userSpaceOnUse")
-      .attr("x1", 0).attr("y1", 0)
-      .attr("x2", width).attr("y2", height);
+      .attr("cx", "50%")
+      .attr("cy", "90%")
+      .attr("r", "40%");
     
     infieldGradient.append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "#D97706")
-      .attr("stop-opacity", 0.95);
+      .attr("stop-color", "#F59E0B")
+      .attr("stop-opacity", 1);
     
     infieldGradient.append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", "#B45309")
+      .attr("stop-color", "#D97706")
       .attr("stop-opacity", 1);
 
-    // Draw field outline (simplified diamond)
-    svg.append("ellipse")
-      .attr("cx", width / 2)
-      .attr("cy", height / 2)
-      .attr("rx", width * 0.45)
-      .attr("ry", height * 0.35)
+    // Calculate field dimensions
+    const centerX = width / 2;
+    const bottomY = height * 0.9;
+    const fieldRadius = Math.min(width, height) * 0.45;
+    
+    // Create realistic fan-shaped outfield using arc path
+    const outfieldPath = d3.arc()
+      .innerRadius(0)
+      .outerRadius(fieldRadius)
+      .startAngle(-Math.PI / 2.2) // Left field foul line
+      .endAngle(-Math.PI / 2.2 + Math.PI / 1.1); // Right field foul line
+
+    // Draw outfield (fan shape)
+    svg.append("path")
+      .attr("d", outfieldPath)
+      .attr("transform", `translate(${centerX}, ${bottomY})`)
       .attr("fill", "url(#outfieldGradient)")
       .attr("stroke", "#15803D")
       .attr("stroke-width", 2);
 
-    // Infield dirt
-    svg.append("ellipse")
-      .attr("cx", width / 2)
-      .attr("cy", height * 0.65)
-      .attr("rx", width * 0.25)
-      .attr("ry", height * 0.20)
+    // Create infield diamond shape
+    const infieldSize = fieldRadius * 0.5;
+    const infieldPath = d3.arc()
+      .innerRadius(0)
+      .outerRadius(infieldSize)
+      .startAngle(-Math.PI / 2.5)
+      .endAngle(-Math.PI / 2.5 + Math.PI / 1.25);
+
+    // Draw infield dirt (smaller fan)
+    svg.append("path")
+      .attr("d", infieldPath)
+      .attr("transform", `translate(${centerX}, ${bottomY})`)
       .attr("fill", "url(#infieldGradient)")
-      .attr("stroke", "#B45309")
+      .attr("stroke", "#D97706")
       .attr("stroke-width", 1);
 
-    // Home plate
-    const homeX = width / 2;
-    const homeY = height * 0.85;
+    // Home plate (pentagon shape)
+    const homeX = centerX;
+    const homeY = bottomY - 10;
+    const plateSize = 8;
     svg.append("polygon")
-      .attr("points", `${homeX-8},${homeY-8} ${homeX+8},${homeY-8} ${homeX+8},${homeY+8} ${homeX},${homeY+15} ${homeX-8},${homeY+8}`)
-      .attr("fill", "#1F2937")
-      .attr("stroke", "#111827")
-      .attr("stroke-width", 1);
+      .attr("points", `${homeX-plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY-plateSize} ${homeX+plateSize},${homeY+plateSize/2} ${homeX},${homeY+plateSize} ${homeX-plateSize},${homeY+plateSize/2}`)
+      .attr("fill", "white")
+      .attr("stroke", "#374151")
+      .attr("stroke-width", 2);
 
-    // Bases
-    const baseSize = 6;
+    // Calculate base positions for proper diamond
+    const baseDistance = infieldSize * 0.6;
+    const baseSize = 8;
+    
     // First base
+    const firstBaseX = homeX + baseDistance * Math.cos(-Math.PI/4);
+    const firstBaseY = homeY - baseDistance * Math.sin(-Math.PI/4);
     svg.append("rect")
-      .attr("x", homeX + width * 0.15 - baseSize/2)
-      .attr("y", homeY - height * 0.15 - baseSize/2)
+      .attr("x", firstBaseX - baseSize/2)
+      .attr("y", firstBaseY - baseSize/2)
       .attr("width", baseSize)
       .attr("height", baseSize)
       .attr("fill", "white")
-      .attr("stroke", "#374151");
+      .attr("stroke", "#374151")
+      .attr("stroke-width", 2)
+      .attr("transform", `rotate(45 ${firstBaseX} ${firstBaseY})`);
 
-    // Second base
+    // Second base (center field)
+    const secondBaseX = homeX;
+    const secondBaseY = homeY - baseDistance * Math.sqrt(2);
     svg.append("rect")
-      .attr("x", homeX - baseSize/2)
-      .attr("y", homeY - height * 0.25 - baseSize/2)
+      .attr("x", secondBaseX - baseSize/2)
+      .attr("y", secondBaseY - baseSize/2)
       .attr("width", baseSize)
       .attr("height", baseSize)
       .attr("fill", "white")
-      .attr("stroke", "#374151");
+      .attr("stroke", "#374151")
+      .attr("stroke-width", 2)
+      .attr("transform", `rotate(45 ${secondBaseX} ${secondBaseY})`);
 
     // Third base
+    const thirdBaseX = homeX - baseDistance * Math.cos(-Math.PI/4);
+    const thirdBaseY = homeY - baseDistance * Math.sin(-Math.PI/4);
     svg.append("rect")
-      .attr("x", homeX - width * 0.15 - baseSize/2)
-      .attr("y", homeY - height * 0.15 - baseSize/2)
+      .attr("x", thirdBaseX - baseSize/2)
+      .attr("y", thirdBaseY - baseSize/2)
       .attr("width", baseSize)
       .attr("height", baseSize)
       .attr("fill", "white")
-      .attr("stroke", "#374151");
+      .attr("stroke", "#374151")
+      .attr("stroke-width", 2)
+      .attr("transform", `rotate(45 ${thirdBaseX} ${thirdBaseY})`);
 
     // Pitcher's mound
+    const pitcherX = homeX;
+    const pitcherY = homeY - baseDistance * 0.6;
     svg.append("circle")
-      .attr("cx", homeX)
-      .attr("cy", homeY - height * 0.12)
-      .attr("r", 8)
-      .attr("fill", "#92400E")
-      .attr("stroke", "#78350F")
-      .attr("stroke-width", 1);
+      .attr("cx", pitcherX)
+      .attr("cy", pitcherY)
+      .attr("r", 10)
+      .attr("fill", "#D97706")
+      .attr("stroke", "#92400E")
+      .attr("stroke-width", 2);
+    
+    // Pitcher's rubber
+    svg.append("rect")
+      .attr("x", pitcherX - 3)
+      .attr("y", pitcherY - 1)
+      .attr("width", 6)
+      .attr("height", 2)
+      .attr("fill", "white")
+      .attr("stroke", "#374151");
 
-    // Draw base lines
+    // Draw foul lines
     const lineGenerator = d3.line();
     
-    // Home to first
+    // First base foul line
     svg.append("path")
-      .attr("d", lineGenerator([[homeX, homeY], [homeX + width * 0.15, homeY - height * 0.15]]))
+      .attr("d", lineGenerator([
+        [homeX, homeY], 
+        [homeX + fieldRadius * Math.cos(-Math.PI/2.2), homeY - fieldRadius * Math.sin(-Math.PI/2.2)]
+      ]))
       .attr("stroke", "white")
-      .attr("stroke-width", 2)
+      .attr("stroke-width", 3)
       .attr("fill", "none");
 
-    // Home to third
+    // Third base foul line
     svg.append("path")
-      .attr("d", lineGenerator([[homeX, homeY], [homeX - width * 0.15, homeY - height * 0.15]]))
+      .attr("d", lineGenerator([
+        [homeX, homeY], 
+        [homeX + fieldRadius * Math.cos(-Math.PI/2.2 + Math.PI/1.1), homeY - fieldRadius * Math.sin(-Math.PI/2.2 + Math.PI/1.1)]
+      ]))
+      .attr("stroke", "white")
+      .attr("stroke-width", 3)
+      .attr("fill", "none");
+
+    // Infield base paths
+    svg.append("path")
+      .attr("d", lineGenerator([[homeX, homeY], [firstBaseX, firstBaseY], [secondBaseX, secondBaseY], [thirdBaseX, thirdBaseY], [homeX, homeY]]))
       .attr("stroke", "white")
       .attr("stroke-width", 2)
       .attr("fill", "none");
@@ -189,8 +301,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
     // Position players with enhanced styling
     Object.entries(positionCoords).forEach(([positionCode, coords]) => {
       const players = getAssignedPlayers(positionCode);
-      const scaledX = coords.x * scaleX;
-      const scaledY = coords.y * scaleY;
+      const playerX = coords.x;
+      const playerY = coords.y;
       
       // Create position group
       const positionGroup = svg.append("g")
@@ -206,8 +318,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
         // Player background circle
         positionGroup.append("circle")
-          .attr("cx", scaledX)
-          .attr("cy", scaledY)
+          .attr("cx", playerX)
+          .attr("cy", playerY)
           .attr("r", 35)
           .attr("fill", "rgba(255, 255, 255, 0.95)")
           .attr("stroke", coords.color)
@@ -216,8 +328,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
         // Player photo placeholder (circular)
         positionGroup.append("circle")
-          .attr("cx", scaledX)
-          .attr("cy", scaledY - 8)
+          .attr("cx", playerX)
+          .attr("cy", playerY - 8)
           .attr("r", 18)
           .attr("fill", "#E5E7EB")
           .attr("stroke", coords.color)
@@ -226,8 +338,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Player initials or photo
         const initials = playerName.split(' ').map(n => n[0]).join('').substring(0, 2);
         positionGroup.append("text")
-          .attr("x", scaledX)
-          .attr("y", scaledY - 4)
+          .attr("x", playerX)
+          .attr("y", playerY - 4)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("font-weight", "bold")
@@ -240,8 +352,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           playerName;
         
         positionGroup.append("text")
-          .attr("x", scaledX)
-          .attr("y", scaledY + 18)
+          .attr("x", playerX)
+          .attr("y", playerY + 18)
           .attr("text-anchor", "middle")
           .attr("font-size", "10px")
           .attr("font-weight", "bold")
@@ -251,8 +363,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Jersey number
         if (jerseyNumber) {
           positionGroup.append("text")
-            .attr("x", scaledX)
-            .attr("y", scaledY + 30)
+            .attr("x", playerX)
+            .attr("y", playerY + 30)
             .attr("text-anchor", "middle")
             .attr("font-size", "8px")
             .attr("fill", "#6B7280")
@@ -261,8 +373,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
         // Position code
         positionGroup.append("text")
-          .attr("x", scaledX + 30)
-          .attr("y", scaledY - 20)
+          .attr("x", playerX + 30)
+          .attr("y", playerY - 20)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("font-weight", "bold")
@@ -272,16 +384,16 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Depth indicator (if multiple players)
         if (players.length > 1) {
           positionGroup.append("circle")
-            .attr("cx", scaledX + 25)
-            .attr("cy", scaledY + 20)
+            .attr("cx", playerX + 25)
+            .attr("cy", playerY + 20)
             .attr("r", 8)
             .attr("fill", "#EF4444")
             .attr("stroke", "white")
             .attr("stroke-width", 1);
           
           positionGroup.append("text")
-            .attr("x", scaledX + 25)
-            .attr("y", scaledY + 24)
+            .attr("x", playerX + 25)
+            .attr("y", playerY + 24)
             .attr("text-anchor", "middle")
             .attr("font-size", "8px")
             .attr("font-weight", "bold")
@@ -309,8 +421,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       } else {
         // Empty position
         positionGroup.append("circle")
-          .attr("cx", scaledX)
-          .attr("cy", scaledY)
+          .attr("cx", playerX)
+          .attr("cy", playerY)
           .attr("r", 25)
           .attr("fill", "rgba(255, 255, 255, 0.8)")
           .attr("stroke", "#9CA3AF")
@@ -318,8 +430,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("stroke-dasharray", "5,5");
 
         positionGroup.append("text")
-          .attr("x", scaledX)
-          .attr("y", scaledY - 5)
+          .attr("x", playerX)
+          .attr("y", playerY - 5)
           .attr("text-anchor", "middle")
           .attr("font-size", "14px")
           .attr("font-weight", "bold")
@@ -327,8 +439,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .text(positionCode);
 
         positionGroup.append("text")
-          .attr("x", scaledX)
-          .attr("y", scaledY + 8)
+          .attr("x", playerX)
+          .attr("y", playerY + 8)
           .attr("text-anchor", "middle")
           .attr("font-size", "8px")
           .attr("fill", "#9CA3AF")
@@ -355,8 +467,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       // Selection highlight
       if (selectedPosition === positionCode) {
         positionGroup.append("circle")
-          .attr("cx", scaledX)
-          .attr("cy", scaledY)
+          .attr("cx", playerX)
+          .attr("cy", playerY)
           .attr("r", 45)
           .attr("fill", "none")
           .attr("stroke", "#3B82F6")
@@ -390,7 +502,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
         {/* Field Legend */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-          {Object.entries(positionCoords).map(([positionCode, coords]) => {
+          {Object.entries(getPositionCoords(dimensions.width, dimensions.height)).map(([positionCode, coords]) => {
             const players = getAssignedPlayers(positionCode);
             
             return (
@@ -445,13 +557,13 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
             <div className="stat bg-white p-3 rounded-lg border border-gray-200">
               <div className="stat-title text-xs text-gray-600">Total Positions</div>
               <div className="stat-value text-xl font-bold text-gray-800">
-                {Object.keys(positionCoords).length}
+                {Object.keys(getPositionCoords(dimensions.width, dimensions.height)).length}
               </div>
             </div>
             <div className="stat bg-white p-3 rounded-lg border border-gray-200">
               <div className="stat-title text-xs text-gray-600">Filled Positions</div>
               <div className="stat-value text-xl font-bold text-green-600">
-                {Object.keys(positionCoords).filter(pos => 
+                {Object.keys(getPositionCoords(dimensions.width, dimensions.height)).filter(pos => 
                   getAssignedPlayers(pos).length > 0
                 ).length}
               </div>
@@ -465,9 +577,9 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
             <div className="stat bg-white p-3 rounded-lg border border-gray-200">
               <div className="stat-title text-xs text-gray-600">Coverage</div>
               <div className="stat-value text-xl font-bold text-purple-600">
-                {Math.round((Object.keys(positionCoords).filter(pos => 
+                {Math.round((Object.keys(getPositionCoords(dimensions.width, dimensions.height)).filter(pos => 
                   getAssignedPlayers(pos).length > 0
-                ).length / Object.keys(positionCoords).length) * 100)}%
+                ).length / Object.keys(getPositionCoords(dimensions.width, dimensions.height)).length) * 100)}%
               </div>
             </div>
           </div>
