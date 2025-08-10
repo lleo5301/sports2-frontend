@@ -43,6 +43,7 @@ import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import BaseballFieldView from '../components/BaseballFieldView'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 import DepthChartSheetView from '../components/DepthChartSheetView'
+import DepthChartFangraphsView from '../components/DepthChartFangraphsView'
 
 // Default position configurations
 const defaultPositions = [
@@ -75,7 +76,7 @@ export default function DepthChart() {
   const [showPermissionsModal, setShowPermissionsModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState(null)
   const [activeTab, setActiveTab] = useState('chart') // 'chart', 'positions', 'history', 'permissions'
-  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'field', 'enhanced', 'sheet'
+  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'field', 'enhanced', 'sheet', 'fangraphs'
   const [filters, setFilters] = useState({
     search: '',
     position: '',
@@ -596,6 +597,13 @@ export default function DepthChart() {
                       <Layers className="h-4 w-4 mr-2" />
                       Sheet View
                     </button>
+                    <button
+                      className={`btn btn-sm ${chartViewMode === 'fangraphs' ? 'btn-active' : 'btn-outline'}`}
+                      onClick={() => setChartViewMode('fangraphs')}
+                    >
+                      <Layers className="h-4 w-4 mr-2" />
+                      Compact View
+                    </button>
                   </div>
                 </div>
 
@@ -644,6 +652,11 @@ export default function DepthChart() {
                 {/* Sheet View */}
                 {chartViewMode === 'sheet' && (
                   <DepthChartSheetView depthChart={depthChart} />
+                )}
+
+                {/* Fangraphs-like View */}
+                {chartViewMode === 'fangraphs' && (
+                  <DepthChartFangraphsView depthChart={depthChart} />
                 )}
 
                 {/* List View */}

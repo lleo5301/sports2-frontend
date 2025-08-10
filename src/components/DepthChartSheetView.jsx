@@ -18,6 +18,21 @@ export default function DepthChartSheetView({ depthChart }) {
 
   const take = (arr, n) => arr.slice(0, n)
 
+  // Map position codes to full names (fallbacks if not configured on chart)
+  const fallbackNames = {
+    P: 'Pitcher',
+    C: 'Catcher',
+    '1B': 'First Base',
+    '2B': 'Second Base',
+    '3B': 'Third Base',
+    SS: 'Shortstop',
+    LF: 'Left Field',
+    CF: 'Center Field',
+    RF: 'Right Field',
+    DH: 'Designated Hitter'
+  }
+  const nameFor = (code) => positions.find((p) => p.position_code === code)?.position_name || fallbackNames[code] || code
+
   const listBox = (title, items = [], lines = 3) => (
     <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0">
       {title && <div className="font-semibold text-center mb-2">{title}</div>}
@@ -74,17 +89,17 @@ export default function DepthChartSheetView({ depthChart }) {
         <div className="relative h-[1200px] bg-gradient-to-b from-white/50 to-white/30 rounded-lg border border-gray-200">
           <div className="absolute inset-0 p-6 grid grid-cols-12 grid-rows-12 gap-4">
             {/* Top row: LF - CF - RF */}
-            <div className="col-span-3 row-span-2">{listBox('LF', take(left, 3))}</div>
-            <div className="col-start-5 col-span-4 row-span-2">{listBox('CF', take(center, 3))}</div>
-            <div className="col-start-10 col-span-3 row-span-2">{listBox('RF', take(right, 3))}</div>
+            <div className="col-span-3 row-span-2">{listBox(nameFor('LF'), take(left, 3))}</div>
+            <div className="col-start-5 col-span-4 row-span-2">{listBox(nameFor('CF'), take(center, 3))}</div>
+            <div className="col-start-10 col-span-3 row-span-2">{listBox(nameFor('RF'), take(right, 3))}</div>
 
             {/* Mid row between outfield and bases: SS and 2B (moved up to reduce top spacing) */}
-            <div className="col-start-2 col-span-3 row-start-3 row-span-2">{listBox('SS', take(short, 3))}</div>
-            <div className="col-start-9 col-span-3 row-start-3 row-span-2">{listBox('2B', take(second, 3))}</div>
+            <div className="col-start-2 col-span-3 row-start-3 row-span-2">{listBox(nameFor('SS'), take(short, 3))}</div>
+            <div className="col-start-9 col-span-3 row-start-3 row-span-2">{listBox(nameFor('2B'), take(second, 3))}</div>
 
             {/* Infield corners: 3B and 1B */}
-            <div className="col-start-2 col-span-3 row-start-6 row-span-2">{listBox('3B', take(third, 3))}</div>
-            <div className="col-start-9 col-span-3 row-start-6 row-span-2">{listBox('1B', take(first, 3))}</div>
+            <div className="col-start-2 col-span-3 row-start-6 row-span-2">{listBox(nameFor('3B'), take(third, 3))}</div>
+            <div className="col-start-9 col-span-3 row-start-6 row-span-2">{listBox(nameFor('1B'), take(first, 3))}</div>
 
             {/* Left column: Starting Pitcher/Relief & Closer (moved up) */}
             <div className="col-start-1 col-span-4 row-start-5 row-span-3 flex flex-col">
@@ -110,12 +125,12 @@ export default function DepthChartSheetView({ depthChart }) {
             </div>
 
             {/* Catcher below home area */}
-            <div className="col-start-5 col-span-4 row-start-9 row-span-2">{listBox('C', take(catcher, 4), 4)}</div>
+            <div className="col-start-5 col-span-4 row-start-9 row-span-2">{listBox(nameFor('C'), take(catcher, 4), 4)}</div>
 
             {/* Center pane: Pitchers list (moved to middle, shifted up) */}
             <div className="col-start-5 col-span-4 row-start-5 row-span-3">
               <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full">
-                <div className="font-semibold text-center mb-2">Pitchers</div>
+                <div className="font-semibold text-center mb-2">{nameFor('P')}s</div>
                 <ol className="text-sm space-y-1 max-h-full overflow-y-auto pr-1">
                   {Array.from({ length: 10 }).map((_, i) => (
                     <li key={i} className="flex items-center">

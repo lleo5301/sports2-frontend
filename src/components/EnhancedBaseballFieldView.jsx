@@ -429,7 +429,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
   }, [dimensions, assignedPlayers, selectedPosition, onPositionClick]);
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-testid="enhanced-baseball-field">
       <div className="bg-base-100 rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold mb-6 text-center text-gray-800">
           Enhanced Baseball Field View
@@ -445,6 +445,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
               borderRadius: '8px',
               background: 'linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)'
             }}
+            data-testid="enhanced-field-svg"
           />
         </div>
 
