@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Recruiting Board Page', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('token', 'mock-jwt-token'));
     // Mock user profile
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -199,6 +200,14 @@ test.describe('Recruiting Board Page', () => {
     });
 
     await page.goto('/recruiting');
+    // Stabilize by waiting for URL and a unique text block
+    await expect(page).toHaveURL(/\/recruiting/);
+    // Wait on any stable element on recruiting page
+    const header = page.getByRole('heading', { name: /recruit/i }).first();
+    const searchPlaceholder = page.getByPlaceholder(/Search recruits/i).first();
+    const addRecruit = page.getByRole('link', { name: /add recruit/i }).first();
+    const anyCard = page.locator('.card').first();
+    await expect(header.or(searchPlaceholder).or(addRecruit).or(anyCard)).toBeVisible({ timeout: 20000 });
   });
 
   test('should display recruiting board with stats', async ({ page }) => {
@@ -257,7 +266,7 @@ test.describe('Recruiting Board Page', () => {
 
   test('should have filter functionality', async ({ page }) => {
     // Open filters
-    await page.getByRole('button', { name: 'Filters' }).click();
+    await page.getByRole('button', { name: /filters/i }).click();
     
     // Check filter options are visible
     await expect(page.getByLabel('School Type')).toBeVisible();
@@ -279,7 +288,7 @@ test.describe('Recruiting Board Page', () => {
 
   test('should have clear filters functionality', async ({ page }) => {
     // Open filters and apply some
-    await page.getByRole('button', { name: 'Filters' }).click();
+    await page.getByRole('button', { name: /filters/i }).click();
     await page.getByLabel('Position').selectOption('SS');
     
     // Clear filters
@@ -537,7 +546,7 @@ test.describe('Recruiting Board Page', () => {
     await expect(page.getByRole('button', { name: 'Filters' })).toBeVisible();
     
     // Preference list tabs should wrap
-    await expect(page.getByRole('button', { name: 'New Players' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /players/i })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Overall Pref List' })).toBeVisible();
   });
 

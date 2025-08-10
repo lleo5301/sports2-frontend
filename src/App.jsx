@@ -26,6 +26,7 @@ import DepthChart from './pages/DepthChart';
 import TeamSchedule from './pages/TeamSchedule';
 import OAuthCallback from './pages/OAuthCallback';
 import NotFound from './pages/NotFound';
+import RecruitingBoard from './pages/RecruitingBoard';
 
 function App() {
   return (
@@ -118,6 +119,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <CreateScoutingReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/recruiting" element={
+          <ProtectedRoute>
+            <Layout>
+              <RecruitingBoard />
             </Layout>
           </ProtectedRoute>
         } />
