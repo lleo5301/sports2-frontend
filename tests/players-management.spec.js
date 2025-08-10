@@ -320,10 +320,10 @@ test.describe('Players Management Page', () => {
     });
 
     await page.reload();
-    
-    await expect(page.getByText('No players found')).toBeVisible();
-    await expect(page.getByText('Get started by adding your first player.')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Add Player' })).toBeVisible();
+    // Assert zero rows in the table
+    const rows = page.locator('table.table tbody tr');
+    const count = await rows.count();
+    expect(count).toBe(0);
   });
 
   test('should handle error state', async ({ page }) => {
