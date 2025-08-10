@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "test": "playwright test",
+    "test:ff": "playwright test --max-failures=1",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
