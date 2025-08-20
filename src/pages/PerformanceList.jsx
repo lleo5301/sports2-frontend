@@ -140,7 +140,7 @@ const PerformanceList = () => {
                   <h3 className="text-white/80 text-sm font-medium">Total Players</h3>
                   <p className="text-2xl font-bold">{summary.total_players || 0}</p>
                 </div>
-                <UsersIcon className="w-8 h-8 text-white/60" />
+                <Users className="w-8 h-8 text-white/60" />
               </div>
             </div>
           </div>
@@ -176,7 +176,7 @@ const PerformanceList = () => {
                   <h3 className="text-white/80 text-sm font-medium">Active Players</h3>
                   <p className="text-2xl font-bold">{players.filter(p => p.status === 'active').length}</p>
                 </div>
-                <UsersIcon className="w-8 h-8 text-white/60" />
+                <Users className="w-8 h-8 text-white/60" />
               </div>
             </div>
           </div>
