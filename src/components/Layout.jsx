@@ -15,7 +15,8 @@ import {
   ChevronLeft,
   Moon,
   Sun,
-  User
+  User,
+  Trophy
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -26,6 +27,7 @@ const Layout = ({ children }) => {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/players', label: 'Players', icon: Users },
+    { path: '/performance', label: 'Performance', icon: Trophy },
     { path: '/teams', label: 'Teams', icon: Building2 },
     { path: '/scouting', label: 'Scouting', icon: Target },
     { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },

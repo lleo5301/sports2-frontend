@@ -73,6 +73,14 @@ const Dashboard = () => {
     }
   };
 
+  const handleViewPerformance = () => {
+    try {
+      navigate('/performance');
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-8">
@@ -217,7 +225,7 @@ const Dashboard = () => {
               <p className="card-description">Common tasks and shortcuts</p>
             </div>
             <div className="card-content">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button 
                   className="btn btn-primary hover:btn-primary-focus" 
                   onClick={handleAddPlayer}
@@ -238,6 +246,15 @@ const Dashboard = () => {
                 </button>
                 <button 
                   className="btn btn-accent hover:btn-accent-focus" 
+                  onClick={handleViewPerformance}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Performance Rankings
+                </button>
+                <button 
+                  className="btn btn-info hover:btn-info-focus" 
                   onClick={handleViewAnalytics}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

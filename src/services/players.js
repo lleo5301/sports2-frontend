@@ -35,5 +35,11 @@ export const playersService = {
   getPlayerStats: async (id) => {
     const response = await api.get(`/players/byId/${id}/stats`)
     return response.data
+  },
+
+  // Get player performance rankings
+  getPlayerPerformance: async (params = {}) => {
+    const response = await api.get('/players/performance', { params })
+    return response.data
   }
 } 

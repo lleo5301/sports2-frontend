@@ -27,6 +27,7 @@ import TeamSchedule from './pages/TeamSchedule';
 import OAuthCallback from './pages/OAuthCallback';
 import NotFound from './pages/NotFound';
 import RecruitingBoard from './pages/RecruitingBoard';
+import PerformanceList from './pages/PerformanceList';
 
 function App() {
   return (
@@ -77,6 +78,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <EditPlayer />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/performance" element={
+          <ProtectedRoute>
+            <Layout>
+              <PerformanceList />
             </Layout>
           </ProtectedRoute>
         } />
