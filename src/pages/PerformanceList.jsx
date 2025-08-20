@@ -152,7 +152,7 @@ const PerformanceList = () => {
                   <h3 className="text-white/80 text-sm font-medium">Team Batting Avg</h3>
                   <p className="text-2xl font-bold">{(summary.team_batting_avg || 0).toFixed(3)}</p>
                 </div>
-                <TrophyIcon className="w-8 h-8 text-white/60" />
+                <Trophy className="w-8 h-8 text-white/60" />
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ const PerformanceList = () => {
                   <h3 className="text-white/80 text-sm font-medium">Team ERA</h3>
                   <p className="text-2xl font-bold">{(summary.team_era || 0).toFixed(2)}</p>
                 </div>
-                <TrophyIcon className="w-8 h-8 text-white/60" />
+                <Trophy className="w-8 h-8 text-white/60" />
               </div>
             </div>
           </div>
