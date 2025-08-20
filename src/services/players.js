@@ -39,7 +39,15 @@ export const playersService = {
 
   // Get player performance rankings
   getPlayerPerformance: async (params = {}) => {
-    const response = await api.get('/players/performance', { params })
+    // Filter out empty string parameters to avoid validation errors
+    const filteredParams = Object.entries(params).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    
+    const response = await api.get('/players/performance', { params: filteredParams })
     return response.data
   }
 } 
