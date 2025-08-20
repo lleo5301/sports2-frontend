@@ -107,13 +107,18 @@ export default function RecruitingBoard() {
 
   const recruits = recruitsData?.data || []
   const pagination = recruitsData?.pagination || {}
-  const preferenceLists = preferenceListsData?.data || []
+  // Handle both response formats: { data: [...] } or direct array
+  const preferenceLists = Array.isArray(preferenceListsData?.data) 
+    ? preferenceListsData.data 
+    : Array.isArray(preferenceListsData) 
+    ? preferenceListsData 
+    : []
 
   // Get recruit stats
   const totalRecruits = recruits.length
-  const highInterestRecruits = preferenceLists.filter(p => p.interest_level === 'High').length
-  const scheduledVisits = preferenceLists.filter(p => p.visit_scheduled).length
-  const scholarshipOffers = preferenceLists.filter(p => p.scholarship_offered).length
+  const highInterestRecruits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.interest_level === 'High').length : 0
+  const scheduledVisits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.visit_scheduled).length : 0
+  const scholarshipOffers = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.scholarship_offered).length : 0
 
   return (
     <div className="p-6">
@@ -340,7 +345,7 @@ export default function RecruitingBoard() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recruits.map((recruit) => {
-              const preference = preferenceLists.find(p => p.player_id === recruit.id)
+              const preference = Array.isArray(preferenceLists) ? preferenceLists.find(p => p.player_id === recruit.id) : null
               
               return (
                 <div key={recruit.id} className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
