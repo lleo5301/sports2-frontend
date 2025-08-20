@@ -32,6 +32,8 @@ import NewPlayers from './pages/NewPlayers';
 import OverallPrefList from './pages/OverallPrefList';
 import HSPrefList from './pages/HSPrefList';
 import CollegePortal from './pages/CollegePortal';
+import Coaches from './pages/Coaches';
+import Scouts from './pages/Scouts';
 
 function App() {
   return (
@@ -166,6 +168,20 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <RecruitingBoard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/coaches" element={
+          <ProtectedRoute>
+            <Layout>
+              <Coaches />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/scouts" element={
+          <ProtectedRoute>
+            <Layout>
+              <Scouts />
             </Layout>
           </ProtectedRoute>
         } />

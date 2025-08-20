@@ -22,7 +22,9 @@ import {
   List,
   GraduationCap,
   ArrowRightLeft,
-  UserCheck
+  UserCheck,
+  School,
+  Eye
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -45,6 +47,13 @@ const Layout = ({ children }) => {
         { path: '/recruiting', label: 'Recruiting Board', icon: UserCheck },
         { path: '/scouting', label: 'Scouting', icon: Target },
         { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
+      ]
+    },
+    {
+      title: 'Contacts & Networks',
+      items: [
+        { path: '/coaches', label: 'Coaches', icon: School },
+        { path: '/scouts', label: 'Scouts', icon: Eye },
       ]
     },
     {
