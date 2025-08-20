@@ -105,9 +105,15 @@ export default function RecruitingBoard() {
     })
   }
 
-  const recruits = recruitsData?.data || []
+  // Handle both response formats for recruits: { data: [...] } or direct array
+  const recruits = Array.isArray(recruitsData?.data) 
+    ? recruitsData.data 
+    : Array.isArray(recruitsData) 
+    ? recruitsData 
+    : []
   const pagination = recruitsData?.pagination || {}
-  // Handle both response formats: { data: [...] } or direct array
+  
+  // Handle both response formats for preference lists: { data: [...] } or direct array
   const preferenceLists = Array.isArray(preferenceListsData?.data) 
     ? preferenceListsData.data 
     : Array.isArray(preferenceListsData) 
@@ -115,7 +121,7 @@ export default function RecruitingBoard() {
     : []
 
   // Get recruit stats
-  const totalRecruits = recruits.length
+  const totalRecruits = Array.isArray(recruits) ? recruits.length : 0
   const highInterestRecruits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.interest_level === 'High').length : 0
   const scheduledVisits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.visit_scheduled).length : 0
   const scholarshipOffers = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.scholarship_offered).length : 0
@@ -344,7 +350,7 @@ export default function RecruitingBoard() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recruits.map((recruit) => {
+            {Array.isArray(recruits) && recruits.map((recruit) => {
               const preference = Array.isArray(preferenceLists) ? preferenceLists.find(p => p.player_id === recruit.id) : null
               
               return (
