@@ -17,7 +17,12 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. Do not auto-open/serve the HTML report; only write it */
-  reporter: [['html', { open: 'never' }]],
+  reporter: process.env.CI 
+    ? [
+        ['html', { open: 'never' }],
+        ['junit', { outputFile: process.env.PLAYWRIGHT_JUNIT_OUTPUT_NAME || 'test-results/junit.xml' }]
+      ]
+    : [['html', { open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
