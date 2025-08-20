@@ -15,6 +15,9 @@ test.describe('API Integration', () => {
       
       await page.goto('/login');
       
+      // Wait for React app to load and render the form
+      await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
+      
       // Check for compilation errors and skip if necessary
       await skipIfCompilationError(page, testInfo);
       
@@ -52,6 +55,9 @@ test.describe('API Integration', () => {
     test('should handle network errors during registration', async ({ page }) => {
       await page.goto('/register');
       
+      // Wait for React app to load and render the form
+      await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
+      
       // Mock network error
       await page.route('**/api/auth/register', async route => {
         await route.abort('failed');
@@ -61,7 +67,7 @@ test.describe('API Integration', () => {
       await page.getByLabel('First Name').fill('John');
       await page.getByLabel('Last Name').fill('Doe');
       await page.getByLabel('Email address').fill('john@example.com');
-      await page.getByLabel('Phone Number').fill('555-0123');
+      await page.getByLabel('Phone Number (Optional)').fill('555-0123');
       await page.getByLabel('Password').fill('password123');
       await page.getByLabel('Confirm Password').fill('password123');
       await page.getByRole('button', { name: 'Create Account' }).click();
@@ -72,6 +78,9 @@ test.describe('API Integration', () => {
 
     test('should handle server errors (500)', async ({ page }) => {
       await page.goto('/login');
+      
+      // Wait for React app to load and render the form  
+      await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
       
       // Mock server error
       await page.route('**/api/auth/login', async route => {
@@ -188,7 +197,10 @@ test.describe('API Integration', () => {
     test('should validate email format', async ({ page }) => {
       await page.goto('/register');
       
-      const emailInput = page.getByLabel('Email address');
+      // Wait for React app to load and render the form
+      await page.waitForSelector('input#email', { timeout: 10000 });
+      
+      const emailInput = page.locator('input#email');
       
       // Test invalid email formats
       const invalidEmails = [
@@ -213,7 +225,10 @@ test.describe('API Integration', () => {
     test('should validate password strength', async ({ page }) => {
       await page.goto('/register');
       
-      const passwordInput = page.getByLabel('Password');
+      // Wait for React app to load and render the form
+      await page.waitForSelector('input#password', { timeout: 10000 });
+      
+      const passwordInput = page.locator('input#password');
       
       // Test short password
       await passwordInput.fill('123');
@@ -229,21 +244,30 @@ test.describe('API Integration', () => {
     test('should validate required fields', async ({ page }) => {
       await page.goto('/register');
       
+      // Wait for React app to load and render the form
+      await page.waitForSelector('button[type="submit"], .btn', { timeout: 10000 });
+      
       // Try to submit without filling required fields
       await page.getByRole('button', { name: 'Create Account' }).click();
       
-      // Check for validation errors
+      // Wait for form validation to appear
+      await page.waitForTimeout(1000);
+      
+      // Check for validation errors (phone is optional so no phone validation)
       await expect(page.getByText('First name is required')).toBeVisible();
       await expect(page.getByText('Last name is required')).toBeVisible();
       await expect(page.getByText('Please enter a valid email address')).toBeVisible();
-      await expect(page.getByText('Phone number is required')).toBeVisible();
       await expect(page.getByText('Password must be at least 6 characters')).toBeVisible();
+      // Role validation may not trigger without interaction, so we'll skip it for now
     });
   });
 
   test.describe('Loading States', () => {
     test('should show loading state during login', async ({ page }) => {
       await page.goto('/login');
+      
+      // Wait for React app to load and render the form
+      await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
       
       // Mock slow response
       await page.route('**/api/auth/login', async route => {
@@ -279,6 +303,9 @@ test.describe('API Integration', () => {
     test('should show loading state during registration', async ({ page }) => {
       await page.goto('/register');
       
+      // Wait for React app to load and render the form
+      await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
+      
       // Mock slow response
       await page.route('**/api/auth/register', async route => {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -304,7 +331,7 @@ test.describe('API Integration', () => {
       await page.getByLabel('First Name').fill('New');
       await page.getByLabel('Last Name').fill('User');
       await page.getByLabel('Email address').fill('new@example.com');
-      await page.getByLabel('Phone Number').fill('555-0123');
+      await page.getByLabel('Phone Number (Optional)').fill('555-0123');
       await page.getByLabel('Password').fill('password123');
       await page.getByLabel('Confirm Password').fill('password123');
       await page.getByRole('button', { name: 'Create Account' }).click();
