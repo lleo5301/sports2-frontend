@@ -5,7 +5,6 @@ import { toast } from 'react-hot-toast'
 import {
   Users,
   Eye,
-  Target,
   TrendingUp,
   TrendingDown,
   Calendar,
@@ -40,10 +39,8 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import DepthChartPositionManager from '../components/DepthChartPositionManager'
-import BaseballFieldView from '../components/BaseballFieldView'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 import DepthChartSheetView from '../components/DepthChartSheetView'
-import DepthChartFangraphsView from '../components/DepthChartFangraphsView'
 
 // Default position configurations
 const defaultPositions = [
@@ -76,7 +73,7 @@ export default function DepthChart() {
   const [showPermissionsModal, setShowPermissionsModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState(null)
   const [activeTab, setActiveTab] = useState('chart') // 'chart', 'positions', 'history', 'permissions'
-  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'field', 'enhanced', 'sheet', 'fangraphs'
+  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'enhanced', 'sheet'
   const [filters, setFilters] = useState({
     search: '',
     position: '',
@@ -291,6 +288,13 @@ export default function DepthChart() {
       setSelectedDepthChart(defaultChart.id)
     }
   }, [depthChartsData, selectedDepthChart])
+
+  // Handle invalid view modes (field, fangraphs) by defaulting to list view
+  useEffect(() => {
+    if (chartViewMode === 'field' || chartViewMode === 'fangraphs') {
+      setChartViewMode('list')
+    }
+  }, [chartViewMode])
 
   const handleCreateDepthChart = () => {
     createDepthChartMutation.mutate({
@@ -577,13 +581,6 @@ export default function DepthChart() {
                       List View
                     </button>
                     <button
-                      className={`btn btn-sm ${chartViewMode === 'field' ? 'btn-active' : 'btn-outline'}`}
-                      onClick={() => setChartViewMode('field')}
-                    >
-                      <Target className="h-4 w-4 mr-2" />
-                      Field View
-                    </button>
-                    <button
                       className={`btn btn-sm ${chartViewMode === 'enhanced' ? 'btn-active' : 'btn-outline'}`}
                       onClick={() => setChartViewMode('enhanced')}
                     >
@@ -597,36 +594,10 @@ export default function DepthChart() {
                       <Layers className="h-4 w-4 mr-2" />
                       Sheet View
                     </button>
-                    <button
-                      className={`btn btn-sm ${chartViewMode === 'fangraphs' ? 'btn-active' : 'btn-outline'}`}
-                      onClick={() => setChartViewMode('fangraphs')}
-                    >
-                      <Layers className="h-4 w-4 mr-2" />
-                      Compact View
-                    </button>
                   </div>
                 </div>
 
-                {/* Field View */}
-                {chartViewMode === 'field' && (
-                  <BaseballFieldView
-                    positions={depthChart.DepthChartPositions || []}
-                    assignedPlayers={depthChart.DepthChartPositions?.flatMap(pos => 
-                      pos.DepthChartPlayers?.map(player => ({
-                        ...player,
-                        position_code: pos.position_code
-                      })) || []
-                    ) || []}
-                    onPositionClick={(positionCode) => {
-                      const position = depthChart.DepthChartPositions?.find(p => p.position_code === positionCode);
-                      if (position) {
-                        setSelectedPosition(position);
-                        setShowAssignPlayerModal(true);
-                      }
-                    }}
-                    selectedPosition={selectedPosition?.position_code}
-                  />
-                )}
+
 
                 {/* Enhanced Field View */}
                 {chartViewMode === 'enhanced' && (
@@ -654,10 +625,7 @@ export default function DepthChart() {
                   <DepthChartSheetView depthChart={depthChart} />
                 )}
 
-                {/* Fangraphs-like View */}
-                {chartViewMode === 'fangraphs' && (
-                  <DepthChartFangraphsView depthChart={depthChart} />
-                )}
+
 
                 {/* List View */}
                 {chartViewMode === 'list' && (
