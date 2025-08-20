@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, Eye, Star, Calendar, Phone, Mail, MapPin, Target, Users, Bookmark, TrendingUp } from 'lucide-react'
+import { Search, Filter, Plus, Eye, Star, Calendar, Phone, Mail, MapPin, Target, Users, Bookmark, TrendingUp, UserCheck, Award } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -124,191 +124,224 @@ export default function RecruitingBoard() {
   const scholarshipOffers = preferenceLists.filter(p => p.scholarship_offered).length
 
   return (
-    <div className="space-y-6">
+    <div className="p-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Recruiting Board</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            View and manage your recruiting targets and prospects.
-          </p>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <UserCheck className="w-8 h-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">Recruiting Board</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              View and manage your recruiting targets and prospects
+            </p>
+          </div>
         </div>
         <Link
           to="/players/create"
           className="btn btn-primary"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2" />
           Add Recruit
         </Link>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card p-4">
-          <div className="flex items-center">
-            <Target className="h-8 w-8 text-primary-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Total Recruits</p>
-              <p className="text-2xl font-bold text-gray-900">{totalRecruits}</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="card bg-gradient-to-r from-blue-500 to-blue-600">
+          <div className="card-body text-white">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-white/80 text-sm font-medium">Total Recruits</h3>
+                <p className="text-2xl font-bold">{totalRecruits}</p>
+              </div>
+              <Target className="w-8 h-8 text-white/60" />
             </div>
           </div>
         </div>
-        <div className="card p-4">
-          <div className="flex items-center">
-            <Star className="h-8 w-8 text-yellow-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">High Interest</p>
-              <p className="text-2xl font-bold text-gray-900">{highInterestRecruits}</p>
+
+        <div className="card bg-gradient-to-r from-yellow-500 to-yellow-600">
+          <div className="card-body text-white">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-white/80 text-sm font-medium">High Interest</h3>
+                <p className="text-2xl font-bold">{highInterestRecruits}</p>
+              </div>
+              <Star className="w-8 h-8 text-white/60" />
             </div>
           </div>
         </div>
-        <div className="card p-4">
-          <div className="flex items-center">
-            <Calendar className="h-8 w-8 text-green-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Scheduled Visits</p>
-              <p className="text-2xl font-bold text-gray-900">{scheduledVisits}</p>
+
+        <div className="card bg-gradient-to-r from-green-500 to-green-600">
+          <div className="card-body text-white">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-white/80 text-sm font-medium">Scheduled Visits</h3>
+                <p className="text-2xl font-bold">{scheduledVisits}</p>
+              </div>
+              <Calendar className="w-8 h-8 text-white/60" />
             </div>
           </div>
         </div>
-        <div className="card p-4">
-          <div className="flex items-center">
-            <TrendingUp className="h-8 w-8 text-purple-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Scholarship Offers</p>
-              <p className="text-2xl font-bold text-gray-900">{scholarshipOffers}</p>
+
+        <div className="card bg-gradient-to-r from-purple-500 to-purple-600">
+          <div className="card-body text-white">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-white/80 text-sm font-medium">Scholarship Offers</h3>
+                <p className="text-2xl font-bold">{scholarshipOffers}</p>
+              </div>
+              <Award className="w-8 h-8 text-white/60" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Preference List Tabs */}
-      <div className="card p-4">
-        <div className="flex flex-wrap gap-2">
-          {listTypes.map((listType) => (
-            <button
-              key={listType}
-              onClick={() => setSelectedListType(listType)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedListType === listType
-                  ? 'bg-primary-100 text-primary-900'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {listType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-            </button>
-          ))}
+      <div className="card bg-base-100 shadow-sm mb-6">
+        <div className="card-body">
+          <h3 className="text-lg font-semibold mb-4">Preference Lists</h3>
+          <div className="flex flex-wrap gap-2">
+            {listTypes.map((listType) => (
+              <button
+                key={listType}
+                onClick={() => setSelectedListType(listType)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedListType === listType
+                    ? 'btn btn-primary'
+                    : 'btn btn-outline'
+                }`}
+              >
+                {listType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="card p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search recruits by name, school, city, state..."
-                className="input pl-10 w-full"
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
+      <div className="card bg-base-100 shadow-sm mb-6">
+        <div className="card-body">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search recruits by name, school, city, state..."
+                  className="input input-bordered w-full pl-10"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                />
+              </div>
             </div>
+
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="btn btn-outline"
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+            </button>
           </div>
 
-          {/* Filter Toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="btn btn-outline flex items-center"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </button>
+          {/* Filter Options */}
+          {showFilters && (
+            <div className="mt-4 pt-4 border-t border-base-300">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="label">
+                    <span className="label-text">School Type</span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={filters.school_type || ''}
+                    onChange={(e) => handleFilterChange('school_type', e.target.value)}
+                  >
+                    <option value="">All Types</option>
+                    {schoolTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="label">
+                    <span className="label-text">Position</span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={filters.position || ''}
+                    onChange={(e) => handleFilterChange('position', e.target.value)}
+                  >
+                    <option value="">All Positions</option>
+                    {positions.map(pos => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    onClick={() => setFilters({
+                      search: '',
+                      page: 1
+                    })}
+                    className="btn btn-secondary w-full"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Filter Options */}
-        {showFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">School Type</label>
-                <select
-                  className="input"
-                  value={filters.school_type}
-                  onChange={(e) => handleFilterChange('school_type', e.target.value)}
-                >
-                  <option value="">All Types</option>
-                  {schoolTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                <select
-                  className="input"
-                  value={filters.position}
-                  onChange={(e) => handleFilterChange('position', e.target.value)}
-                >
-                  <option value="">All Positions</option>
-                  {positions.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-end">
-                <button
-                  onClick={() => setFilters({
-                    search: '',
-                    page: 1
-                  })}
-                  className="btn btn-secondary w-full"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Recruits Grid */}
       {isLoading ? (
-        <div className="card p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading recruits...</p>
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <div className="text-center py-12">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <p className="mt-4 text-gray-600">Loading recruits...</p>
+            </div>
           </div>
         </div>
       ) : error ? (
-        <div className="card p-8">
-          <div className="text-center">
-            <p className="text-red-600">Error loading recruits. Please try again.</p>
-            <button onClick={() => refetch()} className="btn btn-primary mt-2">
-              Retry
-            </button>
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <div className="text-center py-12">
+              <div className="text-error mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Error Loading Recruits</h3>
+              <p className="text-gray-600 mb-4">Please try again</p>
+              <button onClick={() => refetch()} className="btn btn-primary">
+                Retry
+              </button>
+            </div>
           </div>
         </div>
       ) : recruits.length === 0 ? (
-        <div className="card p-8">
-          <div className="text-center">
-            <Target className="h-12 w-12 text-gray-400 mx-auto" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No recruits found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {filters.search || Object.keys(filters).some(key => key !== 'search' && key !== 'page' && filters[key])
-                ? 'Try adjusting your filters or search terms.'
-                : 'Get started by adding your first recruit.'}
-            </p>
-            {!filters.search && Object.keys(filters).every(key => key === 'search' || key === 'page') && (
-              <div className="mt-6">
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <div className="text-center py-12">
+              <UserCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">No Recruits Found</h3>
+              <p className="text-gray-500 mb-4">
+                {filters.search || Object.keys(filters).some(key => key !== 'search' && key !== 'page' && filters[key])
+                  ? 'Try adjusting your filters or search terms.'
+                  : 'Get started by adding your first recruit.'}
+              </p>
+              {!filters.search && Object.keys(filters).every(key => key === 'search' || key === 'page') && (
                 <Link to="/players/create" className="btn btn-primary">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="w-4 h-4 mr-2" />
                   Add Recruit
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -318,33 +351,33 @@ export default function RecruitingBoard() {
               const preference = preferenceLists.find(p => p.player_id === recruit.id)
               
               return (
-                <div key={recruit.id} className="card hover:shadow-md transition-shadow">
-                  <div className="p-6">
+                <div key={recruit.id} className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="card-body">
                     {/* Recruit Header */}
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="card-title text-lg">
                           {recruit.first_name} {recruit.last_name}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm opacity-70">
                           {recruit.position} • {recruit.school_type}
                         </p>
                       </div>
-                      <div className="flex space-x-1">
+                      <div className="flex gap-1">
                         <Link
                           to={`/players/${recruit.id}`}
-                          className="p-1 text-gray-400 hover:text-gray-600"
+                          className="btn btn-ghost btn-sm btn-circle"
                           title="View Details"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="w-4 h-4" />
                         </Link>
                         {!preference && (
                           <button
                             onClick={() => handleAddToPreferenceList(recruit.id)}
-                            className="p-1 text-gray-400 hover:text-yellow-600"
+                            className="btn btn-ghost btn-sm btn-circle text-yellow-600 hover:bg-yellow-100"
                             title="Add to Preference List"
                           >
-                            <Bookmark className="h-4 w-4" />
+                            <Bookmark className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -353,53 +386,53 @@ export default function RecruitingBoard() {
                     {/* Recruit Info */}
                     <div className="space-y-2 mb-4">
                       {recruit.school && (
-                        <p className="text-sm text-gray-600 flex items-center">
-                          <MapPin className="h-3 w-3 mr-1" />
+                        <p className="text-sm opacity-70 flex items-center">
+                          <MapPin className="w-3 h-3 mr-1" />
                           {recruit.school}
                         </p>
                       )}
                       {(recruit.city || recruit.state) && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm opacity-70">
                           {[recruit.city, recruit.state].filter(Boolean).join(', ')}
                         </p>
                       )}
                       {recruit.graduation_year && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm opacity-70">
                           <span className="font-medium">Grad Year:</span> {recruit.graduation_year}
                         </p>
                       )}
                       {(recruit.height || recruit.weight) && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm opacity-70">
                           <span className="font-medium">Size:</span> {[recruit.height, recruit.weight && `${recruit.weight} lbs`].filter(Boolean).join(' • ')}
                         </p>
                       )}
                     </div>
 
                     {/* Stats Preview */}
-                    <div className="border-t border-gray-200 pt-4 mb-4">
+                    <div className="border-t border-base-300 pt-4 mb-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         {recruit.batting_avg && (
                           <div>
-                            <span className="text-gray-500">AVG:</span>
-                            <span className="ml-1 font-medium">{recruit.batting_avg}</span>
+                            <span className="opacity-70">AVG:</span>
+                            <span className="ml-1 font-semibold">{recruit.batting_avg}</span>
                           </div>
                         )}
                         {recruit.home_runs && (
                           <div>
-                            <span className="text-gray-500">HR:</span>
-                            <span className="ml-1 font-medium">{recruit.home_runs}</span>
+                            <span className="opacity-70">HR:</span>
+                            <span className="ml-1 font-semibold">{recruit.home_runs}</span>
                           </div>
                         )}
                         {recruit.rbi && (
                           <div>
-                            <span className="text-gray-500">RBI:</span>
-                            <span className="ml-1 font-medium">{recruit.rbi}</span>
+                            <span className="opacity-70">RBI:</span>
+                            <span className="ml-1 font-semibold">{recruit.rbi}</span>
                           </div>
                         )}
                         {recruit.stolen_bases && (
                           <div>
-                            <span className="text-gray-500">SB:</span>
-                            <span className="ml-1 font-medium">{recruit.stolen_bases}</span>
+                            <span className="opacity-70">SB:</span>
+                            <span className="ml-1 font-semibold">{recruit.stolen_bases}</span>
                           </div>
                         )}
                       </div>
@@ -407,43 +440,47 @@ export default function RecruitingBoard() {
 
                     {/* Preference List Status */}
                     {preference ? (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">Interest Level:</span>
+                          <span className="text-sm opacity-70">Interest Level:</span>
                           <select
                             value={preference.interest_level || 'Unknown'}
                             onChange={(e) => handleUpdateInterestLevel(preference.id, e.target.value)}
-                            className="text-xs border border-gray-300 rounded px-2 py-1"
+                            className="select select-bordered select-xs max-w-xs"
                           >
                             {interestLevels.map(level => (
                               <option key={level} value={level}>{level}</option>
                             ))}
                           </select>
                         </div>
-                        {preference.visit_scheduled && (
-                          <div className="flex items-center text-xs text-green-600">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            Visit Scheduled
-                          </div>
-                        )}
-                        {preference.scholarship_offered && (
-                          <div className="flex items-center text-xs text-blue-600">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            Scholarship Offered
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">Priority:</span>
-                          <span className="font-medium">{preference.priority}</span>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          {preference.visit_scheduled && (
+                            <div className="badge badge-success badge-sm">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              Visit Scheduled
+                            </div>
+                          )}
+                          {preference.scholarship_offered && (
+                            <div className="badge badge-info badge-sm">
+                              <Award className="w-3 h-3 mr-1" />
+                              Scholarship Offered
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="opacity-70">Priority:</span>
+                          <span className="font-semibold">{preference.priority}</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center">
+                      <div className="card-actions">
                         <button
                           onClick={() => handleAddToPreferenceList(recruit.id)}
                           className="btn btn-outline btn-sm w-full"
                         >
-                          <Bookmark className="h-3 w-3 mr-1" />
+                          <Bookmark className="w-3 h-3 mr-1" />
                           Add to List
                         </button>
                       </div>
@@ -457,11 +494,11 @@ export default function RecruitingBoard() {
           {/* Pagination */}
           {pagination.pages > 1 && (
             <div className="flex justify-center mt-8">
-              <nav className="flex items-center space-x-2">
+              <div className="join">
                 <button
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 1}
-                  className="btn btn-outline btn-sm disabled:opacity-50"
+                  className="join-item btn btn-outline"
                 >
                   Previous
                 </button>
@@ -472,7 +509,7 @@ export default function RecruitingBoard() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`btn btn-sm ${
+                      className={`join-item btn ${
                         page === pagination.page ? 'btn-primary' : 'btn-outline'
                       }`}
                     >
@@ -484,16 +521,16 @@ export default function RecruitingBoard() {
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.pages}
-                  className="btn btn-outline btn-sm disabled:opacity-50"
+                  className="join-item btn btn-outline"
                 >
                   Next
                 </button>
-              </nav>
+              </div>
             </div>
           )}
 
           {/* Results Summary */}
-          <div className="text-center text-sm text-gray-500 mt-4">
+          <div className="text-center text-sm opacity-70 mt-4">
             Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} recruits
           </div>
         </>

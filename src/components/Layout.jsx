@@ -21,7 +21,8 @@ import {
   UserPlus,
   List,
   GraduationCap,
-  ArrowRightLeft
+  ArrowRightLeft,
+  UserCheck
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -41,6 +42,7 @@ const Layout = ({ children }) => {
       items: [
         { path: '/players', label: 'Players', icon: Users },
         { path: '/performance', label: 'Performance Rankings', icon: Trophy },
+        { path: '/recruiting', label: 'Recruiting Board', icon: UserCheck },
         { path: '/scouting', label: 'Scouting', icon: Target },
         { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
       ]
