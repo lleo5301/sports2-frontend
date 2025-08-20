@@ -24,16 +24,36 @@ const Layout = ({ children }) => {
   const { theme, changeTheme } = useTheme();
   const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
 
-  const navItems = [
-    { path: '/', label: 'Dashboard', icon: Home },
-    { path: '/players', label: 'Players', icon: Users },
-    { path: '/performance', label: 'Performance', icon: Trophy },
-    { path: '/teams', label: 'Teams', icon: Building2 },
-    { path: '/scouting', label: 'Scouting', icon: Target },
-    { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
-    { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
-    { path: '/reports', label: 'Reports', icon: FileText },
-    { path: '/settings', label: 'Settings', icon: Settings },
+  const navSections = [
+    {
+      title: 'Overview',
+      items: [
+        { path: '/', label: 'Dashboard', icon: Home },
+      ]
+    },
+    {
+      title: 'Player Management',
+      items: [
+        { path: '/players', label: 'Players', icon: Users },
+        { path: '/performance', label: 'Performance Rankings', icon: Trophy },
+        { path: '/scouting', label: 'Scouting', icon: Target },
+        { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
+      ]
+    },
+    {
+      title: 'Team Management',
+      items: [
+        { path: '/teams', label: 'Teams', icon: Building2 },
+        { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
+      ]
+    },
+    {
+      title: 'Reports & Settings',
+      items: [
+        { path: '/reports', label: 'Reports', icon: FileText },
+        { path: '/settings', label: 'Settings', icon: Settings },
+      ]
+    }
   ];
 
   const toggleTheme = () => {
@@ -89,23 +109,39 @@ const Layout = ({ children }) => {
           </div>
           
           {/* Navigation menu */}
-          <ul className="menu p-4 min-h-full bg-base-200 text-base-content">
-            {navItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <li key={item.path}>
-                  <Link 
-                    to={item.path}
-                    className={`${location.pathname === item.path ? 'active' : ''} ${isDrawerCollapsed ? 'justify-center' : ''}`}
-                    title={isDrawerCollapsed ? item.label : ''}
-                  >
-                    <IconComponent className="w-5 h-5" />
-                    {!isDrawerCollapsed && item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="p-4 min-h-full bg-base-200 text-base-content">
+            {navSections.map((section, sectionIndex) => (
+              <div key={section.title} className={sectionIndex > 0 ? 'mt-6' : ''}>
+                {/* Section header */}
+                {!isDrawerCollapsed && (
+                  <div className="px-3 py-2">
+                    <h3 className="text-xs font-semibold text-base-content/70 uppercase tracking-wider">
+                      {section.title}
+                    </h3>
+                  </div>
+                )}
+                
+                {/* Section items */}
+                <ul className="menu">
+                  {section.items.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <li key={item.path}>
+                        <Link 
+                          to={item.path}
+                          className={`${location.pathname === item.path ? 'active' : ''} ${isDrawerCollapsed ? 'justify-center' : ''}`}
+                          title={isDrawerCollapsed ? item.label : ''}
+                        >
+                          <IconComponent className="w-5 h-5" />
+                          {!isDrawerCollapsed && item.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         </aside>
       </div>
     </div>
