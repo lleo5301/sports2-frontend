@@ -16,7 +16,12 @@ import {
   Moon,
   Sun,
   User,
-  Trophy
+  Trophy,
+  Star,
+  UserPlus,
+  List,
+  GraduationCap,
+  ArrowRightLeft
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -38,6 +43,15 @@ const Layout = ({ children }) => {
         { path: '/performance', label: 'Performance Rankings', icon: Trophy },
         { path: '/scouting', label: 'Scouting', icon: Target },
         { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
+      ]
+    },
+    {
+      title: 'Pref List',
+      items: [
+        { path: '/pref-list/new-players', label: 'New Players', icon: UserPlus },
+        { path: '/pref-list/overall', label: 'Overall Pref List', icon: Star },
+        { path: '/pref-list/high-school', label: 'HS Pref List', icon: GraduationCap },
+        { path: '/pref-list/college-portal', label: 'College Portal/transfers', icon: ArrowRightLeft },
       ]
     },
     {

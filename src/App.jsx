@@ -28,6 +28,10 @@ import OAuthCallback from './pages/OAuthCallback';
 import NotFound from './pages/NotFound';
 import RecruitingBoard from './pages/RecruitingBoard';
 import PerformanceList from './pages/PerformanceList';
+import NewPlayers from './pages/NewPlayers';
+import OverallPrefList from './pages/OverallPrefList';
+import HSPrefList from './pages/HSPrefList';
+import CollegePortal from './pages/CollegePortal';
 
 function App() {
   return (
@@ -85,6 +89,34 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <PerformanceList />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/pref-list/new-players" element={
+          <ProtectedRoute>
+            <Layout>
+              <NewPlayers />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/pref-list/overall" element={
+          <ProtectedRoute>
+            <Layout>
+              <OverallPrefList />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/pref-list/high-school" element={
+          <ProtectedRoute>
+            <Layout>
+              <HSPrefList />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/pref-list/college-portal" element={
+          <ProtectedRoute>
+            <Layout>
+              <CollegePortal />
             </Layout>
           </ProtectedRoute>
         } />
