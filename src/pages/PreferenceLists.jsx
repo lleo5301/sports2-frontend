@@ -79,9 +79,9 @@ export default function PreferenceLists() {
   const queryClient = useQueryClient()
 
   // Fetch preference lists
-  const { data: preferenceListsData, isLoading, error, refetch } = useQuery(
-    ['preference-lists', selectedListType, filters],
-    () => {
+  const { data: preferenceListsData, isLoading, error, refetch } = useQuery({
+    queryKey: ['preference-lists', selectedListType, filters],
+    queryFn: () => {
       const cleanParams = Object.fromEntries(
         Object.entries({ ...filters, list_type: selectedListType }).filter(([key, value]) => 
           value !== '' && value !== null && value !== undefined
@@ -89,39 +89,33 @@ export default function PreferenceLists() {
       )
       return api.get('/recruits/preference-lists', { params: cleanParams })
     },
-    {
-      keepPreviousData: true,
-      staleTime: 30000
-    }
-  )
+    placeholderData: (previousData) => previousData,
+    staleTime: 30000
+  })
 
   // Update preference list mutation
-  const updatePreferenceList = useMutation(
-    ({ id, data }) => api.put(`/recruits/preference-lists/${id}`, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['preference-lists'])
-        toast.success('Preference list updated')
-      },
-      onError: () => {
-        toast.error('Failed to update preference list')
-      }
+  const updatePreferenceList = useMutation({
+    mutationFn: ({ id, data }) => api.put(`/recruits/preference-lists/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
+      toast.success('Preference list updated')
+    },
+    onError: () => {
+      toast.error('Failed to update preference list')
     }
-  )
+  })
 
   // Delete from preference list mutation
-  const deleteFromPreferenceList = useMutation(
-    (id) => api.delete(`/recruits/preference-lists/${id}`),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['preference-lists'])
-        toast.success('Removed from preference list')
-      },
-      onError: () => {
-        toast.error('Failed to remove from preference list')
-      }
+  const deleteFromPreferenceList = useMutation({
+    mutationFn: (id) => api.delete(`/recruits/preference-lists/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
+      toast.success('Removed from preference list')
+    },
+    onError: () => {
+      toast.error('Failed to remove from preference list')
     }
-  )
+  })
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => {

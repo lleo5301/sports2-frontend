@@ -21,9 +21,9 @@ export default function RecruitingBoard() {
   const queryClient = useQueryClient()
 
   // Fetch recruits with filters
-  const { data: recruitsData, isLoading, error, refetch } = useQuery(
-    ['recruits', filters],
-    () => {
+  const { data: recruitsData, isLoading, error, refetch } = useQuery({
+    queryKey: ['recruits', filters],
+    queryFn: () => {
       // Filter out empty values to avoid validation errors
       const cleanParams = Object.fromEntries(
         Object.entries(filters).filter(([key, value]) => 
@@ -32,51 +32,43 @@ export default function RecruitingBoard() {
       )
       return api.get('/recruits', { params: cleanParams })
     },
-    {
-      keepPreviousData: true,
-      staleTime: 30000
-    }
-  )
+    placeholderData: (previousData) => previousData,
+    staleTime: 30000
+  })
 
   // Fetch preference lists
-  const { data: preferenceListsData } = useQuery(
-    ['preference-lists', selectedListType],
-    () => api.get('/recruits/preference-lists', { 
+  const { data: preferenceListsData } = useQuery({
+    queryKey: ['preference-lists', selectedListType],
+    queryFn: () => api.get('/recruits/preference-lists', { 
       params: { list_type: selectedListType } 
     }),
-    {
-      staleTime: 30000
-    }
-  )
+    staleTime: 30000
+  })
 
   // Add to preference list mutation
-  const addToPreferenceList = useMutation(
-    (data) => api.post('/recruits/preference-lists', data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['preference-lists'])
-        queryClient.invalidateQueries(['recruits'])
-        toast.success('Added to preference list')
-      },
-      onError: () => {
-        toast.error('Failed to add to preference list')
-      }
+  const addToPreferenceList = useMutation({
+    mutationFn: (data) => api.post('/recruits/preference-lists', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
+      queryClient.invalidateQueries({ queryKey: ['recruits'] })
+      toast.success('Added to preference list')
+    },
+    onError: () => {
+      toast.error('Failed to add to preference list')
     }
-  )
+  })
 
   // Update preference list mutation
-  const updatePreferenceList = useMutation(
-    ({ id, data }) => api.put(`/recruits/preference-lists/${id}`, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['preference-lists'])
-        toast.success('Preference list updated')
-      },
-      onError: () => {
-        toast.error('Failed to update preference list')
-      }
+  const updatePreferenceList = useMutation({
+    mutationFn: ({ id, data }) => api.put(`/recruits/preference-lists/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
+      toast.success('Preference list updated')
+    },
+    onError: () => {
+      toast.error('Failed to update preference list')
     }
-  )
+  })
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => {

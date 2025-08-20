@@ -53,9 +53,9 @@ export default function ScoutingReports() {
   const queryClient = useQueryClient()
 
   // Fetch scouting reports
-  const { data: reportsData, isLoading, error, refetch } = useQuery(
-    ['scouting-reports', filters],
-    async () => {
+  const { data: reportsData, isLoading, error, refetch } = useQuery({
+    queryKey: ['scouting-reports', filters],
+    queryFn: async () => {
       const cleanParams = Object.fromEntries(
         Object.entries(filters).filter(([key, value]) => 
           value !== '' && value !== null && value !== undefined
@@ -64,23 +64,19 @@ export default function ScoutingReports() {
       const response = await api.get('/reports/scouting', { params: cleanParams })
       return response.data
     },
-    {
-      keepPreviousData: true,
-      staleTime: 30000
-    }
-  )
+    placeholderData: (previousData) => previousData,
+    staleTime: 30000
+  })
 
   // Fetch players for dropdown
-  const { data: playersData } = useQuery(
-    ['players-for-scouting'],
-    async () => {
+  const { data: playersData } = useQuery({
+    queryKey: ['players-for-scouting'],
+    queryFn: async () => {
       const response = await api.get('/players', { params: { status: 'active', limit: 100 } })
       return response.data
     },
-    {
-      staleTime: 300000 // 5 minutes
-    }
-  )
+    staleTime: 300000 // 5 minutes
+  })
 
   // Create scouting report mutation
   const createReport = useMutation(

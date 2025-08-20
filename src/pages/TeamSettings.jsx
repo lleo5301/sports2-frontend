@@ -82,32 +82,26 @@ export default function TeamSettings() {
   const queryClient = useQueryClient()
 
   // Fetch team data
-  const { data: teamData, isLoading, error, refetch } = useQuery(
-    ['team-settings', user?.team_id],
-    () => api.get(`/teams/${user.team_id}`),
-    {
-      staleTime: 300000, // 5 minutes
-      enabled: !!user?.team_id
-    }
-  )
+  const { data: teamData, isLoading, error, refetch } = useQuery({
+    queryKey: ['team-settings', user?.team_id],
+    queryFn: () => api.get(`/teams/${user.team_id}`),
+    staleTime: 300000, // 5 minutes
+    enabled: !!user?.team_id
+  })
 
   // Fetch team users
-  const { data: teamUsers } = useQuery(
-    ['team-users'],
-    () => api.get('/teams/users'),
-    {
-      staleTime: 300000
-    }
-  )
+  const { data: teamUsers } = useQuery({
+    queryKey: ['team-users'],
+    queryFn: () => api.get('/teams/users'),
+    staleTime: 300000
+  })
 
   // Fetch user permissions
-  const { data: userPermissions } = useQuery(
-    ['user-permissions'],
-    () => api.get('/teams/permissions'),
-    {
-      staleTime: 300000
-    }
-  )
+  const { data: userPermissions } = useQuery({
+    queryKey: ['user-permissions'],
+    queryFn: () => api.get('/teams/permissions'),
+    staleTime: 300000
+  })
 
   // Update team settings mutation
   const updateTeam = useMutation(
