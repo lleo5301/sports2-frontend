@@ -4,7 +4,9 @@ import { setupScoutingReportMocks, mockScoutingReports } from './helpers/scoutin
 
 test.describe('Scouting Reports Integration Tests', () => {
   test.beforeEach(async ({ page }) => {
-    await setupAuthenticatedUser(page);
+    await page.addInitScript(() => {
+      localStorage.setItem('token', 'mock-jwt-token');
+    });
     
     // Mock auth endpoints
     await page.route('**/api/auth/me', async route => {

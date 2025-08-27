@@ -4,8 +4,10 @@ import { setupScoutingReportMocks, mockEmptyScoutingReports, mockScoutingReports
 
 test.describe('Scouting Reports in Player Management', () => {
   test.beforeEach(async ({ page }) => {
-    // Setup authenticated user
-    await setupAuthenticatedUser(page);
+    // Setup authenticated user context
+    await page.addInitScript(() => {
+      localStorage.setItem('token', 'mock-jwt-token');
+    });
     
     // Mock auth endpoints
     await page.route('**/api/auth/me', async route => {
