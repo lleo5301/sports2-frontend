@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
+import { reportsService } from '../services/reports';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -8,6 +9,9 @@ const Players = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedPlayerReports, setSelectedPlayerReports] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [reportsLoading, setReportsLoading] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
     position: '',
@@ -62,6 +66,56 @@ const Players = () => {
 
   const handlePageChange = (newPage) => {
     setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const fetchPlayerReports = async (playerId) => {
+    try {
+      setReportsLoading(true);
+      const response = await reportsService.getScoutingReports({ player_id: playerId });
+      
+      if (response.success) {
+        setSelectedPlayerReports(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching player reports:', error);
+      setSelectedPlayerReports([]);
+    } finally {
+      setReportsLoading(false);
+    }
+  };
+
+  const handlePlayerSelect = (player) => {
+    setSelectedPlayer(player);
+    setSelectedPlayerReports([]);
+    setSelectedReport(null);
+    fetchPlayerReports(player.id);
+  };
+
+  const handleReportSelect = async (reportId) => {
+    try {
+      const response = await reportsService.getScoutingReport(reportId);
+      if (response.success) {
+        setSelectedReport(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching report details:', error);
+    }
+  };
+
+  const formatReportDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  const getToolGrades = (report) => {
+    const grades = [];
+    if (report.overall_grade) grades.push(`Overall: ${report.overall_grade}`);
+    if (report.hitting_grade) grades.push(`Hitting: ${report.hitting_grade}`);
+    if (report.pitching_grade) grades.push(`Pitching: ${report.pitching_grade}`);
+    if (report.fielding_grade) grades.push(`Fielding: ${report.fielding_grade}`);
+    if (report.speed_grade) grades.push(`Speed: ${report.speed_grade}`);
+    return grades;
   };
 
   if (loading && players.length === 0) {
@@ -227,7 +281,7 @@ const Players = () => {
                         <div className="flex space-x-2">
                           <button 
                             className="btn btn-sm btn-outline"
-                            onClick={() => setSelectedPlayer(player)}
+                            onClick={() => handlePlayerSelect(player)}
                           >
                             View
                           </button>
@@ -290,7 +344,7 @@ const Players = () => {
       {/* Player View Modal */}
       {selectedPlayer && (
         <div className="modal modal-open">
-          <div className="modal-box max-w-2xl">
+          <div className="modal-box max-w-4xl">
             <h3 className="font-bold text-lg mb-4">
               {selectedPlayer.first_name} {selectedPlayer.last_name}
             </h3>
@@ -363,6 +417,58 @@ const Players = () => {
               </div>
             </div>
 
+            {/* Scouting Reports Section */}
+            <div className="mt-6 pt-4 border-t">
+              <h4 className="font-semibold mb-3">Scouting Reports</h4>
+              {reportsLoading ? (
+                <div className="flex justify-center py-4">
+                  <div className="loading loading-spinner loading-md"></div>
+                </div>
+              ) : selectedPlayerReports.length > 0 ? (
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {selectedPlayerReports.map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex justify-between items-center p-3 bg-base-200 rounded-lg hover:bg-base-300 cursor-pointer transition-colors"
+                      onClick={() => handleReportSelect(report.id)}
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          Report Date: {formatReportDate(report.report_date)}
+                        </div>
+                        {report.game_date && (
+                          <div className="text-sm text-base-content/70">
+                            Game Date: {formatReportDate(report.game_date)}
+                          </div>
+                        )}
+                        {report.opponent && (
+                          <div className="text-sm text-base-content/70">
+                            vs {report.opponent}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end text-right">
+                        {getToolGrades(report).slice(0, 2).map((grade, index) => (
+                          <div key={index} className="text-sm badge badge-outline mb-1">
+                            {grade}
+                          </div>
+                        ))}
+                        {getToolGrades(report).length > 2 && (
+                          <div className="text-xs text-base-content/50">
+                            +{getToolGrades(report).length - 2} more grades
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-base-content/50">
+                  No scouting reports available for this player
+                </div>
+              )}
+            </div>
+
             <div className="modal-action">
               <button 
                 className="btn btn-primary"
@@ -373,6 +479,174 @@ const Players = () => {
               <button 
                 className="btn btn-outline"
                 onClick={() => setSelectedPlayer(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scouting Report Detail Modal */}
+      {selectedReport && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-4xl max-h-screen overflow-y-auto">
+            <h3 className="font-bold text-lg mb-4">
+              Scouting Report - {selectedReport.Player?.first_name} {selectedReport.Player?.last_name}
+            </h3>
+            
+            {/* Report Header */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <div><strong>Report Date:</strong> {formatReportDate(selectedReport.report_date)}</div>
+                {selectedReport.game_date && (
+                  <div><strong>Game Date:</strong> {formatReportDate(selectedReport.game_date)}</div>
+                )}
+                {selectedReport.opponent && (
+                  <div><strong>Opponent:</strong> {selectedReport.opponent}</div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div><strong>Scout:</strong> {selectedReport.User?.first_name} {selectedReport.User?.last_name}</div>
+                <div><strong>Position:</strong> {selectedReport.Player?.position}</div>
+                <div><strong>School:</strong> {selectedReport.Player?.school}</div>
+              </div>
+            </div>
+
+            {/* Tool Grades Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              {selectedReport.overall_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-primary">{selectedReport.overall_grade}</div>
+                  <div className="text-sm">Overall Grade</div>
+                </div>
+              )}
+              {selectedReport.hitting_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-secondary">{selectedReport.hitting_grade}</div>
+                  <div className="text-sm">Hitting Grade</div>
+                </div>
+              )}
+              {selectedReport.pitching_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-accent">{selectedReport.pitching_grade}</div>
+                  <div className="text-sm">Pitching Grade</div>
+                </div>
+              )}
+              {selectedReport.fielding_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-info">{selectedReport.fielding_grade}</div>
+                  <div className="text-sm">Fielding Grade</div>
+                </div>
+              )}
+              {selectedReport.speed_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-warning">{selectedReport.speed_grade}</div>
+                  <div className="text-sm">Speed Grade</div>
+                </div>
+              )}
+              {selectedReport.intangibles_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-success">{selectedReport.intangibles_grade}</div>
+                  <div className="text-sm">Intangibles Grade</div>
+                </div>
+              )}
+            </div>
+
+            {/* Tool Details */}
+            <div className="space-y-4 mb-6">
+              {/* Hitting Details */}
+              {(selectedReport.bat_speed || selectedReport.power_potential || selectedReport.plate_discipline || selectedReport.hitting_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Hitting Assessment</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    {selectedReport.bat_speed && (
+                      <div><strong>Bat Speed:</strong> {selectedReport.bat_speed}</div>
+                    )}
+                    {selectedReport.power_potential && (
+                      <div><strong>Power:</strong> {selectedReport.power_potential}</div>
+                    )}
+                    {selectedReport.plate_discipline && (
+                      <div><strong>Plate Discipline:</strong> {selectedReport.plate_discipline}</div>
+                    )}
+                  </div>
+                  {selectedReport.hitting_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.hitting_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Pitching Details */}
+              {(selectedReport.fastball_velocity || selectedReport.fastball_grade || selectedReport.breaking_ball_grade || selectedReport.command || selectedReport.pitching_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Pitching Assessment</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    {selectedReport.fastball_velocity && (
+                      <div><strong>Fastball Velocity:</strong> {selectedReport.fastball_velocity} mph</div>
+                    )}
+                    {selectedReport.fastball_grade && (
+                      <div><strong>Fastball Grade:</strong> {selectedReport.fastball_grade}</div>
+                    )}
+                    {selectedReport.breaking_ball_grade && (
+                      <div><strong>Breaking Ball:</strong> {selectedReport.breaking_ball_grade}</div>
+                    )}
+                    {selectedReport.command && (
+                      <div><strong>Command:</strong> {selectedReport.command}</div>
+                    )}
+                  </div>
+                  {selectedReport.pitching_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.pitching_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Fielding Details */}
+              {(selectedReport.arm_strength || selectedReport.arm_accuracy || selectedReport.range || selectedReport.fielding_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Fielding Assessment</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    {selectedReport.arm_strength && (
+                      <div><strong>Arm Strength:</strong> {selectedReport.arm_strength}</div>
+                    )}
+                    {selectedReport.arm_accuracy && (
+                      <div><strong>Arm Accuracy:</strong> {selectedReport.arm_accuracy}</div>
+                    )}
+                    {selectedReport.range && (
+                      <div><strong>Range:</strong> {selectedReport.range}</div>
+                    )}
+                  </div>
+                  {selectedReport.fielding_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.fielding_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Speed Details */}
+              {(selectedReport.home_to_first || selectedReport.speed_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Speed Assessment</h5>
+                  {selectedReport.home_to_first && (
+                    <div className="mb-3"><strong>Home to First:</strong> {selectedReport.home_to_first} seconds</div>
+                  )}
+                  {selectedReport.speed_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.speed_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Overall Notes */}
+              {selectedReport.overall_notes && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Overall Assessment</h5>
+                  <div>{selectedReport.overall_notes}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-action">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setSelectedReport(null)}
               >
                 Close
               </button>

@@ -64,6 +64,18 @@ export const reportsService = {
     return response.data;
   },
 
+  // Create a scouting report
+  createScoutingReport: async (reportData) => {
+    const response = await api.post('/reports/scouting', reportData);
+    return response.data;
+  },
+
+  // Get a specific scouting report
+  getScoutingReport: async (id) => {
+    const response = await api.get(`/reports/scouting/${id}`);
+    return response.data;
+  },
+
   // Generate PDF report
   generatePDF: async (reportType, data, options = {}) => {
     const response = await api.post('/reports/generate-pdf', {
