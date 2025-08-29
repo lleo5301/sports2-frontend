@@ -41,6 +41,7 @@ import api from '../services/api'
 import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 import DepthChartSheetView from '../components/DepthChartSheetView'
+import DepthChartSheetViewV2 from '../components/DepthChartSheetViewV2'
 
 // Default position configurations
 const defaultPositions = [
@@ -594,6 +595,13 @@ export default function DepthChart() {
                       <Layers className="h-4 w-4 mr-2" />
                       Sheet View
                     </button>
+                    <button
+                      className={`btn btn-sm ${chartViewMode === 'sheetv2' ? 'btn-active' : 'btn-outline'}`}
+                      onClick={() => setChartViewMode('sheetv2')}
+                    >
+                      <Layers className="h-4 w-4 mr-2" />
+                      Sheet View V2
+                    </button>
                   </div>
                 </div>
 
@@ -623,6 +631,11 @@ export default function DepthChart() {
                 {/* Sheet View */}
                 {chartViewMode === 'sheet' && (
                   <DepthChartSheetView depthChart={depthChart} />
+                )}
+
+                {/* Sheet View V2 */}
+                {chartViewMode === 'sheetv2' && (
+                  <DepthChartSheetViewV2 depthChart={depthChart} />
                 )}
 
 
