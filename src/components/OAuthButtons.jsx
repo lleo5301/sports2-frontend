@@ -3,7 +3,7 @@ import React from 'react';
 const OAuthButtons = ({ onError }) => {
   const handleGoogleSignIn = () => {
     try {
-      const googleAuthUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/google`;
+      const googleAuthUrl = `${import.meta.env.VITE_API_URL || window.location.origin}/api/auth/google`;
       window.location.href = googleAuthUrl;
     } catch (error) {
       console.error('Google OAuth error:', error);
@@ -13,7 +13,7 @@ const OAuthButtons = ({ onError }) => {
 
   const handleAppleSignIn = () => {
     try {
-      const appleAuthUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/apple`;
+      const appleAuthUrl = `${import.meta.env.VITE_API_URL || window.location.origin}/api/auth/apple`;
       window.location.href = appleAuthUrl;
     } catch (error) {
       console.error('Apple OAuth error:', error);

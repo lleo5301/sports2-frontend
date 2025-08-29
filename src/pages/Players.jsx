@@ -279,11 +279,11 @@ const Players = () => {
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <button 
+                          <button
                             className="btn btn-sm btn-outline"
                             onClick={() => handlePlayerSelect(player)}
                           >
-                            View
+                            Quick View
                           </button>
                           <button 
                             className="btn btn-sm btn-primary"
@@ -341,12 +341,12 @@ const Players = () => {
         </div>
       </div>
 
-      {/* Player View Modal */}
+      {/* Player Quick View Modal */}
       {selectedPlayer && (
         <div className="modal modal-open">
           <div className="modal-box max-w-4xl">
             <h3 className="font-bold text-lg mb-4">
-              {selectedPlayer.first_name} {selectedPlayer.last_name}
+              Quick View - {selectedPlayer.first_name} {selectedPlayer.last_name}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
@@ -470,13 +470,26 @@ const Players = () => {
             </div>
 
             <div className="modal-action">
-              <button 
-                className="btn btn-primary"
+              <button
+                className="btn btn-outline btn-primary"
                 onClick={() => navigate(`/players/${selectedPlayer.id}`)}
               >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Full Profile
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate(`/players/${selectedPlayer.id}/edit`)}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
                 Edit Player
               </button>
-              <button 
+              <button
                 className="btn btn-outline"
                 onClick={() => setSelectedPlayer(null)}
               >
@@ -658,4 +671,5 @@ const Players = () => {
   );
 };
 
+export default Players; 
 export default Players; 
