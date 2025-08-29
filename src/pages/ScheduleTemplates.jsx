@@ -108,9 +108,14 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
   const teams = teamsResponse?.data || teamsResponse || []
 
   // Fetch templates
-  const { data: templatesResponse, isLoading } = useQuery({
+  const { data: templatesResponse, isLoading, error: templatesError } = useQuery({
     queryKey: ['schedule-templates'],
-    queryFn: () => scheduleTemplateService.getTemplates()
+    queryFn: () => scheduleTemplateService.getTemplates(),
+    retry: 3,
+    onError: (error) => {
+      console.error('Error fetching templates:', error);
+      toast.error(error.response?.data?.error || 'Failed to load templates');
+    }
   })
 
   const templates = templatesResponse?.data || []
@@ -252,6 +257,32 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="loading loading-spinner loading-lg"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (templatesError) {
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="alert alert-error">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="font-bold">Failed to Load Templates</h3>
+              <div className="text-sm">
+                {templatesError.response?.data?.error || templatesError.message || 'Unable to connect to the server'}
+              </div>
+            </div>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="btn btn-sm btn-outline"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </div>
