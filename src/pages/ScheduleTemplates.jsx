@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import {
   FileText,
   Plus,
@@ -87,6 +88,7 @@ const getScheduleTypeInfo = (type) => {
 }
 
 export default function ScheduleTemplates({ onLoadTemplate }) {
+  const navigate = useNavigate()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
@@ -205,10 +207,16 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
   }
 
   const handleLoadTemplate = (template) => {
-    if (onLoadTemplate) {
-      onLoadTemplate(template.template_data)
-      toast.success(`Loaded template: ${template.name}`)
-    }
+    // Store template data in localStorage to pass to TeamSchedule
+    localStorage.setItem('loadedTemplate', JSON.stringify({
+      name: template.name,
+      template_data: template.template_data
+    }))
+    
+    toast.success(`Loading template: ${template.name}`)
+    
+    // Navigate to team schedule page
+    navigate('/team-schedule')
   }
 
   const handleSubmit = (e) => {

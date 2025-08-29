@@ -35,6 +35,8 @@ import HSPrefList from './pages/HSPrefList';
 import CollegePortal from './pages/CollegePortal';
 import Coaches from './pages/Coaches';
 import Scouts from './pages/Scouts';
+import Vendors from './pages/Vendors';
+import HighSchoolCoaches from './pages/HighSchoolCoaches';
 
 function App() {
   return (
@@ -183,6 +185,20 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Scouts />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/vendors" element={
+          <ProtectedRoute>
+            <Layout>
+              <Vendors />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/high-school-coaches" element={
+          <ProtectedRoute>
+            <Layout>
+              <HighSchoolCoaches />
             </Layout>
           </ProtectedRoute>
         } />

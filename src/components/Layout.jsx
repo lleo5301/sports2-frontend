@@ -54,6 +54,8 @@ const Layout = ({ children }) => {
       items: [
         { path: '/coaches', label: 'Coaches', icon: School },
         { path: '/scouts', label: 'Scouts', icon: Eye },
+        { path: '/vendors', label: 'Vendors', icon: Building2 },
+        { path: '/high-school-coaches', label: 'High School Coaches', icon: GraduationCap },
       ]
     },
     {

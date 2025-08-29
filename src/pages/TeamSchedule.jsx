@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -75,6 +75,30 @@ export default function TeamSchedule() {
   })
 
   const queryClient = useQueryClient()
+
+  // Check for loaded template on component mount
+  useEffect(() => {
+    const loadedTemplate = localStorage.getItem('loadedTemplate')
+    if (loadedTemplate) {
+      try {
+        const templateData = JSON.parse(loadedTemplate)
+        setScheduleData(prev => ({
+          ...prev,
+          sections: templateData.template_data.sections.map(section => ({
+            ...section,
+            id: Date.now() + Math.random() // Generate unique IDs for frontend
+          }))
+        }))
+        toast.success(`Template "${templateData.name}" loaded successfully!`)
+        // Clear the template from localStorage after loading
+        localStorage.removeItem('loadedTemplate')
+      } catch (error) {
+        console.error('Error loading template:', error)
+        toast.error('Failed to load template')
+        localStorage.removeItem('loadedTemplate')
+      }
+    }
+  }, [])
 
   // Fetch available teams
   const { data: teamsResponse, isLoading: teamsLoading } = useQuery({
@@ -230,7 +254,16 @@ export default function TeamSchedule() {
 
         {/* Schedule Form */}
         <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Schedule Information</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Schedule Information</h2>
+            <button
+              onClick={() => navigate('/schedule-templates')}
+              className="btn btn-outline btn-sm"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Load Template
+            </button>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
