@@ -70,6 +70,7 @@ const Layout = ({ children }) => {
       items: [
         { path: '/teams', label: 'Teams', icon: Building2 },
         { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
+        { path: '/schedule-templates', label: 'Schedule Templates', icon: FileText },
       ]
     },
     {

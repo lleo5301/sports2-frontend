@@ -24,6 +24,7 @@ import CreateScoutingReport from './pages/CreateScoutingReport';
 import CreateCustomReport from './pages/CreateCustomReport';
 import DepthChart from './pages/DepthChart';
 import TeamSchedule from './pages/TeamSchedule';
+import ScheduleTemplates from './pages/ScheduleTemplates';
 import OAuthCallback from './pages/OAuthCallback';
 import NotFound from './pages/NotFound';
 import RecruitingBoard from './pages/RecruitingBoard';
@@ -196,6 +197,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <TeamSchedule />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/schedule-templates" element={
+          <ProtectedRoute>
+            <Layout>
+              <ScheduleTemplates />
             </Layout>
           </ProtectedRoute>
         } />

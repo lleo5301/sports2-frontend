@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import { useNavigate } from 'react-router-dom'
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Plus,
+  Edit,
+  Trash2,
   Save,
   X,
   ChevronDown,
   ChevronUp,
-  Building2
+  Building2,
+  FileText
 } from 'lucide-react'
 import { DayPicker } from 'react-day-picker'
 import api from '../services/api'
@@ -44,6 +46,7 @@ const locations = [
 ]
 
 export default function TeamSchedule() {
+  const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [scheduleData, setScheduleData] = useState({
@@ -200,11 +203,29 @@ export default function TeamSchedule() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team Schedule Creator</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Create and manage detailed team schedules for practices, games, and training sessions.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Team Schedule Creator</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Create and manage detailed team schedules for practices, games, and training sessions.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('/schedule-templates')}
+              className="btn btn-outline"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Templates
+            </button>
+            <button
+              onClick={() => window.open('/api/schedules/export-pdf', '_blank')}
+              className="btn btn-outline"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Export PDF
+            </button>
+          </div>
         </div>
 
         {/* Schedule Form */}
