@@ -167,6 +167,13 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+        <Route path="/scouting/:id/edit" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreateScoutingReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
         <Route path="/recruiting" element={
           <ProtectedRoute>
             <Layout>

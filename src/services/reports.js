@@ -76,6 +76,12 @@ export const reportsService = {
     return response.data;
   },
 
+  // Update a scouting report
+  updateScoutingReport: async (id, reportData) => {
+    const response = await api.put(`/reports/scouting/${id}`, reportData);
+    return response.data;
+  },
+
   // Generate PDF report
   generatePDF: async (reportType, data, options = {}) => {
     const response = await api.post('/reports/generate-pdf', {

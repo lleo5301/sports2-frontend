@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DayPicker } from 'react-day-picker';
 import api from '../services/api';
@@ -26,6 +26,8 @@ import 'react-day-picker/dist/style.css';
 const CreateScoutingReport = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { id } = useParams(); // Get report ID from URL for edit mode
+  const isEditMode = Boolean(id);
   const [reportDate, setReportDate] = useState(new Date());
   const [gameDate, setGameDate] = useState(null);
   const [showReportDatePicker, setShowReportDatePicker] = useState(false);
@@ -77,6 +79,58 @@ const CreateScoutingReport = () => {
 
   const players = playersData.data || [];
 
+  // Fetch existing scouting report data for edit mode
+  const { data: existingReport, isLoading: isLoadingReport } = useQuery({
+    queryKey: ['scouting-report', id],
+    queryFn: () => reportsService.getScoutingReport(id),
+    enabled: isEditMode,
+    onSuccess: (data) => {
+      const report = data.data;
+      setFormData({
+        player_id: report.player_id || '',
+        report_date: report.report_date || new Date().toISOString().split('T')[0],
+        game_date: report.game_date || '',
+        opponent: report.opponent || '',
+        overall_grade: report.overall_grade || '',
+        overall_notes: report.overall_notes || '',
+        hitting_grade: report.hitting_grade || '',
+        hitting_notes: report.hitting_notes || '',
+        bat_speed: report.bat_speed || '',
+        power_potential: report.power_potential || '',
+        plate_discipline: report.plate_discipline || '',
+        pitching_grade: report.pitching_grade || '',
+        pitching_notes: report.pitching_notes || '',
+        fastball_velocity: report.fastball_velocity || '',
+        fastball_grade: report.fastball_grade || '',
+        breaking_ball_grade: report.breaking_ball_grade || '',
+        command: report.command || '',
+        fielding_grade: report.fielding_grade || '',
+        fielding_notes: report.fielding_notes || '',
+        arm_strength: report.arm_strength || '',
+        arm_accuracy: report.arm_accuracy || '',
+        range: report.range || '',
+        speed_grade: report.speed_grade || '',
+        speed_notes: report.speed_notes || '',
+        home_to_first: report.home_to_first || '',
+        intangibles_grade: report.intangibles_grade || '',
+        intangibles_notes: report.intangibles_notes || '',
+        work_ethic: report.work_ethic || '',
+        coachability: report.coachability || '',
+        projection: report.projection || '',
+        projection_notes: report.projection_notes || '',
+        is_draft: report.is_draft || false,
+        is_public: report.is_public || false
+      });
+      
+      if (report.report_date) {
+        setReportDate(new Date(report.report_date));
+      }
+      if (report.game_date) {
+        setGameDate(new Date(report.game_date));
+      }
+    }
+  });
+
   // Create scouting report mutation
   const createReportMutation = useMutation({
     mutationFn: reportsService.createScoutingReport,
@@ -87,6 +141,20 @@ const CreateScoutingReport = () => {
     },
     onError: (error) => {
       toast.error(error.response?.data?.error || 'Failed to create scouting report');
+    }
+  });
+
+  // Update scouting report mutation
+  const updateReportMutation = useMutation({
+    mutationFn: (data) => reportsService.updateScoutingReport(id, data),
+    onSuccess: (data) => {
+      toast.success('Scouting report updated successfully!');
+      queryClient.invalidateQueries(['scouting-reports']);
+      queryClient.invalidateQueries(['scouting-report', id]);
+      navigate('/scouting');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to update scouting report');
     }
   });
 
@@ -128,7 +196,11 @@ const CreateScoutingReport = () => {
       return;
     }
 
-    createReportMutation.mutate(formData);
+    if (isEditMode) {
+      updateReportMutation.mutate(formData);
+    } else {
+      createReportMutation.mutate(formData);
+    }
   };
 
   const gradeOptions = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
@@ -150,7 +222,7 @@ const CreateScoutingReport = () => {
             </button>
           </div>
           <h1 className="text-3xl font-bold text-base-content mb-2">
-            Create New Scouting Report
+            {isEditMode ? 'Edit Scouting Report' : 'Create New Scouting Report'}
           </h1>
           <p className="text-base-content/70">
             Evaluate a player's performance and potential
@@ -881,7 +953,7 @@ const CreateScoutingReport = () => {
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Create Report
+                  {isEditMode ? 'Update Report' : 'Create Report'}
                 </>
               )}
             </button>
