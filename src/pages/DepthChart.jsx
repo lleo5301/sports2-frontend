@@ -386,7 +386,7 @@ export default function DepthChart() {
 
   if (!canView) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="card p-8">
           <div className="text-center">
             <Lock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -401,7 +401,7 @@ export default function DepthChart() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

@@ -67,13 +67,15 @@ const CreateScoutingReport = () => {
   });
 
   // Fetch available players
-  const { data: players = [] } = useQuery({
+  const { data: playersData = {} } = useQuery({
     queryKey: ['players'],
     queryFn: async () => {
       const response = await api.get('/players');
       return response.data;
     }
   });
+
+  const players = playersData.data || [];
 
   // Create scouting report mutation
   const createReportMutation = useMutation({

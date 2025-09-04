@@ -224,7 +224,7 @@ export default function TeamSchedule() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
