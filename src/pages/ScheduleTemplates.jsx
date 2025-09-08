@@ -15,6 +15,8 @@ import {
   Calendar
 } from 'lucide-react'
 import scheduleTemplateService from '../services/scheduleTemplates'
+import locationsService from '../services/locations'
+import scheduleEventsService from '../services/scheduleEvents'
 import { teamsService } from '../services/teams'
 import toast from 'react-hot-toast'
 
@@ -92,12 +94,35 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [showEventModal, setShowEventModal] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [selectedEvent, setSelectedEvent] = useState(null)
   const [templateForm, setTemplateForm] = useState({
     name: '',
     description: '',
     template_data: getBaseTemplate()
   })
+  
+  const [eventForm, setEventForm] = useState({
+    title: '',
+    description: '',
+    event_type: 'practice',
+    location_id: '',
+    start_time: '',
+    end_time: '',
+    priority: 'medium',
+    event_dates: [{ event_date: '', notes: '' }]
+  })
+  
+  const [newLocationForm, setNewLocationForm] = useState({
+    name: '',
+    location_type: 'field',
+    address: '',
+    city: '',
+    state: ''
+  })
+  
+  const [showNewLocationForm, setShowNewLocationForm] = useState(false)
 
   const queryClient = useQueryClient()
 
@@ -121,6 +146,26 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
   })
 
   const templates = templatesResponse?.data || []
+
+  // Fetch locations
+  const { data: locationsResponse } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => locationsService.getLocations({ is_active: true }),
+    enabled: showEventModal
+  })
+
+  const locations = locationsResponse?.data || []
+
+  // Fetch events for selected template
+  const { data: eventsResponse } = useQuery({
+    queryKey: ['schedule-events', selectedTemplate?.id],
+    queryFn: () => scheduleEventsService.getScheduleEvents({ 
+      schedule_template_id: selectedTemplate?.id 
+    }),
+    enabled: !!selectedTemplate?.id
+  })
+
+  const templateEvents = eventsResponse?.data || []
 
   // Mutations
   const createTemplateMutation = useMutation({
@@ -174,12 +219,61 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
     }
   })
 
+  // Location mutations
+  const createLocationMutation = useMutation({
+    mutationFn: (data) => locationsService.createLocation(data),
+    onSuccess: (response) => {
+      toast.success('Location created successfully!')
+      queryClient.invalidateQueries(['locations'])
+      setEventForm(prev => ({ ...prev, location_id: response.data.id }))
+      setShowNewLocationForm(false)
+      setNewLocationForm({
+        name: '',
+        location_type: 'field',
+        address: '',
+        city: '',
+        state: ''
+      })
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to create location')
+    }
+  })
+
+  // Event mutations
+  const createEventMutation = useMutation({
+    mutationFn: (data) => scheduleEventsService.createScheduleEvent(data),
+    onSuccess: () => {
+      toast.success('Event created successfully!')
+      queryClient.invalidateQueries(['schedule-events'])
+      setShowEventModal(false)
+      resetEventForm()
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to create event')
+    }
+  })
+
   const resetForm = () => {
     setTemplateForm({
       name: '',
       description: '',
       template_data: getBaseTemplate()
     })
+  }
+
+  const resetEventForm = () => {
+    setEventForm({
+      title: '',
+      description: '',
+      event_type: 'practice',
+      location_id: '',
+      start_time: '',
+      end_time: '',
+      priority: 'medium',
+      event_dates: [{ event_date: '', notes: '' }]
+    })
+    setSelectedEvent(null)
   }
 
   const handleCreateBaseTemplate = () => {
@@ -257,6 +351,62 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
   const handleExportPDF = (template) => {
     // This would integrate with a PDF generation library
     toast.success(`PDF export for "${template.name}" would be implemented here`)
+  }
+
+  const handleManageEvents = (template) => {
+    setSelectedTemplate(template)
+    setShowEventModal(true)
+  }
+
+  const handleAddEventDate = () => {
+    setEventForm(prev => ({
+      ...prev,
+      event_dates: [...prev.event_dates, { event_date: '', notes: '' }]
+    }))
+  }
+
+  const handleRemoveEventDate = (index) => {
+    setEventForm(prev => ({
+      ...prev,
+      event_dates: prev.event_dates.filter((_, i) => i !== index)
+    }))
+  }
+
+  const handleEventDateChange = (index, field, value) => {
+    setEventForm(prev => ({
+      ...prev,
+      event_dates: prev.event_dates.map((date, i) => 
+        i === index ? { ...date, [field]: value } : date
+      )
+    }))
+  }
+
+  const handleSubmitEvent = (e) => {
+    e.preventDefault()
+    if (!eventForm.title.trim()) {
+      toast.error('Event title is required')
+      return
+    }
+
+    if (eventForm.event_dates.some(date => !date.event_date)) {
+      toast.error('All event dates are required')
+      return
+    }
+
+    createEventMutation.mutate({
+      ...eventForm,
+      schedule_template_id: selectedTemplate.id
+    })
+  }
+
+  const handleSubmitNewLocation = (e) => {
+    e.preventDefault()
+    if (!newLocationForm.name.trim()) {
+      toast.error('Location name is required')
+      return
+    }
+
+    createLocationMutation.mutate(newLocationForm)
   }
 
   if (isLoading) {
@@ -358,6 +508,12 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                         <button onClick={() => handleEditTemplate(template)}>
                           <Edit className="h-4 w-4" />
                           Edit
+                        </button>
+                      </li>
+                      <li>
+                        <button onClick={() => handleManageEvents(template)}>
+                          <Calendar className="h-4 w-4" />
+                          Manage Events
                         </button>
                       </li>
                       <li>
@@ -615,6 +771,313 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Event Management Modal */}
+        {showEventModal && selectedTemplate && (
+          <div className="modal modal-open">
+            <div className="modal-box max-w-4xl">
+              <h3 className="font-bold text-lg mb-4">
+                Manage Events - {selectedTemplate.name}
+              </h3>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Existing Events */}
+                <div>
+                  <h4 className="font-semibold mb-3">Existing Events ({templateEvents.length})</h4>
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {templateEvents.map((event) => (
+                      <div key={event.id} className="p-3 bg-base-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium">{event.title}</h5>
+                            <p className="text-sm text-base-content/70">
+                              {event.event_type} • {event.EventDates?.length || 0} dates
+                            </p>
+                          </div>
+                          <button className="btn btn-sm btn-ghost">
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {templateEvents.length === 0 && (
+                      <p className="text-center text-base-content/50 py-4">
+                        No events created yet
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Add New Event Form */}
+                <div>
+                  <h4 className="font-semibold mb-3">Add New Event</h4>
+                  <form onSubmit={handleSubmitEvent} className="space-y-4">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Event Title *</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered w-full"
+                        value={eventForm.title}
+                        onChange={(e) => setEventForm(prev => ({ ...prev, title: e.target.value }))}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="label">
+                          <span className="label-text">Event Type</span>
+                        </label>
+                        <select
+                          className="select select-bordered w-full"
+                          value={eventForm.event_type}
+                          onChange={(e) => setEventForm(prev => ({ ...prev, event_type: e.target.value }))}
+                        >
+                          {scheduleEventsService.getEventTypes().map(type => (
+                            <option key={type.value} value={type.value}>
+                              {type.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="label">
+                          <span className="label-text">Priority</span>
+                        </label>
+                        <select
+                          className="select select-bordered w-full"
+                          value={eventForm.priority}
+                          onChange={(e) => setEventForm(prev => ({ ...prev, priority: e.target.value }))}
+                        >
+                          {scheduleEventsService.getPriorityLevels().map(level => (
+                            <option key={level.value} value={level.value}>
+                              {level.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Location Selection with Add New Option */}
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Location</span>
+                      </label>
+                      <div className="flex gap-2">
+                        <select
+                          className="select select-bordered flex-1"
+                          value={eventForm.location_id}
+                          onChange={(e) => {
+                            if (e.target.value === 'add_new') {
+                              setShowNewLocationForm(true)
+                            } else {
+                              setEventForm(prev => ({ ...prev, location_id: e.target.value }))
+                            }
+                          }}
+                        >
+                          <option value="">Select location (optional)</option>
+                          {locations.map(location => (
+                            <option key={location.id} value={location.id}>
+                              {location.name} ({location.location_type})
+                            </option>
+                          ))}
+                          <option value="add_new">+ Add New Location</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* New Location Form */}
+                    {showNewLocationForm && (
+                      <div className="p-4 bg-base-200 rounded-lg">
+                        <h5 className="font-medium mb-3">Add New Location</h5>
+                        <div className="space-y-3">
+                          <div>
+                            <input
+                              type="text"
+                              className="input input-bordered w-full"
+                              placeholder="Location name *"
+                              value={newLocationForm.name}
+                              onChange={(e) => setNewLocationForm(prev => ({ ...prev, name: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <select
+                              className="select select-bordered"
+                              value={newLocationForm.location_type}
+                              onChange={(e) => setNewLocationForm(prev => ({ ...prev, location_type: e.target.value }))}
+                            >
+                              {locationsService.getLocationTypes().map(type => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="text"
+                              className="input input-bordered"
+                              placeholder="Address"
+                              value={newLocationForm.address}
+                              onChange={(e) => setNewLocationForm(prev => ({ ...prev, address: e.target.value }))}
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={handleSubmitNewLocation}
+                              disabled={createLocationMutation.isLoading}
+                              className="btn btn-sm btn-primary"
+                            >
+                              {createLocationMutation.isLoading ? (
+                                <div className="loading loading-spinner loading-sm"></div>
+                              ) : (
+                                'Add Location'
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowNewLocationForm(false)
+                                setNewLocationForm({
+                                  name: '',
+                                  location_type: 'field',
+                                  address: '',
+                                  city: '',
+                                  state: ''
+                                })
+                              }}
+                              className="btn btn-sm btn-outline"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="label">
+                          <span className="label-text">Start Time</span>
+                        </label>
+                        <input
+                          type="time"
+                          className="input input-bordered w-full"
+                          value={eventForm.start_time}
+                          onChange={(e) => setEventForm(prev => ({ ...prev, start_time: e.target.value }))}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="label">
+                          <span className="label-text">End Time</span>
+                        </label>
+                        <input
+                          type="time"
+                          className="input input-bordered w-full"
+                          value={eventForm.end_time}
+                          onChange={(e) => setEventForm(prev => ({ ...prev, end_time: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Event Dates */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="label-text font-medium">Event Dates *</label>
+                        <button
+                          type="button"
+                          onClick={handleAddEventDate}
+                          className="btn btn-xs btn-outline"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Date
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {eventForm.event_dates.map((dateEntry, index) => (
+                          <div key={index} className="flex gap-2">
+                            <input
+                              type="date"
+                              className="input input-bordered flex-1"
+                              value={dateEntry.event_date}
+                              onChange={(e) => handleEventDateChange(index, 'event_date', e.target.value)}
+                              required
+                            />
+                            <input
+                              type="text"
+                              className="input input-bordered flex-1"
+                              placeholder="Notes (optional)"
+                              value={dateEntry.notes}
+                              onChange={(e) => handleEventDateChange(index, 'notes', e.target.value)}
+                            />
+                            {eventForm.event_dates.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveEventDate(index)}
+                                className="btn btn-sm btn-outline btn-error"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Description</span>
+                      </label>
+                      <textarea
+                        className="textarea textarea-bordered w-full"
+                        rows="2"
+                        value={eventForm.description}
+                        onChange={(e) => setEventForm(prev => ({ ...prev, description: e.target.value }))}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={createEventMutation.isLoading}
+                      className="btn btn-primary w-full"
+                    >
+                      {createEventMutation.isLoading ? (
+                        <>
+                          <div className="loading loading-spinner loading-sm mr-2"></div>
+                          Creating Event...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Event
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div className="modal-action">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEventModal(false)
+                    setSelectedTemplate(null)
+                    resetEventForm()
+                    setShowNewLocationForm(false)
+                  }}
+                  className="btn btn-outline"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
