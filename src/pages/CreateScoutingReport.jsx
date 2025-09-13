@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DayPicker } from 'react-day-picker';
 import api from '../services/api';
@@ -27,6 +27,8 @@ const CreateScoutingReport = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { id } = useParams(); // Get report ID from URL for edit mode
+  const [searchParams] = useSearchParams();
+  const preSelectedPlayerId = searchParams.get('player');
   const isEditMode = Boolean(id);
   const [reportDate, setReportDate] = useState(new Date());
   const [gameDate, setGameDate] = useState(null);
@@ -78,6 +80,16 @@ const CreateScoutingReport = () => {
   });
 
   const players = playersData.data || [];
+
+  // Pre-select player if coming from player page
+  useEffect(() => {
+    if (preSelectedPlayerId && !isEditMode) {
+      setFormData(prev => ({
+        ...prev,
+        player_id: preSelectedPlayerId
+      }));
+    }
+  }, [preSelectedPlayerId, isEditMode]);
 
   // Fetch existing scouting report data for edit mode
   const { data: existingReport, isLoading: isLoadingReport } = useQuery({

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User } from 'lucide-react'
+import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User, BarChart3, Users, Plus } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -299,6 +299,100 @@ export default function PlayerDetail() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reports Section */}
+        <div className="card mb-8">
+          <div className="card-body">
+            <h2 className="card-title mb-4">
+              <FileText className="w-5 h-5 mr-2" />
+              Reports
+            </h2>
+            <p className="text-base-content/70 mb-6">
+              Create detailed reports and analysis for {playerData.first_name} {playerData.last_name}
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Performance Report */}
+              <div className="card bg-base-200">
+                <div className="card-body">
+                  <div className="flex items-center mb-3">
+                    <TrendingUp className="w-6 h-6 text-primary mr-3" />
+                    <h3 className="font-semibold">Performance Report</h3>
+                  </div>
+                  <p className="text-sm text-base-content/70 mb-4">
+                    Create a comprehensive performance analysis with statistics and trends
+                  </p>
+                  <Link
+                    to={`/reports/create-performance?player=${id}`}
+                    className="btn btn-primary btn-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Report
+                  </Link>
+                </div>
+              </div>
+
+              {/* Scouting Report */}
+              <div className="card bg-base-200">
+                <div className="card-body">
+                  <div className="flex items-center mb-3">
+                    <Target className="w-6 h-6 text-secondary mr-3" />
+                    <h3 className="font-semibold">Scouting Report</h3>
+                  </div>
+                  <p className="text-sm text-base-content/70 mb-4">
+                    Create detailed scouting evaluation with grades and observations
+                  </p>
+                  <Link
+                    to={`/scouting/create?player=${id}`}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Report
+                  </Link>
+                </div>
+              </div>
+
+              {/* Statistics Report */}
+              <div className="card bg-base-200">
+                <div className="card-body">
+                  <div className="flex items-center mb-3">
+                    <BarChart3 className="w-6 h-6 text-accent mr-3" />
+                    <h3 className="font-semibold">Statistics Report</h3>
+                  </div>
+                  <p className="text-sm text-base-content/70 mb-4">
+                    Generate statistical analysis and comparison reports
+                  </p>
+                  <Link
+                    to={`/reports/create-statistics?player=${id}`}
+                    className="btn btn-accent btn-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Report
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="divider">Quick Actions</div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={`/reports/create-custom?player=${id}`}
+                className="btn btn-outline btn-sm"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Custom Report
+              </Link>
+              <Link
+                to={`/reports?player=${id}`}
+                className="btn btn-ghost btn-sm"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                View All Reports
+              </Link>
             </div>
           </div>
         </div>

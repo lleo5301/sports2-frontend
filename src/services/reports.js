@@ -125,7 +125,7 @@ export const pdfUtils = {
     const tableData = data.players.map(player => [
       `${player.first_name} ${player.last_name}`,
       player.position,
-      player.batting_average || 'N/A',
+      player.batting_avg || 'N/A',
       player.home_runs || 'N/A',
       player.rbi || 'N/A',
       player.era || 'N/A',

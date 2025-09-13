@@ -22,6 +22,8 @@ import EditPlayer from './pages/EditPlayer';
 import ScoutingReports from './pages/ScoutingReports';
 import CreateScoutingReport from './pages/CreateScoutingReport';
 import CreateCustomReport from './pages/CreateCustomReport';
+import CreatePerformanceReport from './pages/CreatePerformanceReport';
+import CreateStatisticsReport from './pages/CreateStatisticsReport';
 import DepthChart from './pages/DepthChart';
 import TeamSchedule from './pages/TeamSchedule';
 import ScheduleTemplates from './pages/ScheduleTemplates';
@@ -241,6 +243,20 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <CreateCustomReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/create-performance" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreatePerformanceReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/create-statistics" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreateStatisticsReport />
             </Layout>
           </ProtectedRoute>
         } />
