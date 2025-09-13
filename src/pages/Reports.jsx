@@ -19,7 +19,6 @@ import {
 const Reports = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [selectedReport, setSelectedReport] = useState(null);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(null);
 
@@ -89,49 +88,44 @@ const Reports = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <button 
-            className="btn btn-primary"
-            onClick={() => {
-              setGeneratingReport('player-performance');
-              generateReportMutation.mutate({ type: 'player-performance', filters: {} });
-            }}
-            disabled={generatingReport === 'player-performance'}
-          >
-            {generatingReport === 'player-performance' ? (
-              <div className="loading loading-spinner loading-sm mr-2"></div>
-            ) : (
+          <div className="dropdown dropdown-bottom">
+            <div tabIndex={0} role="button" className="btn btn-primary">
               <Users className="w-5 h-5 mr-2" />
-            )}
-            Performance Report
-          </button>
+              Performance Report
+            </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow">
+              <li>
+                <button onClick={() => navigate('/performance/entry')} className="text-left">
+                  <Plus className="w-4 h-4" />
+                  <div>
+                    <div className="font-medium">Add Performance Data</div>
+                    <div className="text-xs text-base-content/60">Enter game statistics</div>
+                  </div>
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate('/reports/create-performance')} className="text-left">
+                  <FileText className="w-4 h-4" />
+                  <div>
+                    <div className="font-medium">Create Report Template</div>
+                    <div className="text-xs text-base-content/60">Generate analysis report</div>
+                  </div>
+                </button>
+              </li>
+            </ul>
+          </div>
           <button 
             className="btn btn-secondary"
-            onClick={() => {
-              setGeneratingReport('team-statistics');
-              generateReportMutation.mutate({ type: 'team-statistics', filters: {} });
-            }}
-            disabled={generatingReport === 'team-statistics'}
+            onClick={() => navigate('/reports/create-statistics')}
           >
-            {generatingReport === 'team-statistics' ? (
-              <div className="loading loading-spinner loading-sm mr-2"></div>
-            ) : (
-              <BarChart3 className="w-5 h-5 mr-2" />
-            )}
+            <BarChart3 className="w-5 h-5 mr-2" />
             Statistics Report
           </button>
           <button 
             className="btn btn-accent"
-            onClick={() => {
-              setGeneratingReport('scouting-analysis');
-              generateReportMutation.mutate({ type: 'scouting-analysis', filters: {} });
-            }}
-            disabled={generatingReport === 'scouting-analysis'}
+            onClick={() => navigate('/scouting/create')}
           >
-            {generatingReport === 'scouting-analysis' ? (
-              <div className="loading loading-spinner loading-sm mr-2"></div>
-            ) : (
-              <Target className="w-5 h-5 mr-2" />
-            )}
+            <Target className="w-5 h-5 mr-2" />
             Scouting Report
           </button>
           <button 
@@ -141,6 +135,82 @@ const Reports = () => {
             <Plus className="w-5 h-5 mr-2" />
             Custom Report
           </button>
+        </div>
+
+        {/* Generate Reports Section */}
+        <div className="card bg-base-100 shadow-xl mb-8">
+          <div className="card-body">
+            <h2 className="card-title text-xl mb-4">
+              <Download className="w-5 h-5 mr-2" />
+              Generate Quick Reports
+            </h2>
+            <p className="text-base-content/70 mb-4">
+              Generate and download reports from existing data
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <button 
+                className="btn btn-outline btn-primary"
+                onClick={() => {
+                  setGeneratingReport('player-performance');
+                  generateReportMutation.mutate({ type: 'player-performance', filters: {} });
+                }}
+                disabled={generatingReport === 'player-performance'}
+              >
+                {generatingReport === 'player-performance' ? (
+                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Download Performance
+              </button>
+              <button 
+                className="btn btn-outline btn-secondary"
+                onClick={() => {
+                  setGeneratingReport('team-statistics');
+                  generateReportMutation.mutate({ type: 'team-statistics', filters: {} });
+                }}
+                disabled={generatingReport === 'team-statistics'}
+              >
+                {generatingReport === 'team-statistics' ? (
+                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Download Statistics
+              </button>
+              <button 
+                className="btn btn-outline btn-accent"
+                onClick={() => {
+                  setGeneratingReport('scouting-analysis');
+                  generateReportMutation.mutate({ type: 'scouting-analysis', filters: {} });
+                }}
+                disabled={generatingReport === 'scouting-analysis'}
+              >
+                {generatingReport === 'scouting-analysis' ? (
+                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Download Scouting
+              </button>
+              <button 
+                className="btn btn-outline"
+                onClick={() => {
+                  setGeneratingReport('recruitment-pipeline');
+                  generateReportMutation.mutate({ type: 'recruitment-pipeline', filters: {} });
+                }}
+                disabled={generatingReport === 'recruitment-pipeline'}
+              >
+                {generatingReport === 'recruitment-pipeline' ? (
+                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Download Pipeline
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Reports List */}
@@ -180,19 +250,52 @@ const Reports = () => {
                         <div className="flex space-x-2">
                           <button 
                             className="btn btn-sm btn-outline"
-                            onClick={() => setSelectedReport(report)}
-                          >
-                            View
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-primary"
                             onClick={() => {
-                              setSelectedReport(report);
-                              alert(`Editing report: ${report.title}`);
+                              const reportType = report.type.toLowerCase().replace(' ', '-');
+                              if (reportType === 'performance' || reportType === 'player-performance') {
+                                navigate(`/reports/${report.id}/performance`);
+                              } else if (reportType === 'statistics' || reportType === 'team-statistics') {
+                                navigate(`/reports/${report.id}/statistics`);
+                              } else if (reportType === 'scouting') {
+                                navigate(`/scouting/${report.id}`);
+                              } else {
+                                navigate(`/reports/${report.id}/view`);
+                              }
                             }}
                           >
-                            Edit
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
                           </button>
+                          {report.type.toLowerCase() === 'custom' ? (
+                            <div className="dropdown dropdown-end">
+                              <button tabIndex={0} className="btn btn-sm btn-primary">
+                                <Edit className="w-4 h-4 mr-1" />
+                                Edit
+                              </button>
+                              <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                                <li>
+                                  <a onClick={() => navigate(`/reports/${report.id}/edit-content`)}>
+                                    <Edit className="w-4 h-4" />
+                                    Edit Report Content
+                                  </a>
+                                </li>
+                                <li>
+                                  <a onClick={() => navigate(`/reports/create-custom?edit=${report.id}`)}>
+                                    <Edit className="w-4 h-4" />
+                                    Edit Report Template
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          ) : (
+                            <button 
+                              className="btn btn-sm btn-primary"
+                              onClick={() => navigate(`/reports/${report.id}/edit-content`)}
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Edit
+                            </button>
+                          )}
                           <button 
                             className="btn btn-sm btn-ghost"
                             onClick={() => {
@@ -222,70 +325,6 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Report View Modal */}
-      {selectedReport && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">{selectedReport.title}</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-medium">Type:</span>
-                <span className="badge badge-outline">{selectedReport.type}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Date:</span>
-                <span>{selectedReport.date}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Author:</span>
-                <span>{selectedReport.author}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Status:</span>
-                <span className={`badge ${
-                  selectedReport.status === 'Published' ? 'badge-success' :
-                  selectedReport.status === 'Draft' ? 'badge-neutral' :
-                  'badge-warning'
-                }`}>
-                  {selectedReport.status}
-                </span>
-              </div>
-            </div>
-            <div className="modal-action">
-              <button 
-                className="btn btn-primary"
-                onClick={() => {
-                  setGeneratingReport(selectedReport.type.toLowerCase());
-                  generateReportMutation.mutate({ 
-                    type: selectedReport.type.toLowerCase().replace(' ', '-'), 
-                    filters: {} 
-                  });
-                  setSelectedReport(null);
-                }}
-                disabled={generatingReport === selectedReport.type.toLowerCase()}
-              >
-                {generatingReport === selectedReport.type.toLowerCase() ? (
-                  <>
-                    <div className="loading loading-spinner loading-sm mr-2"></div>
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </>
-                )}
-              </button>
-              <button 
-                className="btn btn-outline"
-                onClick={() => setSelectedReport(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

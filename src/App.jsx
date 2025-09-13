@@ -24,6 +24,11 @@ import CreateScoutingReport from './pages/CreateScoutingReport';
 import CreateCustomReport from './pages/CreateCustomReport';
 import CreatePerformanceReport from './pages/CreatePerformanceReport';
 import CreateStatisticsReport from './pages/CreateStatisticsReport';
+import CreatePlayerPerformanceEntry from './pages/CreatePlayerPerformanceEntry';
+import ViewPerformanceReport from './pages/ViewPerformanceReport';
+import ViewStatisticsReport from './pages/ViewStatisticsReport';
+import ViewCustomReport from './pages/ViewCustomReport';
+import EditReportContent from './pages/EditReportContent';
 import DepthChart from './pages/DepthChart';
 import TeamSchedule from './pages/TeamSchedule';
 import ScheduleTemplates from './pages/ScheduleTemplates';
@@ -253,10 +258,45 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+        <Route path="/performance/entry" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreatePlayerPerformanceEntry />
+            </Layout>
+          </ProtectedRoute>
+        } />
         <Route path="/reports/create-statistics" element={
           <ProtectedRoute>
             <Layout>
               <CreateStatisticsReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/:id/view" element={
+          <ProtectedRoute>
+            <Layout>
+              <ViewCustomReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/:id/edit-content" element={
+          <ProtectedRoute>
+            <Layout>
+              <EditReportContent />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/:id/performance" element={
+          <ProtectedRoute>
+            <Layout>
+              <ViewPerformanceReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports/:id/statistics" element={
+          <ProtectedRoute>
+            <Layout>
+              <ViewStatisticsReport />
             </Layout>
           </ProtectedRoute>
         } />
