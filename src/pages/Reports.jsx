@@ -1,26 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { reportsService, pdfUtils } from '../services/reports';
-import { toast } from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
+import { reportsService } from '../services/reports';
 import { 
   Download, 
   Eye, 
   Edit, 
-  Trash2, 
   Plus,
   BarChart3,
   FileText,
   Users,
-  Target,
-  Calendar
+  Target
 } from 'lucide-react';
 
 const Reports = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [showGenerateModal, setShowGenerateModal] = useState(false);
-  const [generatingReport, setGeneratingReport] = useState(null);
 
   // Fetch reports
   const { data: reportsData, isLoading } = useQuery({
@@ -38,40 +32,6 @@ const Reports = () => {
     { id: 4, title: 'Recruitment Pipeline', type: 'Recruitment', date: '2024-01-12', author: 'John Doe', status: 'In Review' },
   ];
 
-  // Generate report mutation
-  const generateReportMutation = useMutation({
-    mutationFn: async ({ type, filters }) => {
-      let data;
-      switch (type) {
-        case 'player-performance':
-          data = await reportsService.getPlayerPerformance(filters);
-          break;
-        case 'team-statistics':
-          data = await reportsService.getTeamStatistics(filters);
-          break;
-        case 'scouting-analysis':
-          data = await reportsService.getScoutingAnalysis(filters);
-          break;
-        case 'recruitment-pipeline':
-          data = await reportsService.getRecruitmentPipeline(filters);
-          break;
-        default:
-          throw new Error(`Unknown report type: ${type}`);
-      }
-      // Return the data directly, not data.data
-      return { type, data: data };
-    },
-    onSuccess: ({ type, data }) => {
-      const filename = `${type.replace('-', '_')}_${new Date().toISOString().split('T')[0]}`;
-      pdfUtils.generateAndDownloadReport(type, data, filename);
-      setGeneratingReport(null);
-      toast.success('Report generated and downloaded successfully!');
-    },
-    onError: (error) => {
-      setGeneratingReport(null);
-      toast.error('Failed to generate report');
-    }
-  });
 
   return (
     <div className="p-8">
@@ -137,81 +97,6 @@ const Reports = () => {
           </button>
         </div>
 
-        {/* Generate Reports Section */}
-        <div className="card bg-base-100 shadow-xl mb-8">
-          <div className="card-body">
-            <h2 className="card-title text-xl mb-4">
-              <Download className="w-5 h-5 mr-2" />
-              Generate Quick Reports
-            </h2>
-            <p className="text-base-content/70 mb-4">
-              Generate and download reports from existing data
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <button 
-                className="btn btn-outline btn-primary"
-                onClick={() => {
-                  setGeneratingReport('player-performance');
-                  generateReportMutation.mutate({ type: 'player-performance', filters: {} });
-                }}
-                disabled={generatingReport === 'player-performance'}
-              >
-                {generatingReport === 'player-performance' ? (
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
-                ) : (
-                  <Download className="w-4 h-4 mr-2" />
-                )}
-                Download Performance
-              </button>
-              <button 
-                className="btn btn-outline btn-secondary"
-                onClick={() => {
-                  setGeneratingReport('team-statistics');
-                  generateReportMutation.mutate({ type: 'team-statistics', filters: {} });
-                }}
-                disabled={generatingReport === 'team-statistics'}
-              >
-                {generatingReport === 'team-statistics' ? (
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
-                ) : (
-                  <Download className="w-4 h-4 mr-2" />
-                )}
-                Download Statistics
-              </button>
-              <button 
-                className="btn btn-outline btn-accent"
-                onClick={() => {
-                  setGeneratingReport('scouting-analysis');
-                  generateReportMutation.mutate({ type: 'scouting-analysis', filters: {} });
-                }}
-                disabled={generatingReport === 'scouting-analysis'}
-              >
-                {generatingReport === 'scouting-analysis' ? (
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
-                ) : (
-                  <Download className="w-4 h-4 mr-2" />
-                )}
-                Download Scouting
-              </button>
-              <button 
-                className="btn btn-outline"
-                onClick={() => {
-                  setGeneratingReport('recruitment-pipeline');
-                  generateReportMutation.mutate({ type: 'recruitment-pipeline', filters: {} });
-                }}
-                disabled={generatingReport === 'recruitment-pipeline'}
-              >
-                {generatingReport === 'recruitment-pipeline' ? (
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
-                ) : (
-                  <Download className="w-4 h-4 mr-2" />
-                )}
-                Download Pipeline
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Reports List */}
         <div className="card">
@@ -296,24 +181,6 @@ const Reports = () => {
                               Edit
                             </button>
                           )}
-                          <button 
-                            className="btn btn-sm btn-ghost"
-                            onClick={() => {
-                              setGeneratingReport(report.type.toLowerCase());
-                              generateReportMutation.mutate({ 
-                                type: report.type.toLowerCase().replace(' ', '-'), 
-                                filters: {} 
-                              });
-                            }}
-                            title="Download Report"
-                            disabled={generatingReport === report.type.toLowerCase()}
-                          >
-                            {generatingReport === report.type.toLowerCase() ? (
-                              <div className="loading loading-spinner loading-xs"></div>
-                            ) : (
-                              <Download className="w-4 h-4" />
-                            )}
-                          </button>
                         </div>
                       </td>
                     </tr>

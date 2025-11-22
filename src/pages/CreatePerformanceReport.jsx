@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
+import MultiPlayerSelector from '../components/MultiPlayerSelector';
 import { 
   ArrowLeft, 
   Save, 
@@ -22,6 +23,8 @@ const CreatePerformanceReport = () => {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const preSelectedPlayerId = searchParams.get('player');
+  const editReportId = searchParams.get('edit');
+  const isEditMode = Boolean(editReportId);
   const [reportData, setReportData] = useState({
     title: '',
     description: '',
@@ -61,6 +64,13 @@ const CreatePerformanceReport = () => {
 
   const players = playersData.data || [];
 
+  // Fetch existing report data for edit mode
+  const { data: existingReportData, isLoading: isLoadingReport } = useQuery({
+    queryKey: ['report', editReportId],
+    queryFn: () => reportsService.getReport(editReportId),
+    enabled: isEditMode,
+  });
+
   // Pre-select player and set default title if coming from player page
   useEffect(() => {
     if (preSelectedPlayerId && players.length > 0) {
@@ -76,7 +86,33 @@ const CreatePerformanceReport = () => {
     }
   }, [preSelectedPlayerId, players]);
 
-  // Create report mutation
+  // Populate form with existing report data in edit mode
+  useEffect(() => {
+    if (isEditMode && existingReportData?.data) {
+      const report = existingReportData.data;
+      setReportData(prev => ({
+        ...prev,
+        title: report.title || '',
+        description: report.description || '',
+        type: report.type || 'player-performance',
+        date_range: {
+          start_date: report.filters?.start_date || '',
+          end_date: report.filters?.end_date || ''
+        },
+        players: report.filters?.players || [],
+        metrics: report.filters?.metrics || prev.metrics,
+        filters: {
+          position: report.filters?.position || '',
+          min_games: report.filters?.min_games || '',
+          team_id: report.filters?.team_id || ''
+        },
+        analysis: report.sections?.find(s => s.title === 'Analysis')?.content || '',
+        recommendations: report.sections?.find(s => s.title === 'Recommendations')?.content || ''
+      }));
+    }
+  }, [isEditMode, existingReportData]);
+
+  // Create/Update report mutation
   const createReportMutation = useMutation({
     mutationFn: async (data) => {
       const reportPayload = {
@@ -117,15 +153,19 @@ const CreatePerformanceReport = () => {
         schedule: null
       };
       
-      return await reportsService.createReport(reportPayload);
+      if (isEditMode) {
+        return await reportsService.updateReport(editReportId, reportPayload);
+      } else {
+        return await reportsService.createReport(reportPayload);
+      }
     },
     onSuccess: (data) => {
-      toast.success('Performance report created successfully!');
+      toast.success(isEditMode ? 'Performance report updated successfully!' : 'Performance report created successfully!');
       queryClient.invalidateQueries(['reports']);
       navigate('/reports');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create performance report');
+      toast.error(error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} performance report`);
     }
   });
 
@@ -174,10 +214,10 @@ const CreatePerformanceReport = () => {
             Back to Reports
           </button>
           <h1 className="text-3xl font-bold text-base-content mb-2">
-            Create Performance Report
+            {isEditMode ? 'Edit Performance Report' : 'Create Performance Report'}
           </h1>
           <p className="text-base-content/70">
-            Create a comprehensive player performance analysis report
+            {isEditMode ? 'Update your player performance analysis report' : 'Create a comprehensive player performance analysis report'}
           </p>
         </div>
 
@@ -247,39 +287,28 @@ const CreatePerformanceReport = () => {
           </div>
 
           {/* Player Selection */}
+          <MultiPlayerSelector
+            selectedPlayerIds={reportData.players}
+            onPlayersChange={(playerIds) => setReportData(prev => ({ ...prev, players: playerIds }))}
+            players={players}
+            label="Player Selection"
+            allowCreate={true}
+            positionFilter={reportData.filters.position}
+            onPositionFilterChange={(position) => setReportData(prev => ({
+              ...prev,
+              filters: { ...prev.filters, position }
+            }))}
+          />
+
+          {/* Additional Filters */}
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
-                <Target className="w-5 h-5 mr-2" />
-                Player Selection
+                <Filter className="w-5 h-5 mr-2" />
+                Additional Filters
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Position Filter</span>
-                  </label>
-                  <select
-                    className="select select-bordered"
-                    value={reportData.filters.position}
-                    onChange={(e) => setReportData(prev => ({
-                      ...prev,
-                      filters: { ...prev.filters, position: e.target.value }
-                    }))}
-                  >
-                    <option value="">All Positions</option>
-                    <option value="P">Pitcher</option>
-                    <option value="C">Catcher</option>
-                    <option value="1B">First Base</option>
-                    <option value="2B">Second Base</option>
-                    <option value="3B">Third Base</option>
-                    <option value="SS">Shortstop</option>
-                    <option value="LF">Left Field</option>
-                    <option value="CF">Center Field</option>
-                    <option value="RF">Right Field</option>
-                  </select>
-                </div>
-                
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Min Games Played</span>
@@ -298,36 +327,18 @@ const CreatePerformanceReport = () => {
                 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Selected Players</span>
+                    <span className="label-text">Team Filter</span>
                   </label>
-                  <div className="text-sm text-base-content/70">
-                    {reportData.players.length} player(s) selected
-                  </div>
-                </div>
-              </div>
-
-              <div className="max-h-64 overflow-y-auto border rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {players.map(player => (
-                    <label key={player.id} className="cursor-pointer">
-                      <div className="flex items-center space-x-3 p-2 rounded hover:bg-base-200">
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-primary"
-                          checked={reportData.players.includes(player.id.toString())}
-                          onChange={() => handlePlayerToggle(player.id.toString())}
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium">
-                            {player.first_name} {player.last_name}
-                          </div>
-                          <div className="text-sm text-base-content/70">
-                            {player.position} • {player.school || 'No school'}
-                          </div>
-                        </div>
-                      </div>
-                    </label>
-                  ))}
+                  <input
+                    type="text"
+                    className="input input-bordered"
+                    placeholder="Team ID or name"
+                    value={reportData.filters.team_id}
+                    onChange={(e) => setReportData(prev => ({
+                      ...prev,
+                      filters: { ...prev.filters, team_id: e.target.value }
+                    }))}
+                  />
                 </div>
               </div>
             </div>
@@ -419,7 +430,7 @@ const CreatePerformanceReport = () => {
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Create Report
+                  {isEditMode ? 'Update Report' : 'Create Report'}
                 </>
               )}
             </button>

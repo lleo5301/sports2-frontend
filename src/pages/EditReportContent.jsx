@@ -8,8 +8,6 @@ import {
   Save, 
   Plus, 
   Trash2, 
-  FileText,
-  Edit3,
   Table,
   Type
 } from 'lucide-react';
@@ -128,27 +126,6 @@ const EditReportContent = () => {
     }));
   };
 
-  const addSection = (type) => {
-    const newSection = {
-      title: 'New Section',
-      type: type,
-      content: type === 'text' ? '' : undefined,
-      data: type === 'table' ? [['']] : undefined,
-      headers: type === 'table' ? ['Column 1'] : undefined
-    };
-
-    setReportData(prev => ({
-      ...prev,
-      sections: [...prev.sections, newSection]
-    }));
-  };
-
-  const removeSection = (sectionIndex) => {
-    setReportData(prev => ({
-      ...prev,
-      sections: prev.sections.filter((_, index) => index !== sectionIndex)
-    }));
-  };
 
   if (isLoadingReport) {
     return (
@@ -168,17 +145,17 @@ const EditReportContent = () => {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate(`/reports/view/${id}`)}
+            onClick={() => navigate(`/reports`)}
             className="btn btn-ghost btn-sm mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Report
+            Back to Reports
           </button>
           <h1 className="text-3xl font-bold text-base-content mb-2">
             Edit Report Content
           </h1>
           <p className="text-base-content/70">
-            Edit the actual content and data within your report sections
+            Edit the data values within your report sections
           </p>
           <div className="mt-4 p-4 bg-info/10 rounded-lg">
             <h3 className="font-semibold text-info mb-2">Report: {reportData.title}</h3>
@@ -192,27 +169,13 @@ const EditReportContent = () => {
             {reportData.sections.map((section, sectionIndex) => (
               <div key={sectionIndex} className="card bg-base-100 shadow-xl">
                 <div className="card-body">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      {section.type === 'table' ? (
-                        <Table className="w-5 h-5 text-primary" />
-                      ) : (
-                        <Type className="w-5 h-5 text-primary" />
-                      )}
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm"
-                        value={section.title}
-                        onChange={(e) => handleSectionUpdate(sectionIndex, 'title', e.target.value)}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-sm text-error"
-                      onClick={() => removeSection(sectionIndex)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div className="flex items-center mb-4">
+                    {section.type === 'table' ? (
+                      <Table className="w-5 h-5 text-primary mr-2" />
+                    ) : (
+                      <Type className="w-5 h-5 text-primary mr-2" />
+                    )}
+                    <h3 className="text-lg font-semibold">{section.title}</h3>
                   </div>
 
                   {section.type === 'text' ? (
@@ -226,42 +189,7 @@ const EditReportContent = () => {
                     </div>
                   ) : section.type === 'table' ? (
                     <div>
-                      {/* Table Headers */}
-                      <div className="mb-4">
-                        <label className="label">
-                          <span className="label-text font-medium">Table Headers</span>
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {section.headers?.map((header, headerIndex) => (
-                            <input
-                              key={headerIndex}
-                              type="text"
-                              className="input input-bordered input-sm"
-                              value={header}
-                              onChange={(e) => {
-                                const newHeaders = [...section.headers];
-                                newHeaders[headerIndex] = e.target.value;
-                                handleSectionUpdate(sectionIndex, 'headers', newHeaders);
-                              }}
-                            />
-                          ))}
-                          <button
-                            type="button"
-                            className="btn btn-ghost btn-sm"
-                            onClick={() => {
-                              const newHeaders = [...(section.headers || []), 'New Column'];
-                              handleSectionUpdate(sectionIndex, 'headers', newHeaders);
-                              // Also add empty cells to existing rows
-                              const newData = section.data.map(row => [...row, '']);
-                              handleSectionUpdate(sectionIndex, 'data', newData);
-                            }}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Table Data */}
+                      {/* Table Data - Headers are read-only */}
                       <div className="overflow-x-auto">
                         <table className="table table-bordered w-full">
                           <thead>
@@ -317,31 +245,6 @@ const EditReportContent = () => {
                 </div>
               </div>
             ))}
-
-            {/* Add Section Buttons */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <h3 className="card-title text-lg mb-4">Add New Section</h3>
-                <div className="flex space-x-4">
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => addSection('text')}
-                  >
-                    <Type className="w-4 h-4 mr-2" />
-                    Add Text Section
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => addSection('table')}
-                  >
-                    <Table className="w-4 h-4 mr-2" />
-                    Add Table Section
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Actions */}
@@ -349,7 +252,7 @@ const EditReportContent = () => {
             <button
               type="button"
               className="btn btn-outline"
-              onClick={() => navigate(`/reports/view/${id}`)}
+              onClick={() => navigate(`/reports`)}
             >
               Cancel
             </button>

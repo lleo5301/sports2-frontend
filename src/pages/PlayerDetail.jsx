@@ -323,14 +323,14 @@ export default function PlayerDetail() {
                     <h3 className="font-semibold">Performance Report</h3>
                   </div>
                   <p className="text-sm text-base-content/70 mb-4">
-                    Create a comprehensive performance analysis with statistics and trends
+                    Enter game performance statistics and data for this player
                   </p>
                   <Link
-                    to={`/reports/create-performance?player=${id}`}
+                    to={`/performance/entry?player=${id}`}
                     className="btn btn-primary btn-sm"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Report
+                    Add Performance Data
                   </Link>
                 </div>
               </div>

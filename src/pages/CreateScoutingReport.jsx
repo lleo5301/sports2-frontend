@@ -5,6 +5,7 @@ import { DayPicker } from 'react-day-picker';
 import api from '../services/api';
 import { reportsService } from '../services/reports';
 import { toast } from 'react-hot-toast';
+import PlayerSelector from '../components/PlayerSelector';
 import { 
   ArrowLeft, 
   Save, 
@@ -252,25 +253,15 @@ const CreateScoutingReport = () => {
             </div>
             <div className="card-body">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Player *</span>
-                  </label>
-                  <select
-                    name="player_id"
-                    value={formData.player_id}
-                    onChange={handleInputChange}
-                    className="select select-bordered"
-                    required
-                  >
-                    <option value="">Select a player...</option>
-                    {players.map(player => (
-                      <option key={player.id} value={player.id}>
-                        {player.first_name} {player.last_name} - {player.position}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <PlayerSelector
+                  selectedPlayerId={formData.player_id}
+                  onPlayerSelect={(playerId) => setFormData(prev => ({ ...prev, player_id: playerId }))}
+                  players={players}
+                  required={true}
+                  label="Player"
+                  placeholder="Select a player..."
+                  allowCreate={true}
+                />
 
                 <div className="form-control">
                   <label className="label">
