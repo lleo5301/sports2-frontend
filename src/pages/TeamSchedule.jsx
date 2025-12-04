@@ -269,16 +269,15 @@ export default function TeamSchedule() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
               <div className="dropdown w-full">
-                <div 
-                  tabIndex={0} 
-                  role="button" 
+                <div
+                  tabIndex={0}
+                  role="button"
                   className="input w-full flex items-center justify-between cursor-pointer"
-                  onClick={() => document.activeElement?.blur()}
                 >
                   <span className={scheduleData.team_name ? 'text-base-content' : 'text-base-content/50'}>
                     {scheduleData.team_name || 'Select a team...'}
                   </span>
-                  <Building2 className="w-4 h-4" />
+                  <ChevronDown className="w-4 h-4" />
                 </div>
                 <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full z-50 max-h-60 overflow-y-auto">
                   {teamsLoading ? (
@@ -289,7 +288,10 @@ export default function TeamSchedule() {
                     teams.map((team) => (
                       <li key={team.id}>
                         <button
-                          onClick={() => handleTeamSelect(team.id)}
+                          onClick={(e) => {
+                            handleTeamSelect(team.id)
+                            e.currentTarget.closest('.dropdown')?.querySelector('[tabIndex]')?.blur()
+                          }}
                           className="text-left"
                         >
                           {team.name}

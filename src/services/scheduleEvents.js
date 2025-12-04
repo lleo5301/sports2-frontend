@@ -35,7 +35,7 @@ const scheduleEventsService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/schedule-events/${id}`, eventData);
+    const response = await api.put(`/schedule-events/${id}`, filteredData);
     return response.data;
   },
 
