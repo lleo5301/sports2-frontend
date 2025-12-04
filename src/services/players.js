@@ -15,13 +15,27 @@ export const playersService = {
 
   // Create a new player
   createPlayer: async (playerData) => {
-    const response = await api.post('/players', playerData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(playerData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/players', filteredData)
     return response.data
   },
 
   // Update a player
   updatePlayer: async (id, playerData) => {
-    const response = await api.put(`/players/byId/${id}`, playerData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(playerData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/players/byId/${id}`, filteredData)
     return response.data
   },
 

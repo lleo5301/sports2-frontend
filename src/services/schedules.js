@@ -15,13 +15,27 @@ export const schedulesService = {
 
   // Create a new schedule
   createSchedule: async (scheduleData) => {
-    const response = await api.post('/schedules', scheduleData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(scheduleData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/schedules', filteredData)
     return response.data
   },
 
   // Update a schedule
   updateSchedule: async (id, scheduleData) => {
-    const response = await api.put(`/schedules/byId/${id}`, scheduleData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(scheduleData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/schedules/byId/${id}`, filteredData)
     return response.data
   },
 

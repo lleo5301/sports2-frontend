@@ -15,13 +15,27 @@ export const gamesService = {
 
   // Create a new game
   createGame: async (gameData) => {
-    const response = await api.post('/games', gameData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(gameData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/games', filteredData)
     return response.data
   },
 
   // Update a game
   updateGame: async (id, gameData) => {
-    const response = await api.put(`/games/byId/${id}`, gameData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(gameData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/games/byId/${id}`, filteredData)
     return response.data
   },
 

@@ -23,13 +23,27 @@ const coachService = {
 
   // Create a new coach
   createCoach: async (coachData) => {
-    const response = await api.post('/coaches', coachData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(coachData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/coaches', filteredData)
     return response.data
   },
 
   // Update a coach
   updateCoach: async (id, coachData) => {
-    const response = await api.put(`/coaches/${id}`, coachData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(coachData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/coaches/${id}`, filteredData)
     return response.data
   },
 

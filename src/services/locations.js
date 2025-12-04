@@ -15,13 +15,27 @@ const locationsService = {
 
   // Create a new location
   createLocation: async (locationData) => {
-    const response = await api.post('/locations', locationData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(locationData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/locations', filteredData);
     return response.data;
   },
 
   // Update a location
   updateLocation: async (id, locationData) => {
-    const response = await api.put(`/locations/${id}`, locationData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(locationData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/locations/${id}`, filteredData);
     return response.data;
   },
 

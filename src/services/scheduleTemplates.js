@@ -15,13 +15,27 @@ const scheduleTemplateService = {
 
   // Create a new template
   createTemplate: async (templateData) => {
-    const response = await api.post('/schedule-templates', templateData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(templateData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/schedule-templates', filteredData)
     return response.data
   },
 
   // Update a template
   updateTemplate: async (id, templateData) => {
-    const response = await api.put(`/schedule-templates/${id}`, templateData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(templateData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/schedule-templates/${id}`, filteredData)
     return response.data
   },
 
@@ -33,7 +47,14 @@ const scheduleTemplateService = {
 
   // Duplicate a template
   duplicateTemplate: async (id, duplicateData) => {
-    const response = await api.post(`/schedule-templates/${id}/duplicate`, duplicateData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(duplicateData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post(`/schedule-templates/${id}/duplicate`, filteredData)
     return response.data
   }
 }

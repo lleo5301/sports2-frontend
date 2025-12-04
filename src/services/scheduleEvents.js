@@ -15,12 +15,26 @@ const scheduleEventsService = {
 
   // Create a new schedule event
   createScheduleEvent: async (eventData) => {
-    const response = await api.post('/schedule-events', eventData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(eventData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/schedule-events', filteredData);
     return response.data;
   },
 
   // Update a schedule event
   updateScheduleEvent: async (id, eventData) => {
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(eventData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
     const response = await api.put(`/schedule-events/${id}`, eventData);
     return response.data;
   },

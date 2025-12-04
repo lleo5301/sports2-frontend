@@ -18,13 +18,27 @@ export const reportsService = {
 
   // Create a new report
   createReport: async (reportData) => {
-    const response = await api.post('/reports', reportData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/reports', filteredData);
     return response.data;
   },
 
   // Update a report
   updateReport: async (id, reportData) => {
-    const response = await api.put(`/reports/byId/${id}`, reportData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/reports/byId/${id}`, filteredData);
     return response.data;
   },
 
@@ -66,7 +80,14 @@ export const reportsService = {
 
   // Create a scouting report
   createScoutingReport: async (reportData) => {
-    const response = await api.post('/reports/scouting', reportData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/reports/scouting', filteredData);
     return response.data;
   },
 
@@ -78,7 +99,14 @@ export const reportsService = {
 
   // Update a scouting report
   updateScoutingReport: async (id, reportData) => {
-    const response = await api.put(`/reports/scouting/${id}`, reportData);
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put(`/reports/scouting/${id}`, filteredData);
     return response.data;
   },
 

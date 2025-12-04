@@ -21,13 +21,27 @@ export const teamsService = {
 
   // Create a new team
   createTeam: async (teamData) => {
-    const response = await api.post('/teams', teamData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(teamData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.post('/teams', filteredData)
     return response.data
   },
 
   // Update current user's team
   updateMyTeam: async (teamData) => {
-    const response = await api.put('/teams/me', teamData)
+    // Filter out empty string parameters to avoid validation errors
+    const filteredData = Object.entries(teamData).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    const response = await api.put('/teams/me', filteredData)
     return response.data
   },
 
