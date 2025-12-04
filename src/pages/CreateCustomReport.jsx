@@ -23,6 +23,7 @@ const CreateCustomReport = () => {
   const [reportData, setReportData] = useState({
     title: '',
     description: '',
+    type: 'custom',
     data_sources: [],
     sections: [],
     filters: {},

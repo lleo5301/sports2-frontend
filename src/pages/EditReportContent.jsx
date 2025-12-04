@@ -54,7 +54,7 @@ const EditReportContent = () => {
       toast.success('Report content updated successfully!');
       queryClient.invalidateQueries(['reports']);
       queryClient.invalidateQueries(['report', id]);
-      navigate(`/reports/view/${id}`);
+      navigate(`/reports/${id}/view`);
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to update report content');

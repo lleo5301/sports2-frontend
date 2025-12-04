@@ -18,8 +18,9 @@ import {
 } from 'lucide-react'
 import { DayPicker } from 'react-day-picker'
 import api from '../services/api'
-import { teamsService } from '../services/teams'
+import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
+// Note: teamsService removed - coaches can only create schedules for their own team
 import 'react-day-picker/dist/style.css'
 
 const scheduleTypes = [
@@ -47,8 +48,11 @@ const locations = [
 
 export default function TeamSchedule() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showDatePicker, setShowDatePicker] = useState(false)
+
+  // Initialize schedule data with user's team (coaches can only create schedules for their own team)
   const [scheduleData, setScheduleData] = useState({
     team_id: '',
     team_name: '',
@@ -57,6 +61,23 @@ export default function TeamSchedule() {
     motto: '',
     sections: []
   })
+
+  // Get user's teams (from junction table if available, fallback to primary Team)
+  const userTeams = user?.Teams?.length > 0 ? user.Teams : (user?.Team ? [user.Team] : [])
+  const hasMultipleTeams = userTeams.length > 1
+
+  // Auto-fill team information from authenticated user (use first team by default)
+  useEffect(() => {
+    if (userTeams.length > 0 && !scheduleData.team_id) {
+      const defaultTeam = userTeams.find(t => t.UserTeam?.role === 'primary') || userTeams[0]
+      setScheduleData(prev => ({
+        ...prev,
+        team_id: defaultTeam.id,
+        team_name: defaultTeam.name,
+        program_name: prev.program_name || defaultTeam.program_name || ''
+      }))
+    }
+  }, [user, userTeams])
   const [editingSection, setEditingSection] = useState(null)
   const [showAddSection, setShowAddSection] = useState(false)
   const [newSection, setNewSection] = useState({
@@ -100,18 +121,6 @@ export default function TeamSchedule() {
     }
   }, [])
 
-  // Fetch available teams
-  const { data: teamsResponse, isLoading: teamsLoading } = useQuery({
-    queryKey: ['teams'],
-    queryFn: teamsService.getAllTeams,
-    onError: (error) => {
-      console.error('Error fetching teams:', error)
-    }
-  })
-
-  // Ensure teams is always an array
-  const teams = teamsResponse?.data || teamsResponse || []
-
   // Fetch existing schedules
   const { data: schedules, isLoading } = useQuery({
     queryKey: ['team-schedules'],
@@ -125,10 +134,11 @@ export default function TeamSchedule() {
     onSuccess: () => {
       toast.success('Schedule saved successfully!')
       queryClient.invalidateQueries(['team-schedules'])
+      // Reset form but keep team info from authenticated user
       setScheduleData({
-        team_id: '',
-        team_name: '',
-        program_name: '',
+        team_id: user?.Team?.id || '',
+        team_name: user?.Team?.name || '',
+        program_name: user?.Team?.program_name || '',
         date: selectedDate.toISOString().split('T')[0],
         motto: '',
         sections: []
@@ -150,18 +160,13 @@ export default function TeamSchedule() {
     }
   }
 
-  const handleTeamSelect = (teamId) => {
-    const selectedTeam = teams.find(team => team.id === parseInt(teamId))
-    setScheduleData(prev => ({
-      ...prev,
-      team_id: teamId,
-      team_name: selectedTeam ? selectedTeam.name : ''
-    }))
-  }
-
   const handleSaveSchedule = () => {
-    if (!scheduleData.team_id || !scheduleData.program_name) {
-      toast.error('Please select a team and enter program name')
+    if (!scheduleData.team_id) {
+      toast.error('Team information not loaded. Please refresh the page.')
+      return
+    }
+    if (!scheduleData.program_name) {
+      toast.error('Please enter a program name')
       return
     }
     saveScheduleMutation.mutate(scheduleData)
@@ -268,39 +273,44 @@ export default function TeamSchedule() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
-              <div className="dropdown w-full">
-                <div
-                  tabIndex={0}
-                  role="button"
-                  className="input w-full flex items-center justify-between cursor-pointer"
-                >
-                  <span className={scheduleData.team_name ? 'text-base-content' : 'text-base-content/50'}>
-                    {scheduleData.team_name || 'Select a team...'}
-                  </span>
-                  <ChevronDown className="w-4 h-4" />
-                </div>
-                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full z-50 max-h-60 overflow-y-auto">
-                  {teamsLoading ? (
-                    <li className="text-center py-2 text-gray-500">Loading teams...</li>
-                  ) : teams.length === 0 ? (
-                    <li className="text-center py-2 text-gray-500">No teams available</li>
-                  ) : (
-                    teams.map((team) => (
-                      <li key={team.id}>
-                        <button
-                          onClick={(e) => {
-                            handleTeamSelect(team.id)
-                            e.currentTarget.closest('.dropdown')?.querySelector('[tabIndex]')?.blur()
-                          }}
-                          className="text-left"
-                        >
-                          {team.name}
-                        </button>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
+              {hasMultipleTeams ? (
+                <>
+                  <select
+                    className="select select-bordered w-full"
+                    value={scheduleData.team_id}
+                    onChange={(e) => {
+                      const selectedTeam = userTeams.find(t => t.id === parseInt(e.target.value))
+                      if (selectedTeam) {
+                        setScheduleData(prev => ({
+                          ...prev,
+                          team_id: selectedTeam.id,
+                          team_name: selectedTeam.name,
+                          program_name: selectedTeam.program_name || prev.program_name || ''
+                        }))
+                      }
+                    }}
+                  >
+                    {userTeams.map(team => (
+                      <option key={team.id} value={team.id}>{team.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-base-content/50 mt-1">
+                    Select from your assigned teams
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="input w-full flex items-center bg-base-200 cursor-not-allowed">
+                    <Building2 className="w-4 h-4 mr-2 text-base-content/50" />
+                    <span className={scheduleData.team_name ? 'text-base-content' : 'text-base-content/50'}>
+                      {scheduleData.team_name || 'Loading team...'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-base-content/50 mt-1">
+                    Schedules are created for your assigned team
+                  </p>
+                </>
+              )}
             </div>
             
             <div>

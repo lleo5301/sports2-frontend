@@ -28,6 +28,24 @@ const ViewCustomReport = () => {
     enabled: !!id
   });
 
+  const report = reportData?.data;
+
+  // Redirect to correct view page if this is not actually a custom report
+  // NOTE: This hook must be called before any early returns to follow React's rules of hooks
+  useEffect(() => {
+    if (report && report.type) {
+      const reportType = report.type.toLowerCase().replace(' ', '-');
+      if (reportType === 'performance' || reportType === 'player-performance') {
+        navigate(`/reports/${id}/performance`, { replace: true });
+        return;
+      } else if (reportType === 'statistics' || reportType === 'team-statistics') {
+        navigate(`/reports/${id}/statistics`, { replace: true });
+        return;
+      }
+      // If it's actually a custom report or unknown type, stay on this page
+    }
+  }, [report, id, navigate]);
+
   if (isLoading) {
     return (
       <div className="p-8">
@@ -40,7 +58,7 @@ const ViewCustomReport = () => {
     );
   }
 
-  if (error || !reportData?.data) {
+  if (error || !report) {
     return (
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
@@ -61,23 +79,6 @@ const ViewCustomReport = () => {
       </div>
     );
   }
-
-  const report = reportData.data;
-
-  // Redirect to correct view page if this is not actually a custom report
-  useEffect(() => {
-    if (report && report.type) {
-      const reportType = report.type.toLowerCase().replace(' ', '-');
-      if (reportType === 'performance' || reportType === 'player-performance') {
-        navigate(`/reports/${id}/performance`, { replace: true });
-        return;
-      } else if (reportType === 'statistics' || reportType === 'team-statistics') {
-        navigate(`/reports/${id}/statistics`, { replace: true });
-        return;
-      }
-      // If it's actually a custom report or unknown type, stay on this page
-    }
-  }, [report, id, navigate]);
 
   const handleDownloadPDF = () => {
     // Generate PDF from report data
