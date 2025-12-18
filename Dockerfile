@@ -1,8 +1,8 @@
 FROM node:18-alpine AS builder
 
 # Build arguments for environment variables
-ARG VITE_API_URL=http://localhost:3001/api
-ARG VITE_BASE_PATH=
+ARG VITE_API_URL=/api
+ARG VITE_BASE_PATH=/app
 
 # Set working directory
 WORKDIR /app
