@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { useBranding } from '../contexts/BrandingContext';
 import { 
   Home, 
   Users, 
@@ -30,7 +31,25 @@ import {
 const Layout = ({ children }) => {
   const location = useLocation();
   const { theme, changeTheme } = useTheme();
+  const { logoUrl, name, programName, primaryColor, secondaryColor } = useBranding();
   const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
+
+  // Logo URL is served via nginx proxy at /uploads/
+  // No need to prepend API URL since nginx proxies /uploads/ to backend
+  const fullLogoUrl = logoUrl || null;
+
+  // Calculate if primary color is light or dark for text contrast
+  const isLightColor = (hex) => {
+    if (!hex) return false;
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5;
+  };
+
+  const headerTextColor = isLightColor(primaryColor) ? 'text-gray-900' : 'text-white';
 
   const navSections = [
     {
@@ -116,16 +135,41 @@ const Layout = ({ children }) => {
       <div className="drawer-side">
         <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
         <aside className={`min-h-full bg-base-200 text-base-content transition-all duration-300 ${isDrawerCollapsed ? 'w-16' : 'w-80'}`}>
-          {/* Sidebar header */}
-          <div className="bg-base-100 p-4 border-b border-base-300 flex items-center justify-between">
+          {/* Sidebar header with team branding colors */}
+          <div
+            className={`p-4 border-b border-base-300 flex items-center justify-between ${headerTextColor}`}
+            style={{ backgroundColor: primaryColor || undefined }}
+          >
             {!isDrawerCollapsed && (
-              <Link to="/" className="text-2xl font-bold">
-                The Program
+              <Link to="/" className="flex items-center gap-3 min-w-0">
+                {fullLogoUrl ? (
+                  <img
+                    src={fullLogoUrl}
+                    alt={programName || name || 'Team Logo'}
+                    className="w-10 h-10 object-contain rounded"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : null}
+                <span className="text-xl font-bold truncate" style={{ color: 'inherit' }}>
+                  {programName || name || 'The Program'}
+                </span>
+              </Link>
+            )}
+            {isDrawerCollapsed && fullLogoUrl && (
+              <Link to="/" className="flex justify-center w-full">
+                <img
+                  src={fullLogoUrl}
+                  alt={programName || name || 'Team Logo'}
+                  className="w-8 h-8 object-contain rounded"
+                />
               </Link>
             )}
             <button
               onClick={toggleDrawer}
-              className="btn btn-ghost btn-sm btn-circle"
+              className="btn btn-ghost btn-sm btn-circle flex-shrink-0"
+              style={{ color: 'inherit' }}
               title={isDrawerCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isDrawerCollapsed ? (

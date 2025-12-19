@@ -55,7 +55,9 @@ export function AuthProvider({ children }) {
     logout,
     updateUser,
     isAuthenticated: !!user,
-    isHeadCoach: user?.role === 'head_coach'
+    isSuperAdmin: user?.role === 'super_admin',
+    isHeadCoach: user?.role === 'head_coach',
+    canModifyBranding: user?.role === 'super_admin' || user?.role === 'head_coach'
   }
 
   return (

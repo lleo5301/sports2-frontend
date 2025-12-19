@@ -44,6 +44,7 @@ import Coaches from './pages/Coaches';
 import Scouts from './pages/Scouts';
 import Vendors from './pages/Vendors';
 import HighSchoolCoaches from './pages/HighSchoolCoaches';
+import TeamSettings from './pages/TeamSettings';
 
 function App() {
   return (
@@ -304,6 +305,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Settings />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/team-settings" element={
+          <ProtectedRoute>
+            <Layout>
+              <TeamSettings />
             </Layout>
           </ProtectedRoute>
         } />

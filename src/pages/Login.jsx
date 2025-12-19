@@ -76,12 +76,18 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-base-content">
+        <div className="text-center">
+          {/* Logo placeholder - can be customized per team in multi-tenant setup */}
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
+              <span className="text-3xl font-bold text-primary-content">TP</span>
+            </div>
+          </div>
+          <h2 className="text-3xl font-extrabold text-base-content">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-base-content/70">
-            The Program
+          <p className="mt-2 text-sm text-base-content/70">
+            The Program - Collegiate Baseball Management
           </p>
         </div>
         

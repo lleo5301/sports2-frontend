@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
-  Settings, 
-  Save, 
-  Palette, 
-  Building, 
-  MapPin, 
-  Users, 
-  Shield, 
+import {
+  Settings,
+  Save,
+  Palette,
+  Building,
+  MapPin,
+  Users,
+  Shield,
   Award,
   Eye,
   EyeOff,
@@ -23,10 +23,13 @@ import {
   Calendar,
   Plus,
   Edit,
-  X
+  X,
+  Image as ImageIcon
 } from 'lucide-react'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
+import { useBranding } from '../contexts/BrandingContext'
+import LogoUpload from '../components/LogoUpload'
 import toast from 'react-hot-toast'
 
 const divisions = [
@@ -66,13 +69,16 @@ const permissionTypes = [
 ]
 
 export default function TeamSettings() {
-  const { user } = useAuth();
+  const { user, canModifyBranding } = useAuth();
+  const { logoUrl, primaryColor, secondaryColor, refreshBranding, updateBranding } = useBranding();
   const [showPassword, setShowPassword] = useState(false)
-  const [showLogoUpload, setShowLogoUpload] = useState(false)
-  const [logoFile, setLogoFile] = useState(null)
   const [activeTab, setActiveTab] = useState('general')
   const [showAddPermissionModal, setShowAddPermissionModal] = useState(false)
   const [editingPermission, setEditingPermission] = useState(null)
+  const [brandingColors, setBrandingColors] = useState({
+    primary_color: primaryColor || '#3B82F6',
+    secondary_color: secondaryColor || '#EF4444'
+  })
   const [newPermission, setNewPermission] = useState({
     user_id: '',
     permission_type: '',
@@ -104,81 +110,83 @@ export default function TeamSettings() {
   })
 
   // Update team settings mutation
-  const updateTeam = useMutation(
-    (data) => api.put(`/teams/${user.team_id}`, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['team-settings', user?.team_id])
-        toast.success('Team settings updated successfully')
-      },
-      onError: () => {
-        toast.error('Failed to update team settings')
-      }
+  const updateTeam = useMutation({
+    mutationFn: (data) => api.put(`/teams/${user.team_id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team-settings', user?.team_id] })
+      toast.success('Team settings updated successfully')
+    },
+    onError: () => {
+      toast.error('Failed to update team settings')
     }
-  )
+  })
 
   // Update user password mutation
-  const updatePassword = useMutation(
-    (data) => api.put('/auth/password', data),
-    {
-      onSuccess: () => {
-        toast.success('Password updated successfully')
-      },
-      onError: () => {
-        toast.error('Failed to update password')
-      }
+  const updatePassword = useMutation({
+    mutationFn: (data) => api.put('/auth/password', data),
+    onSuccess: () => {
+      toast.success('Password updated successfully')
+    },
+    onError: () => {
+      toast.error('Failed to update password')
     }
-  )
+  })
 
   // Add permission mutation
-  const addPermission = useMutation(
-    (data) => api.post('/teams/permissions', data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['user-permissions'])
-        setShowAddPermissionModal(false)
-        setNewPermission({
-          user_id: '',
-          permission_type: '',
-          expires_at: '',
-          notes: ''
-        })
-        toast.success('Permission added successfully')
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to add permission')
-      }
+  const addPermission = useMutation({
+    mutationFn: (data) => api.post('/teams/permissions', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
+      setShowAddPermissionModal(false)
+      setNewPermission({
+        user_id: '',
+        permission_type: '',
+        expires_at: '',
+        notes: ''
+      })
+      toast.success('Permission added successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to add permission')
     }
-  )
+  })
 
   // Update permission mutation
-  const updatePermission = useMutation(
-    ({ permissionId, data }) => api.put(`/teams/permissions/${permissionId}`, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['user-permissions'])
-        setEditingPermission(null)
-        toast.success('Permission updated successfully')
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update permission')
-      }
+  const updatePermission = useMutation({
+    mutationFn: ({ permissionId, data }) => api.put(`/teams/permissions/${permissionId}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
+      setEditingPermission(null)
+      toast.success('Permission updated successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update permission')
     }
-  )
+  })
 
   // Delete permission mutation
-  const deletePermission = useMutation(
-    (permissionId) => api.delete(`/teams/permissions/${permissionId}`),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['user-permissions'])
-        toast.success('Permission removed successfully')
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to remove permission')
-      }
+  const deletePermission = useMutation({
+    mutationFn: (permissionId) => api.delete(`/teams/permissions/${permissionId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
+      toast.success('Permission removed successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to remove permission')
     }
-  )
+  })
+
+  // Update branding mutation
+  const updateBrandingMutation = useMutation({
+    mutationFn: (data) => api.put('/teams/branding', data),
+    onSuccess: () => {
+      refreshBranding()
+      toast.success('Branding updated successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update branding')
+    }
+  })
 
   const handleTeamUpdate = (e) => {
     e.preventDefault()
@@ -224,6 +232,16 @@ export default function TeamSettings() {
     }
   }
 
+  const handleBrandingUpdate = (e) => {
+    e.preventDefault()
+    updateBrandingMutation.mutate(brandingColors)
+  }
+
+  const handleLogoChange = (newLogoUrl) => {
+    updateBranding({ logoUrl: newLogoUrl })
+    refreshBranding()
+  }
+
   const team = teamData?.data
   const users = teamUsers?.data || []
   const permissions = userPermissions?.data || []
@@ -250,6 +268,15 @@ export default function TeamSettings() {
             <Settings className="h-4 w-4 mr-2" />
             General
           </button>
+          {canModifyBranding && (
+            <button
+              className={`tab ${activeTab === 'branding' ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab('branding')}
+            >
+              <Palette className="h-4 w-4 mr-2" />
+              Branding
+            </button>
+          )}
           <button
             className={`tab ${activeTab === 'permissions' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('permissions')}
@@ -465,6 +492,149 @@ export default function TeamSettings() {
                         <>
                           <Save className="h-4 w-4 mr-2" />
                           Update Password
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Branding Settings (Super Admin or Head Coach) */}
+        {activeTab === 'branding' && canModifyBranding && (
+          <div className="space-y-6">
+            {/* Logo Upload */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  Team Logo
+                </h2>
+                <p className="card-description">
+                  Upload your team logo to display in the sidebar and on reports
+                </p>
+              </div>
+              <div className="card-content">
+                <LogoUpload
+                  currentLogoUrl={logoUrl}
+                  onLogoChange={handleLogoChange}
+                />
+              </div>
+            </div>
+
+            {/* Color Scheme */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <Palette className="h-5 w-5" />
+                  Color Scheme
+                </h2>
+                <p className="card-description">
+                  Customize your team colors to match your branding
+                </p>
+              </div>
+              <div className="card-content">
+                <form onSubmit={handleBrandingUpdate} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="label">
+                        <span className="label-text font-medium">Primary Color</span>
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="color"
+                          value={brandingColors.primary_color}
+                          onChange={(e) => setBrandingColors(prev => ({ ...prev, primary_color: e.target.value }))}
+                          className="w-16 h-16 rounded-lg cursor-pointer border-2 border-base-300"
+                        />
+                        <div className="flex-1">
+                          <input
+                            type="text"
+                            value={brandingColors.primary_color}
+                            onChange={(e) => setBrandingColors(prev => ({ ...prev, primary_color: e.target.value }))}
+                            className="input input-bordered w-full font-mono"
+                            pattern="^#[0-9A-Fa-f]{6}$"
+                            placeholder="#3B82F6"
+                          />
+                          <p className="text-xs text-base-content/50 mt-1">
+                            Used for buttons, links, and accents
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="label">
+                        <span className="label-text font-medium">Secondary Color</span>
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="color"
+                          value={brandingColors.secondary_color}
+                          onChange={(e) => setBrandingColors(prev => ({ ...prev, secondary_color: e.target.value }))}
+                          className="w-16 h-16 rounded-lg cursor-pointer border-2 border-base-300"
+                        />
+                        <div className="flex-1">
+                          <input
+                            type="text"
+                            value={brandingColors.secondary_color}
+                            onChange={(e) => setBrandingColors(prev => ({ ...prev, secondary_color: e.target.value }))}
+                            className="input input-bordered w-full font-mono"
+                            pattern="^#[0-9A-Fa-f]{6}$"
+                            placeholder="#EF4444"
+                          />
+                          <p className="text-xs text-base-content/50 mt-1">
+                            Used for secondary elements and highlights
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Color Preview */}
+                  <div className="bg-base-200 p-4 rounded-lg">
+                    <h4 className="font-medium mb-3">Preview</h4>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        className="btn"
+                        style={{ backgroundColor: brandingColors.primary_color, borderColor: brandingColors.primary_color, color: 'white' }}
+                      >
+                        Primary Button
+                      </button>
+                      <button
+                        type="button"
+                        className="btn"
+                        style={{ backgroundColor: brandingColors.secondary_color, borderColor: brandingColors.secondary_color, color: 'white' }}
+                      >
+                        Secondary Button
+                      </button>
+                      <div
+                        className="px-4 py-2 rounded-lg font-medium"
+                        style={{ backgroundColor: brandingColors.primary_color + '20', color: brandingColors.primary_color }}
+                      >
+                        Badge Style
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={updateBrandingMutation.isLoading}
+                    >
+                      {updateBrandingMutation.isLoading ? (
+                        <>
+                          <div className="loading loading-spinner loading-sm"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Save Colors
                         </>
                       )}
                     </button>

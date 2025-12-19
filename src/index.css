@@ -6,9 +6,42 @@
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
-  
+
   body {
-    @apply bg-base-100 text-base-content;
+    @apply text-base-content;
+    background-color: var(--page-bg, #f8fafc);
+  }
+
+  /* Page content area background */
+  .drawer-content {
+    background-color: var(--page-bg, #f8fafc);
+  }
+
+  /* Team-branded heading colors - applies to main page titles */
+  .drawer-content h1:first-of-type,
+  h1.team-heading,
+  .page-title {
+    color: var(--team-heading, inherit);
+  }
+
+  h2.team-heading,
+  .section-title,
+  .card-title {
+    color: var(--team-heading-light, inherit);
+  }
+
+  /* Accent backgrounds using team colors */
+  .team-accent-bg {
+    background-color: var(--team-accent-bg);
+    border-color: var(--team-accent-border);
+  }
+
+  /* Links with team colors */
+  a.team-link {
+    color: var(--team-primary);
+  }
+  a.team-link:hover {
+    color: var(--team-heading);
   }
 }
 

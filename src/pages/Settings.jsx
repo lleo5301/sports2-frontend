@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../contexts/ThemeContext';
+import { useBranding } from '../contexts/BrandingContext';
 import { settingsService, defaultSettings } from '../services/settings';
+import { teamsService } from '../services/teams';
 import { toast } from 'react-hot-toast';
-import { 
-  User, 
-  Bell, 
-  Shield, 
+import {
+  User,
+  Bell,
+  Shield,
   Settings as SettingsIcon,
   Save,
   Upload,
@@ -25,14 +27,29 @@ import {
   Database,
   AlertTriangle,
   CheckCircle,
-  XCircle
+  XCircle,
+  Sun,
+  Moon,
+  Laptop
 } from 'lucide-react';
 
 const Settings = () => {
-  const { theme, changeTheme } = useTheme();
+  const { theme, themeMode, changeTheme, changeThemeMode, THEME_MODES, isDarkMode } = useTheme();
+  const { primaryColor, secondaryColor, updateBranding, refreshBranding } = useBranding();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('general');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  // Button color customization state
+  const [buttonColors, setButtonColors] = useState({
+    primary: primaryColor || '#3B82F6',
+    secondary: secondaryColor || '#EF4444'
+  });
+  const [savedColors, setSavedColors] = useState({
+    primary: primaryColor || '#3B82F6',
+    secondary: secondaryColor || '#EF4444'
+  });
+  const [hasColorChanges, setHasColorChanges] = useState(false);
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
@@ -148,6 +165,37 @@ const Settings = () => {
     }
   });
 
+  // Button colors mutation
+  const updateButtonColorsMutation = useMutation({
+    mutationFn: (colors) => teamsService.updateMyTeam({
+      primary_color: colors.primary,
+      secondary_color: colors.secondary
+    }),
+    onSuccess: (_, variables) => {
+      toast.success('Button colors updated successfully!');
+      setSavedColors(variables); // Update saved colors to the newly saved values
+      setHasColorChanges(false);
+      refreshBranding();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update button colors');
+    }
+  });
+
+  // Sync button colors when branding context loads (only on initial load)
+  useEffect(() => {
+    if (primaryColor && secondaryColor && !hasColorChanges) {
+      setButtonColors({
+        primary: primaryColor,
+        secondary: secondaryColor
+      });
+      setSavedColors({
+        primary: primaryColor,
+        secondary: secondaryColor
+      });
+    }
+  }, [primaryColor, secondaryColor, hasColorChanges]);
+
   // Handlers
   const handleThemeChange = (e) => {
     changeTheme(e.target.value);
@@ -190,6 +238,37 @@ const Settings = () => {
     } else {
       toast.error('Please select a valid image file');
     }
+  };
+
+  // Button color handlers
+  const handleButtonColorChange = (colorType, value) => {
+    setButtonColors(prev => ({
+      ...prev,
+      [colorType]: value
+    }));
+    setHasColorChanges(true);
+    // Apply color change immediately for live preview
+    updateBranding({
+      primaryColor: colorType === 'primary' ? value : buttonColors.primary,
+      secondaryColor: colorType === 'secondary' ? value : buttonColors.secondary
+    });
+  };
+
+  const handleSaveButtonColors = () => {
+    updateButtonColorsMutation.mutate(buttonColors);
+  };
+
+  const handleResetButtonColors = () => {
+    setButtonColors({
+      primary: savedColors.primary,
+      secondary: savedColors.secondary
+    });
+    setHasColorChanges(false);
+    // Reset the live preview to saved colors
+    updateBranding({
+      primaryColor: savedColors.primary,
+      secondaryColor: savedColors.secondary
+    });
   };
 
   if (isLoading) {
@@ -254,6 +333,56 @@ const Settings = () => {
           {/* General Settings Tab */}
           {activeTab === 'general' && (
             <>
+              {/* Appearance Mode */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title flex items-center gap-2">
+                    {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                    Appearance
+                  </h2>
+                  <p className="card-description">Choose your preferred appearance mode</p>
+                </div>
+                <div className="card-body">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Mode</span>
+                    </label>
+
+                    {/* Appearance Mode Buttons */}
+                    <div className="flex gap-2 mb-4">
+                      <button
+                        className={`btn flex-1 ${themeMode === 'light' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => changeThemeMode('light')}
+                      >
+                        <Sun className="w-4 h-4 mr-2" />
+                        Light
+                      </button>
+                      <button
+                        className={`btn flex-1 ${themeMode === 'dark' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => changeThemeMode('dark')}
+                      >
+                        <Moon className="w-4 h-4 mr-2" />
+                        Dark
+                      </button>
+                      <button
+                        className={`btn flex-1 ${themeMode === 'system' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => changeThemeMode('system')}
+                      >
+                        <Laptop className="w-4 h-4 mr-2" />
+                        System
+                      </button>
+                    </div>
+
+                    <p className="text-sm text-base-content/70">
+                      {themeMode === 'system'
+                        ? `Following system preference (currently ${isDarkMode ? 'dark' : 'light'})`
+                        : `Using ${themeMode} mode`
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Theme Settings */}
               <div className="card">
                 <div className="card-header">
@@ -261,14 +390,14 @@ const Settings = () => {
                     <Palette className="w-5 h-5" />
                     Theme
                   </h2>
-                  <p className="card-description">Choose your preferred theme</p>
+                  <p className="card-description">Choose a specific color theme</p>
                 </div>
                 <div className="card-body">
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Theme</span>
+                      <span className="label-text">Color Theme</span>
                     </label>
-                    
+
                     {/* Theme Preview */}
                     <div className="mb-4 p-4 rounded-lg border bg-base-200">
                       <div className="flex items-center justify-between mb-2">
@@ -285,52 +414,148 @@ const Settings = () => {
                         <div className="w-8 h-8 rounded bg-error"></div>
                       </div>
                     </div>
-                    
-                    <select 
+
+                    <select
                       className="select select-bordered"
                       value={theme}
                       onChange={handleThemeChange}
                     >
-                      <optgroup label="🎨 Custom Themes">
-                        <option value="ocean-breeze">🌊 Ocean Breeze</option>
-                        <option value="sunset-glow">🌅 Sunset Glow</option>
-                        <option value="forest-mist">🌲 Forest Mist</option>
-                        <option value="lavender-dreams">💜 Lavender Dreams</option>
-                        <option value="tropical">🌴 Tropical</option>
+                      <optgroup label="🌞 Light Themes">
+                        <option value="light">Light</option>
+                        <option value="cupcake">Cupcake</option>
+                        <option value="bumblebee">Bumblebee</option>
+                        <option value="emerald">Emerald</option>
+                        <option value="corporate">Corporate</option>
+                        <option value="garden">Garden</option>
+                        <option value="aqua">Aqua</option>
+                        <option value="lofi">Lo-Fi</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="fantasy">Fantasy</option>
+                        <option value="wireframe">Wireframe</option>
+                        <option value="cmyk">CMYK</option>
+                        <option value="autumn">Autumn</option>
+                        <option value="acid">Acid</option>
+                        <option value="lemonade">Lemonade</option>
+                        <option value="winter">Winter</option>
                       </optgroup>
-                      <optgroup label="📦 Built-in Themes">
-                        <option value="light">☀️ Light</option>
-                        <option value="dark">🌙 Dark</option>
-                        <option value="cupcake">🧁 Cupcake</option>
-                        <option value="bumblebee">🐝 Bumblebee</option>
-                        <option value="emerald">💎 Emerald</option>
-                        <option value="corporate">🏢 Corporate</option>
-                        <option value="synthwave">🎸 Synthwave</option>
-                        <option value="retro">📺 Retro</option>
-                        <option value="cyberpunk">🤖 Cyberpunk</option>
-                        <option value="valentine">💕 Valentine</option>
-                        <option value="halloween">🎃 Halloween</option>
-                        <option value="garden">🌱 Garden</option>
-                        <option value="forest">🌳 Forest</option>
-                        <option value="aqua">💧 Aqua</option>
-                        <option value="lofi">🎧 Lo-Fi</option>
-                        <option value="pastel">🎨 Pastel</option>
-                        <option value="fantasy">🧚 Fantasy</option>
-                        <option value="wireframe">📐 Wireframe</option>
-                        <option value="black">⚫ Black</option>
-                        <option value="luxury">💎 Luxury</option>
-                        <option value="dracula">🧛 Dracula</option>
-                        <option value="cmyk">🖨️ CMYK</option>
-                        <option value="autumn">🍂 Autumn</option>
-                        <option value="business">💼 Business</option>
-                        <option value="acid">⚗️ Acid</option>
-                        <option value="lemonade">🍋 Lemonade</option>
-                        <option value="night">🌃 Night</option>
-                        <option value="coffee">☕ Coffee</option>
-                        <option value="winter">❄️ Winter</option>
+                      <optgroup label="🌙 Dark Themes">
+                        <option value="dark">Dark</option>
+                        <option value="synthwave">Synthwave</option>
+                        <option value="retro">Retro</option>
+                        <option value="cyberpunk">Cyberpunk</option>
+                        <option value="valentine">Valentine</option>
+                        <option value="halloween">Halloween</option>
+                        <option value="forest">Forest</option>
+                        <option value="black">Black</option>
+                        <option value="luxury">Luxury</option>
+                        <option value="dracula">Dracula</option>
+                        <option value="business">Business</option>
+                        <option value="night">Night</option>
+                        <option value="coffee">Coffee</option>
                       </optgroup>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Button Colors Customization */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title flex items-center gap-2">
+                    <Palette className="w-5 h-5" />
+                    Button Colors
+                  </h2>
+                  <p className="card-description">Customize your team's primary and secondary button colors</p>
+                </div>
+                <div className="card-body space-y-6">
+                  {/* Color Pickers */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Primary Color */}
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text font-medium">Primary Color</span>
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={buttonColors.primary}
+                          onChange={(e) => handleButtonColorChange('primary', e.target.value)}
+                          className="w-12 h-12 rounded-lg cursor-pointer border-2 border-base-300"
+                        />
+                        <input
+                          type="text"
+                          value={buttonColors.primary}
+                          onChange={(e) => handleButtonColorChange('primary', e.target.value)}
+                          className="input input-bordered flex-1 font-mono"
+                          placeholder="#3B82F6"
+                        />
+                      </div>
+                      <p className="text-xs text-base-content/60 mt-1">Used for primary buttons and accents</p>
+                    </div>
+
+                    {/* Secondary Color */}
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text font-medium">Secondary Color</span>
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={buttonColors.secondary}
+                          onChange={(e) => handleButtonColorChange('secondary', e.target.value)}
+                          className="w-12 h-12 rounded-lg cursor-pointer border-2 border-base-300"
+                        />
+                        <input
+                          type="text"
+                          value={buttonColors.secondary}
+                          onChange={(e) => handleButtonColorChange('secondary', e.target.value)}
+                          className="input input-bordered flex-1 font-mono"
+                          placeholder="#EF4444"
+                        />
+                      </div>
+                      <p className="text-xs text-base-content/60 mt-1">Used for secondary buttons and highlights</p>
+                    </div>
+                  </div>
+
+                  {/* Live Preview */}
+                  <div className="p-4 rounded-lg border bg-base-200">
+                    <h4 className="text-sm font-medium mb-3">Live Preview</h4>
+                    <div className="flex flex-wrap gap-3">
+                      <button className="btn btn-primary">Primary Button</button>
+                      <button className="btn btn-secondary">Secondary Button</button>
+                      <button className="btn btn-primary btn-outline">Primary Outline</button>
+                      <button className="btn btn-secondary btn-outline">Secondary Outline</button>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  {hasColorChanges && (
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button
+                        className="btn btn-outline"
+                        onClick={handleResetButtonColors}
+                      >
+                        Reset
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleSaveButtonColors}
+                        disabled={updateButtonColorsMutation.isPending}
+                      >
+                        {updateButtonColorsMutation.isPending ? (
+                          <>
+                            <span className="loading loading-spinner loading-sm"></span>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Colors
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
