@@ -93,6 +93,73 @@ function lightenColor(hex, percent) {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
 }
 
+// Generate a complete color palette derived from primary color
+function generatePalette(primaryHex) {
+  primaryHex = primaryHex.replace(/^#/, '')
+  const r = parseInt(primaryHex.substring(0, 2), 16)
+  const g = parseInt(primaryHex.substring(2, 4), 16)
+  const b = parseInt(primaryHex.substring(4, 6), 16)
+
+  // Convert to HSL for easier manipulation
+  const max = Math.max(r, g, b) / 255
+  const min = Math.min(r, g, b) / 255
+  let h, s, l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0
+  } else {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    const rNorm = r / 255, gNorm = g / 255, bNorm = b / 255
+    switch (max) {
+      case rNorm: h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6; break
+      case gNorm: h = ((bNorm - rNorm) / d + 2) / 6; break
+      case bNorm: h = ((rNorm - gNorm) / d + 4) / 6; break
+      default: h = 0
+    }
+  }
+
+  // Helper to convert HSL back to hex
+  const hslToHex = (h, s, l) => {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1
+      if (t > 1) t -= 1
+      if (t < 1/6) return p + (q - p) * 6 * t
+      if (t < 1/2) return q
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
+      return p
+    }
+
+    let rOut, gOut, bOut
+    if (s === 0) {
+      rOut = gOut = bOut = l
+    } else {
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+      const p = 2 * l - q
+      rOut = hue2rgb(p, q, h + 1/3)
+      gOut = hue2rgb(p, q, h)
+      bOut = hue2rgb(p, q, h - 1/3)
+    }
+
+    const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0')
+    return `#${toHex(rOut)}${toHex(gOut)}${toHex(bOut)}`
+  }
+
+  // Generate palette colors with hue shifts
+  return {
+    // Info: Lighter version of primary
+    info: hslToHex(h, Math.min(s * 0.9, 0.7), Math.min(l + 0.15, 0.55)),
+    // Success: Shift hue towards teal/green (roughly +0.25 on color wheel)
+    success: hslToHex((h + 0.42) % 1, Math.min(s * 0.85, 0.6), 0.45),
+    // Warning: Shift hue towards amber/orange (roughly +0.12 on color wheel from yellow)
+    warning: hslToHex(0.11, 0.75, 0.52),
+    // Error: Muted red that complements the palette
+    error: hslToHex(0.0, 0.65, 0.5),
+    // Neutral: Desaturated version of primary
+    neutral: hslToHex(h, s * 0.15, 0.25)
+  }
+}
+
 export function BrandingProvider({ children }) {
   const { isAuthenticated, user } = useAuth()
   const [branding, setBranding] = useState({
@@ -135,6 +202,9 @@ export function BrandingProvider({ children }) {
 
     const root = document.documentElement
 
+    // Generate full color palette from primary color
+    const palette = generatePalette(branding.primaryColor)
+
     // Set primary color (DaisyUI)
     root.style.setProperty('--p', hexToHSL(branding.primaryColor))
     root.style.setProperty('--pc', getContrastColor(branding.primaryColor))
@@ -143,9 +213,30 @@ export function BrandingProvider({ children }) {
     root.style.setProperty('--s', hexToHSL(branding.secondaryColor))
     root.style.setProperty('--sc', getContrastColor(branding.secondaryColor))
 
-    // Also set accent to primary for consistency
-    root.style.setProperty('--a', hexToHSL(branding.primaryColor))
-    root.style.setProperty('--ac', getContrastColor(branding.primaryColor))
+    // Set accent to a lighter version of primary
+    const accentColor = lightenColor(branding.primaryColor, 20)
+    root.style.setProperty('--a', hexToHSL(accentColor))
+    root.style.setProperty('--ac', getContrastColor(accentColor))
+
+    // Set neutral color (derived from palette)
+    root.style.setProperty('--n', hexToHSL(palette.neutral))
+    root.style.setProperty('--nc', getContrastColor(palette.neutral))
+
+    // Set info color (lighter primary)
+    root.style.setProperty('--in', hexToHSL(palette.info))
+    root.style.setProperty('--inc', getContrastColor(palette.info))
+
+    // Set success color (teal derived from primary)
+    root.style.setProperty('--su', hexToHSL(palette.success))
+    root.style.setProperty('--suc', getContrastColor(palette.success))
+
+    // Set warning color (amber)
+    root.style.setProperty('--wa', hexToHSL(palette.warning))
+    root.style.setProperty('--wac', getContrastColor(palette.warning))
+
+    // Set error color (muted red)
+    root.style.setProperty('--er', hexToHSL(palette.error))
+    root.style.setProperty('--erc', getContrastColor(palette.error))
 
     // Set custom CSS variables for direct color access (hex format)
     root.style.setProperty('--team-primary', branding.primaryColor)
@@ -178,6 +269,16 @@ export function BrandingProvider({ children }) {
     root.style.removeProperty('--sc')
     root.style.removeProperty('--a')
     root.style.removeProperty('--ac')
+    root.style.removeProperty('--n')
+    root.style.removeProperty('--nc')
+    root.style.removeProperty('--in')
+    root.style.removeProperty('--inc')
+    root.style.removeProperty('--su')
+    root.style.removeProperty('--suc')
+    root.style.removeProperty('--wa')
+    root.style.removeProperty('--wac')
+    root.style.removeProperty('--er')
+    root.style.removeProperty('--erc')
     root.style.removeProperty('--team-primary')
     root.style.removeProperty('--team-secondary')
     root.style.removeProperty('--team-primary-rgb')
