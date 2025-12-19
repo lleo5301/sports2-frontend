@@ -24,12 +24,14 @@ import {
   Plus,
   Edit,
   X,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Link2
 } from 'lucide-react'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useBranding } from '../contexts/BrandingContext'
 import LogoUpload from '../components/LogoUpload'
+import PrestoSportsConfig from '../components/integrations/PrestoSportsConfig'
 import toast from 'react-hot-toast'
 
 const divisions = [
@@ -284,6 +286,15 @@ export default function TeamSettings() {
             <Shield className="h-4 w-4 mr-2" />
             Permissions
           </button>
+          {canModifyBranding && (
+            <button
+              className={`tab ${activeTab === 'integrations' ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab('integrations')}
+            >
+              <Link2 className="h-4 w-4 mr-2" />
+              Integrations
+            </button>
+          )}
         </div>
 
         {/* General Settings */}
@@ -775,6 +786,26 @@ export default function TeamSettings() {
                     </button>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Integrations (Head Coach only) */}
+        {activeTab === 'integrations' && canModifyBranding && (
+          <div className="space-y-6">
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title flex items-center gap-2">
+                  <Link2 className="h-5 w-5" />
+                  External Integrations
+                </h2>
+                <p className="card-description">
+                  Connect to external services to sync schedules, rosters, and statistics
+                </p>
+              </div>
+              <div className="card-content">
+                <PrestoSportsConfig />
               </div>
             </div>
           </div>
