@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  Calendar, 
-  Clock, 
-  TrendingUp, 
-  TrendingDown, 
-  Trophy, 
-  Target, 
-  Users, 
+import {
+  Calendar,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Trophy,
+  Target,
+  Users,
   Activity,
   MapPin,
   Star,
@@ -23,9 +23,95 @@ import {
 import { teamsService } from '../services/teams';
 import { schedulesService } from '../services/schedules';
 import { gamesService } from '../services/games';
+import { useBranding } from '../contexts/BrandingContext';
+
+// Helper to darken a hex color
+const darkenColor = (hex, percent) => {
+  hex = hex.replace(/^#/, '');
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+  r = Math.max(0, Math.floor(r * (1 - percent / 100)));
+  g = Math.max(0, Math.floor(g * (1 - percent / 100)));
+  b = Math.max(0, Math.floor(b * (1 - percent / 100)));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
+
+// Helper to lighten a hex color
+const lightenColor = (hex, percent) => {
+  hex = hex.replace(/^#/, '');
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+  r = Math.min(255, Math.floor(r + (255 - r) * (percent / 100)));
+  g = Math.min(255, Math.floor(g + (255 - g) * (percent / 100)));
+  b = Math.min(255, Math.floor(b + (255 - b) * (percent / 100)));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
+
+// Helper to adjust hue of a hex color
+const adjustHue = (hex, degrees) => {
+  hex = hex.replace(/^#/, '');
+  let r = parseInt(hex.substring(0, 2), 16) / 255;
+  let g = parseInt(hex.substring(2, 4), 16) / 255;
+  let b = parseInt(hex.substring(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+      default: h = 0;
+    }
+  }
+
+  h = (h + degrees / 360) % 1;
+  if (h < 0) h += 1;
+
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+
+  let rOut, gOut, bOut;
+  if (s === 0) {
+    rOut = gOut = bOut = l;
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    rOut = hue2rgb(p, q, h + 1/3);
+    gOut = hue2rgb(p, q, h);
+    bOut = hue2rgb(p, q, h - 1/3);
+  }
+
+  return `#${Math.round(rOut * 255).toString(16).padStart(2, '0')}${Math.round(gOut * 255).toString(16).padStart(2, '0')}${Math.round(bOut * 255).toString(16).padStart(2, '0')}`;
+};
 
 const TeamStatistics = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const { primaryColor } = useBranding();
+
+  // Generate card colors from primary color
+  const cardColors = useMemo(() => {
+    const base = primaryColor || '#3B82F6';
+    return {
+      primary: { start: base, end: darkenColor(base, 20) },
+      secondary: { start: adjustHue(base, 15), end: darkenColor(adjustHue(base, 15), 20) },
+      accent: { start: lightenColor(base, 20), end: base },
+      neutral: { start: adjustHue(base, -10), end: darkenColor(adjustHue(base, -10), 25) }
+    };
+  }, [primaryColor]);
 
   // Fetch team statistics
   const { data: teamStats, isLoading: statsLoading } = useQuery({
@@ -170,9 +256,12 @@ const TeamStatistics = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          {/* Team Statistics Cards */}
+          {/* Team Statistics Cards - Using computed colors from team branding */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="card bg-gradient-to-br from-primary to-primary-focus text-primary-content">
+            <div
+              className="card text-white"
+              style={{ background: `linear-gradient(to bottom right, ${cardColors.primary.start}, ${cardColors.primary.end})` }}
+            >
               <div className="card-body">
                 <div className="flex items-center justify-between">
                   <div>
@@ -189,7 +278,10 @@ const TeamStatistics = () => {
               </div>
             </div>
 
-            <div className="card bg-gradient-to-br from-secondary to-secondary-focus text-secondary-content">
+            <div
+              className="card text-white"
+              style={{ background: `linear-gradient(to bottom right, ${cardColors.secondary.start}, ${cardColors.secondary.end})` }}
+            >
               <div className="card-body">
                 <div className="flex items-center justify-between">
                   <div>
@@ -206,7 +298,10 @@ const TeamStatistics = () => {
               </div>
             </div>
 
-            <div className="card bg-gradient-to-br from-accent to-accent-focus text-accent-content">
+            <div
+              className="card text-white"
+              style={{ background: `linear-gradient(to bottom right, ${cardColors.accent.start}, ${cardColors.accent.end})` }}
+            >
               <div className="card-body">
                 <div className="flex items-center justify-between">
                   <div>
@@ -223,7 +318,10 @@ const TeamStatistics = () => {
               </div>
             </div>
 
-            <div className="card bg-gradient-to-br from-neutral to-neutral-focus text-neutral-content">
+            <div
+              className="card text-white"
+              style={{ background: `linear-gradient(to bottom right, ${cardColors.neutral.start}, ${cardColors.neutral.end})` }}
+            >
               <div className="card-body">
                 <div className="flex items-center justify-between">
                   <div>

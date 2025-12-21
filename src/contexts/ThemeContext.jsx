@@ -42,18 +42,58 @@ export const ThemeProvider = ({ children }) => {
     return savedTheme || 'light';
   });
 
-  // Apply theme to DOM
+  // Apply theme to DOM with enhanced dark mode support
   const applyTheme = useCallback((actualTheme) => {
     document.body.setAttribute('data-theme', actualTheme);
     document.documentElement.setAttribute('data-theme', actualTheme);
 
-    // Update page background for dark themes
     const root = document.documentElement;
     const isDarkTheme = ['dark', 'night', 'black', 'dracula', 'synthwave', 'halloween', 'forest', 'luxury', 'coffee'].includes(actualTheme);
+
     if (isDarkTheme) {
-      root.style.removeProperty('--page-bg');
+      // Enhanced dark mode with better tonal variations
+      root.style.setProperty('--page-bg', '#0f0f12');
+      root.style.setProperty('--page-bg-secondary', '#1a1a1f');
+      root.style.setProperty('--page-bg-elevated', '#24242b');
+
+      // Glass effects for dark mode
+      root.style.setProperty('--glass-bg', 'rgba(30, 30, 36, 0.8)');
+      root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.08)');
+
+      // Neumorphic shadows for dark mode
+      root.style.setProperty('--neu-light', 'rgba(255, 255, 255, 0.05)');
+      root.style.setProperty('--neu-dark', 'rgba(0, 0, 0, 0.5)');
+
+      // Card backgrounds with depth
+      root.style.setProperty('--card-bg', 'rgba(30, 30, 36, 0.6)');
+      root.style.setProperty('--card-hover', 'rgba(40, 40, 48, 0.8)');
+
+      // Border colors
+      root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.06)');
+      root.style.setProperty('--border-default', 'rgba(255, 255, 255, 0.1)');
+      root.style.setProperty('--border-strong', 'rgba(255, 255, 255, 0.15)');
     } else {
+      // Light mode defaults
       root.style.setProperty('--page-bg', '#f8fafc');
+      root.style.setProperty('--page-bg-secondary', '#ffffff');
+      root.style.setProperty('--page-bg-elevated', '#ffffff');
+
+      // Glass effects for light mode
+      root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.7)');
+      root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.3)');
+
+      // Neumorphic shadows for light mode
+      root.style.setProperty('--neu-light', 'rgba(255, 255, 255, 0.9)');
+      root.style.setProperty('--neu-dark', 'rgba(0, 0, 0, 0.1)');
+
+      // Card backgrounds
+      root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.9)');
+      root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 1)');
+
+      // Border colors
+      root.style.setProperty('--border-subtle', 'rgba(0, 0, 0, 0.04)');
+      root.style.setProperty('--border-default', 'rgba(0, 0, 0, 0.08)');
+      root.style.setProperty('--border-strong', 'rgba(0, 0, 0, 0.12)');
     }
   }, []);
 

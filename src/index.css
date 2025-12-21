@@ -2,22 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   BASE LAYER - Modern Typography & Foundations
+   ============================================ */
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply text-base-content;
     background-color: var(--page-bg, #f8fafc);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Page content area background */
+  /* Page content area with subtle gradient */
   .drawer-content {
     background-color: var(--page-bg, #f8fafc);
+    background-image:
+      radial-gradient(at 100% 0%, rgba(var(--team-primary-rgb, 59, 130, 246), 0.03) 0%, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(var(--team-secondary-rgb, 239, 68, 68), 0.02) 0%, transparent 50%);
   }
 
-  /* Team-branded heading colors - applies to main page titles */
+  /* Modern heading typography */
+  h1 {
+    @apply text-4xl font-bold tracking-tight;
+    line-height: 1.1;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+    line-height: 1.2;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+    line-height: 1.3;
+  }
+
+  /* Team-branded heading colors */
   .drawer-content h1:first-of-type,
   h1.team-heading,
   .page-title {
@@ -25,8 +51,7 @@
   }
 
   h2.team-heading,
-  .section-title,
-  .card-title {
+  .section-title {
     color: var(--team-heading-light, inherit);
   }
 
@@ -39,66 +64,574 @@
   /* Links with team colors */
   a.team-link {
     color: var(--team-primary);
+    transition: color 0.2s ease;
   }
   a.team-link:hover {
     color: var(--team-heading);
   }
+
+  /* Enhanced selection colors */
+  ::selection {
+    background-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.2);
+    color: var(--team-heading, inherit);
+  }
 }
 
+/* ============================================
+   COMPONENTS LAYER - Modern UI Components
+   ============================================ */
 @layer components {
+  /* ----------------------------------------
+     BUTTONS - Modern with subtle lift
+     ---------------------------------------- */
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-medium;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:pointer-events-none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    user-select: none;
   }
-  
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
   .btn-primary {
-    @apply bg-primary text-primary-content hover:bg-primary/90;
+    @apply bg-primary text-primary-content;
+    box-shadow: 0 2px 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3);
   }
-  
+
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-primary/90;
+    box-shadow: 0 4px 12px rgba(var(--team-primary-rgb, 59, 130, 246), 0.4);
+  }
+
   .btn-secondary {
-    @apply bg-secondary text-secondary-content hover:bg-secondary/80;
+    @apply bg-secondary text-secondary-content;
+    box-shadow: 0 2px 4px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.2);
   }
-  
+
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-secondary/90;
+    box-shadow: 0 4px 12px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.3);
+  }
+
   .btn-outline {
-    @apply border border-base-300 hover:bg-base-200 hover:text-base-content;
+    @apply border-2 border-base-300 bg-transparent;
   }
-  
+
+  .btn-outline:hover {
+    @apply bg-base-200;
+    border-color: var(--border-strong, rgba(0, 0, 0, 0.15));
+  }
+
+  .btn-ghost {
+    @apply bg-transparent;
+    @apply hover:bg-base-200/50;
+  }
+
+  .btn-glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* ----------------------------------------
+     STAT CARDS - Team-branded gradient cards
+     Uses CSS variables for dynamic team colors
+     ---------------------------------------- */
+  .stat-card-primary {
+    background: linear-gradient(to bottom right, oklch(var(--p)), oklch(var(--pf))) !important;
+    color: white;
+  }
+
+  .stat-card-secondary {
+    background: linear-gradient(to bottom right, oklch(var(--s)), oklch(var(--sf))) !important;
+    color: white;
+  }
+
+  .stat-card-accent {
+    background: linear-gradient(to bottom right, oklch(var(--a)), oklch(var(--af))) !important;
+    color: white;
+  }
+
+  .stat-card-neutral {
+    background: linear-gradient(to bottom right, oklch(var(--n)), oklch(var(--nf))) !important;
+    color: white;
+  }
+
+  .btn-glass:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
   .btn-sm {
-    @apply h-9 px-3 text-xs;
+    @apply h-9 px-4 text-xs rounded-lg;
   }
-  
+
   .btn-md {
-    @apply h-10 px-4 py-2;
+    @apply h-11 px-5 py-2.5;
   }
-  
+
   .btn-lg {
-    @apply h-11 px-8 text-base;
+    @apply h-12 px-8 text-base rounded-xl;
   }
-  
+
+  /* ----------------------------------------
+     INPUTS - Modern with focus glow
+     ---------------------------------------- */
   .input {
-    @apply flex h-10 w-full rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-base-content/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-11 w-full rounded-xl border-2 border-base-300 bg-base-100 px-4 py-2.5 text-sm;
+    @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
+    @apply placeholder:text-base-content/40;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-base-200;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   }
-  
+
+  .input:focus {
+    box-shadow: 0 0 0 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.1);
+  }
+
+  .input-neu {
+    @apply border-0;
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.08), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+  }
+
+  .input-neu:focus {
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1), inset -3px -3px 6px rgba(255, 255, 255, 0.95), 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+  }
+
+  .textarea {
+    @apply rounded-xl border-2 border-base-300 bg-base-100 px-4 py-3 text-sm;
+    @apply placeholder:text-base-content/40;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .select {
+    @apply h-11 rounded-xl border-2 border-base-300 bg-base-100 px-4 text-sm;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* ----------------------------------------
+     CARDS - Modern with hover lift
+     ---------------------------------------- */
   .card {
-    @apply rounded-lg border border-base-300 bg-base-100 text-base-content shadow-sm;
+    @apply rounded-2xl border border-base-300/50 bg-base-100 text-base-content;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
-  
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .card-glass {
+    @apply rounded-2xl text-base-content;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-neu {
+    @apply rounded-2xl bg-base-100 text-base-content;
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px rgba(255, 255, 255, 0.9);
+    border: none;
+  }
+
+  .card-neu:hover {
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.95);
+  }
+
   .card-header {
-    @apply flex flex-col space-y-1.5 p-6;
+    @apply flex flex-col space-y-2 p-6 pb-4;
   }
-  
+
   .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight;
+    @apply text-xl font-semibold leading-tight tracking-tight;
+    color: var(--team-heading-light, inherit);
   }
-  
+
   .card-description {
-    @apply text-sm text-base-content/70;
+    @apply text-sm text-base-content/60;
   }
-  
+
   .card-content {
-    @apply p-6 pt-0;
+    @apply p-6 pt-2;
   }
-  
+
   .card-footer {
-    @apply flex items-center p-6 pt-0;
+    @apply flex items-center p-6 pt-4 border-t border-base-200/50;
   }
-} 
+
+  /* ----------------------------------------
+     GLASSMORPHISM UTILITIES
+     ---------------------------------------- */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-sm {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-lg {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-primary {
+    background: rgba(var(--team-primary-rgb, 59, 130, 246), 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(var(--team-primary-rgb, 59, 130, 246), 0.2);
+  }
+
+  /* ----------------------------------------
+     BENTO GRID SYSTEM
+     ---------------------------------------- */
+  .bento-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(180px, auto);
+  }
+
+  @media (max-width: 1024px) {
+    .bento-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .bento-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .bento-item {
+    @apply rounded-2xl p-6;
+    min-height: 180px;
+  }
+
+  .bento-sm {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  .bento-md {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  .bento-lg {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .bento-wide {
+    grid-column: span 3;
+    grid-row: span 1;
+  }
+
+  .bento-tall {
+    grid-column: span 1;
+    grid-row: span 2;
+  }
+
+  .bento-full {
+    grid-column: span 4;
+    grid-row: span 1;
+  }
+
+  @media (max-width: 1024px) {
+    .bento-md, .bento-lg, .bento-wide {
+      grid-column: span 2;
+    }
+    .bento-full {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .bento-sm, .bento-md, .bento-lg, .bento-wide, .bento-tall, .bento-full {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+  }
+
+  /* ----------------------------------------
+     MICROINTERACTION UTILITIES
+     ---------------------------------------- */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+  }
+
+  .hover-scale {
+    transition: transform 0.2s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3);
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Staggered animation delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+
+  /* ----------------------------------------
+     MODERN TABLE STYLES
+     ---------------------------------------- */
+  .table-modern {
+    @apply w-full border-collapse;
+  }
+
+  .table-modern thead {
+    @apply bg-base-200/50;
+  }
+
+  .table-modern th {
+    @apply px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-base-content/70;
+  }
+
+  .table-modern tbody tr {
+    @apply border-b border-base-200/50;
+    transition: background-color 0.15s ease;
+  }
+
+  .table-modern tbody tr:hover {
+    @apply bg-base-200/30;
+  }
+
+  .table-modern td {
+    @apply px-6 py-4 text-sm;
+  }
+
+  /* ----------------------------------------
+     MODERN MODAL/DIALOG
+     ---------------------------------------- */
+  .modal-box {
+    @apply rounded-2xl p-8;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* ----------------------------------------
+     MODERN BADGES
+     ---------------------------------------- */
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .badge:hover {
+    transform: scale(1.05);
+  }
+
+  .badge-glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .badge-pill {
+    @apply rounded-full px-4;
+  }
+}
+
+/* ============================================
+   DARK MODE ENHANCEMENTS
+   ============================================ */
+[data-theme="dark"],
+[data-theme="night"],
+[data-theme="black"],
+[data-theme="dracula"],
+[data-theme="forest"],
+[data-theme="luxury"],
+[data-theme="coffee"] {
+  /* Better backgrounds with subtle gradients */
+  .drawer-content {
+    background: var(--page-bg, #0f0f12);
+    background-image:
+      radial-gradient(at 100% 0%, rgba(var(--team-primary-rgb, 59, 130, 246), 0.08) 0%, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(var(--team-secondary-rgb, 239, 68, 68), 0.05) 0%, transparent 50%);
+  }
+
+  /* Cards with proper dark backgrounds */
+  .card {
+    background: var(--card-bg, rgba(30, 30, 36, 0.6));
+    border-color: var(--border-default, rgba(255, 255, 255, 0.1));
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  .card:hover {
+    background: var(--card-hover, rgba(40, 40, 48, 0.8));
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Glass effects for dark mode */
+  .card-glass, .glass {
+    background: var(--glass-bg, rgba(30, 30, 36, 0.8));
+    border-color: var(--glass-border, rgba(255, 255, 255, 0.08));
+  }
+
+  .glass-sm {
+    background: rgba(30, 30, 36, 0.6);
+  }
+
+  .glass-lg {
+    background: rgba(30, 30, 36, 0.9);
+  }
+
+  /* Neumorphic adjustments */
+  .card-neu {
+    box-shadow: 6px 6px 12px var(--neu-dark, rgba(0, 0, 0, 0.5)), -6px -6px 12px var(--neu-light, rgba(255, 255, 255, 0.05));
+  }
+
+  .card-neu:hover {
+    box-shadow: 8px 8px 16px var(--neu-dark, rgba(0, 0, 0, 0.6)), -8px -8px 16px var(--neu-light, rgba(255, 255, 255, 0.06));
+  }
+
+  /* Input styles */
+  .input, .select, .textarea {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: var(--border-default, rgba(255, 255, 255, 0.1));
+  }
+
+  .input:focus, .select:focus, .textarea:focus {
+    border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.5);
+    box-shadow: 0 0 0 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+  }
+
+  .input-neu {
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.4), inset -3px -3px 6px rgba(255, 255, 255, 0.05);
+  }
+
+  /* Button adjustments */
+  .btn-outline {
+    border-color: var(--border-strong, rgba(255, 255, 255, 0.15));
+  }
+
+  .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Table rows */
+  .table-modern tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Modal box */
+  .modal-box {
+    background: rgba(24, 24, 30, 0.95);
+  }
+
+  /* Badge glass */
+  .badge-glass {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Shimmer for dark mode */
+  .shimmer {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hover-lift:hover,
+  .hover-scale:hover,
+  .card:hover,
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   BROWSER COMPATIBILITY - Backdrop Filter Fallback
+   ============================================ */
+@supports not (backdrop-filter: blur(16px)) {
+  .glass, .card-glass, .glass-sm, .glass-lg {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  [data-theme="dark"] .glass,
+  [data-theme="dark"] .card-glass,
+  [data-theme="dark"] .glass-sm,
+  [data-theme="dark"] .glass-lg {
+    background: rgba(30, 30, 36, 0.98);
+  }
+
+  .btn-glass {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}

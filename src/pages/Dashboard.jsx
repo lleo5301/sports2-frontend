@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
@@ -6,6 +6,7 @@ import { teamsService } from '../services/teams';
 import { reportsService } from '../services/reports';
 import { useAuth } from '../contexts/AuthContext';
 import TeamStatistics from '../components/TeamStatistics';
+import { Users, FileText, Activity, Zap, Plus, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -49,37 +50,10 @@ const Dashboard = () => {
   const error = playersError || reportsError || teamError;
 
   // Quick action handlers
-  const handleAddPlayer = () => {
-    try {
-      navigate('/players/create');
-    } catch (error) {
-      console.error('Navigation error:', error);
-    }
-  };
-
-  const handleCreateReport = () => {
-    try {
-      navigate('/scouting/create');
-    } catch (error) {
-      console.error('Navigation error:', error);
-    }
-  };
-
-  const handleViewAnalytics = () => {
-    try {
-      navigate('/reports');
-    } catch (error) {
-      console.error('Navigation error:', error);
-    }
-  };
-
-  const handleViewPerformance = () => {
-    try {
-      navigate('/performance');
-    } catch (error) {
-      console.error('Navigation error:', error);
-    }
-  };
+  const handleAddPlayer = () => navigate('/players/create');
+  const handleCreateReport = () => navigate('/scouting/create');
+  const handleViewAnalytics = () => navigate('/reports');
+  const handleViewPerformance = () => navigate('/performance');
 
   if (loading) {
     return (
@@ -112,163 +86,274 @@ const Dashboard = () => {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2 page-title">
+        <div className="mb-10 animate-fade-in">
+          <h1 className="text-4xl font-bold text-base-content mb-3 page-title tracking-tight">
             Dashboard
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-base-content/60 text-lg">
             Welcome back! Here's an overview of your team's data.
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-primary">Total Players</h2>
-              <p className="text-3xl font-bold">{stats.totalPlayers}</p>
-              <div className="text-sm text-success">Active: {stats.activePlayers}</div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-secondary">Scouting Reports</h2>
-              <p className="text-3xl font-bold">{stats.totalReports}</p>
-              <div className="text-sm text-info">Recent: {stats.recentReports}</div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-accent">Team Status</h2>
-              <p className="text-3xl font-bold">Active</p>
-              <div className="text-sm text-success">All systems operational</div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title text-neutral">Quick Actions</h2>
-              <p className="text-3xl font-bold">3</p>
-              <div className="text-sm text-base-content/70">Available tasks</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Players */}
-          <div className="card">
-            <div className="card-header">
-              <h2 className="card-title">Recent Players</h2>
-              <p className="card-description">Latest players added to your roster</p>
-            </div>
-            <div className="card-content">
-              {recentPlayers.length > 0 ? (
-                <div className="space-y-4">
-                  {recentPlayers.map((player) => (
-                    <div key={player.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
-                      <div>
-                        <h3 className="font-medium">
-                          {player.first_name} {player.last_name}
-                        </h3>
-                        <p className="text-sm text-base-content/70">
-                          {player.position} • {player.school}
-                        </p>
-                      </div>
-                      <div className="badge badge-outline">{player.status}</div>
-                    </div>
-                  ))}
+        {/* Bento Grid Layout */}
+        <div className="bento-grid mb-10">
+          {/* Total Players - Medium card */}
+          <div className="bento-sm card hover-lift animate-fade-in stagger-1">
+            <div className="card-body flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
-              ) : (
-                <p className="text-base-content/70 text-center py-4">No recent players</p>
-              )}
+                <span className="badge badge-primary badge-outline">Players</span>
+              </div>
+              <div className="mt-4">
+                <p className="text-4xl font-bold tracking-tight">{stats.totalPlayers}</p>
+                <p className="text-sm text-base-content/60 mt-1">Total Players</p>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-success text-sm font-medium">{stats.activePlayers} active</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-gentle-pulse"></span>
+              </div>
             </div>
           </div>
 
-          {/* Recent Reports */}
-          <div className="card">
-            <div className="card-header">
-              <h2 className="card-title">Recent Reports</h2>
-              <p className="card-description">Latest scouting reports</p>
-            </div>
-            <div className="card-content">
-              {recentReportsData.length > 0 ? (
-                <div className="space-y-4">
-                  {recentReportsData.map((report) => (
-                    <div key={report.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
-                      <div>
-                        <h3 className="font-medium">
-                          {report.Player?.first_name} {report.Player?.last_name}
-                        </h3>
-                        <p className="text-sm text-base-content/70">
-                          {report.overall_grade} • {new Date(report.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="badge badge-primary">{report.overall_grade}</div>
-                    </div>
-                  ))}
+          {/* Scouting Reports - Medium card */}
+          <div className="bento-sm card hover-lift animate-fade-in stagger-2">
+            <div className="card-body flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-secondary/10">
+                  <FileText className="w-6 h-6 text-secondary" />
                 </div>
-              ) : (
-                <p className="text-base-content/70 text-center py-4">No recent reports</p>
-              )}
+                <span className="badge badge-secondary badge-outline">Reports</span>
+              </div>
+              <div className="mt-4">
+                <p className="text-4xl font-bold tracking-tight">{stats.totalReports}</p>
+                <p className="text-sm text-base-content/60 mt-1">Scouting Reports</p>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-info text-sm font-medium">{stats.recentReports} recent</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <div className="card">
-            <div className="card-header">
-              <h2 className="card-title">Quick Actions</h2>
-              <p className="card-description">Common tasks and shortcuts</p>
+          {/* Team Status - Medium card */}
+          <div className="bento-sm card hover-lift animate-fade-in stagger-3">
+            <div className="card-body flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-success/10">
+                  <Activity className="w-6 h-6 text-success" />
+                </div>
+                <span className="badge badge-success badge-outline">Status</span>
+              </div>
+              <div className="mt-4">
+                <p className="text-4xl font-bold tracking-tight">Active</p>
+                <p className="text-sm text-base-content/60 mt-1">Team Status</p>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-success text-sm font-medium">All systems go</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-gentle-pulse"></span>
+              </div>
             </div>
-            <div className="card-content">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button 
-                  className="btn btn-primary hover:btn-primary-focus" 
-                  onClick={handleAddPlayer}
+          </div>
+
+          {/* Quick Actions Count - Medium card */}
+          <div className="bento-sm card hover-lift animate-fade-in stagger-4">
+            <div className="card-body flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-warning/10">
+                  <Zap className="w-6 h-6 text-warning" />
+                </div>
+                <span className="badge badge-warning badge-outline">Actions</span>
+              </div>
+              <div className="mt-4">
+                <p className="text-4xl font-bold tracking-tight">4</p>
+                <p className="text-sm text-base-content/60 mt-1">Quick Actions</p>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-base-content/60 text-sm font-medium">Available now</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Players - Large card spanning 2 columns */}
+          <div className="bento-lg card animate-fade-in stagger-1">
+            <div className="card-header">
+              <div className="flex items-center justify-between">
+                <h2 className="card-title flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Recent Players
+                </h2>
+                <button
+                  onClick={() => navigate('/players')}
+                  className="btn btn-ghost btn-sm"
                 >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Add New Player
-                </button>
-                <button 
-                  className="btn btn-secondary hover:btn-secondary-focus" 
-                  onClick={handleCreateReport}
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Create Report
-                </button>
-                <button 
-                  className="btn btn-accent hover:btn-accent-focus" 
-                  onClick={handleViewPerformance}
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Performance Rankings
-                </button>
-                <button 
-                  className="btn btn-info hover:btn-info-focus" 
-                  onClick={handleViewAnalytics}
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  View Analytics
+                  View all
                 </button>
               </div>
+              <p className="card-description">Latest players added to your roster</p>
+            </div>
+            <div className="card-content overflow-auto">
+              {recentPlayers.length > 0 ? (
+                <div className="space-y-3">
+                  {recentPlayers.map((player, index) => (
+                    <div
+                      key={player.id}
+                      className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/players/${player.id}`)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-primary font-semibold text-sm">
+                            {player.first_name?.[0]}{player.last_name?.[0]}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-medium">
+                            {player.first_name} {player.last_name}
+                          </h3>
+                          <p className="text-sm text-base-content/60">
+                            {player.position} • {player.school}
+                          </p>
+                        </div>
+                      </div>
+                      <div className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}>
+                        {player.status}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
+                  <Users className="w-12 h-12 mb-3 opacity-50" />
+                  <p>No recent players</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Reports - Large card spanning 2 columns */}
+          <div className="bento-lg card animate-fade-in stagger-2">
+            <div className="card-header">
+              <div className="flex items-center justify-between">
+                <h2 className="card-title flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Recent Reports
+                </h2>
+                <button
+                  onClick={() => navigate('/scouting')}
+                  className="btn btn-ghost btn-sm"
+                >
+                  View all
+                </button>
+              </div>
+              <p className="card-description">Latest scouting reports</p>
+            </div>
+            <div className="card-content overflow-auto">
+              {recentReportsData.length > 0 ? (
+                <div className="space-y-3">
+                  {recentReportsData.map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/scouting/${report.id}`)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-secondary" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">
+                            {report.Player?.first_name} {report.Player?.last_name}
+                          </h3>
+                          <p className="text-sm text-base-content/60">
+                            {new Date(report.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="badge badge-primary font-semibold">
+                        {report.overall_grade}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
+                  <FileText className="w-12 h-12 mb-3 opacity-50" />
+                  <p>No recent reports</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions - Full width card with glass effect */}
+        <div className="card card-glass mb-10 animate-fade-in">
+          <div className="card-header">
+            <h2 className="card-title flex items-center gap-2">
+              <Zap className="w-5 h-5" />
+              Quick Actions
+            </h2>
+            <p className="card-description">Common tasks and shortcuts</p>
+          </div>
+          <div className="card-content">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <button
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                onClick={handleAddPlayer}
+              >
+                <div className="p-2 rounded-lg bg-base-200">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold">Add Player</div>
+                  <div className="text-xs opacity-60">Create new roster entry</div>
+                </div>
+              </button>
+
+              <button
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                onClick={handleCreateReport}
+              >
+                <div className="p-2 rounded-lg bg-base-200">
+                  <ClipboardList className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold">Create Report</div>
+                  <div className="text-xs opacity-60">New scouting report</div>
+                </div>
+              </button>
+
+              <button
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                onClick={handleViewPerformance}
+              >
+                <div className="p-2 rounded-lg bg-base-200">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold">Performance</div>
+                  <div className="text-xs opacity-60">View rankings</div>
+                </div>
+              </button>
+
+              <button
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                onClick={handleViewAnalytics}
+              >
+                <div className="p-2 rounded-lg bg-base-200">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold">Analytics</div>
+                  <div className="text-xs opacity-60">View insights</div>
+                </div>
+              </button>
             </div>
           </div>
         </div>
 
         {/* Team Statistics */}
-        <div className="mt-8">
+        <div className="animate-fade-in">
           <TeamStatistics />
         </div>
       </div>
@@ -276,4 +361,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
