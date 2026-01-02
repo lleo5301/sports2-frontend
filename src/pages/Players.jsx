@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
+import { PlayersListSkeleton } from '../components/skeletons';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -119,15 +120,7 @@ const Players = () => {
   };
 
   if (loading && players.length === 0) {
-    return (
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <PlayersListSkeleton />;
   }
 
   return (
