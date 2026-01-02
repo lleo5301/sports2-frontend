@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import highSchoolCoachService from '../services/highSchoolCoaches';
 import toast from 'react-hot-toast';
+import { useDebounce } from '../hooks/useDebounce';
 import {
   GraduationCap,
   Phone,
@@ -83,10 +84,19 @@ export default function HighSchoolCoaches() {
 
   const queryClient = useQueryClient();
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch coaches
   const { data: coachesResponse, isLoading, error } = useQuery({
-    queryKey: ['high-school-coaches', filters],
-    queryFn: () => highSchoolCoachService.getHighSchoolCoaches(filters),
+    queryKey: ['high-school-coaches', queryFilters],
+    queryFn: () => highSchoolCoachService.getHighSchoolCoaches(queryFilters),
     keepPreviousData: true
   });
 
