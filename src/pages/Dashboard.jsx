@@ -262,30 +262,40 @@ const Dashboard = () => {
             <div className="card-content overflow-auto">
               {recentReportsData.length > 0 ? (
                 <div className="space-y-3">
-                  {recentReportsData.map((report) => (
-                    <div
-                      key={report.id}
-                      className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/scouting/${report.id}`)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-secondary" />
+                  {recentReportsData.map((report) => {
+                    const ReportCard = () => {
+                      const keyboardProps = useKeyboardClick(() => navigate(`/scouting/${report.id}`));
+
+                      return (
+                        <div
+                          key={report.id}
+                          className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/scouting/${report.id}`)}
+                          aria-label={`View scouting report for ${report.Player?.first_name} ${report.Player?.last_name} - Grade ${report.overall_grade}`}
+                          {...keyboardProps}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-secondary" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium">
+                                {report.Player?.first_name} {report.Player?.last_name}
+                              </h3>
+                              <p className="text-sm text-base-content/60">
+                                {new Date(report.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="badge badge-primary font-semibold">
+                            {report.overall_grade}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-medium">
-                            {report.Player?.first_name} {report.Player?.last_name}
-                          </h3>
-                          <p className="text-sm text-base-content/60">
-                            {new Date(report.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="badge badge-primary font-semibold">
-                        {report.overall_grade}
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    };
+
+                    return <ReportCard key={report.id} />;
+                  })}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
