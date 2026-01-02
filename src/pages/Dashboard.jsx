@@ -298,7 +298,7 @@ const Dashboard = () => {
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleAddPlayer}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -311,7 +311,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleCreateReport}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -324,7 +324,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleViewPerformance}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -337,7 +337,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleViewAnalytics}
               >
                 <div className="p-2 rounded-lg bg-base-200">
