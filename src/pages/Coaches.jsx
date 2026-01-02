@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Plus, Search, Filter, Phone, Mail, School, UserCheck, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import coachService from '../services/coaches';
+import AccessibleModal from '../components/ui/AccessibleModal';
 
 const Coaches = () => {
   const queryClient = useQueryClient();
@@ -403,188 +404,201 @@ const Coaches = () => {
       </div>
 
       {/* Create/Edit Modal */}
-      {(showCreateModal || showEditModal) && (
-        <div className="modal modal-open">
-          <div className="modal-box max-w-2xl">
-            <h3 className="font-bold text-lg mb-4">
-              {selectedCoach ? 'Edit Coach' : 'Add New Coach'}
-            </h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">First Name *</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    className="input input-bordered"
-                    value={formData.first_name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Last Name *</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    className="input input-bordered"
-                    value={formData.last_name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              </div>
-
+      <AccessibleModal
+        isOpen={showCreateModal || showEditModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setShowEditModal(false);
+          setSelectedCoach(null);
+          resetForm();
+        }}
+        title={selectedCoach ? 'Edit Coach' : 'Add New Coach'}
+        size="md"
+      >
+        <AccessibleModal.Header
+          title={selectedCoach ? 'Edit Coach' : 'Add New Coach'}
+          onClose={() => {
+            setShowCreateModal(false);
+            setShowEditModal(false);
+            setSelectedCoach(null);
+            resetForm();
+          }}
+        />
+        <AccessibleModal.Content>
+          <form onSubmit={handleSubmit} id="coach-form" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">School Name *</span>
+                  <span className="label-text">First Name *</span>
                 </label>
                 <input
                   type="text"
-                  name="school_name"
-                  placeholder="e.g. University of Miami"
+                  name="first_name"
                   className="input input-bordered"
-                  value={formData.school_name}
+                  value={formData.first_name}
                   onChange={handleInputChange}
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Position *</span>
-                  </label>
-                  <select
-                    name="position"
-                    className="select select-bordered"
-                    value={formData.position}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select Position</option>
-                    {positionOptions.map(option => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Phone</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    className="input input-bordered"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Email</span>
+                  <span className="label-text">Last Name *</span>
                 </label>
                 <input
-                  type="email"
-                  name="email"
+                  type="text"
+                  name="last_name"
                   className="input input-bordered"
-                  value={formData.email}
+                  value={formData.last_name}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Last Contact Date</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="last_contact_date"
-                    className="input input-bordered"
-                    value={formData.last_contact_date}
-                    onChange={handleInputChange}
-                  />
-                </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">School Name *</span>
+              </label>
+              <input
+                type="text"
+                name="school_name"
+                placeholder="e.g. University of Miami"
+                className="input input-bordered"
+                value={formData.school_name}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Next Contact Date</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="next_contact_date"
-                    className="input input-bordered"
-                    value={formData.next_contact_date}
-                    onChange={handleInputChange}
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Position *</span>
+                </label>
+                <select
+                  name="position"
+                  className="select select-bordered"
+                  value={formData.position}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select Position</option>
+                  {positionOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Notes</span>
+                  <span className="label-text">Phone</span>
                 </label>
-                <textarea
-                  name="notes"
-                  className="textarea textarea-bordered h-24"
-                  placeholder="Any additional notes about this coach..."
-                  value={formData.notes}
+                <input
+                  type="tel"
+                  name="phone"
+                  className="input input-bordered"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Email</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                className="input input-bordered"
+                value={formData.email}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Last Contact Date</span>
+                </label>
+                <input
+                  type="date"
+                  name="last_contact_date"
+                  className="input input-bordered"
+                  value={formData.last_contact_date}
                   onChange={handleInputChange}
                 />
               </div>
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Contact Notes</span>
+                  <span className="label-text">Next Contact Date</span>
                 </label>
-                <textarea
-                  name="contact_notes"
-                  className="textarea textarea-bordered h-24"
-                  placeholder="Notes about recent communications..."
-                  value={formData.contact_notes}
+                <input
+                  type="date"
+                  name="next_contact_date"
+                  className="input input-bordered"
+                  value={formData.next_contact_date}
                   onChange={handleInputChange}
                 />
               </div>
+            </div>
 
-              <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setShowEditModal(false);
-                    setSelectedCoach(null);
-                    resetForm();
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={createCoachMutation.isPending || updateCoachMutation.isPending}
-                >
-                  {createCoachMutation.isPending || updateCoachMutation.isPending ? (
-                    <span className="loading loading-spinner loading-sm"></span>
-                  ) : (
-                    selectedCoach ? 'Update Coach' : 'Add Coach'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Notes</span>
+              </label>
+              <textarea
+                name="notes"
+                className="textarea textarea-bordered h-24"
+                placeholder="Any additional notes about this coach..."
+                value={formData.notes}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Contact Notes</span>
+              </label>
+              <textarea
+                name="contact_notes"
+                className="textarea textarea-bordered h-24"
+                placeholder="Notes about recent communications..."
+                value={formData.contact_notes}
+                onChange={handleInputChange}
+              />
+            </div>
+          </form>
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setShowCreateModal(false);
+              setShowEditModal(false);
+              setSelectedCoach(null);
+              resetForm();
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="coach-form"
+            className="btn btn-primary"
+            disabled={createCoachMutation.isPending || updateCoachMutation.isPending}
+          >
+            {createCoachMutation.isPending || updateCoachMutation.isPending ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              selectedCoach ? 'Update Coach' : 'Add Coach'
+            )}
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
     </div>
   );
 };
