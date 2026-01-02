@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { teamsService } from '../services/teams';
 import { useAuth } from '../contexts/AuthContext';
+import { TeamsListSkeleton } from '../components/skeletons';
 
 const Teams = () => {
   const navigate = useNavigate();
@@ -27,15 +28,7 @@ const Teams = () => {
   const error = teamsError;
 
   if (loading) {
-    return (
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <TeamsListSkeleton />;
   }
 
   if (error) {
