@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User, BarChart3, Users, Plus } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import { PlayerDetailSkeleton } from '../components/skeletons'
 
 export default function PlayerDetail() {
   const { id } = useParams()
@@ -40,15 +41,7 @@ export default function PlayerDetail() {
   console.log('PlayerDetail - player:', player)
 
   if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
-    )
+    return <PlayerDetailSkeleton />;
   }
 
   if (error || !playerData) {
