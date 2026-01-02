@@ -324,7 +324,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleViewPerformance}
               >
                 <div className="p-2 rounded-lg bg-base-200">
