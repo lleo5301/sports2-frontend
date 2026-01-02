@@ -4,3 +4,6 @@ export { default as SkeletonText } from './SkeletonText'
 export { default as SkeletonCard } from './SkeletonCard'
 export { default as SkeletonTable } from './SkeletonTable'
 export { default as SkeletonAvatar } from './SkeletonAvatar'
+
+// Page-specific skeleton layouts
+export { default as DashboardSkeleton } from './DashboardSkeleton'
