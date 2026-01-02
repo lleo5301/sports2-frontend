@@ -49,6 +49,7 @@ export default function Vendors() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [vendorForm, setVendorForm] = useState({
     company_name: '',
     contact_person: '',
@@ -119,6 +120,20 @@ export default function Vendors() {
     },
     onError: (error) => {
       toast.error(error.response?.data?.error || 'Failed to delete vendor');
+    }
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => vendorService.bulkDeleteVendors(selectedIds),
+    onSuccess: (data) => {
+      const count = data.data?.deletedCount || selectedIds.length;
+      toast.success(`Successfully deleted ${count} vendor${count !== 1 ? 's' : ''}!`);
+      queryClient.invalidateQueries(['vendors']);
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to delete vendors');
     }
   });
 
@@ -256,13 +271,24 @@ export default function Vendors() {
                 Manage your team's vendor relationships and contracts
               </p>
             </div>
-            <button
-              onClick={handleCreateVendor}
-              className="btn btn-primary"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Vendor
-            </button>
+            <div className="flex gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  className="btn btn-error"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected ({selectedIds.length})
+                </button>
+              )}
+              <button
+                onClick={handleCreateVendor}
+                className="btn btn-primary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Vendor
+              </button>
+            </div>
           </div>
         </div>
 
@@ -697,6 +723,41 @@ export default function Vendors() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg">Delete Selected Vendors</h3>
+              <p className="py-4">
+                Are you sure you want to delete {selectedIds.length} vendor{selectedIds.length !== 1 ? 's' : ''}? This action cannot be undone.
+              </p>
+              <div className="modal-action">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="btn btn-outline"
+                  disabled={bulkDeleteMutation.isPending}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => bulkDeleteMutation.mutate()}
+                  className="btn btn-error"
+                  disabled={bulkDeleteMutation.isPending}
+                >
+                  {bulkDeleteMutation.isPending ? (
+                    <>
+                      <div className="loading loading-spinner loading-sm"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>Delete {selectedIds.length} Vendor{selectedIds.length !== 1 ? 's' : ''}</>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
