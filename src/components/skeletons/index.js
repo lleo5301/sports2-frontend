@@ -8,3 +8,4 @@ export { default as SkeletonAvatar } from './SkeletonAvatar'
 // Page-specific skeleton layouts
 export { default as DashboardSkeleton } from './DashboardSkeleton'
 export { default as PlayersListSkeleton } from './PlayersListSkeleton'
+export { default as PlayerDetailSkeleton } from './PlayerDetailSkeleton'
