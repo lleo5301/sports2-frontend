@@ -24,9 +24,11 @@ const Players = () => {
     total: 0,
     pages: 0
   });
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => {
     fetchPlayers();
+    setSelectedIds([]); // Clear selection when filters or page changes
   }, [filters, pagination.page]);
 
   const fetchPlayers = async () => {
@@ -67,6 +69,27 @@ const Players = () => {
   const handlePageChange = (newPage) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(players.map(player => player.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (playerId) => {
+    setSelectedIds(prev => {
+      if (prev.includes(playerId)) {
+        return prev.filter(id => id !== playerId);
+      } else {
+        return [...prev, playerId];
+      }
+    });
+  };
+
+  const isAllSelected = players.length > 0 && selectedIds.length === players.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < players.length;
 
   const fetchPlayerReports = async (playerId) => {
     try {
@@ -248,6 +271,17 @@ const Players = () => {
               <table className="table table-zebra">
                 <thead>
                   <tr>
+                    <th>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={isAllSelected}
+                          onChange={handleSelectAll}
+                          disabled={players.length === 0}
+                        />
+                      </label>
+                    </th>
                     <th>Name</th>
                     <th>Position</th>
                     <th>School</th>
@@ -259,6 +293,16 @@ const Players = () => {
                 <tbody>
                   {players.map((player) => (
                     <tr key={player.id}>
+                      <td>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={selectedIds.includes(player.id)}
+                            onChange={() => handleSelectOne(player.id)}
+                          />
+                        </label>
+                      </td>
                       <td className="font-medium">
                         {player.first_name} {player.last_name}
                       </td>
