@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import highSchoolCoachService from '../services/highSchoolCoaches';
 import toast from 'react-hot-toast';
+import AccessibleModal from '../components/ui/AccessibleModal';
 import {
   GraduationCap,
   Phone,
@@ -434,264 +435,277 @@ export default function HighSchoolCoaches() {
         </div>
 
         {/* Create/Edit Modal */}
-        {(showCreateModal || showEditModal) && (
-          <div className="modal modal-open">
-            <div className="modal-box max-w-4xl">
-              <h3 className="font-bold text-lg mb-4">
-                {showEditModal ? 'Edit High School Coach' : 'Add New High School Coach'}
-              </h3>
+        <AccessibleModal
+          isOpen={showCreateModal || showEditModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            setShowEditModal(false);
+            setSelectedCoach(null);
+            resetForm();
+          }}
+          title={showEditModal ? 'Edit High School Coach' : 'Add New High School Coach'}
+          size="lg"
+        >
+          <AccessibleModal.Header
+            title={showEditModal ? 'Edit High School Coach' : 'Add New High School Coach'}
+            onClose={() => {
+              setShowCreateModal(false);
+              setShowEditModal(false);
+              setSelectedCoach(null);
+              resetForm();
+            }}
+          />
+          <AccessibleModal.Content>
+            <form onSubmit={handleSubmit} id="high-school-coach-form">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personal Information */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-base-content">Personal Information</h4>
 
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Personal Information */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-base-content">Personal Information</h4>
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">First Name *</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered"
-                          value={coachForm.first_name}
-                          onChange={(e) => setCoachForm(prev => ({ ...prev, first_name: e.target.value }))}
-                          required
-                        />
-                      </div>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">Last Name *</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered"
-                          value={coachForm.last_name}
-                          onChange={(e) => setCoachForm(prev => ({ ...prev, last_name: e.target.value }))}
-                          required
-                        />
-                      </div>
-                    </div>
-
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="form-control">
                       <label className="label">
-                        <span className="label-text">Position *</span>
+                        <span className="label-text">First Name *</span>
                       </label>
-                      <select
-                        className="select select-bordered"
-                        value={coachForm.position}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, position: e.target.value }))}
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        value={coachForm.first_name}
+                        onChange={(e) => setCoachForm(prev => ({ ...prev, first_name: e.target.value }))}
                         required
-                      >
-                        {positions.map(position => (
-                          <option key={position} value={position}>{position}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">Email</span>
-                      </label>
-                      <input
-                        type="email"
-                        className="input input-bordered"
-                        value={coachForm.email}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, email: e.target.value }))}
                       />
                     </div>
-
                     <div className="form-control">
                       <label className="label">
-                        <span className="label-text">Phone</span>
+                        <span className="label-text">Last Name *</span>
                       </label>
                       <input
-                        type="tel"
+                        type="text"
                         className="input input-bordered"
-                        value={coachForm.phone}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, phone: e.target.value }))}
-                      />
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">Years Coaching</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="50"
-                        className="input input-bordered"
-                        value={coachForm.years_coaching}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, years_coaching: e.target.value }))}
+                        value={coachForm.last_name}
+                        onChange={(e) => setCoachForm(prev => ({ ...prev, last_name: e.target.value }))}
+                        required
                       />
                     </div>
                   </div>
 
-                  {/* School Information */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-base-content">School Information</h4>
-                    
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">School Name *</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        value={coachForm.school_name}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, school_name: e.target.value }))}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">School District</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        value={coachForm.school_district}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, school_district: e.target.value }))}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">City</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered"
-                          value={coachForm.city}
-                          onChange={(e) => setCoachForm(prev => ({ ...prev, city: e.target.value }))}
-                        />
-                      </div>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text">State</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered"
-                          placeholder="TX"
-                          value={coachForm.state}
-                          onChange={(e) => setCoachForm(prev => ({ ...prev, state: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">Conference</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        value={coachForm.conference}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, conference: e.target.value }))}
-                      />
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">School Classification</span>
-                      </label>
-                      <select
-                        className="select select-bordered"
-                        value={coachForm.school_classification}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, school_classification: e.target.value }))}
-                      >
-                        <option value="">Select Classification</option>
-                        {schoolClassifications.map(classification => (
-                          <option key={classification} value={classification}>{classification}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">Relationship Type</span>
-                      </label>
-                      <select
-                        className="select select-bordered"
-                        value={coachForm.relationship_type}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, relationship_type: e.target.value }))}
-                      >
-                        {relationshipTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">Players Sent to Program</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        className="input input-bordered"
-                        value={coachForm.players_sent_count}
-                        onChange={(e) => setCoachForm(prev => ({ ...prev, players_sent_count: parseInt(e.target.value) || 0 }))}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Notes */}
-                <div className="mt-6">
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Notes</span>
+                      <span className="label-text">Position *</span>
                     </label>
-                    <textarea
-                      className="textarea textarea-bordered"
-                      rows="3"
-                      value={coachForm.notes}
-                      onChange={(e) => setCoachForm(prev => ({ ...prev, notes: e.target.value }))}
+                    <select
+                      className="select select-bordered"
+                      value={coachForm.position}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, position: e.target.value }))}
+                      required
+                    >
+                      {positions.map(position => (
+                        <option key={position} value={position}>{position}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Email</span>
+                    </label>
+                    <input
+                      type="email"
+                      className="input input-bordered"
+                      value={coachForm.email}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, email: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Phone</span>
+                    </label>
+                    <input
+                      type="tel"
+                      className="input input-bordered"
+                      value={coachForm.phone}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, phone: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Years Coaching</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="50"
+                      className="input input-bordered"
+                      value={coachForm.years_coaching}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, years_coaching: e.target.value }))}
                     />
                   </div>
                 </div>
 
-                <div className="modal-action">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreateModal(false);
-                      setShowEditModal(false);
-                      setSelectedCoach(null);
-                      resetForm();
-                    }}
-                    className="btn btn-outline"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createCoachMutation.isLoading || updateCoachMutation.isLoading}
-                    className="btn btn-primary"
-                  >
-                    {createCoachMutation.isLoading || updateCoachMutation.isLoading ? (
-                      <>
-                        <div className="loading loading-spinner loading-sm"></div>
-                        {showEditModal ? 'Updating...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        {showEditModal ? 'Update Coach' : 'Create Coach'}
-                      </>
-                    )}
-                  </button>
+                {/* School Information */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-base-content">School Information</h4>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">School Name *</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered"
+                      value={coachForm.school_name}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, school_name: e.target.value }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">School District</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered"
+                      value={coachForm.school_district}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, school_district: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">City</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        value={coachForm.city}
+                        onChange={(e) => setCoachForm(prev => ({ ...prev, city: e.target.value }))}
+                      />
+                    </div>
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">State</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        placeholder="TX"
+                        value={coachForm.state}
+                        onChange={(e) => setCoachForm(prev => ({ ...prev, state: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Conference</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered"
+                      value={coachForm.conference}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, conference: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">School Classification</span>
+                    </label>
+                    <select
+                      className="select select-bordered"
+                      value={coachForm.school_classification}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, school_classification: e.target.value }))}
+                    >
+                      <option value="">Select Classification</option>
+                      {schoolClassifications.map(classification => (
+                        <option key={classification} value={classification}>{classification}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Relationship Type</span>
+                    </label>
+                    <select
+                      className="select select-bordered"
+                      value={coachForm.relationship_type}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, relationship_type: e.target.value }))}
+                    >
+                      {relationshipTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Players Sent to Program</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      className="input input-bordered"
+                      value={coachForm.players_sent_count}
+                      onChange={(e) => setCoachForm(prev => ({ ...prev, players_sent_count: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
                 </div>
-              </form>
-            </div>
-          </div>
-        )}
+              </div>
+
+              {/* Notes */}
+              <div className="mt-6">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Notes</span>
+                  </label>
+                  <textarea
+                    className="textarea textarea-bordered"
+                    rows="3"
+                    value={coachForm.notes}
+                    onChange={(e) => setCoachForm(prev => ({ ...prev, notes: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </form>
+          </AccessibleModal.Content>
+          <AccessibleModal.Footer>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreateModal(false);
+                setShowEditModal(false);
+                setSelectedCoach(null);
+                resetForm();
+              }}
+              className="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="high-school-coach-form"
+              disabled={createCoachMutation.isLoading || updateCoachMutation.isLoading}
+              className="btn btn-primary"
+            >
+              {createCoachMutation.isLoading || updateCoachMutation.isLoading ? (
+                <>
+                  <div className="loading loading-spinner loading-sm"></div>
+                  {showEditModal ? 'Updating...' : 'Creating...'}
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {showEditModal ? 'Update Coach' : 'Create Coach'}
+                </>
+              )}
+            </button>
+          </AccessibleModal.Footer>
+        </AccessibleModal>
       </div>
     </div>
   );
