@@ -30,6 +30,7 @@ import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useBranding } from '../contexts/BrandingContext'
 import LogoUpload from '../components/LogoUpload'
+import AccessibleModal from '../components/ui/AccessibleModal'
 import toast from 'react-hot-toast'
 
 const divisions = [
@@ -782,164 +783,180 @@ export default function TeamSettings() {
       </div>
 
       {/* Add Permission Modal */}
-      {showAddPermissionModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Add User Permission</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="label">
-                  <span className="label-text">User *</span>
-                </label>
-                <select
-                  className="select select-bordered w-full"
-                  value={newPermission.user_id}
-                  onChange={(e) => setNewPermission(prev => ({ ...prev, user_id: e.target.value }))}
-                >
-                  <option value="">Select a user...</option>
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.first_name} {user.last_name} ({user.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
+      <AccessibleModal
+        isOpen={showAddPermissionModal}
+        onClose={() => setShowAddPermissionModal(false)}
+        title="Add User Permission"
+        size="md"
+      >
+        <AccessibleModal.Header
+          title="Add User Permission"
+          onClose={() => setShowAddPermissionModal(false)}
+        />
+        <AccessibleModal.Content>
+          <div className="space-y-4">
+            <div>
+              <label className="label">
+                <span className="label-text">User *</span>
+              </label>
+              <select
+                className="select select-bordered w-full"
+                value={newPermission.user_id}
+                onChange={(e) => setNewPermission(prev => ({ ...prev, user_id: e.target.value }))}
+              >
+                <option value="">Select a user...</option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.first_name} {user.last_name} ({user.email})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div>
-                <label className="label">
-                  <span className="label-text">Permission Type *</span>
-                </label>
-                <select
-                  className="select select-bordered w-full"
-                  value={newPermission.permission_type}
-                  onChange={(e) => setNewPermission(prev => ({ ...prev, permission_type: e.target.value }))}
-                >
-                  <option value="">Select permission...</option>
-                  {permissionTypes.map((permission) => (
-                    <option key={permission.value} value={permission.value}>
-                      {permission.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="label">
+                <span className="label-text">Permission Type *</span>
+              </label>
+              <select
+                className="select select-bordered w-full"
+                value={newPermission.permission_type}
+                onChange={(e) => setNewPermission(prev => ({ ...prev, permission_type: e.target.value }))}
+              >
+                <option value="">Select permission...</option>
+                {permissionTypes.map((permission) => (
+                  <option key={permission.value} value={permission.value}>
+                    {permission.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div>
-                <label className="label">
-                  <span className="label-text">Expires At</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  className="input input-bordered w-full"
-                  value={newPermission.expires_at}
-                  onChange={(e) => setNewPermission(prev => ({ ...prev, expires_at: e.target.value }))}
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  Leave empty for permanent permission
-                </div>
-              </div>
-
-              <div>
-                <label className="label">
-                  <span className="label-text">Notes</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full"
-                  value={newPermission.notes}
-                  onChange={(e) => setNewPermission(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Optional notes about this permission"
-                  rows={3}
-                />
+            <div>
+              <label className="label">
+                <span className="label-text">Expires At</span>
+              </label>
+              <input
+                type="datetime-local"
+                className="input input-bordered w-full"
+                value={newPermission.expires_at}
+                onChange={(e) => setNewPermission(prev => ({ ...prev, expires_at: e.target.value }))}
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                Leave empty for permanent permission
               </div>
             </div>
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={() => setShowAddPermissionModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleAddPermission}
-                disabled={!newPermission.user_id || !newPermission.permission_type || addPermission.isLoading}
-              >
-                {addPermission.isLoading ? 'Adding...' : 'Add Permission'}
-              </button>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Notes</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={newPermission.notes}
+                onChange={(e) => setNewPermission(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Optional notes about this permission"
+                rows={3}
+              />
             </div>
           </div>
-        </div>
-      )}
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={() => setShowAddPermissionModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleAddPermission}
+            disabled={!newPermission.user_id || !newPermission.permission_type || addPermission.isLoading}
+          >
+            {addPermission.isLoading ? 'Adding...' : 'Add Permission'}
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
 
       {/* Edit Permission Modal */}
-      {editingPermission && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Edit Permission</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="label">
-                  <span className="label-text">User</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={users.find(u => u.id === editingPermission.user_id)?.email || 'Unknown User'}
-                  disabled
-                />
-              </div>
+      <AccessibleModal
+        isOpen={!!editingPermission}
+        onClose={() => setEditingPermission(null)}
+        title="Edit Permission"
+        size="md"
+      >
+        {editingPermission && (
+          <>
+            <AccessibleModal.Header
+              title="Edit Permission"
+              onClose={() => setEditingPermission(null)}
+            />
+            <AccessibleModal.Content>
+              <div className="space-y-4">
+                <div>
+                  <label className="label">
+                    <span className="label-text">User</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered w-full"
+                    value={users.find(u => u.id === editingPermission.user_id)?.email || 'Unknown User'}
+                    disabled
+                  />
+                </div>
 
-              <div>
-                <label className="label">
-                  <span className="label-text">Permission Type</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={permissionTypes.find(p => p.value === editingPermission.permission_type)?.label || editingPermission.permission_type}
-                  disabled
-                />
-              </div>
+                <div>
+                  <label className="label">
+                    <span className="label-text">Permission Type</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered w-full"
+                    value={permissionTypes.find(p => p.value === editingPermission.permission_type)?.label || editingPermission.permission_type}
+                    disabled
+                  />
+                </div>
 
-              <div>
-                <label className="label">
-                  <span className="label-text">Status</span>
-                </label>
-                <select
-                  className="select select-bordered w-full"
-                  value={editingPermission.is_granted ? 'true' : 'false'}
-                  onChange={(e) => setEditingPermission(prev => ({ ...prev, is_granted: e.target.value === 'true' }))}
-                >
-                  <option value="true">Granted</option>
-                  <option value="false">Denied</option>
-                </select>
-              </div>
+                <div>
+                  <label className="label">
+                    <span className="label-text">Status</span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={editingPermission.is_granted ? 'true' : 'false'}
+                    onChange={(e) => setEditingPermission(prev => ({ ...prev, is_granted: e.target.value === 'true' }))}
+                  >
+                    <option value="true">Granted</option>
+                    <option value="false">Denied</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="label">
-                  <span className="label-text">Expires At</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  className="input input-bordered w-full"
-                  value={editingPermission.expires_at ? editingPermission.expires_at.slice(0, 16) : ''}
-                  onChange={(e) => setEditingPermission(prev => ({ ...prev, expires_at: e.target.value }))}
-                />
-              </div>
+                <div>
+                  <label className="label">
+                    <span className="label-text">Expires At</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="input input-bordered w-full"
+                    value={editingPermission.expires_at ? editingPermission.expires_at.slice(0, 16) : ''}
+                    onChange={(e) => setEditingPermission(prev => ({ ...prev, expires_at: e.target.value }))}
+                  />
+                </div>
 
-              <div>
-                <label className="label">
-                  <span className="label-text">Notes</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full"
-                  value={editingPermission.notes || ''}
-                  onChange={(e) => setEditingPermission(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Optional notes about this permission"
-                  rows={3}
-                />
+                <div>
+                  <label className="label">
+                    <span className="label-text">Notes</span>
+                  </label>
+                  <textarea
+                    className="textarea textarea-bordered w-full"
+                    value={editingPermission.notes || ''}
+                    onChange={(e) => setEditingPermission(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Optional notes about this permission"
+                    rows={3}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="modal-action">
+            </AccessibleModal.Content>
+            <AccessibleModal.Footer>
               <button
                 className="btn"
                 onClick={() => setEditingPermission(null)}
@@ -953,10 +970,10 @@ export default function TeamSettings() {
               >
                 {updatePermission.isLoading ? 'Updating...' : 'Update Permission'}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </AccessibleModal.Footer>
+          </>
+        )}
+      </AccessibleModal>
     </div>
   )
 }
