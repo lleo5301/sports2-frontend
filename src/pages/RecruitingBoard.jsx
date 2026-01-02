@@ -123,11 +123,13 @@ export default function RecruitingBoard() {
     : []
   const pagination = recruitsData?.pagination || {}
   
-  // Handle both response formats for preference lists: { data: [...] } or direct array
-  const preferenceLists = Array.isArray(preferenceListsData?.data) 
-    ? preferenceListsData.data 
-    : Array.isArray(preferenceListsData) 
-    ? preferenceListsData 
+  // Handle both response formats for preference lists: { data: { data: [...] } }, { data: [...] } or direct array
+  const preferenceLists = Array.isArray(preferenceListsData?.data?.data)
+    ? preferenceListsData.data.data
+    : Array.isArray(preferenceListsData?.data)
+    ? preferenceListsData.data
+    : Array.isArray(preferenceListsData)
+    ? preferenceListsData
     : []
 
   // Get recruit stats
