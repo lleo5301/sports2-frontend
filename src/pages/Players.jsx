@@ -25,6 +25,7 @@ const Players = () => {
     pages: 0
   });
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     fetchPlayers();
@@ -167,15 +168,28 @@ const Players = () => {
                 Manage your team's player roster
               </p>
             </div>
-            <button 
-              className="btn btn-primary"
-              onClick={() => navigate('/players/create')}
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Player
-            </button>
+            <div className="flex gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  className="btn btn-error"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Selected ({selectedIds.length})
+                </button>
+              )}
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate('/players/create')}
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Player
+              </button>
+            </div>
           </div>
         </div>
 
@@ -716,6 +730,35 @@ const Players = () => {
                 onClick={() => setSelectedReport(null)}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Delete Selected Players</h3>
+            <p className="py-4">
+              Are you sure you want to delete {selectedIds.length} player{selectedIds.length !== 1 ? 's' : ''}? This action cannot be undone.
+            </p>
+            <div className="modal-action">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: This will be implemented in subtask 3.3
+                  setShowDeleteConfirm(false);
+                }}
+                className="btn btn-error"
+              >
+                Delete {selectedIds.length} Player{selectedIds.length !== 1 ? 's' : ''}
               </button>
             </div>
           </div>
