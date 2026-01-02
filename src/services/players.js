@@ -45,6 +45,12 @@ export const playersService = {
     return response.data
   },
 
+  // Bulk delete players
+  bulkDeletePlayers: async (ids) => {
+    const response = await api.post('/players/bulk-delete', { ids })
+    return response.data
+  },
+
   // Get player statistics
   getPlayerStats: async (id) => {
     const response = await api.get(`/players/byId/${id}/stats`)
