@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { 
-  Bookmark, 
-  Star, 
-  Users, 
-  GraduationCap, 
-  TrendingUp, 
-  Calendar, 
-  MapPin, 
-  Eye, 
-  Edit, 
-  Trash2, 
+import {
+  Bookmark,
+  Star,
+  Users,
+  GraduationCap,
+  TrendingUp,
+  Calendar,
+  MapPin,
+  Eye,
+  Edit,
+  Trash2,
   Plus,
   Filter,
   Search,
@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import { useDebounce } from '../hooks/useDebounce'
 
 const listTypes = [
   { 
@@ -78,12 +79,21 @@ export default function PreferenceLists() {
   const [showFilters, setShowFilters] = useState(false)
   const queryClient = useQueryClient()
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300)
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  }
+
   // Fetch preference lists
   const { data: preferenceListsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['preference-lists', selectedListType, filters],
+    queryKey: ['preference-lists', selectedListType, queryFilters],
     queryFn: () => {
       const cleanParams = Object.fromEntries(
-        Object.entries({ ...filters, list_type: selectedListType }).filter(([key, value]) => 
+        Object.entries({ ...queryFilters, list_type: selectedListType }).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
       )
