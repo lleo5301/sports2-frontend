@@ -32,13 +32,6 @@ export default function PlayerDetail() {
   })
 
   const playerData = player?.data?.data
-  
-  // Debug logging
-  console.log('PlayerDetail - id:', id)
-  console.log('PlayerDetail - isLoading:', isLoading)
-  console.log('PlayerDetail - error:', error)
-  console.log('PlayerDetail - playerData:', playerData)
-  console.log('PlayerDetail - player:', player)
 
   if (isLoading) {
     return <PlayerDetailSkeleton />;

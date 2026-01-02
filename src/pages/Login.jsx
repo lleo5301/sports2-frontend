@@ -58,7 +58,6 @@ export default function Login() {
     setIsLoading(true)
     try {
       const response = await login(formData)
-      console.log('Login response:', response)
       
       // Store token and user data
       authLogin(response.data, response.data.token)

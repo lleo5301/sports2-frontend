@@ -334,7 +334,6 @@ export default function ScoutingReports() {
               }
             })
             
-            console.log('Submitting scouting report data:', data)
             createReport.mutate(data)
           }}>
             {/* Basic Information */}
