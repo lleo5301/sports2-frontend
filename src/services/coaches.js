@@ -51,6 +51,12 @@ const coachService = {
   deleteCoach: async (id) => {
     const response = await api.delete(`/coaches/${id}`)
     return response.data
+  },
+
+  // Bulk delete coaches
+  bulkDeleteCoaches: async (ids) => {
+    const response = await api.post('/coaches/bulk-delete', { ids })
+    return response.data
   }
 }
 
