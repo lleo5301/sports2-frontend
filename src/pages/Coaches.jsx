@@ -21,6 +21,7 @@ const Coaches = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -109,6 +110,21 @@ const Coaches = () => {
     onError: (error) => {
       console.error('Delete coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete coach');
+    }
+  });
+
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => coachService.bulkDeleteCoaches(selectedIds),
+    onSuccess: (data) => {
+      const count = data.data?.deletedCount || selectedIds.length;
+      toast.success(`Successfully deleted ${count} coach${count !== 1 ? 'es' : ''}!`);
+      queryClient.invalidateQueries({ queryKey: ['coaches'] });
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to delete coaches');
     }
   });
 
@@ -227,13 +243,26 @@ const Coaches = () => {
             </p>
           </div>
         </div>
-        <button 
-          onClick={() => setShowCreateModal(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Coach
-        </button>
+        <div className="flex gap-2">
+          {selectedIds.length > 0 && (
+            <button
+              className="btn btn-error"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Coach
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -633,6 +662,41 @@ const Coaches = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Delete Selected Coaches</h3>
+            <p className="py-4">
+              Are you sure you want to delete {selectedIds.length} coach{selectedIds.length !== 1 ? 'es' : ''}? This action cannot be undone.
+            </p>
+            <div className="modal-action">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="btn btn-outline"
+                disabled={bulkDeleteMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => bulkDeleteMutation.mutate()}
+                className="btn btn-error"
+                disabled={bulkDeleteMutation.isPending}
+              >
+                {bulkDeleteMutation.isPending ? (
+                  <>
+                    <div className="loading loading-spinner loading-sm"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>Delete {selectedIds.length} Coach{selectedIds.length !== 1 ? 'es' : ''}</>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
