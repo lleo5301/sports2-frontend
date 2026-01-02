@@ -30,6 +30,15 @@ import {
   Select,
   Switch
 } from '../utils/pines.jsx'
+import {
+  Skeleton,
+  SkeletonText,
+  SkeletonCard,
+  SkeletonTable,
+  SkeletonAvatar,
+  DashboardSkeleton,
+  GenericPageSkeleton
+} from '../components/skeletons'
 
 const PinesDemo = () => {
   const [modalOpen, setModalOpen] = useState(false)
@@ -303,6 +312,234 @@ const PinesDemo = () => {
                 </Button>
               </ModalFooter>
             </Modal>
+          </CardContent>
+        </Card>
+
+        {/* Skeleton Components */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Skeleton Components</CardTitle>
+            <CardDescription>Loading placeholders that maintain layout structure</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Base Skeleton Variants */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Base Skeleton Variants</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Text variant (default):</p>
+                  <Skeleton className="w-full max-w-md" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Rectangular variant:</p>
+                  <Skeleton variant="rectangular" width="200px" height="100px" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Circular variant:</p>
+                  <Skeleton variant="circular" width="80px" height="80px" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Custom sizes:</p>
+                  <div className="flex gap-2 items-center">
+                    <Skeleton width="100px" height="20px" />
+                    <Skeleton width="150px" height="20px" />
+                    <Skeleton width="200px" height="20px" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Animation Options */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Animation Options</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Pulse animation (default):</p>
+                  <Skeleton className="w-full max-w-md" animation="pulse" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Shimmer animation:</p>
+                  <Skeleton className="w-full max-w-md" animation="shimmer" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">No animation:</p>
+                  <Skeleton className="w-full max-w-md" animation="none" />
+                </div>
+              </div>
+            </div>
+
+            {/* SkeletonText */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">SkeletonText</h3>
+              <p className="text-sm text-muted-foreground mb-3">Simulates paragraph text with multiple lines</p>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">3 lines (default):</p>
+                  <SkeletonText />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">5 lines with custom spacing:</p>
+                  <SkeletonText lines={5} spacing="8px" />
+                </div>
+              </div>
+            </div>
+
+            {/* SkeletonAvatar */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">SkeletonAvatar</h3>
+              <p className="text-sm text-muted-foreground mb-3">Avatar placeholders in different sizes</p>
+              <div className="flex gap-4 items-end">
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Small (40px)</p>
+                  <SkeletonAvatar size="sm" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Medium (80px)</p>
+                  <SkeletonAvatar size="md" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Large (96px)</p>
+                  <SkeletonAvatar size="lg" />
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground mb-2">Combined with SkeletonText:</p>
+                <div className="flex items-center gap-3">
+                  <SkeletonAvatar size="md" />
+                  <div className="flex-1">
+                    <SkeletonText lines={2} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SkeletonCard */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">SkeletonCard</h3>
+              <p className="text-sm text-muted-foreground mb-3">Card placeholders with header, content, and footer</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SkeletonCard size="md" />
+                <SkeletonCard size="md" showFooter={true} contentLines={4} />
+              </div>
+            </div>
+
+            {/* SkeletonTable */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">SkeletonTable</h3>
+              <p className="text-sm text-muted-foreground mb-3">Table placeholders with configurable rows and columns</p>
+              <SkeletonTable rows={5} columns={4} />
+            </div>
+
+            {/* Page Skeletons */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Page-Specific Skeletons</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Complete page layouts for zero layout shift on load
+              </p>
+
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="overview">Dashboard</TabsTrigger>
+                  <TabsTrigger value="analytics">Generic</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview" className="mt-4">
+                  <div className="border border-border rounded-lg p-4 bg-card">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      <code className="text-xs bg-muted px-2 py-1 rounded">DashboardSkeleton</code> - Matches the dashboard page layout
+                    </p>
+                    <div className="max-h-96 overflow-auto">
+                      <DashboardSkeleton />
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="analytics" className="mt-4">
+                  <div className="border border-border rounded-lg p-4 bg-card">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      <code className="text-xs bg-muted px-2 py-1 rounded">GenericPageSkeleton</code> - Flexible skeleton for various page types
+                    </p>
+                    <div className="max-h-96 overflow-auto">
+                      <GenericPageSkeleton contentType="cards" columns={3} itemCount={6} />
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm font-medium mb-2">Available Page Skeletons:</p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li><code className="text-xs">DashboardSkeleton</code> - Dashboard page with bento grid</li>
+                  <li><code className="text-xs">PlayersListSkeleton</code> - Players list with filters and table</li>
+                  <li><code className="text-xs">PlayerDetailSkeleton</code> - Player detail page layout</li>
+                  <li><code className="text-xs">TeamsListSkeleton</code> - Teams page with card grid</li>
+                  <li><code className="text-xs">ScoutingReportsSkeleton</code> - Scouting reports page</li>
+                  <li><code className="text-xs">GenericPageSkeleton</code> - Flexible for cards, lists, or tables</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Usage Examples */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Usage Examples</h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm font-medium mb-2">Basic Skeleton:</p>
+                  <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
+{`import { Skeleton } from './components/skeletons'
+
+<Skeleton width="200px" height="20px" />
+<Skeleton variant="circular" width="80px" height="80px" />
+<Skeleton variant="rectangular" width="100%" height="200px" />`}
+                  </pre>
+                </div>
+
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm font-medium mb-2">Page Loading State:</p>
+                  <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
+{`import { DashboardSkeleton } from './components/skeletons'
+
+function Dashboard() {
+  const { data, loading } = useQuery(GET_DASHBOARD_DATA)
+
+  if (loading) return <DashboardSkeleton />
+
+  return <div>{/* actual content */}</div>
+}`}
+                  </pre>
+                </div>
+
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm font-medium mb-2">Generic Page Skeleton:</p>
+                  <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
+{`import { GenericPageSkeleton } from './components/skeletons'
+
+// Table view
+<GenericPageSkeleton contentType="table" columns={5} itemCount={10} />
+
+// Card grid
+<GenericPageSkeleton contentType="cards" columns={3} itemCount={9} />
+
+// List view
+<GenericPageSkeleton contentType="list" itemCount={8} />`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+
+            {/* Best Practices */}
+            <div>
+              <Alert>
+                <AlertTitle>Best Practices</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc list-inside space-y-1 text-sm mt-2">
+                    <li>Use page-specific skeletons for full-page loading states</li>
+                    <li>Use base skeleton components for partial updates or small sections</li>
+                    <li>Match skeleton structure to actual content for zero layout shift</li>
+                    <li>Keep spinners for small inline loading states (buttons, modals)</li>
+                    <li>All skeletons respect reduced-motion preferences</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </div>
           </CardContent>
         </Card>
 
