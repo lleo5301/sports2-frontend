@@ -597,6 +597,28 @@
 }
 
 /* ============================================
+   ACCESSIBILITY - Keyboard Focus Indicators
+   ============================================ */
+/* Focus-visible styles for clickable cards with role="button" */
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.5);
+  border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.8);
+}
+
+/* Enhanced focus for dark mode with better visibility */
+[data-theme="dark"] [role="button"]:focus-visible,
+[data-theme="night"] [role="button"]:focus-visible,
+[data-theme="black"] [role="button"]:focus-visible,
+[data-theme="dracula"] [role="button"]:focus-visible,
+[data-theme="forest"] [role="button"]:focus-visible,
+[data-theme="luxury"] [role="button"]:focus-visible,
+[data-theme="coffee"] [role="button"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.6);
+  border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 1);
+}
+
+/* ============================================
    ACCESSIBILITY - Reduced Motion
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
