@@ -5,6 +5,7 @@ import { playersService } from '../services/players';
 import { teamsService } from '../services/teams';
 import { reportsService } from '../services/reports';
 import { useAuth } from '../contexts/AuthContext';
+import { useKeyboardClick } from '../hooks/useKeyboardClick';
 import TeamStatistics from '../components/TeamStatistics';
 import { Users, FileText, Activity, Zap, Plus, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react';
 
@@ -195,32 +196,42 @@ const Dashboard = () => {
             <div className="card-content overflow-auto">
               {recentPlayers.length > 0 ? (
                 <div className="space-y-3">
-                  {recentPlayers.map((player, index) => (
-                    <div
-                      key={player.id}
-                      className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/players/${player.id}`)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary font-semibold text-sm">
-                            {player.first_name?.[0]}{player.last_name?.[0]}
-                          </span>
+                  {recentPlayers.map((player, index) => {
+                    const PlayerCard = () => {
+                      const keyboardProps = useKeyboardClick(() => navigate(`/players/${player.id}`));
+
+                      return (
+                        <div
+                          key={player.id}
+                          className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/players/${player.id}`)}
+                          aria-label={`View ${player.first_name} ${player.last_name} - ${player.position} at ${player.school}`}
+                          {...keyboardProps}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-primary font-semibold text-sm">
+                                {player.first_name?.[0]}{player.last_name?.[0]}
+                              </span>
+                            </div>
+                            <div>
+                              <h3 className="font-medium">
+                                {player.first_name} {player.last_name}
+                              </h3>
+                              <p className="text-sm text-base-content/60">
+                                {player.position} • {player.school}
+                              </p>
+                            </div>
+                          </div>
+                          <div className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}>
+                            {player.status}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-medium">
-                            {player.first_name} {player.last_name}
-                          </h3>
-                          <p className="text-sm text-base-content/60">
-                            {player.position} • {player.school}
-                          </p>
-                        </div>
-                      </div>
-                      <div className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}>
-                        {player.status}
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    };
+
+                    return <PlayerCard key={player.id} />;
+                  })}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
