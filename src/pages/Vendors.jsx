@@ -48,6 +48,7 @@ export default function Vendors() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [vendorForm, setVendorForm] = useState({
     company_name: '',
     contact_person: '',
@@ -120,6 +121,11 @@ export default function Vendors() {
       toast.error(error.response?.data?.error || 'Failed to delete vendor');
     }
   });
+
+  // Clear selection when filters change
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [filters]);
 
   const resetForm = () => {
     setVendorForm({
@@ -202,6 +208,27 @@ export default function Vendors() {
       deleteVendorMutation.mutate(vendor.id);
     }
   };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(vendors.map(vendor => vendor.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (vendorId) => {
+    setSelectedIds(prev => {
+      if (prev.includes(vendorId)) {
+        return prev.filter(id => id !== vendorId);
+      } else {
+        return [...prev, vendorId];
+      }
+    });
+  };
+
+  const isAllSelected = vendors.length > 0 && selectedIds.length === vendors.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < vendors.length;
 
   if (isLoading) {
     return (
@@ -298,6 +325,17 @@ export default function Vendors() {
               <table className="table table-zebra">
                 <thead>
                   <tr>
+                    <th>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={isAllSelected}
+                          onChange={handleSelectAll}
+                          disabled={vendors.length === 0}
+                        />
+                      </label>
+                    </th>
                     <th>Company</th>
                     <th>Contact</th>
                     <th>Type</th>
@@ -310,6 +348,16 @@ export default function Vendors() {
                 <tbody>
                   {vendors.map((vendor) => (
                     <tr key={vendor.id}>
+                      <td>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={selectedIds.includes(vendor.id)}
+                            onChange={() => handleSelectOne(vendor.id)}
+                          />
+                        </label>
+                      </td>
                       <td>
                         <div>
                           <div className="font-medium">{vendor.company_name}</div>
