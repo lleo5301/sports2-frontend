@@ -5,6 +5,8 @@ import { useBranding } from '../contexts/BrandingContext';
 import { settingsService, defaultSettings } from '../services/settings';
 import { teamsService } from '../services/teams';
 import { toast } from 'react-hot-toast';
+import { validatePassword } from '../utils/passwordValidator';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import {
   User,
   Bell,
@@ -204,6 +206,14 @@ const Settings = () => {
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
+
+    // Validate new password strength
+    const passwordValidation = validatePassword(passwordData.newPassword);
+    if (!passwordValidation.isValid) {
+      toast.error(passwordValidation.errors[0] || 'Password does not meet requirements');
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.error('New passwords do not match');
       return;
@@ -1170,13 +1180,14 @@ const Settings = () => {
                   <label className="label">
                     <span className="label-text">New Password</span>
                   </label>
-                  <input 
-                    type="password" 
-                    className="input input-bordered" 
+                  <input
+                    type="password"
+                    className="input input-bordered"
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     required
                   />
+                  <PasswordStrengthIndicator password={passwordData.newPassword} className="mt-2" />
                 </div>
                 <div className="form-control">
                   <label className="label">
