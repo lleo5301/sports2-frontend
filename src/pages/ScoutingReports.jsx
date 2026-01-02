@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { 
-  FileText, 
-  Plus, 
-  Eye, 
-  Edit, 
-  Trash2, 
+import {
+  FileText,
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
   Search,
   Filter,
   Star,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import { ScoutingReportsSkeleton } from '../components/skeletons'
 
 const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F']
 
@@ -603,12 +604,7 @@ export default function ScoutingReports() {
 
       {/* Reports List */}
       {isLoading ? (
-        <div className="card p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading scouting reports...</p>
-          </div>
-        </div>
+        <ScoutingReportsSkeleton />
       ) : error ? (
         <div className="card p-8">
           <div className="text-center">
