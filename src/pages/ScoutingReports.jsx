@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { 
-  FileText, 
-  Plus, 
-  Eye, 
-  Edit, 
-  Trash2, 
+import {
+  FileText,
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
   Search,
   Filter,
   Star,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import { useDebounce } from '../hooks/useDebounce'
 
 const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F']
 
@@ -52,12 +53,21 @@ export default function ScoutingReports() {
   const [showFilters, setShowFilters] = useState(false)
   const queryClient = useQueryClient()
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300)
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  }
+
   // Fetch scouting reports
   const { data: reportsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['scouting-reports', filters],
+    queryKey: ['scouting-reports', queryFilters],
     queryFn: async () => {
       const cleanParams = Object.fromEntries(
-        Object.entries(filters).filter(([key, value]) => 
+        Object.entries(queryFilters).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
       )
@@ -88,7 +98,6 @@ export default function ScoutingReports() {
         toast.success('Scouting report created successfully')
       },
       onError: (error) => {
-        console.error('Create report error:', error)
         const errorMessage = error.response?.data?.error || 'Failed to create scouting report'
         toast.error(errorMessage)
       }
