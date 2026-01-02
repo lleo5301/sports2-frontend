@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
 import { ChevronUp, ChevronDown, Trophy, Users, Eye } from 'lucide-react';
+import { GenericPageSkeleton } from '../components/skeletons';
 
 const PerformanceList = () => {
   const navigate = useNavigate();
@@ -91,13 +92,13 @@ const PerformanceList = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
+      <GenericPageSkeleton
+        contentType="table"
+        showHeader={true}
+        showDescription={true}
+        itemCount={20}
+        columns={13}
+      />
     );
   }
 

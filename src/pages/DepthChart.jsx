@@ -42,6 +42,7 @@ import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 import DepthChartSheetView from '../components/DepthChartSheetView'
 import DepthChartSheetViewV2 from '../components/DepthChartSheetViewV2'
+import { GenericPageSkeleton } from '../components/skeletons'
 
 // Default position configurations
 const defaultPositions = [
@@ -902,12 +903,12 @@ export default function DepthChart() {
 
         {/* Loading State */}
         {depthChartsLoading && (
-          <div className="card p-8">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-              <p className="mt-2 text-sm text-gray-500">Loading depth charts...</p>
-            </div>
-          </div>
+          <GenericPageSkeleton
+            contentType="cards"
+            showHeader={false}
+            itemCount={6}
+            columns={3}
+          />
         )}
 
         {/* Empty State */}

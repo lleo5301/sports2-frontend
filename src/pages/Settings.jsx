@@ -7,6 +7,7 @@ import { teamsService } from '../services/teams';
 import { toast } from 'react-hot-toast';
 import { validatePassword } from '../utils/passwordValidator';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import { GenericPageSkeleton } from '../components/skeletons';
 import {
   User,
   Bell,
@@ -283,13 +284,13 @@ const Settings = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
+      <GenericPageSkeleton
+        contentType="cards"
+        showHeader={true}
+        showDescription={true}
+        itemCount={4}
+        columns={1}
+      />
     );
   }
 

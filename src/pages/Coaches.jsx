@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Plus, Search, Filter, Phone, Mail, School, UserCheck, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import coachService from '../services/coaches';
+import { GenericPageSkeleton } from '../components/skeletons';
 
 const Coaches = () => {
   const queryClient = useQueryClient();
@@ -295,14 +296,17 @@ const Coaches = () => {
       </div>
 
       {/* Coaches List */}
-      <div className="card bg-base-100 shadow-sm">
-        <div className="card-body">
-          {isLoading ? (
-            <div className="text-center py-12">
-              <span className="loading loading-spinner loading-lg"></span>
-              <p className="mt-2">Loading coaches...</p>
-            </div>
-          ) : coaches.length === 0 ? (
+      {isLoading ? (
+        <GenericPageSkeleton
+          contentType="table"
+          showHeader={false}
+          itemCount={10}
+          columns={6}
+        />
+      ) : (
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            {coaches.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Coaches Found</h3>
@@ -399,8 +403,9 @@ const Coaches = () => {
               </table>
             </div>
           )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Create/Edit Modal */}
       {(showCreateModal || showEditModal) && (

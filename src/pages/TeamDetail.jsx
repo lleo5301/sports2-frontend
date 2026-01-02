@@ -3,17 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamsService } from '../services/teams';
 import { toast } from 'react-hot-toast';
-import { 
-  ArrowLeft, 
-  Save, 
-  Edit, 
-  Building2, 
-  MapPin, 
+import {
+  ArrowLeft,
+  Save,
+  Edit,
+  Building2,
+  MapPin,
   Palette,
   Users,
   Calendar,
   BarChart3
 } from 'lucide-react';
+import { GenericPageSkeleton } from '../components/skeletons';
 
 const TeamDetail = () => {
   const { id } = useParams();
@@ -74,13 +75,14 @@ const TeamDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
+      <GenericPageSkeleton
+        contentType="cards"
+        showHeader={true}
+        showDescription={true}
+        showActionButton={true}
+        itemCount={3}
+        columns={1}
+      />
     );
   }
 
