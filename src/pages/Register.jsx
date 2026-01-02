@@ -7,10 +7,12 @@ import { useAuth } from '../contexts/AuthContext'
 import { register as registerUser } from '../services/auth'
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { passwordSchema } from '../utils/passwordValidator'
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator'
 
 const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: passwordSchema,
   confirmPassword: z.string().min(1, 'Please confirm your password'),
   first_name: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
   last_name: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
@@ -31,10 +33,13 @@ export default function Register() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
   })
+
+  const passwordValue = watch('password', '')
 
 
 
@@ -210,6 +215,7 @@ export default function Register() {
                       <span className="label-text-alt text-error">{errors.password.message}</span>
                     </label>
                   )}
+                  <PasswordStrengthIndicator password={passwordValue} className="mt-2" />
                 </div>
 
                 {/* Confirm Password */}
