@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Plus, Search, Filter, Phone, Mail, School, UserCheck, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import coachService from '../services/coaches';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Coaches = () => {
   const queryClient = useQueryClient();
@@ -54,15 +55,24 @@ const Coaches = () => {
   // Position options
   const positionOptions = [
     'Head Coach',
-    'Recruiting Coordinator', 
+    'Recruiting Coordinator',
     'Pitching Coach',
     'Volunteer'
   ];
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch coaches
   const { data: coachesData, isLoading, error, refetch } = useQuery({
-    queryKey: ['coaches', filters],
-    queryFn: () => coachService.getCoaches(filters),
+    queryKey: ['coaches', queryFilters],
+    queryFn: () => coachService.getCoaches(queryFilters),
     placeholderData: (previousData) => previousData,
     staleTime: 30000
   });
@@ -77,7 +87,6 @@ const Coaches = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Create coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to add coach');
     }
   });
@@ -93,7 +102,6 @@ const Coaches = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Update coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to update coach');
     }
   });
@@ -106,7 +114,6 @@ const Coaches = () => {
       toast.success('Coach deleted successfully');
     },
     onError: (error) => {
-      console.error('Delete coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete coach');
     }
   });
