@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Target, Plus, Search, Filter, Phone, Mail, Building2, UserCheck, Edit, Trash2, Eye, MapPin, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
 import scoutService from '../services/scouts';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Scouts = () => {
   const queryClient = useQueryClient();
@@ -63,10 +64,19 @@ const Scouts = () => {
     'Scouting Director'
   ];
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch scouts
   const { data: scoutsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['scouts', filters],
-    queryFn: () => scoutService.getScouts(filters),
+    queryKey: ['scouts', queryFilters],
+    queryFn: () => scoutService.getScouts(queryFilters),
     placeholderData: (previousData) => previousData,
     staleTime: 30000
   });
@@ -81,7 +91,6 @@ const Scouts = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Create scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to add scout');
     }
   });
@@ -97,7 +106,6 @@ const Scouts = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Update scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to update scout');
     }
   });
@@ -110,7 +118,6 @@ const Scouts = () => {
       toast.success('Scout deleted successfully');
     },
     onError: (error) => {
-      console.error('Delete scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete scout');
     }
   });
