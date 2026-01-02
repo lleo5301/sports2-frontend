@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
-import { ChevronUp, ChevronDown, Trophy, Users, Eye } from 'lucide-react';
+import { ChevronUp, ChevronDown, Trophy, Users, Eye, Search } from 'lucide-react';
+import { useDebounce } from '../hooks/useDebounce';
 
 const PerformanceList = () => {
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
+    search: '',
     position: '',
     school_type: '',
     status: 'active',
@@ -17,10 +19,19 @@ const PerformanceList = () => {
 
   const [selectedView, setSelectedView] = useState('all'); // 'all', 'batting', 'pitching'
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch performance data
   const { data: performanceData, isLoading, error, refetch } = useQuery({
-    queryKey: ['player-performance', filters],
-    queryFn: () => playersService.getPlayerPerformance(filters),
+    queryKey: ['player-performance', queryFilters],
+    queryFn: () => playersService.getPlayerPerformance(queryFilters),
     staleTime: 30000,
   });
 
@@ -185,24 +196,38 @@ const PerformanceList = () => {
         {/* Filters and View Controls */}
         <div className="card mb-8" data-testid="filters-section">
           <div className="card-body">
+            {/* Search Bar */}
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/40" />
+                <input
+                  type="text"
+                  placeholder="Search players by name, school, city, state..."
+                  className="input input-bordered w-full pl-10"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                />
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-center gap-4">
               {/* View Toggle */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-base-content/70">View:</span>
                 <div className="btn-group">
-                  <button 
+                  <button
                     className={`btn btn-sm ${selectedView === 'all' ? 'btn-active' : ''}`}
                     onClick={() => setSelectedView('all')}
                   >
                     All Players
                   </button>
-                  <button 
+                  <button
                     className={`btn btn-sm ${selectedView === 'batting' ? 'btn-active' : ''}`}
                     onClick={() => setSelectedView('batting')}
                   >
                     Position Players
                   </button>
-                  <button 
+                  <button
                     className={`btn btn-sm ${selectedView === 'pitching' ? 'btn-active' : ''}`}
                     onClick={() => setSelectedView('pitching')}
                   >
@@ -214,7 +239,7 @@ const PerformanceList = () => {
               {/* Position Filter */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-base-content/70">Position:</span>
-                <select 
+                <select
                   className="select select-bordered select-sm"
                   value={filters.position}
                   onChange={(e) => handleFilterChange('position', e.target.value)}
@@ -237,7 +262,7 @@ const PerformanceList = () => {
               {/* School Type Filter */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-base-content/70">School:</span>
-                <select 
+                <select
                   className="select select-bordered select-sm"
                   value={filters.school_type}
                   onChange={(e) => handleFilterChange('school_type', e.target.value)}
@@ -251,7 +276,7 @@ const PerformanceList = () => {
               {/* Status Filter */}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-base-content/70">Status:</span>
-                <select 
+                <select
                   className="select select-bordered select-sm"
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
