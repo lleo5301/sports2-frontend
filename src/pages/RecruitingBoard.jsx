@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Search, Filter, Plus, Eye, Star, Calendar, Phone, Mail, MapPin, Target, Users, Bookmark, TrendingUp, UserCheck, Award } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import { useDebounce } from '../hooks/useDebounce'
 
 const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF']
 const schoolTypes = ['HS', 'COLL']
@@ -20,13 +21,22 @@ export default function RecruitingBoard() {
   const [selectedListType, setSelectedListType] = useState('overall_pref_list')
   const queryClient = useQueryClient()
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300)
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  }
+
   // Fetch recruits with filters
   const { data: recruitsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['recruits', filters],
+    queryKey: ['recruits', queryFilters],
     queryFn: () => {
       // Filter out empty values to avoid validation errors
       const cleanParams = Object.fromEntries(
-        Object.entries(filters).filter(([key, value]) => 
+        Object.entries(queryFilters).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
       )
