@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
+import toast from 'react-hot-toast';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -26,6 +28,24 @@ const Players = () => {
   });
   const [selectedIds, setSelectedIds] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => playersService.bulkDeletePlayers(selectedIds),
+    onSuccess: (data) => {
+      const count = data.data?.deletedCount || selectedIds.length;
+      toast.success(`Successfully deleted ${count} player${count !== 1 ? 's' : ''}!`);
+      queryClient.invalidateQueries(['players']);
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+      fetchPlayers();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to delete players');
+    }
+  });
 
   useEffect(() => {
     fetchPlayers();
@@ -748,17 +768,23 @@ const Players = () => {
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="btn btn-outline"
+                disabled={bulkDeleteMutation.isLoading}
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  // TODO: This will be implemented in subtask 3.3
-                  setShowDeleteConfirm(false);
-                }}
+                onClick={() => bulkDeleteMutation.mutate()}
                 className="btn btn-error"
+                disabled={bulkDeleteMutation.isLoading}
               >
-                Delete {selectedIds.length} Player{selectedIds.length !== 1 ? 's' : ''}
+                {bulkDeleteMutation.isLoading ? (
+                  <>
+                    <div className="loading loading-spinner loading-sm"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>Delete {selectedIds.length} Player{selectedIds.length !== 1 ? 's' : ''}</>
+                )}
               </button>
             </div>
           </div>
