@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
+import { useKeyboardClick } from '../hooks/useKeyboardClick';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -436,41 +437,51 @@ const Players = () => {
                 </div>
               ) : selectedPlayerReports.length > 0 ? (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {selectedPlayerReports.map((report) => (
-                    <div
-                      key={report.id}
-                      className="flex justify-between items-center p-3 bg-base-200 rounded-lg hover:bg-base-300 cursor-pointer transition-colors"
-                      onClick={() => handleReportSelect(report.id)}
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          Report Date: {formatReportDate(report.report_date)}
+                  {selectedPlayerReports.map((report) => {
+                    const ReportCard = () => {
+                      const keyboardProps = useKeyboardClick(() => handleReportSelect(report.id));
+                      const reportLabel = `Scouting report from ${formatReportDate(report.report_date)}${report.opponent ? ` vs ${report.opponent}` : ''}${getToolGrades(report).length > 0 ? ` - ${getToolGrades(report)[0]}` : ''}`;
+
+                      return (
+                        <div
+                          className="flex justify-between items-center p-3 bg-base-200 rounded-lg hover:bg-base-300 cursor-pointer transition-colors"
+                          onClick={() => handleReportSelect(report.id)}
+                          aria-label={reportLabel}
+                          {...keyboardProps}
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium">
+                              Report Date: {formatReportDate(report.report_date)}
+                            </div>
+                            {report.game_date && (
+                              <div className="text-sm text-base-content/70">
+                                Game Date: {formatReportDate(report.game_date)}
+                              </div>
+                            )}
+                            {report.opponent && (
+                              <div className="text-sm text-base-content/70">
+                                vs {report.opponent}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end text-right">
+                            {getToolGrades(report).slice(0, 2).map((grade, index) => (
+                              <div key={index} className="text-sm badge badge-outline mb-1">
+                                {grade}
+                              </div>
+                            ))}
+                            {getToolGrades(report).length > 2 && (
+                              <div className="text-xs text-base-content/50">
+                                +{getToolGrades(report).length - 2} more grades
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {report.game_date && (
-                          <div className="text-sm text-base-content/70">
-                            Game Date: {formatReportDate(report.game_date)}
-                          </div>
-                        )}
-                        {report.opponent && (
-                          <div className="text-sm text-base-content/70">
-                            vs {report.opponent}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-end text-right">
-                        {getToolGrades(report).slice(0, 2).map((grade, index) => (
-                          <div key={index} className="text-sm badge badge-outline mb-1">
-                            {grade}
-                          </div>
-                        ))}
-                        {getToolGrades(report).length > 2 && (
-                          <div className="text-xs text-base-content/50">
-                            +{getToolGrades(report).length - 2} more grades
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    };
+
+                    return <ReportCard key={report.id} />;
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-4 text-base-content/50">
