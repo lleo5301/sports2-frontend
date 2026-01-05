@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { select } from 'd3-selection';
-import 'd3-transition';
 
 const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick, selectedPosition }) => {
   const svgRef = useRef();
@@ -312,7 +311,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("fill", "rgba(255, 255, 255, 0.95)")
           .attr("stroke", coords.color)
           .attr("stroke-width", 2)
-          .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
+          .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))")
+          .style("transition", "all 200ms ease-out");
 
         // Removed initials/inner icon — only show the full name for the position
 
@@ -354,17 +354,13 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         positionGroup
           .on("mouseenter", function() {
             select(this).select("circle")
-              .transition()
-              .duration(200)
               .attr("r", 32)
               .attr("stroke-width", 4);
           })
           .on("mouseleave", function() {
             select(this).select("circle")
-              .transition()
-              .duration(200)
               .attr("r", 28)
-              .attr("stroke-width", 3);
+              .attr("stroke-width", 2);
           });
 
       } else {
@@ -376,7 +372,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("fill", "rgba(255, 255, 255, 0.8)")
           .attr("stroke", "#9CA3AF")
           .attr("stroke-width", 2)
-          .attr("stroke-dasharray", "5,5");
+          .attr("stroke-dasharray", "5,5")
+          .style("transition", "all 200ms ease-out");
 
         positionGroup.append("text")
           .attr("x", playerX)
@@ -399,15 +396,11 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         positionGroup
           .on("mouseenter", function() {
             select(this).select("circle")
-              .transition()
-              .duration(200)
               .attr("r", 26)
               .attr("stroke-width", 3);
           })
           .on("mouseleave", function() {
             select(this).select("circle")
-              .transition()
-              .duration(200)
               .attr("r", 22)
               .attr("stroke-width", 2);
           });

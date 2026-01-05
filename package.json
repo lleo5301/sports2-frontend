@@ -24,7 +24,6 @@
     "chart.js": "^4.5.0",
     "clsx": "^2.0.0",
     "d3-selection": "^3.0.0",
-    "d3-transition": "^3.0.1",
     "daisyui": "^4.7.2",
     "date-fns": "^2.30.0",
     "file-saver": "^2.0.5",
