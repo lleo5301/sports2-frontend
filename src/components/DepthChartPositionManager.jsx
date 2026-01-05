@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { Plus, Edit, Trash2, Save, X, Palette, Hash } from 'lucide-react'
 import api from '../services/api'
+import AccessibleModal from './ui/AccessibleModal'
 
 const iconOptions = [
   { value: 'Shield', label: 'Shield' },
@@ -295,130 +296,135 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
       </div>
 
       {/* Add Position Modal */}
-      {showAddModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Add New Position</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="label">
-                    <span className="label-text">Position Code *</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={newPosition.position_code}
-                    onChange={(e) => setNewPosition(prev => ({ ...prev, position_code: e.target.value }))}
-                    placeholder="e.g., P, C, 1B"
-                  />
-                </div>
-                <div>
-                  <label className="label">
-                    <span className="label-text">Sort Order</span>
-                  </label>
-                  <input
-                    type="number"
-                    className="input input-bordered w-full"
-                    value={newPosition.sort_order}
-                    onChange={(e) => setNewPosition(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                    placeholder="1"
-                  />
-                </div>
-              </div>
-              
+      <AccessibleModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add New Position"
+      >
+        <AccessibleModal.Header
+          title="Add New Position"
+          onClose={() => setShowAddModal(false)}
+        />
+        <AccessibleModal.Content>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">
-                  <span className="label-text">Position Name *</span>
+                  <span className="label-text">Position Code *</span>
                 </label>
                 <input
                   type="text"
                   className="input input-bordered w-full"
-                  value={newPosition.position_name}
-                  onChange={(e) => setNewPosition(prev => ({ ...prev, position_name: e.target.value }))}
-                  placeholder="e.g., Pitcher, Catcher"
+                  value={newPosition.position_code}
+                  onChange={(e) => setNewPosition(prev => ({ ...prev, position_code: e.target.value }))}
+                  placeholder="e.g., P, C, 1B"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="label">
-                    <span className="label-text">Color</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={newPosition.color}
-                    onChange={(e) => setNewPosition(prev => ({ ...prev, color: e.target.value }))}
-                  >
-                    {colorOptions.map(color => (
-                      <option key={color.value} value={color.value}>
-                        {color.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="label">
-                    <span className="label-text">Icon</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={newPosition.icon}
-                    onChange={(e) => setNewPosition(prev => ({ ...prev, icon: e.target.value }))}
-                  >
-                    {iconOptions.map(icon => (
-                      <option key={icon.value} value={icon.value}>
-                        {icon.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
               <div>
                 <label className="label">
-                  <span className="label-text">Max Players</span>
+                  <span className="label-text">Sort Order</span>
                 </label>
                 <input
                   type="number"
                   className="input input-bordered w-full"
-                  value={newPosition.max_players || ''}
-                  onChange={(e) => setNewPosition(prev => ({ ...prev, max_players: e.target.value ? parseInt(e.target.value) : null }))}
-                  placeholder="Leave empty for unlimited"
+                  value={newPosition.sort_order}
+                  onChange={(e) => setNewPosition(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                  placeholder="1"
                 />
               </div>
+            </div>
 
+            <div>
+              <label className="label">
+                <span className="label-text">Position Name *</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={newPosition.position_name}
+                onChange={(e) => setNewPosition(prev => ({ ...prev, position_name: e.target.value }))}
+                placeholder="e.g., Pitcher, Catcher"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">
-                  <span className="label-text">Description</span>
+                  <span className="label-text">Color</span>
                 </label>
-                <textarea
-                  className="textarea textarea-bordered w-full"
-                  value={newPosition.description}
-                  onChange={(e) => setNewPosition(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Optional description"
-                  rows={3}
-                />
+                <select
+                  className="select select-bordered w-full"
+                  value={newPosition.color}
+                  onChange={(e) => setNewPosition(prev => ({ ...prev, color: e.target.value }))}
+                >
+                  {colorOptions.map(color => (
+                    <option key={color.value} value={color.value}>
+                      {color.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="label">
+                  <span className="label-text">Icon</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={newPosition.icon}
+                  onChange={(e) => setNewPosition(prev => ({ ...prev, icon: e.target.value }))}
+                >
+                  {iconOptions.map(icon => (
+                    <option key={icon.value} value={icon.value}>
+                      {icon.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={() => setShowAddModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleAddPosition}
-                disabled={!newPosition.position_code || !newPosition.position_name || addPositionMutation.isLoading}
-              >
-                {addPositionMutation.isLoading ? 'Adding...' : 'Add Position'}
-              </button>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Max Players</span>
+              </label>
+              <input
+                type="number"
+                className="input input-bordered w-full"
+                value={newPosition.max_players || ''}
+                onChange={(e) => setNewPosition(prev => ({ ...prev, max_players: e.target.value ? parseInt(e.target.value) : null }))}
+                placeholder="Leave empty for unlimited"
+              />
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Description</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={newPosition.description}
+                onChange={(e) => setNewPosition(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Optional description"
+                rows={3}
+              />
             </div>
           </div>
-        </div>
-      )}
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={() => setShowAddModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleAddPosition}
+            disabled={!newPosition.position_code || !newPosition.position_name || addPositionMutation.isLoading}
+          >
+            {addPositionMutation.isLoading ? 'Adding...' : 'Add Position'}
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
     </div>
   )
 } 

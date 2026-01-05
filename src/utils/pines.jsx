@@ -1,4 +1,5 @@
 import React from 'react'
+import useModalAccessibility from '../hooks/useModalAccessibility'
 
 // Pines UI Component Wrappers for React
 export const PinesComponents = {
@@ -233,16 +234,32 @@ export const PinesComponents = {
   },
 
   // Modal component
-  Modal: ({ children, isOpen, onClose, className = '', ...props }) => {
+  Modal: ({ children, isOpen, onClose, title, className = '', ...props }) => {
+    const modalRef = useModalAccessibility(isOpen, onClose)
+
     if (!isOpen) return null
-    
+
+    // Generate unique ID for aria-labelledby if title is provided
+    const titleId = title ? `modal-title-${title.replace(/\s+/g, '-').toLowerCase()}` : undefined
+
     return (
       <div
         className="fixed inset-0 z-50 flex items-center justify-center"
-        {...props}
       >
-        <div className="fixed inset-0 bg-black/50" onClick={onClose}></div>
-        <div className={`relative bg-background rounded-lg shadow-lg max-w-md w-full mx-4 ${className}`}>
+        <div
+          className="fixed inset-0 bg-black/50"
+          onClick={onClose}
+          aria-hidden="true"
+        ></div>
+        <div
+          ref={modalRef}
+          className={`relative bg-background rounded-lg shadow-lg max-w-md w-full mx-4 ${className}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          tabIndex={-1}
+          {...props}
+        >
           {children}
         </div>
       </div>

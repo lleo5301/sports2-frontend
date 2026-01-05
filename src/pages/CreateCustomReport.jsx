@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService, pdfUtils } from '../services/reports';
 import { toast } from 'react-hot-toast';
-import { 
-  ArrowLeft, 
-  Save, 
-  Plus, 
-  Trash2, 
+import AccessibleModal from '../components/ui/AccessibleModal';
+import {
+  ArrowLeft,
+  Save,
+  Plus,
+  Trash2,
   Download,
   Eye,
   BarChart3,
@@ -511,87 +512,83 @@ const CreateCustomReport = () => {
         </form>
 
         {/* Preview Modal */}
-        {showPreview && previewData && (
-          <div className="modal modal-open">
-            <div className="modal-box max-w-4xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-lg">{previewData.title}</h3>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="btn btn-ghost btn-sm"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="space-y-6 max-h-96 overflow-y-auto">
-                {previewData.sections.map((section, index) => (
-                  <div key={index} className="card">
-                    <div className="card-header">
-                      <h4 className="card-title">{section.title}</h4>
-                    </div>
-                    <div className="card-body">
-                      {section.type === 'table' && section.data && (
-                        <div className="overflow-x-auto">
-                          <table className="table table-zebra w-full">
-                            <thead>
-                              <tr>
-                                {section.headers?.map((header, i) => (
-                                  <th key={i}>{header}</th>
+        <AccessibleModal
+          isOpen={showPreview && previewData !== null}
+          onClose={() => setShowPreview(false)}
+          title={previewData?.title || 'Report Preview'}
+          size="lg"
+        >
+          <AccessibleModal.Header
+            title={previewData?.title || 'Report Preview'}
+            onClose={() => setShowPreview(false)}
+          />
+          <AccessibleModal.Content>
+            <div className="space-y-6 max-h-96 overflow-y-auto">
+              {previewData?.sections.map((section, index) => (
+                <div key={index} className="card">
+                  <div className="card-header">
+                    <h4 className="card-title">{section.title}</h4>
+                  </div>
+                  <div className="card-body">
+                    {section.type === 'table' && section.data && (
+                      <div className="overflow-x-auto">
+                        <table className="table table-zebra w-full">
+                          <thead>
+                            <tr>
+                              {section.headers?.map((header, i) => (
+                                <th key={i}>{header}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {section.data.map((row, i) => (
+                              <tr key={i}>
+                                {row.map((cell, j) => (
+                                  <td key={j}>{cell}</td>
                                 ))}
                               </tr>
-                            </thead>
-                            <tbody>
-                              {section.data.map((row, i) => (
-                                <tr key={i}>
-                                  {row.map((cell, j) => (
-                                    <td key={j}>{cell}</td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {section.type === 'chart' && (
+                      <div className="h-64 bg-base-200 rounded flex items-center justify-center">
+                        <div className="text-center">
+                          <BarChart3 className="w-12 h-12 mx-auto mb-2 text-base-content/50" />
+                          <p className="text-base-content/70">Chart Preview</p>
+                          <p className="text-sm text-base-content/50">{section.chart_type} Chart</p>
                         </div>
-                      )}
-                      
-                      {section.type === 'chart' && (
-                        <div className="h-64 bg-base-200 rounded flex items-center justify-center">
-                          <div className="text-center">
-                            <BarChart3 className="w-12 h-12 mx-auto mb-2 text-base-content/50" />
-                            <p className="text-base-content/70">Chart Preview</p>
-                            <p className="text-sm text-base-content/50">{section.chart_type} Chart</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {section.type === 'text' && (
-                        <div className="prose max-w-none">
-                          <p>{section.content}</p>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+
+                    {section.type === 'text' && (
+                      <div className="prose max-w-none">
+                        <p>{section.content}</p>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-              
-              <div className="modal-action">
-                <button
-                  onClick={handleDownloadPDF}
-                  className="btn btn-primary"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </button>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="btn btn-outline"
-                >
-                  Close
-                </button>
-              </div>
+                </div>
+              ))}
             </div>
-          </div>
-        )}
+          </AccessibleModal.Content>
+          <AccessibleModal.Footer>
+            <button
+              onClick={handleDownloadPDF}
+              className="btn btn-primary"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download PDF
+            </button>
+            <button
+              onClick={() => setShowPreview(false)}
+              className="btn btn-outline"
+            >
+              Close
+            </button>
+          </AccessibleModal.Footer>
+        </AccessibleModal>
       </div>
     </div>
   );

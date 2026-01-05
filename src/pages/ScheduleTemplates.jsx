@@ -19,6 +19,7 @@ import locationsService from '../services/locations'
 import scheduleEventsService from '../services/scheduleEvents'
 import { teamsService } from '../services/teams'
 import toast from 'react-hot-toast'
+import AccessibleModal from '../components/ui/AccessibleModal'
 
 // Base template data with all schedule types
 const getBaseTemplate = () => ({
@@ -140,7 +141,6 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
     queryFn: () => scheduleTemplateService.getTemplates(),
     retry: 3,
     onError: (error) => {
-      console.error('Error fetching templates:', error);
       toast.error(error.response?.data?.error || 'Failed to load templates');
     }
   })
@@ -608,182 +608,216 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         )}
 
         {/* Create/Edit Modal */}
-        {(showCreateModal || showEditModal) && (
-          <div className="modal modal-open">
-            <div className="modal-box max-w-2xl">
-              <h3 className="font-bold text-lg mb-4">
-                {showEditModal ? 'Edit Template' : 'Create New Template'}
-              </h3>
+        <AccessibleModal
+          isOpen={showCreateModal || showEditModal}
+          onClose={() => {
+            setShowCreateModal(false)
+            setShowEditModal(false)
+            setSelectedTemplate(null)
+            resetForm()
+          }}
+          title={showEditModal ? 'Edit Template' : 'Create New Template'}
+          size="lg"
+        >
+          <AccessibleModal.Header
+            title={showEditModal ? 'Edit Template' : 'Create New Template'}
+            onClose={() => {
+              setShowCreateModal(false)
+              setShowEditModal(false)
+              setSelectedTemplate(null)
+              resetForm()
+            }}
+          />
+          <AccessibleModal.Content>
+            <form onSubmit={handleSubmit} id="template-form" className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  Template Name *
+                </label>
+                <input
+                  type="text"
+                  className="input w-full"
+                  placeholder="e.g., Practice Schedule Template"
+                  value={templateForm.name}
+                  onChange={(e) => setTemplateForm(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                />
+              </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-base-content mb-1">
-                      Template Name *
-                    </label>
-                    <input
-                      type="text"
-                      className="input w-full"
-                      placeholder="e.g., Practice Schedule Template"
-                      value={templateForm.name}
-                      onChange={(e) => setTemplateForm(prev => ({ ...prev, name: e.target.value }))}
-                      required
-                    />
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  Description
+                </label>
+                <textarea
+                  className="textarea w-full"
+                  rows="3"
+                  placeholder="Describe what this template is for..."
+                  value={templateForm.description}
+                  onChange={(e) => setTemplateForm(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-base-content mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      className="textarea w-full"
-                      rows="3"
-                      placeholder="Describe what this template is for..."
-                      value={templateForm.description}
-                      onChange={(e) => setTemplateForm(prev => ({ ...prev, description: e.target.value }))}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-base-content mb-2">
-                      Template Sections ({templateForm.template_data.sections.length})
-                    </label>
-                    <div className="max-h-60 overflow-y-auto space-y-2">
-                      {templateForm.template_data.sections.map((section, index) => {
-                        const typeInfo = getScheduleTypeInfo(section.type)
-                        return (
-                          <div key={section.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
-                            <div className="flex items-center">
-                              <span className={`text-xs px-2 py-1 rounded-full font-medium mr-3 ${typeInfo.color}`}>
-                                {typeInfo.name}
-                              </span>
-                              <span className="font-medium">{section.title}</span>
-                            </div>
-                            <div className="text-sm text-base-content/70">
-                              {section.activities?.length || 0} activities
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-2">
+                  Template Sections ({templateForm.template_data.sections.length})
+                </label>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {templateForm.template_data.sections.map((section, index) => {
+                    const typeInfo = getScheduleTypeInfo(section.type)
+                    return (
+                      <div key={section.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                        <div className="flex items-center">
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium mr-3 ${typeInfo.color}`}>
+                            {typeInfo.name}
+                          </span>
+                          <span className="font-medium">{section.title}</span>
+                        </div>
+                        <div className="text-sm text-base-content/70">
+                          {section.activities?.length || 0} activities
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-
-                <div className="modal-action">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreateModal(false)
-                      setShowEditModal(false)
-                      setSelectedTemplate(null)
-                      resetForm()
-                    }}
-                    className="btn btn-outline"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createTemplateMutation.isLoading || updateTemplateMutation.isLoading}
-                    className="btn btn-primary"
-                  >
-                    {createTemplateMutation.isLoading || updateTemplateMutation.isLoading ? (
-                      <>
-                        <div className="loading loading-spinner loading-sm"></div>
-                        {showEditModal ? 'Updating...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        {showEditModal ? 'Update Template' : 'Create Template'}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+              </div>
+            </form>
+          </AccessibleModal.Content>
+          <AccessibleModal.Footer>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreateModal(false)
+                setShowEditModal(false)
+                setSelectedTemplate(null)
+                resetForm()
+              }}
+              className="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="template-form"
+              disabled={createTemplateMutation.isLoading || updateTemplateMutation.isLoading}
+              className="btn btn-primary"
+            >
+              {createTemplateMutation.isLoading || updateTemplateMutation.isLoading ? (
+                <>
+                  <div className="loading loading-spinner loading-sm"></div>
+                  {showEditModal ? 'Updating...' : 'Creating...'}
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {showEditModal ? 'Update Template' : 'Create Template'}
+                </>
+              )}
+            </button>
+          </AccessibleModal.Footer>
+        </AccessibleModal>
 
         {/* Duplicate Modal */}
-        {showDuplicateModal && selectedTemplate && (
-          <div className="modal modal-open">
-            <div className="modal-box">
-              <h3 className="font-bold text-lg mb-4">Duplicate Template</h3>
+        <AccessibleModal
+          isOpen={showDuplicateModal && !!selectedTemplate}
+          onClose={() => {
+            setShowDuplicateModal(false)
+            setSelectedTemplate(null)
+          }}
+          title="Duplicate Template"
+          size="md"
+        >
+          <AccessibleModal.Header
+            title="Duplicate Template"
+            onClose={() => {
+              setShowDuplicateModal(false)
+              setSelectedTemplate(null)
+            }}
+          />
+          <AccessibleModal.Content>
+            <form onSubmit={handleDuplicateSubmit} id="duplicate-form" className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  New Template Name *
+                </label>
+                <input
+                  type="text"
+                  className="input w-full"
+                  placeholder="e.g., Practice Schedule Template (Copy)"
+                  value={templateForm.name}
+                  onChange={(e) => setTemplateForm(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                />
+              </div>
 
-              <form onSubmit={handleDuplicateSubmit}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-base-content mb-1">
-                      New Template Name *
-                    </label>
-                    <input
-                      type="text"
-                      className="input w-full"
-                      placeholder="e.g., Practice Schedule Template (Copy)"
-                      value={templateForm.name}
-                      onChange={(e) => setTemplateForm(prev => ({ ...prev, name: e.target.value }))}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-base-content mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      className="textarea w-full"
-                      rows="2"
-                      placeholder="Describe this duplicate template..."
-                      value={templateForm.description}
-                      onChange={(e) => setTemplateForm(prev => ({ ...prev, description: e.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="modal-action">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowDuplicateModal(false)
-                      setSelectedTemplate(null)
-                    }}
-                    className="btn btn-outline"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={duplicateTemplateMutation.isLoading}
-                    className="btn btn-primary"
-                  >
-                    {duplicateTemplateMutation.isLoading ? (
-                      <>
-                        <div className="loading loading-spinner loading-sm"></div>
-                        Duplicating...
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Duplicate Template
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+              <div>
+                <label className="block text-sm font-medium text-base-content mb-1">
+                  Description
+                </label>
+                <textarea
+                  className="textarea w-full"
+                  rows="2"
+                  placeholder="Describe this duplicate template..."
+                  value={templateForm.description}
+                  onChange={(e) => setTemplateForm(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
+            </form>
+          </AccessibleModal.Content>
+          <AccessibleModal.Footer>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDuplicateModal(false)
+                setSelectedTemplate(null)
+              }}
+              className="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="duplicate-form"
+              disabled={duplicateTemplateMutation.isLoading}
+              className="btn btn-primary"
+            >
+              {duplicateTemplateMutation.isLoading ? (
+                <>
+                  <div className="loading loading-spinner loading-sm"></div>
+                  Duplicating...
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Duplicate Template
+                </>
+              )}
+            </button>
+          </AccessibleModal.Footer>
+        </AccessibleModal>
 
         {/* Event Management Modal */}
-        {showEventModal && selectedTemplate && (
-          <div className="modal modal-open">
-            <div className="modal-box max-w-4xl">
-              <h3 className="font-bold text-lg mb-4">
-                Manage Events - {selectedTemplate.name}
-              </h3>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AccessibleModal
+          isOpen={showEventModal && !!selectedTemplate}
+          onClose={() => {
+            setShowEventModal(false)
+            setSelectedTemplate(null)
+            resetEventForm()
+            setShowNewLocationForm(false)
+          }}
+          title={selectedTemplate ? `Manage Events - ${selectedTemplate.name}` : 'Manage Events'}
+          size="xl"
+        >
+          <AccessibleModal.Header
+            title={selectedTemplate ? `Manage Events - ${selectedTemplate.name}` : 'Manage Events'}
+            onClose={() => {
+              setShowEventModal(false)
+              setSelectedTemplate(null)
+              resetEventForm()
+              setShowNewLocationForm(false)
+            }}
+          />
+          <AccessibleModal.Content>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Existing Events */}
                 <div>
                   <h4 className="font-semibold mb-3">Existing Events ({templateEvents.length})</h4>
@@ -1063,24 +1097,22 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   </form>
                 </div>
               </div>
-
-              <div className="modal-action">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEventModal(false)
-                    setSelectedTemplate(null)
-                    resetEventForm()
-                    setShowNewLocationForm(false)
-                  }}
-                  className="btn btn-outline"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+          </AccessibleModal.Content>
+          <AccessibleModal.Footer>
+            <button
+              type="button"
+              onClick={() => {
+                setShowEventModal(false)
+                setSelectedTemplate(null)
+                resetEventForm()
+                setShowNewLocationForm(false)
+              }}
+              className="btn btn-outline"
+            >
+              Close
+            </button>
+          </AccessibleModal.Footer>
+        </AccessibleModal>
       </div>
     </div>
   )
