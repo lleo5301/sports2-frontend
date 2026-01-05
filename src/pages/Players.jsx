@@ -1,72 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
 import AccessibleModal from '../components/ui/AccessibleModal';
+import { usePlayers } from '../hooks/usePlayers';
 
 const Players = () => {
   const navigate = useNavigate();
-  const [players, setPlayers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedPlayerReports, setSelectedPlayerReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     search: '',
     position: '',
     status: '',
     school_type: ''
   });
-  const [pagination, setPagination] = useState({
-    page: 1,
+
+  // Use React Query hook for fetching players
+  const { data: players, isLoading: loading, error, pagination } = usePlayers({
+    page,
     limit: 20,
-    total: 0,
-    pages: 0
+    ...filters
   });
-
-  useEffect(() => {
-    fetchPlayers();
-  }, [filters, pagination.page]);
-
-  const fetchPlayers = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit
-      };
-      
-      // Only add non-empty filter values
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value && value.trim() !== '') {
-          params[key] = value;
-        }
-      });
-      
-      const response = await playersService.getPlayers(params);
-      setPlayers(response.data || []);
-      setPagination(prev => ({
-        ...prev,
-        total: response.pagination?.total || 0,
-        pages: response.pagination?.pages || 0
-      }));
-    } catch (err) {
-      console.error('Error fetching players:', err);
-      setError('Failed to load players');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page
+    setPage(1); // Reset to first page
   };
 
   const handlePageChange = (newPage) => {
-    setPagination(prev => ({ ...prev, page: newPage }));
+    setPage(newPage);
   };
 
   const fetchPlayerReports = async (playerId) => {
@@ -162,7 +127,7 @@ const Players = () => {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{error}</span>
+            <span>{error?.message || 'Failed to load players'}</span>
           </div>
         )}
 
