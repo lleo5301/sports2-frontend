@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reportsService } from '../services/reports';
 import AccessibleModal from '../components/ui/AccessibleModal';
 import { usePlayers } from '../hooks/usePlayers';
+import { usePlayerReports, useScoutingReport } from '../hooks/useReports';
 
 const Players = () => {
   const navigate = useNavigate();
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [selectedPlayerReports, setSelectedPlayerReports] = useState([]);
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [reportsLoading, setReportsLoading] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState(null);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     search: '',
@@ -25,6 +23,10 @@ const Players = () => {
     ...filters
   });
 
+  // Use React Query hooks for fetching player reports
+  const { data: selectedPlayerReports, isLoading: reportsLoading } = usePlayerReports(selectedPlayer?.id);
+  const { data: selectedReport } = useScoutingReport(selectedReportId);
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setPage(1); // Reset to first page
@@ -34,38 +36,13 @@ const Players = () => {
     setPage(newPage);
   };
 
-  const fetchPlayerReports = async (playerId) => {
-    try {
-      setReportsLoading(true);
-      const response = await reportsService.getScoutingReports({ player_id: playerId });
-      
-      if (response.success) {
-        setSelectedPlayerReports(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching player reports:', error);
-      setSelectedPlayerReports([]);
-    } finally {
-      setReportsLoading(false);
-    }
-  };
-
   const handlePlayerSelect = (player) => {
     setSelectedPlayer(player);
-    setSelectedPlayerReports([]);
-    setSelectedReport(null);
-    fetchPlayerReports(player.id);
+    setSelectedReportId(null);
   };
 
-  const handleReportSelect = async (reportId) => {
-    try {
-      const response = await reportsService.getScoutingReport(reportId);
-      if (response.success) {
-        setSelectedReport(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching report details:', error);
-    }
+  const handleReportSelect = (reportId) => {
+    setSelectedReportId(reportId);
   };
 
   const formatReportDate = (dateString) => {
