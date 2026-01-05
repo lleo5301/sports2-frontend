@@ -1,67 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { reportsService } from '../services/reports';
+import { useScoutingReports } from '../hooks/useReports';
 
 const Scouting = () => {
-  const [scoutingReports, setScoutingReports] = useState([]);
-  const [stats, setStats] = useState({
-    totalReports: 0,
-    inProgress: 0,
-    averageRating: 0
+  const [page, setPage] = useState(1);
+
+  // Use React Query hook for fetching scouting reports
+  const { data: scoutingReports, isLoading, error, pagination, stats } = useScoutingReports({
+    page,
+    limit: 20
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 20,
-    total: 0,
-    pages: 0
-  });
-
-  useEffect(() => {
-    fetchScoutingReports();
-  }, [pagination.page]);
-
-  const fetchScoutingReports = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit
-      };
-      
-      const response = await reportsService.getScoutingReports(params);
-      setScoutingReports(response.data || []);
-      setPagination(prev => ({
-        ...prev,
-        total: response.pagination?.total || 0,
-        pages: response.pagination?.pages || 0
-      }));
-
-      // Calculate stats
-      const totalReports = response.pagination?.total || 0;
-      const inProgress = response.data?.filter(r => r.status === 'in_progress').length || 0;
-      const completedReports = response.data?.filter(r => r.overall_grade);
-      const averageRating = completedReports.length > 0 
-        ? completedReports.reduce((sum, r) => sum + (r.overall_grade || 0), 0) / completedReports.length 
-        : 0;
-
-      setStats({
-        totalReports,
-        inProgress,
-        averageRating: Math.round(averageRating * 10) / 10
-      });
-
-    } catch (err) {
-      console.error('Error fetching scouting reports:', err);
-      setError('Failed to load scouting reports');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePageChange = (newPage) => {
-    setPagination(prev => ({ ...prev, page: newPage }));
+    setPage(newPage);
   };
 
   const getGradeColor = (grade) => {
@@ -73,7 +24,7 @@ const Scouting = () => {
     return 'badge-error';
   };
 
-  if (loading && scoutingReports.length === 0) {
+  if (isLoading && scoutingReports.length === 0) {
     return (
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
@@ -103,7 +54,7 @@ const Scouting = () => {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{error}</span>
+            <span>{error?.message || 'Failed to load scouting reports'}</span>
           </div>
         )}
 
