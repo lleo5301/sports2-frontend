@@ -30,16 +30,22 @@ api.interceptors.response.use(
   },
   (error) => {
     const message = error.response?.data?.error || 'An error occurred'
-    
+
     // Handle authentication errors
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       window.location.href = '/login'
-      toast.error('Session expired. Please log in again.')
+
+      // Show specific message for revoked tokens
+      if (message.includes('Token has been revoked')) {
+        toast.error('Your session has been revoked. Please log in again.')
+      } else {
+        toast.error('Session expired. Please log in again.')
+      }
     } else {
       toast.error(message)
     }
-    
+
     return Promise.reject(error)
   }
 )
