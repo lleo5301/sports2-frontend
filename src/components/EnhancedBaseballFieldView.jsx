@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
+import 'd3-transition';
 
 const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick, selectedPosition }) => {
   const svgRef = useRef();
@@ -151,7 +152,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous render
 
     const { width, height } = dimensions;
@@ -352,14 +353,14 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Hover effect
         positionGroup
           .on("mouseenter", function() {
-            d3.select(this).select("circle")
+            select(this).select("circle")
               .transition()
               .duration(200)
               .attr("r", 32)
               .attr("stroke-width", 4);
           })
           .on("mouseleave", function() {
-            d3.select(this).select("circle")
+            select(this).select("circle")
               .transition()
               .duration(200)
               .attr("r", 28)
@@ -397,14 +398,14 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Hover effect for empty positions
         positionGroup
           .on("mouseenter", function() {
-            d3.select(this).select("circle")
+            select(this).select("circle")
               .transition()
               .duration(200)
               .attr("r", 26)
               .attr("stroke-width", 3);
           })
           .on("mouseleave", function() {
-            d3.select(this).select("circle")
+            select(this).select("circle")
               .transition()
               .duration(200)
               .attr("r", 22)
