@@ -36,4 +36,9 @@ export const logout = async () => {
     // Clear the token from local storage
     localStorage.removeItem('token')
   }
+}
+
+export const revokeAllSessions = async (keepCurrent = false) => {
+  const response = await api.post('/auth/revoke-all-sessions', { keepCurrent })
+  return response.data
 } 
