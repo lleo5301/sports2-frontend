@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User, BarChart3, Users, Plus } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
-import { PlayerDetailSkeleton } from '../components/skeletons'
+import AccessibleModal from '../components/ui/AccessibleModal'
 
 export default function PlayerDetail() {
   const { id } = useParams()
@@ -34,7 +34,15 @@ export default function PlayerDetail() {
   const playerData = player?.data?.data
 
   if (isLoading) {
-    return <PlayerDetailSkeleton />;
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="loading loading-spinner loading-lg"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (error || !playerData) {
@@ -433,31 +441,37 @@ export default function PlayerDetail() {
         )}
 
         {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="modal modal-open">
-            <div className="modal-box">
-              <h3 className="font-bold text-lg">Delete Player</h3>
-              <p className="py-4">
-                Are you sure you want to delete {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}? This action cannot be undone.
-              </p>
-              <div className="modal-action">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="btn btn-outline"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="btn btn-error"
-                  disabled={deletePlayerMutation.isLoading}
-                >
-                  {deletePlayerMutation.isLoading ? 'Deleting...' : 'Delete Player'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <AccessibleModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          title="Delete Player"
+          size="md"
+        >
+          <AccessibleModal.Header
+            title="Delete Player"
+            onClose={() => setShowDeleteConfirm(false)}
+          />
+          <AccessibleModal.Content>
+            <p className="py-4">
+              Are you sure you want to delete {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}? This action cannot be undone.
+            </p>
+          </AccessibleModal.Content>
+          <AccessibleModal.Footer>
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="btn btn-error"
+              disabled={deletePlayerMutation.isLoading}
+            >
+              {deletePlayerMutation.isLoading ? 'Deleting...' : 'Delete Player'}
+            </button>
+          </AccessibleModal.Footer>
+        </AccessibleModal>
       </div>
     </div>
   )

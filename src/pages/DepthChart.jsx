@@ -42,7 +42,7 @@ import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 import DepthChartSheetView from '../components/DepthChartSheetView'
 import DepthChartSheetViewV2 from '../components/DepthChartSheetViewV2'
-import { GenericPageSkeleton } from '../components/skeletons'
+import AccessibleModal from '../components/ui/AccessibleModal'
 
 // Default position configurations
 const defaultPositions = [
@@ -903,12 +903,12 @@ export default function DepthChart() {
 
         {/* Loading State */}
         {depthChartsLoading && (
-          <GenericPageSkeleton
-            contentType="cards"
-            showHeader={false}
-            itemCount={6}
-            columns={3}
-          />
+          <div className="card p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+              <p className="mt-2 text-sm text-gray-500">Loading depth charts...</p>
+            </div>
+          </div>
         )}
 
         {/* Empty State */}
@@ -937,99 +937,109 @@ export default function DepthChart() {
       </div>
 
       {/* Create Depth Chart Modal */}
-      {showCreateModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Create New Depth Chart</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="label">
-                  <span className="label-text">Name *</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={newDepthChart.name}
-                  onChange={(e) => setNewDepthChart(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., Spring Training 2024"
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Description</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full"
-                  value={newDepthChart.description}
-                  onChange={(e) => setNewDepthChart(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Optional description"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Effective Date</span>
-                </label>
-                <input
-                  type="date"
-                  className="input input-bordered w-full"
-                  value={newDepthChart.effective_date}
-                  onChange={(e) => setNewDepthChart(prev => ({ ...prev, effective_date: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text">Notes</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered w-full"
-                  value={newDepthChart.notes}
-                  onChange={(e) => setNewDepthChart(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Optional notes"
-                  rows={2}
-                />
-              </div>
-              <div className="form-control">
-                <label className="label cursor-pointer">
-                  <span className="label-text">Set as default depth chart</span>
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    checked={newDepthChart.is_default}
-                    onChange={(e) => setNewDepthChart(prev => ({ ...prev, is_default: e.target.checked }))}
-                  />
-                </label>
-              </div>
+      <AccessibleModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Create New Depth Chart"
+        size="md"
+      >
+        <AccessibleModal.Header
+          title="Create New Depth Chart"
+          onClose={() => setShowCreateModal(false)}
+        />
+        <AccessibleModal.Content>
+          <div className="space-y-4">
+            <div>
+              <label className="label">
+                <span className="label-text">Name *</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={newDepthChart.name}
+                onChange={(e) => setNewDepthChart(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Spring Training 2024"
+              />
             </div>
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={() => setShowCreateModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleCreateDepthChart}
-                disabled={!newDepthChart.name || createDepthChartMutation.isLoading}
-              >
-                {createDepthChartMutation.isLoading ? 'Creating...' : 'Create'}
-              </button>
+            <div>
+              <label className="label">
+                <span className="label-text">Description</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={newDepthChart.description}
+                onChange={(e) => setNewDepthChart(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Optional description"
+                rows={3}
+              />
+            </div>
+            <div>
+              <label className="label">
+                <span className="label-text">Effective Date</span>
+              </label>
+              <input
+                type="date"
+                className="input input-bordered w-full"
+                value={newDepthChart.effective_date}
+                onChange={(e) => setNewDepthChart(prev => ({ ...prev, effective_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="label">
+                <span className="label-text">Notes</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={newDepthChart.notes}
+                onChange={(e) => setNewDepthChart(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Optional notes"
+                rows={2}
+              />
+            </div>
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text">Set as default depth chart</span>
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={newDepthChart.is_default}
+                  onChange={(e) => setNewDepthChart(prev => ({ ...prev, is_default: e.target.checked }))}
+                />
+              </label>
             </div>
           </div>
-        </div>
-      )}
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={() => setShowCreateModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleCreateDepthChart}
+            disabled={!newDepthChart.name || createDepthChartMutation.isLoading}
+          >
+            {createDepthChartMutation.isLoading ? 'Creating...' : 'Create'}
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
 
       {/* Assign Player Modal */}
-      {showAssignPlayerModal && selectedPosition && (
-        <div className="modal modal-open">
-          <div className="modal-box max-w-4xl">
-            <h3 className="font-bold text-lg mb-4">
-              Assign Player to {selectedPosition.position_name}
-            </h3>
-            
-            {/* Search and Filter */}
-            <div className="mb-6 space-y-4">
+      <AccessibleModal
+        isOpen={showAssignPlayerModal && !!selectedPosition}
+        onClose={resetAssignPlayerModal}
+        title={`Assign Player to ${selectedPosition?.position_name || ''}`}
+        size="lg"
+      >
+        <AccessibleModal.Header
+          title={`Assign Player to ${selectedPosition?.position_name || ''}`}
+          onClose={resetAssignPlayerModal}
+        />
+        <AccessibleModal.Content>
+          {/* Search and Filter */}
+          <div className="mb-6 space-y-4">
               <div className="flex gap-4">
                 <div className="flex-1">
                   <label className="label">
@@ -1328,52 +1338,56 @@ export default function DepthChart() {
                   )}
                 </div>
               )}
-            </div>
-
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={resetAssignPlayerModal}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={resetAssignPlayerModal}
+          >
+            Cancel
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
 
       {/* Permissions Request Modal */}
-      {showPermissionsModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Request Permissions</h3>
-            <div className="space-y-4">
-              <p className="text-gray-600">
-                To request additional permissions for depth chart management, please contact your team administrator.
-              </p>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Required Permissions:</h4>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• depth_chart_create - Create new depth charts</li>
-                  <li>• depth_chart_edit - Edit existing depth charts</li>
-                  <li>• depth_chart_delete - Delete depth charts</li>
-                  <li>• depth_chart_manage_positions - Manage position configurations</li>
-                  <li>• player_assign - Assign players to positions</li>
-                  <li>• player_unassign - Remove players from positions</li>
-                </ul>
-              </div>
-            </div>
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={() => setShowPermissionsModal(false)}
-              >
-                Close
-              </button>
+      <AccessibleModal
+        isOpen={showPermissionsModal}
+        onClose={() => setShowPermissionsModal(false)}
+        title="Request Permissions"
+        size="md"
+      >
+        <AccessibleModal.Header
+          title="Request Permissions"
+          onClose={() => setShowPermissionsModal(false)}
+        />
+        <AccessibleModal.Content>
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              To request additional permissions for depth chart management, please contact your team administrator.
+            </p>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">Required Permissions:</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• depth_chart_create - Create new depth charts</li>
+                <li>• depth_chart_edit - Edit existing depth charts</li>
+                <li>• depth_chart_delete - Delete depth charts</li>
+                <li>• depth_chart_manage_positions - Manage position configurations</li>
+                <li>• player_assign - Assign players to positions</li>
+                <li>• player_unassign - Remove players from positions</li>
+              </ul>
             </div>
           </div>
-        </div>
-      )}
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={() => setShowPermissionsModal(false)}
+          >
+            Close
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
     </div>
   )
 }
