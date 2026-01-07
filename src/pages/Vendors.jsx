@@ -18,7 +18,6 @@ import {
   X,
   Save
 } from 'lucide-react';
-import AccessibleModal from '../components/ui/AccessibleModal';
 
 const vendorTypes = [
   'Equipment',
@@ -49,6 +48,8 @@ export default function Vendors() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [vendorForm, setVendorForm] = useState({
     company_name: '',
     contact_person: '',
@@ -121,6 +122,25 @@ export default function Vendors() {
       toast.error(error.response?.data?.error || 'Failed to delete vendor');
     }
   });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => vendorService.bulkDeleteVendors(selectedIds),
+    onSuccess: (data) => {
+      const count = data.data?.deletedCount || selectedIds.length;
+      toast.success(`Successfully deleted ${count} vendor${count !== 1 ? 's' : ''}!`);
+      queryClient.invalidateQueries(['vendors']);
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to delete vendors');
+    }
+  });
+
+  // Clear selection when filters change
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [filters]);
 
   const resetForm = () => {
     setVendorForm({
@@ -204,6 +224,27 @@ export default function Vendors() {
     }
   };
 
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(vendors.map(vendor => vendor.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (vendorId) => {
+    setSelectedIds(prev => {
+      if (prev.includes(vendorId)) {
+        return prev.filter(id => id !== vendorId);
+      } else {
+        return [...prev, vendorId];
+      }
+    });
+  };
+
+  const isAllSelected = vendors.length > 0 && selectedIds.length === vendors.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < vendors.length;
+
   if (isLoading) {
     return (
       <div className="p-8">
@@ -230,13 +271,24 @@ export default function Vendors() {
                 Manage your team's vendor relationships and contracts
               </p>
             </div>
-            <button
-              onClick={handleCreateVendor}
-              className="btn btn-primary"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Vendor
-            </button>
+            <div className="flex gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  className="btn btn-error"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected ({selectedIds.length})
+                </button>
+              )}
+              <button
+                onClick={handleCreateVendor}
+                className="btn btn-primary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Vendor
+              </button>
+            </div>
           </div>
         </div>
 
@@ -299,6 +351,17 @@ export default function Vendors() {
               <table className="table table-zebra">
                 <thead>
                   <tr>
+                    <th>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={isAllSelected}
+                          onChange={handleSelectAll}
+                          disabled={vendors.length === 0}
+                        />
+                      </label>
+                    </th>
                     <th>Company</th>
                     <th>Contact</th>
                     <th>Type</th>
@@ -311,6 +374,16 @@ export default function Vendors() {
                 <tbody>
                   {vendors.map((vendor) => (
                     <tr key={vendor.id}>
+                      <td>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={selectedIds.includes(vendor.id)}
+                            onChange={() => handleSelectOne(vendor.id)}
+                          />
+                        </label>
+                      </td>
                       <td>
                         <div>
                           <div className="font-medium">{vendor.company_name}</div>
@@ -400,272 +473,294 @@ export default function Vendors() {
         </div>
 
         {/* Create/Edit Modal */}
-        <AccessibleModal
-          isOpen={showCreateModal || showEditModal}
-          onClose={() => {
-            setShowCreateModal(false);
-            setShowEditModal(false);
-            setSelectedVendor(null);
-            resetForm();
-          }}
-          title={showEditModal ? 'Edit Vendor' : 'Add New Vendor'}
-          size="xl"
-        >
-          <AccessibleModal.Header
-            title={showEditModal ? 'Edit Vendor' : 'Add New Vendor'}
-            onClose={() => {
-              setShowCreateModal(false);
-              setShowEditModal(false);
-              setSelectedVendor(null);
-              resetForm();
-            }}
-          />
-          <AccessibleModal.Content>
-            <form onSubmit={handleSubmit} id="vendor-form">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Company Information */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-base-content">Company Information</h4>
+        {(showCreateModal || showEditModal) && (
+          <div className="modal modal-open">
+            <div className="modal-box max-w-4xl">
+              <h3 className="font-bold text-lg mb-4">
+                {showEditModal ? 'Edit Vendor' : 'Add New Vendor'}
+              </h3>
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Company Name *</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={vendorForm.company_name}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, company_name: e.target.value }))}
-                      required
-                    />
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Company Information */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-base-content">Company Information</h4>
+                    
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Company Name *</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        value={vendorForm.company_name}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, company_name: e.target.value }))}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Contact Person</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        value={vendorForm.contact_person}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, contact_person: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Vendor Type *</span>
+                      </label>
+                      <select
+                        className="select select-bordered"
+                        value={vendorForm.vendor_type}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, vendor_type: e.target.value }))}
+                        required
+                      >
+                        {vendorTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Services Provided</span>
+                      </label>
+                      <textarea
+                        className="textarea textarea-bordered"
+                        rows="3"
+                        value={vendorForm.services_provided}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, services_provided: e.target.value }))}
+                      />
+                    </div>
                   </div>
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Contact Person</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      value={vendorForm.contact_person}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, contact_person: e.target.value }))}
-                    />
-                  </div>
+                  {/* Contact & Location */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-base-content">Contact & Location</h4>
+                    
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Email</span>
+                      </label>
+                      <input
+                        type="email"
+                        className="input input-bordered"
+                        value={vendorForm.email}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, email: e.target.value }))}
+                      />
+                    </div>
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Vendor Type *</span>
-                    </label>
-                    <select
-                      className="select select-bordered"
-                      value={vendorForm.vendor_type}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, vendor_type: e.target.value }))}
-                      required
-                    >
-                      {vendorTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
-                    </select>
-                  </div>
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Phone</span>
+                      </label>
+                      <input
+                        type="tel"
+                        className="input input-bordered"
+                        value={vendorForm.phone}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, phone: e.target.value }))}
+                      />
+                    </div>
 
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Website</span>
+                      </label>
+                      <input
+                        type="url"
+                        className="input input-bordered"
+                        value={vendorForm.website}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, website: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Address</span>
+                      </label>
+                      <textarea
+                        className="textarea textarea-bordered"
+                        rows="2"
+                        value={vendorForm.address}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, address: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">City</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="input input-bordered"
+                          value={vendorForm.city}
+                          onChange={(e) => setVendorForm(prev => ({ ...prev, city: e.target.value }))}
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">State</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="input input-bordered"
+                          value={vendorForm.state}
+                          onChange={(e) => setVendorForm(prev => ({ ...prev, state: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contract Information */}
+                <div className="mt-6">
+                  <h4 className="font-semibold text-base-content mb-4">Contract Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Contract Start Date</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered"
+                        value={vendorForm.contract_start_date}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, contract_start_date: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Contract End Date</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered"
+                        value={vendorForm.contract_end_date}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, contract_end_date: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Contract Value</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="input input-bordered"
+                        placeholder="0.00"
+                        value={vendorForm.contract_value}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, contract_value: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Payment Terms</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        placeholder="e.g., Net 30"
+                        value={vendorForm.payment_terms}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, payment_terms: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div className="mt-6">
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Services Provided</span>
+                      <span className="label-text">Notes</span>
                     </label>
                     <textarea
                       className="textarea textarea-bordered"
                       rows="3"
-                      value={vendorForm.services_provided}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, services_provided: e.target.value }))}
+                      value={vendorForm.notes}
+                      onChange={(e) => setVendorForm(prev => ({ ...prev, notes: e.target.value }))}
                     />
                   </div>
                 </div>
 
-                {/* Contact & Location */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-base-content">Contact & Location</h4>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Email</span>
-                    </label>
-                    <input
-                      type="email"
-                      className="input input-bordered"
-                      value={vendorForm.email}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Phone</span>
-                    </label>
-                    <input
-                      type="tel"
-                      className="input input-bordered"
-                      value={vendorForm.phone}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, phone: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Website</span>
-                    </label>
-                    <input
-                      type="url"
-                      className="input input-bordered"
-                      value={vendorForm.website}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, website: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Address</span>
-                    </label>
-                    <textarea
-                      className="textarea textarea-bordered"
-                      rows="2"
-                      value={vendorForm.address}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, address: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">City</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        value={vendorForm.city}
-                        onChange={(e) => setVendorForm(prev => ({ ...prev, city: e.target.value }))}
-                      />
-                    </div>
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">State</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        value={vendorForm.state}
-                        onChange={(e) => setVendorForm(prev => ({ ...prev, state: e.target.value }))}
-                      />
-                    </div>
-                  </div>
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      setShowEditModal(false);
+                      setSelectedVendor(null);
+                      resetForm();
+                    }}
+                    className="btn btn-outline"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createVendorMutation.isLoading || updateVendorMutation.isLoading}
+                    className="btn btn-primary"
+                  >
+                    {createVendorMutation.isLoading || updateVendorMutation.isLoading ? (
+                      <>
+                        <div className="loading loading-spinner loading-sm"></div>
+                        {showEditModal ? 'Updating...' : 'Creating...'}
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        {showEditModal ? 'Update Vendor' : 'Create Vendor'}
+                      </>
+                    )}
+                  </button>
                 </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg">Delete Selected Vendors</h3>
+              <p className="py-4">
+                Are you sure you want to delete {selectedIds.length} vendor{selectedIds.length !== 1 ? 's' : ''}? This action cannot be undone.
+              </p>
+              <div className="modal-action">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="btn btn-outline"
+                  disabled={bulkDeleteMutation.isPending}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => bulkDeleteMutation.mutate()}
+                  className="btn btn-error"
+                  disabled={bulkDeleteMutation.isPending}
+                >
+                  {bulkDeleteMutation.isPending ? (
+                    <>
+                      <div className="loading loading-spinner loading-sm"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>Delete {selectedIds.length} Vendor{selectedIds.length !== 1 ? 's' : ''}</>
+                  )}
+                </button>
               </div>
-
-              {/* Contract Information */}
-              <div className="mt-6">
-                <h4 className="font-semibold text-base-content mb-4">Contract Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Contract Start Date</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="input input-bordered"
-                      value={vendorForm.contract_start_date}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, contract_start_date: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Contract End Date</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="input input-bordered"
-                      value={vendorForm.contract_end_date}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, contract_end_date: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Contract Value</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input input-bordered"
-                      placeholder="0.00"
-                      value={vendorForm.contract_value}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, contract_value: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Payment Terms</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      placeholder="e.g., Net 30"
-                      value={vendorForm.payment_terms}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, payment_terms: e.target.value }))}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div className="mt-6">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Notes</span>
-                  </label>
-                  <textarea
-                    className="textarea textarea-bordered"
-                    rows="3"
-                    value={vendorForm.notes}
-                    onChange={(e) => setVendorForm(prev => ({ ...prev, notes: e.target.value }))}
-                  />
-                </div>
-              </div>
-            </form>
-          </AccessibleModal.Content>
-          <AccessibleModal.Footer>
-            <button
-              type="button"
-              onClick={() => {
-                setShowCreateModal(false);
-                setShowEditModal(false);
-                setSelectedVendor(null);
-                resetForm();
-              }}
-              className="btn btn-outline"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="vendor-form"
-              disabled={createVendorMutation.isLoading || updateVendorMutation.isLoading}
-              className="btn btn-primary"
-            >
-              {createVendorMutation.isLoading || updateVendorMutation.isLoading ? (
-                <>
-                  <div className="loading loading-spinner loading-sm"></div>
-                  {showEditModal ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {showEditModal ? 'Update Vendor' : 'Create Vendor'}
-                </>
-              )}
-            </button>
-          </AccessibleModal.Footer>
-        </AccessibleModal>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
