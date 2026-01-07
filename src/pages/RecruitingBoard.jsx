@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Search, Filter, Plus, Eye, Star, Calendar, Phone, Mail, MapPin, Target, Users, Bookmark, TrendingUp, UserCheck, Award } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import { GenericPageSkeleton } from '../components/skeletons'
 
 const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF']
 const schoolTypes = ['HS', 'COLL']
@@ -302,14 +303,12 @@ export default function RecruitingBoard() {
 
       {/* Recruits Grid */}
       {isLoading ? (
-        <div className="card bg-base-100 shadow-sm">
-          <div className="card-body">
-            <div className="text-center py-12">
-              <span className="loading loading-spinner loading-lg text-primary"></span>
-              <p className="mt-4 text-gray-600">Loading recruits...</p>
-            </div>
-          </div>
-        </div>
+        <GenericPageSkeleton
+          contentType="cards"
+          showHeader={false}
+          itemCount={9}
+          columns={3}
+        />
       ) : error ? (
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body">

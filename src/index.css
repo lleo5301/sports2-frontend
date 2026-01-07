@@ -421,6 +421,11 @@
     animation: shimmer 1.5s infinite;
   }
 
+  /* Skeleton loading animations */
+  .animate-skeleton-pulse {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
   /* Staggered animation delays */
   .stagger-1 { animation-delay: 0.1s; }
   .stagger-2 { animation-delay: 0.2s; }
@@ -616,6 +621,38 @@
 [data-theme="coffee"] [role="button"]:focus-visible {
   box-shadow: 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.6);
   border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 1);
+}
+
+/* ============================================
+   ANIMATIONS - Keyframes
+   ============================================ */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ============================================

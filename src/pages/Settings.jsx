@@ -7,7 +7,7 @@ import { teamsService } from '../services/teams';
 import { toast } from 'react-hot-toast';
 import { validatePassword } from '../utils/passwordValidator';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
-import AccessibleModal from '../components/ui/AccessibleModal';
+import { GenericPageSkeleton } from '../components/skeletons';
 import {
   User,
   Bell,
@@ -284,13 +284,13 @@ const Settings = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
+      <GenericPageSkeleton
+        contentType="cards"
+        showHeader={true}
+        showDescription={true}
+        itemCount={4}
+        columns={1}
+      />
     );
   }
 
@@ -1160,198 +1160,180 @@ const Settings = () => {
 
         {/* Modals */}
         {/* Password Change Modal */}
-        <AccessibleModal
-          isOpen={showPasswordModal}
-          onClose={() => setShowPasswordModal(false)}
-          title="Change Password"
-        >
-          <AccessibleModal.Header
-            title="Change Password"
-            onClose={() => setShowPasswordModal(false)}
-          />
-          <AccessibleModal.Content>
-            <form id="password-form" onSubmit={handlePasswordChange} className="space-y-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Current Password</span>
-                </label>
-                <input
-                  type="password"
-                  className="input input-bordered"
-                  value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">New Password</span>
-                </label>
-                <input
-                  type="password"
-                  className="input input-bordered"
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  required
-                />
-                <PasswordStrengthIndicator password={passwordData.newPassword} className="mt-2" />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Confirm New Password</span>
-                </label>
-                <input
-                  type="password"
-                  className="input input-bordered"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  required
-                />
-              </div>
-            </form>
-          </AccessibleModal.Content>
-          <AccessibleModal.Footer>
-            <button
-              type="submit"
-              form="password-form"
-              className="btn btn-primary"
-              disabled={changePasswordMutation.isLoading}
-            >
-              {changePasswordMutation.isLoading ? (
-                <>
-                  <div className="loading loading-spinner loading-sm"></div>
-                  Changing...
-                </>
-              ) : (
-                'Change Password'
-              )}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => setShowPasswordModal(false)}
-            >
-              Cancel
-            </button>
-          </AccessibleModal.Footer>
-        </AccessibleModal>
+        {showPasswordModal && (
+          <div className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg mb-4">Change Password</h3>
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Current Password</span>
+                  </label>
+                  <input 
+                    type="password" 
+                    className="input input-bordered" 
+                    value={passwordData.currentPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">New Password</span>
+                  </label>
+                  <input
+                    type="password"
+                    className="input input-bordered"
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                    required
+                  />
+                  <PasswordStrengthIndicator password={passwordData.newPassword} className="mt-2" />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Confirm New Password</span>
+                  </label>
+                  <input 
+                    type="password" 
+                    className="input input-bordered" 
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="modal-action">
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary"
+                    disabled={changePasswordMutation.isLoading}
+                  >
+                    {changePasswordMutation.isLoading ? (
+                      <>
+                        <div className="loading loading-spinner loading-sm"></div>
+                        Changing...
+                      </>
+                    ) : (
+                      'Change Password'
+                    )}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-outline"
+                    onClick={() => setShowPasswordModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Profile Picture Upload Modal */}
-        <AccessibleModal
-          isOpen={showProfilePictureModal}
-          onClose={() => setShowProfilePictureModal(false)}
-          title="Upload Profile Picture"
-        >
-          <AccessibleModal.Header
-            title="Upload Profile Picture"
-            onClose={() => setShowProfilePictureModal(false)}
-          />
-          <AccessibleModal.Content>
-            <form id="profile-picture-form" onSubmit={handleProfilePictureUpload} className="space-y-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Select Image</span>
-                </label>
-                <input
-                  type="file"
-                  className="file-input file-input-bordered w-full"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  required
-                />
-              </div>
-              {selectedFile && (
-                <div className="text-sm text-base-content/70">
-                  Selected: {selectedFile.name}
+        {showProfilePictureModal && (
+          <div className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg mb-4">Upload Profile Picture</h3>
+              <form onSubmit={handleProfilePictureUpload} className="space-y-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Select Image</span>
+                  </label>
+                  <input 
+                    type="file" 
+                    className="file-input file-input-bordered w-full" 
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    required
+                  />
                 </div>
-              )}
-            </form>
-          </AccessibleModal.Content>
-          <AccessibleModal.Footer>
-            <button
-              type="submit"
-              form="profile-picture-form"
-              className="btn btn-primary"
-              disabled={uploadProfilePictureMutation.isLoading || !selectedFile}
-            >
-              {uploadProfilePictureMutation.isLoading ? (
-                <>
-                  <div className="loading loading-spinner loading-sm"></div>
-                  Uploading...
-                </>
-              ) : (
-                'Upload Picture'
-              )}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => setShowProfilePictureModal(false)}
-            >
-              Cancel
-            </button>
-          </AccessibleModal.Footer>
-        </AccessibleModal>
+                {selectedFile && (
+                  <div className="text-sm text-base-content/70">
+                    Selected: {selectedFile.name}
+                  </div>
+                )}
+                <div className="modal-action">
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary"
+                    disabled={uploadProfilePictureMutation.isLoading || !selectedFile}
+                  >
+                    {uploadProfilePictureMutation.isLoading ? (
+                      <>
+                        <div className="loading loading-spinner loading-sm"></div>
+                        Uploading...
+                      </>
+                    ) : (
+                      'Upload Picture'
+                    )}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-outline"
+                    onClick={() => setShowProfilePictureModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Delete Account Modal */}
-        <AccessibleModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          title="Delete Account"
-        >
-          <AccessibleModal.Header
-            title="Delete Account"
-            onClose={() => setShowDeleteModal(false)}
-          />
-          <AccessibleModal.Content>
-            <div className="alert alert-error mb-4">
-              <AlertTriangle className="w-5 h-5" />
-              <span>This action cannot be undone. All your data will be permanently deleted.</span>
-            </div>
-            <form id="delete-account-form" onSubmit={handleDeleteAccount} className="space-y-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Type "DELETE" to confirm</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered"
-                  value={deleteConfirmation}
-                  onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder="DELETE"
-                  required
-                />
+        {showDeleteModal && (
+          <div className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg mb-4 text-error">Delete Account</h3>
+              <div className="alert alert-error mb-4">
+                <AlertTriangle className="w-5 h-5" />
+                <span>This action cannot be undone. All your data will be permanently deleted.</span>
               </div>
-            </form>
-          </AccessibleModal.Content>
-          <AccessibleModal.Footer>
-            <button
-              type="submit"
-              form="delete-account-form"
-              className="btn btn-error"
-              disabled={deleteAccountMutation.isLoading || deleteConfirmation !== 'DELETE'}
-            >
-              {deleteAccountMutation.isLoading ? (
-                <>
-                  <div className="loading loading-spinner loading-sm"></div>
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Account
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => setShowDeleteModal(false)}
-            >
-              Cancel
-            </button>
-          </AccessibleModal.Footer>
-        </AccessibleModal>
+              <form onSubmit={handleDeleteAccount} className="space-y-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Type "DELETE" to confirm</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className="input input-bordered" 
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    placeholder="DELETE"
+                    required
+                  />
+                </div>
+                <div className="modal-action">
+                  <button 
+                    type="submit" 
+                    className="btn btn-error"
+                    disabled={deleteAccountMutation.isLoading || deleteConfirmation !== 'DELETE'}
+                  >
+                    {deleteAccountMutation.isLoading ? (
+                      <>
+                        <div className="loading loading-spinner loading-sm"></div>
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Account
+                      </>
+                    )}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-outline"
+                    onClick={() => setShowDeleteModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { reportsService } from '../services/reports';
 import { useAuth } from '../contexts/AuthContext';
 import { useKeyboardClick } from '../hooks/useKeyboardClick';
 import TeamStatistics from '../components/TeamStatistics';
+import { DashboardSkeleton } from '../components/skeletons';
 import { Users, FileText, Activity, Zap, Plus, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -57,15 +58,7 @@ const Dashboard = () => {
   const handleViewPerformance = () => navigate('/performance');
 
   if (loading) {
-    return (
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
-import AccessibleModal from '../components/ui/AccessibleModal';
-import { useKeyboardClick } from '../hooks/useKeyboardClick';
+import { PlayersListSkeleton } from '../components/skeletons';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -121,15 +120,7 @@ const Players = () => {
   };
 
   if (loading && players.length === 0) {
-    return (
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <PlayersListSkeleton />;
   }
 
   return (
@@ -354,146 +345,333 @@ const Players = () => {
       </div>
 
       {/* Player Quick View Modal */}
-      <AccessibleModal
-        isOpen={!!selectedPlayer}
-        onClose={() => setSelectedPlayer(null)}
-        title={selectedPlayer ? `Quick View - ${selectedPlayer.first_name} ${selectedPlayer.last_name}` : ''}
-        size="lg"
-      >
-        {selectedPlayer && (
-          <>
-            <AccessibleModal.Header
-              title={`Quick View - ${selectedPlayer.first_name} ${selectedPlayer.last_name}`}
-              onClose={() => setSelectedPlayer(null)}
-            />
-            <AccessibleModal.Content>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Position:</span>
-                    <span className="badge badge-outline">{selectedPlayer.position}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">School:</span>
-                    <span>{selectedPlayer.school}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Location:</span>
-                    <span>{selectedPlayer.city}, {selectedPlayer.state}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Status:</span>
-                    <span className={`badge ${
-                      selectedPlayer.status === 'active' ? 'badge-success' :
-                      selectedPlayer.status === 'inactive' ? 'badge-neutral' :
-                      selectedPlayer.status === 'graduated' ? 'badge-info' :
-                      'badge-warning'
-                    }`}>
-                      {selectedPlayer.status}
-                    </span>
-                  </div>
+      {selectedPlayer && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-4xl">
+            <h3 className="font-bold text-lg mb-4">
+              Quick View - {selectedPlayer.first_name} {selectedPlayer.last_name}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="font-medium">Position:</span>
+                  <span className="badge badge-outline">{selectedPlayer.position}</span>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Height:</span>
-                    <span>{selectedPlayer.height || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Weight:</span>
-                    <span>{selectedPlayer.weight || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Bats:</span>
-                    <span>{selectedPlayer.bats || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Throws:</span>
-                    <span>{selectedPlayer.throws || 'N/A'}</span>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">School:</span>
+                  <span>{selectedPlayer.school}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Location:</span>
+                  <span>{selectedPlayer.city}, {selectedPlayer.state}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Status:</span>
+                  <span className={`badge ${
+                    selectedPlayer.status === 'active' ? 'badge-success' :
+                    selectedPlayer.status === 'inactive' ? 'badge-neutral' :
+                    selectedPlayer.status === 'graduated' ? 'badge-info' :
+                    'badge-warning'
+                  }`}>
+                    {selectedPlayer.status}
+                  </span>
                 </div>
               </div>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="font-medium">Height:</span>
+                  <span>{selectedPlayer.height || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Weight:</span>
+                  <span>{selectedPlayer.weight ? `${selectedPlayer.weight} lbs` : 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Graduation Year:</span>
+                  <span>{selectedPlayer.graduation_year || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">School Type:</span>
+                  <span className="badge badge-outline">{selectedPlayer.school_type}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Stats Section */}
+            <div className="mt-6 pt-4 border-t">
+              <h4 className="font-semibold mb-3">Performance Stats</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{selectedPlayer.batting_avg || 'N/A'}</div>
+                  <div className="text-sm text-base-content/70">Batting Avg</div>
+                </div>
+                <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-2xl font-bold text-secondary">{selectedPlayer.home_runs || '0'}</div>
+                  <div className="text-sm text-base-content/70">Home Runs</div>
+                </div>
+                <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-2xl font-bold text-accent">{selectedPlayer.rbi || '0'}</div>
+                  <div className="text-sm text-base-content/70">RBI</div>
+                </div>
+                <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-2xl font-bold text-info">{selectedPlayer.stolen_bases || '0'}</div>
+                  <div className="text-sm text-base-content/70">Stolen Bases</div>
+                </div>
+              </div>
+            </div>
 
-              {/* Reports Section */}
-              <div className="mt-6">
-                <h4 className="font-bold mb-4">Scouting Reports ({selectedPlayerReports.length})</h4>
-                {reportsLoading && (
-                  <div className="flex justify-center">
-                    <div className="loading loading-spinner loading-sm"></div>
-                  </div>
-                )}
-                {!reportsLoading && selectedPlayerReports.length === 0 && (
-                  <p className="text-base-content/70 text-center py-4">No reports available</p>
-                )}
-                {!reportsLoading && selectedPlayerReports.length > 0 && (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {selectedPlayerReports.map((report) => (
-                      <button
-                        key={report.id}
-                        className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                          selectedReport?.id === report.id
-                            ? 'border-primary bg-primary/10'
-                            : 'border-base-300 hover:border-primary'
-                        }`}
-                        onClick={() => handleReportSelect(report.id)}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium">{report.scout_name}</p>
-                            <p className="text-sm text-base-content/70">{formatReportDate(report.report_date)}</p>
-                          </div>
-                          {report.overall_grade && (
-                            <span className="badge badge-primary">{report.overall_grade}</span>
-                          )}
+            {/* Scouting Reports Section */}
+            <div className="mt-6 pt-4 border-t">
+              <h4 className="font-semibold mb-3">Scouting Reports</h4>
+              {reportsLoading ? (
+                <div className="flex justify-center py-4">
+                  <div className="loading loading-spinner loading-md"></div>
+                </div>
+              ) : selectedPlayerReports.length > 0 ? (
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {selectedPlayerReports.map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex justify-between items-center p-3 bg-base-200 rounded-lg hover:bg-base-300 cursor-pointer transition-colors"
+                      onClick={() => handleReportSelect(report.id)}
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          Report Date: {formatReportDate(report.report_date)}
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Selected Report Details */}
-              {selectedReport && (
-                <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-bold mb-4">Report Details</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {getToolGrades(selectedReport).map((grade, index) => (
-                      <div key={index} className="bg-base-200 p-3 rounded-lg">
-                        <p className="text-sm text-base-content/70">{grade.split(':')[0]}</p>
-                        <p className="font-bold text-lg">{grade.split(':')[1].trim()}</p>
+                        {report.game_date && (
+                          <div className="text-sm text-base-content/70">
+                            Game Date: {formatReportDate(report.game_date)}
+                          </div>
+                        )}
+                        {report.opponent && (
+                          <div className="text-sm text-base-content/70">
+                            vs {report.opponent}
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                  {selectedReport.notes && (
-                    <div className="mt-4">
-                      <p className="font-medium mb-2">Notes</p>
-                      <p className="text-sm whitespace-pre-wrap">{selectedReport.notes}</p>
+                      <div className="flex flex-col items-end text-right">
+                        {getToolGrades(report).slice(0, 2).map((grade, index) => (
+                          <div key={index} className="text-sm badge badge-outline mb-1">
+                            {grade}
+                          </div>
+                        ))}
+                        {getToolGrades(report).length > 2 && (
+                          <div className="text-xs text-base-content/50">
+                            +{getToolGrades(report).length - 2} more grades
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-base-content/50">
+                  No scouting reports available for this player
                 </div>
               )}
-            </AccessibleModal.Content>
-            <AccessibleModal.Footer>
+            </div>
+
+            <div className="modal-action">
+              <button
+                className="btn btn-info"
+                onClick={() => navigate(`/players/${selectedPlayer.id}`)}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Full Profile
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate(`/players/${selectedPlayer.id}/edit`)}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Player
+              </button>
               <button
                 className="btn btn-outline"
                 onClick={() => setSelectedPlayer(null)}
               >
                 Close
               </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  navigate(`/players/${selectedPlayer.id}`);
-                  setSelectedPlayer(null);
-                }}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scouting Report Detail Modal */}
+      {selectedReport && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-4xl max-h-screen overflow-y-auto">
+            <h3 className="font-bold text-lg mb-4">
+              Scouting Report - {selectedReport.Player?.first_name} {selectedReport.Player?.last_name}
+            </h3>
+            
+            {/* Report Header */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <div><strong>Report Date:</strong> {formatReportDate(selectedReport.report_date)}</div>
+                {selectedReport.game_date && (
+                  <div><strong>Game Date:</strong> {formatReportDate(selectedReport.game_date)}</div>
+                )}
+                {selectedReport.opponent && (
+                  <div><strong>Opponent:</strong> {selectedReport.opponent}</div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div><strong>Scout:</strong> {selectedReport.User?.first_name} {selectedReport.User?.last_name}</div>
+                <div><strong>Position:</strong> {selectedReport.Player?.position}</div>
+                <div><strong>School:</strong> {selectedReport.Player?.school}</div>
+              </div>
+            </div>
+
+            {/* Tool Grades Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              {selectedReport.overall_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-primary">{selectedReport.overall_grade}</div>
+                  <div className="text-sm">Overall Grade</div>
+                </div>
+              )}
+              {selectedReport.hitting_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-secondary">{selectedReport.hitting_grade}</div>
+                  <div className="text-sm">Hitting Grade</div>
+                </div>
+              )}
+              {selectedReport.pitching_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-accent">{selectedReport.pitching_grade}</div>
+                  <div className="text-sm">Pitching Grade</div>
+                </div>
+              )}
+              {selectedReport.fielding_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-info">{selectedReport.fielding_grade}</div>
+                  <div className="text-sm">Fielding Grade</div>
+                </div>
+              )}
+              {selectedReport.speed_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-warning">{selectedReport.speed_grade}</div>
+                  <div className="text-sm">Speed Grade</div>
+                </div>
+              )}
+              {selectedReport.intangibles_grade && (
+                <div className="bg-base-200 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-success">{selectedReport.intangibles_grade}</div>
+                  <div className="text-sm">Intangibles Grade</div>
+                </div>
+              )}
+            </div>
+
+            {/* Tool Details */}
+            <div className="space-y-4 mb-6">
+              {/* Hitting Details */}
+              {(selectedReport.bat_speed || selectedReport.power_potential || selectedReport.plate_discipline || selectedReport.hitting_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Hitting Assessment</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    {selectedReport.bat_speed && (
+                      <div><strong>Bat Speed:</strong> {selectedReport.bat_speed}</div>
+                    )}
+                    {selectedReport.power_potential && (
+                      <div><strong>Power:</strong> {selectedReport.power_potential}</div>
+                    )}
+                    {selectedReport.plate_discipline && (
+                      <div><strong>Plate Discipline:</strong> {selectedReport.plate_discipline}</div>
+                    )}
+                  </div>
+                  {selectedReport.hitting_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.hitting_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Pitching Details */}
+              {(selectedReport.fastball_velocity || selectedReport.fastball_grade || selectedReport.breaking_ball_grade || selectedReport.command || selectedReport.pitching_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Pitching Assessment</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    {selectedReport.fastball_velocity && (
+                      <div><strong>Fastball Velocity:</strong> {selectedReport.fastball_velocity} mph</div>
+                    )}
+                    {selectedReport.fastball_grade && (
+                      <div><strong>Fastball Grade:</strong> {selectedReport.fastball_grade}</div>
+                    )}
+                    {selectedReport.breaking_ball_grade && (
+                      <div><strong>Breaking Ball:</strong> {selectedReport.breaking_ball_grade}</div>
+                    )}
+                    {selectedReport.command && (
+                      <div><strong>Command:</strong> {selectedReport.command}</div>
+                    )}
+                  </div>
+                  {selectedReport.pitching_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.pitching_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Fielding Details */}
+              {(selectedReport.arm_strength || selectedReport.arm_accuracy || selectedReport.range || selectedReport.fielding_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Fielding Assessment</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    {selectedReport.arm_strength && (
+                      <div><strong>Arm Strength:</strong> {selectedReport.arm_strength}</div>
+                    )}
+                    {selectedReport.arm_accuracy && (
+                      <div><strong>Arm Accuracy:</strong> {selectedReport.arm_accuracy}</div>
+                    )}
+                    {selectedReport.range && (
+                      <div><strong>Range:</strong> {selectedReport.range}</div>
+                    )}
+                  </div>
+                  {selectedReport.fielding_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.fielding_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Speed Details */}
+              {(selectedReport.home_to_first || selectedReport.speed_notes) && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Speed Assessment</h5>
+                  {selectedReport.home_to_first && (
+                    <div className="mb-3"><strong>Home to First:</strong> {selectedReport.home_to_first} seconds</div>
+                  )}
+                  {selectedReport.speed_notes && (
+                    <div><strong>Notes:</strong> {selectedReport.speed_notes}</div>
+                  )}
+                </div>
+              )}
+
+              {/* Overall Notes */}
+              {selectedReport.overall_notes && (
+                <div className="border rounded-lg p-4">
+                  <h5 className="font-semibold mb-2">Overall Assessment</h5>
+                  <div>{selectedReport.overall_notes}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-action">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setSelectedReport(null)}
               >
-                View Full Profile
+                Close
               </button>
-            </AccessibleModal.Footer>
-          </>
-        )}
-      </AccessibleModal>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Players;
+export default Players; 

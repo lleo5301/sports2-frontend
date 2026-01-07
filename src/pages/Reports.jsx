@@ -2,16 +2,17 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
-import { 
-  Download, 
-  Eye, 
-  Edit, 
+import {
+  Download,
+  Eye,
+  Edit,
   Plus,
   BarChart3,
   FileText,
   Users,
   Target
 } from 'lucide-react';
+import { GenericPageSkeleton } from '../components/skeletons';
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -32,6 +33,18 @@ const Reports = () => {
     { id: 4, title: 'Recruitment Pipeline', type: 'Recruitment', date: '2024-01-12', author: 'John Doe', status: 'In Review' },
   ];
 
+
+  if (isLoading) {
+    return (
+      <GenericPageSkeleton
+        contentType="table"
+        showHeader={true}
+        showDescription={true}
+        itemCount={6}
+        columns={6}
+      />
+    );
+  }
 
   return (
     <div className="p-8">
