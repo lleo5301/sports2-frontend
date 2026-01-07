@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
 
 const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick, selectedPosition }) => {
   const svgRef = useRef();
@@ -151,7 +151,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous render
 
     const { width, height } = dimensions;
@@ -311,7 +311,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("fill", "rgba(255, 255, 255, 0.95)")
           .attr("stroke", coords.color)
           .attr("stroke-width", 2)
-          .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
+          .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))")
+          .style("transition", "all 200ms ease-out");
 
         // Removed initials/inner icon — only show the full name for the position
 
@@ -352,18 +353,14 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Hover effect
         positionGroup
           .on("mouseenter", function() {
-            d3.select(this).select("circle")
-              .transition()
-              .duration(200)
+            select(this).select("circle")
               .attr("r", 32)
               .attr("stroke-width", 4);
           })
           .on("mouseleave", function() {
-            d3.select(this).select("circle")
-              .transition()
-              .duration(200)
+            select(this).select("circle")
               .attr("r", 28)
-              .attr("stroke-width", 3);
+              .attr("stroke-width", 2);
           });
 
       } else {
@@ -375,7 +372,8 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
           .attr("fill", "rgba(255, 255, 255, 0.8)")
           .attr("stroke", "#9CA3AF")
           .attr("stroke-width", 2)
-          .attr("stroke-dasharray", "5,5");
+          .attr("stroke-dasharray", "5,5")
+          .style("transition", "all 200ms ease-out");
 
         positionGroup.append("text")
           .attr("x", playerX)
@@ -397,16 +395,12 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         // Hover effect for empty positions
         positionGroup
           .on("mouseenter", function() {
-            d3.select(this).select("circle")
-              .transition()
-              .duration(200)
+            select(this).select("circle")
               .attr("r", 26)
               .attr("stroke-width", 3);
           })
           .on("mouseleave", function() {
-            d3.select(this).select("circle")
-              .transition()
-              .duration(200)
+            select(this).select("circle")
               .attr("r", 22)
               .attr("stroke-width", 2);
           });

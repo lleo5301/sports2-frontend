@@ -21,6 +21,8 @@ const Coaches = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -112,6 +114,26 @@ const Coaches = () => {
     }
   });
 
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => coachService.bulkDeleteCoaches(selectedIds),
+    onSuccess: (data) => {
+      const count = data.data?.deletedCount || selectedIds.length;
+      toast.success(`Successfully deleted ${count} coach${count !== 1 ? 'es' : ''}!`);
+      queryClient.invalidateQueries({ queryKey: ['coaches'] });
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to delete coaches');
+    }
+  });
+
+  // Clear selection when filters change
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [filters]);
+
   // Handle filter changes
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -165,9 +187,33 @@ const Coaches = () => {
     }));
   };
 
+  // Handle select all
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(coaches.map(coach => coach.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  // Handle select one
+  const handleSelectOne = (coachId) => {
+    setSelectedIds(prev => {
+      if (prev.includes(coachId)) {
+        return prev.filter(id => id !== coachId);
+      } else {
+        return [...prev, coachId];
+      }
+    });
+  };
+
   // Get coaches array safely
   const coaches = Array.isArray(coachesData?.data) ? coachesData.data : [];
   const pagination = coachesData?.pagination || {};
+
+  // Computed selection states
+  const isAllSelected = coaches.length > 0 && selectedIds.length === coaches.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < coaches.length;
 
   if (error) {
     return (
@@ -198,13 +244,26 @@ const Coaches = () => {
             </p>
           </div>
         </div>
-        <button 
-          onClick={() => setShowCreateModal(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Coach
-        </button>
+        <div className="flex gap-2">
+          {selectedIds.length > 0 && (
+            <button
+              className="btn btn-error"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Coach
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -326,6 +385,17 @@ const Coaches = () => {
               <table className="table table-zebra">
                 <thead>
                   <tr>
+                    <th>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={isAllSelected}
+                          onChange={handleSelectAll}
+                          disabled={coaches.length === 0}
+                        />
+                      </label>
+                    </th>
                     <th>Name</th>
                     <th>School</th>
                     <th>Position</th>
@@ -337,6 +407,16 @@ const Coaches = () => {
                 <tbody>
                   {coaches.map((coach) => (
                     <tr key={coach.id}>
+                      <td>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={selectedIds.includes(coach.id)}
+                            onChange={() => handleSelectOne(coach.id)}
+                          />
+                        </label>
+                      </td>
                       <td>
                         <div className="font-semibold">
                           {coach.first_name} {coach.last_name}
@@ -434,13 +514,13 @@ const Coaches = () => {
                 <input
                   type="text"
                   name="first_name"
+                  placeholder="Enter first name"
                   className="input input-bordered"
                   value={formData.first_name}
                   onChange={handleInputChange}
                   required
                 />
               </div>
-
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Last Name *</span>
@@ -448,6 +528,7 @@ const Coaches = () => {
                 <input
                   type="text"
                   name="last_name"
+                  placeholder="Enter last name"
                   className="input input-bordered"
                   value={formData.last_name}
                   onChange={handleInputChange}
@@ -463,7 +544,7 @@ const Coaches = () => {
               <input
                 type="text"
                 name="school_name"
-                placeholder="e.g. University of Miami"
+                placeholder="Enter school name"
                 className="input input-bordered"
                 value={formData.school_name}
                 onChange={handleInputChange}
@@ -483,13 +564,12 @@ const Coaches = () => {
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="">Select Position</option>
+                  <option value="">Select a position</option>
                   {positionOptions.map(option => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
               </div>
-
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Phone</span>
@@ -497,6 +577,7 @@ const Coaches = () => {
                 <input
                   type="tel"
                   name="phone"
+                  placeholder="Enter phone number"
                   className="input input-bordered"
                   value={formData.phone}
                   onChange={handleInputChange}
@@ -511,8 +592,23 @@ const Coaches = () => {
               <input
                 type="email"
                 name="email"
+                placeholder="Enter email address"
                 className="input input-bordered"
                 value={formData.email}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Notes</span>
+              </label>
+              <textarea
+                name="notes"
+                placeholder="Enter any additional notes"
+                className="textarea textarea-bordered"
+                rows="3"
+                value={formData.notes}
                 onChange={handleInputChange}
               />
             </div>
@@ -530,7 +626,6 @@ const Coaches = () => {
                   onChange={handleInputChange}
                 />
               </div>
-
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Next Contact Date</span>
@@ -547,25 +642,13 @@ const Coaches = () => {
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Notes</span>
-              </label>
-              <textarea
-                name="notes"
-                className="textarea textarea-bordered h-24"
-                placeholder="Any additional notes about this coach..."
-                value={formData.notes}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label">
                 <span className="label-text">Contact Notes</span>
               </label>
               <textarea
                 name="contact_notes"
-                className="textarea textarea-bordered h-24"
-                placeholder="Notes about recent communications..."
+                placeholder="Enter notes about your last contact"
+                className="textarea textarea-bordered"
+                rows="3"
                 value={formData.contact_notes}
                 onChange={handleInputChange}
               />
@@ -575,13 +658,13 @@ const Coaches = () => {
         <AccessibleModal.Footer>
           <button
             type="button"
-            className="btn"
             onClick={() => {
               setShowCreateModal(false);
               setShowEditModal(false);
               setSelectedCoach(null);
               resetForm();
             }}
+            className="btn btn-ghost"
           >
             Cancel
           </button>
@@ -592,9 +675,52 @@ const Coaches = () => {
             disabled={createCoachMutation.isPending || updateCoachMutation.isPending}
           >
             {createCoachMutation.isPending || updateCoachMutation.isPending ? (
-              <span className="loading loading-spinner loading-sm"></span>
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Saving...
+              </>
             ) : (
               selectedCoach ? 'Update Coach' : 'Add Coach'
+            )}
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
+
+      {/* Delete Confirmation Modal */}
+      <AccessibleModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Delete Coaches"
+        size="sm"
+      >
+        <AccessibleModal.Header
+          title="Delete Coaches"
+          onClose={() => setShowDeleteConfirm(false)}
+        />
+        <AccessibleModal.Content>
+          <p>Are you sure you want to delete {selectedIds.length} coach{selectedIds.length !== 1 ? 'es' : ''}? This action cannot be undone.</p>
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(false)}
+            className="btn btn-ghost"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => bulkDeleteMutation.mutate()}
+            className="btn btn-error"
+            disabled={bulkDeleteMutation.isPending}
+          >
+            {bulkDeleteMutation.isPending ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Deleting...
+              </>
+            ) : (
+              'Delete'
             )}
           </button>
         </AccessibleModal.Footer>

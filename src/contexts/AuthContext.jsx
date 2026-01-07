@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getProfile } from '../services/auth'
+import api from '../services/api'
+import csrfService from '../services/csrf'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext()
@@ -10,38 +12,45 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const queryClient = useQueryClient()
 
-  // Check for existing token on mount
+  // Check for existing session on mount
+  // With httpOnly cookies, we can't check for a token directly
+  // Instead, we try to get the user profile - if a valid cookie exists, it will succeed
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      // Token exists, try to get user profile
-      getProfile()
-        .then(userData => {
-          setUser(userData)
-        })
-        .catch(() => {
-          // Token is invalid, remove it
-          localStorage.removeItem('token')
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    } else {
-      setLoading(false)
-    }
+    getProfile()
+      .then(userData => {
+        setUser(userData)
+      })
+      .catch(() => {
+        // No valid session - user is not authenticated
+        // Cookie will be cleared by backend or expired naturally
+        setUser(null)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
 
-  const login = (userData, token) => {
+  const login = (userData) => {
     setUser(userData)
-    localStorage.setItem('token', token)
     queryClient.clear() // Clear any cached data
+    // JWT token is now stored in httpOnly cookie by the backend
+    // No need to manually store it in localStorage
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('token')
-    queryClient.clear() // Clear all cached data
-    toast.success('Logged out successfully')
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint to clear httpOnly cookies
+      await api.post('/auth/logout')
+    } catch (error) {
+      // Continue with logout even if API call fails
+      console.error('Logout API call failed:', error)
+    } finally {
+      // Clear local state regardless of API call result
+      setUser(null)
+      queryClient.clear() // Clear all cached data
+      csrfService.clearCsrfToken() // Clear CSRF token cache
+      toast.success('Logged out successfully')
+    }
   }
 
   const updateUser = (userData) => {

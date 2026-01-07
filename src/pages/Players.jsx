@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
 import AccessibleModal from '../components/ui/AccessibleModal';
+import { useKeyboardClick } from '../hooks/useKeyboardClick';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -394,93 +395,86 @@ const Players = () => {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="font-medium">Date of Birth:</span>
-                    <span>{selectedPlayer.date_of_birth || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span className="font-medium">Height:</span>
                     <span>{selectedPlayer.height || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Weight:</span>
-                    <span>{selectedPlayer.weight ? `${selectedPlayer.weight} lbs` : 'N/A'}</span>
+                    <span>{selectedPlayer.weight || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Bats:</span>
                     <span>{selectedPlayer.bats || 'N/A'}</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Throws:</span>
+                    <span>{selectedPlayer.throws || 'N/A'}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Reports Section */}
-              {selectedPlayerReports.length > 0 && (
-                <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-bold text-lg mb-4">Scouting Reports</h4>
-                  {reportsLoading ? (
-                    <div className="flex justify-center">
-                      <div className="loading loading-spinner loading-md"></div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {selectedPlayerReports.map((report) => (
-                        <button
-                          key={report.id}
-                          onClick={() => handleReportSelect(report.id)}
-                          className={`w-full text-left p-3 rounded border transition ${
-                            selectedReport?.id === report.id
-                              ? 'border-primary bg-primary/10'
-                              : 'border-gray-300 hover:border-primary'
-                          }`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">{report.scout_name}</span>
-                            <span className="text-sm text-gray-500">{formatReportDate(report.date)}</span>
+              <div className="mt-6">
+                <h4 className="font-bold mb-4">Scouting Reports ({selectedPlayerReports.length})</h4>
+                {reportsLoading && (
+                  <div className="flex justify-center">
+                    <div className="loading loading-spinner loading-sm"></div>
+                  </div>
+                )}
+                {!reportsLoading && selectedPlayerReports.length === 0 && (
+                  <p className="text-base-content/70 text-center py-4">No reports available</p>
+                )}
+                {!reportsLoading && selectedPlayerReports.length > 0 && (
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {selectedPlayerReports.map((report) => (
+                      <button
+                        key={report.id}
+                        className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                          selectedReport?.id === report.id
+                            ? 'border-primary bg-primary/10'
+                            : 'border-base-300 hover:border-primary'
+                        }`}
+                        onClick={() => handleReportSelect(report.id)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{report.scout_name}</p>
+                            <p className="text-sm text-base-content/70">{formatReportDate(report.report_date)}</p>
                           </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                          {report.overall_grade && (
+                            <span className="badge badge-primary">{report.overall_grade}</span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-              {/* Report Details */}
+              {/* Selected Report Details */}
               {selectedReport && (
                 <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-bold text-lg mb-4">Report Details</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Scout:</span>
-                      <span>{selectedReport.scout_name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Date:</span>
-                      <span>{formatReportDate(selectedReport.date)}</span>
-                    </div>
-                    {getToolGrades(selectedReport).length > 0 && (
-                      <div>
-                        <span className="font-medium">Grades:</span>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {getToolGrades(selectedReport).map((grade, idx) => (
-                            <span key={idx} className="badge badge-primary">
-                              {grade}
-                            </span>
-                          ))}
-                        </div>
+                  <h4 className="font-bold mb-4">Report Details</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {getToolGrades(selectedReport).map((grade, index) => (
+                      <div key={index} className="bg-base-200 p-3 rounded-lg">
+                        <p className="text-sm text-base-content/70">{grade.split(':')[0]}</p>
+                        <p className="font-bold text-lg">{grade.split(':')[1].trim()}</p>
                       </div>
-                    )}
-                    {selectedReport.notes && (
-                      <div>
-                        <span className="font-medium">Notes:</span>
-                        <p className="mt-2 text-sm text-gray-700">{selectedReport.notes}</p>
-                      </div>
-                    )}
+                    ))}
                   </div>
+                  {selectedReport.notes && (
+                    <div className="mt-4">
+                      <p className="font-medium mb-2">Notes</p>
+                      <p className="text-sm whitespace-pre-wrap">{selectedReport.notes}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </AccessibleModal.Content>
             <AccessibleModal.Footer>
               <button
-                className="btn"
+                className="btn btn-outline"
                 onClick={() => setSelectedPlayer(null)}
               >
                 Close
@@ -492,7 +486,7 @@ const Players = () => {
                   setSelectedPlayer(null);
                 }}
               >
-                Full Profile
+                View Full Profile
               </button>
             </AccessibleModal.Footer>
           </>

@@ -49,6 +49,8 @@ export default function Vendors() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [vendorForm, setVendorForm] = useState({
     company_name: '',
     contact_person: '',
@@ -121,6 +123,25 @@ export default function Vendors() {
       toast.error(error.response?.data?.error || 'Failed to delete vendor');
     }
   });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: () => vendorService.bulkDeleteVendors(selectedIds),
+    onSuccess: (data) => {
+      const count = data.data?.deletedCount || selectedIds.length;
+      toast.success(`Successfully deleted ${count} vendor${count !== 1 ? 's' : ''}!`);
+      queryClient.invalidateQueries(['vendors']);
+      setSelectedIds([]);
+      setShowDeleteConfirm(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to delete vendors');
+    }
+  });
+
+  // Clear selection when filters change
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [filters]);
 
   const resetForm = () => {
     setVendorForm({
@@ -204,6 +225,27 @@ export default function Vendors() {
     }
   };
 
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(vendors.map(vendor => vendor.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (vendorId) => {
+    setSelectedIds(prev => {
+      if (prev.includes(vendorId)) {
+        return prev.filter(id => id !== vendorId);
+      } else {
+        return [...prev, vendorId];
+      }
+    });
+  };
+
+  const isAllSelected = vendors.length > 0 && selectedIds.length === vendors.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < vendors.length;
+
   if (isLoading) {
     return (
       <div className="p-8">
@@ -230,13 +272,24 @@ export default function Vendors() {
                 Manage your team's vendor relationships and contracts
               </p>
             </div>
-            <button
-              onClick={handleCreateVendor}
-              className="btn btn-primary"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Vendor
-            </button>
+            <div className="flex gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  className="btn btn-error"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected ({selectedIds.length})
+                </button>
+              )}
+              <button
+                onClick={handleCreateVendor}
+                className="btn btn-primary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Vendor
+              </button>
+            </div>
           </div>
         </div>
 
@@ -299,6 +352,17 @@ export default function Vendors() {
               <table className="table table-zebra">
                 <thead>
                   <tr>
+                    <th>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={isAllSelected}
+                          onChange={handleSelectAll}
+                          disabled={vendors.length === 0}
+                        />
+                      </label>
+                    </th>
                     <th>Company</th>
                     <th>Contact</th>
                     <th>Type</th>
@@ -311,6 +375,16 @@ export default function Vendors() {
                 <tbody>
                   {vendors.map((vendor) => (
                     <tr key={vendor.id}>
+                      <td>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={selectedIds.includes(vendor.id)}
+                            onChange={() => handleSelectOne(vendor.id)}
+                          />
+                        </label>
+                      </td>
                       <td>
                         <div>
                           <div className="font-medium">{vendor.company_name}</div>
@@ -399,6 +473,42 @@ export default function Vendors() {
           </div>
         </div>
 
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-base-100 rounded-lg shadow-lg p-6 max-w-sm mx-4">
+              <h3 className="text-lg font-semibold text-base-content mb-4">
+                Delete {selectedIds.length} Vendor{selectedIds.length !== 1 ? 's' : ''}?
+              </h3>
+              <p className="text-base-content/70 mb-6">
+                This action cannot be undone. All selected vendors will be permanently deleted.
+              </p>
+              <div className="flex gap-2 justify-end">
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-error"
+                  onClick={() => bulkDeleteMutation.mutate()}
+                  disabled={bulkDeleteMutation.isPending}
+                >
+                  {bulkDeleteMutation.isPending ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Create/Edit Modal */}
         <AccessibleModal
           isOpen={showCreateModal || showEditModal}
@@ -454,39 +564,6 @@ export default function Vendors() {
 
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Vendor Type *</span>
-                    </label>
-                    <select
-                      className="select select-bordered"
-                      value={vendorForm.vendor_type}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, vendor_type: e.target.value }))}
-                      required
-                    >
-                      {vendorTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Services Provided</span>
-                    </label>
-                    <textarea
-                      className="textarea textarea-bordered"
-                      rows="3"
-                      value={vendorForm.services_provided}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, services_provided: e.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                {/* Contact & Location */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-base-content">Contact & Location</h4>
-
-                  <div className="form-control">
-                    <label className="label">
                       <span className="label-text">Email</span>
                     </label>
                     <input
@@ -523,28 +600,49 @@ export default function Vendors() {
 
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Address</span>
+                      <span className="label-text">Vendor Type</span>
                     </label>
-                    <textarea
-                      className="textarea textarea-bordered"
-                      rows="2"
+                    <select
+                      className="select select-bordered"
+                      value={vendorForm.vendor_type}
+                      onChange={(e) => setVendorForm(prev => ({ ...prev, vendor_type: e.target.value }))}
+                    >
+                      {vendorTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Address Information */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-base-content">Address</h4>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Street Address</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered"
                       value={vendorForm.address}
                       onChange={(e) => setVendorForm(prev => ({ ...prev, address: e.target.value }))}
                     />
                   </div>
 
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">City</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered"
+                      value={vendorForm.city}
+                      onChange={(e) => setVendorForm(prev => ({ ...prev, city: e.target.value }))}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">City</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered"
-                        value={vendorForm.city}
-                        onChange={(e) => setVendorForm(prev => ({ ...prev, city: e.target.value }))}
-                      />
-                    </div>
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text">State</span>
@@ -556,13 +654,69 @@ export default function Vendors() {
                         onChange={(e) => setVendorForm(prev => ({ ...prev, state: e.target.value }))}
                       />
                     </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">ZIP Code</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        value={vendorForm.zip_code}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, zip_code: e.target.value }))}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
 
+              <div className="divider"></div>
+
               {/* Contract Information */}
-              <div className="mt-6">
-                <h4 className="font-semibold text-base-content mb-4">Contract Information</h4>
+              <div className="space-y-4">
+                <h4 className="font-semibold text-base-content">Contract Information</h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Services Provided</span>
+                    </label>
+                    <textarea
+                      className="textarea textarea-bordered"
+                      value={vendorForm.services_provided}
+                      onChange={(e) => setVendorForm(prev => ({ ...prev, services_provided: e.target.value }))}
+                      rows="3"
+                    ></textarea>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Contract Value</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="input input-bordered"
+                        value={vendorForm.contract_value}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, contract_value: e.target.value }))}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Payment Terms</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input input-bordered"
+                        value={vendorForm.payment_terms}
+                        onChange={(e) => setVendorForm(prev => ({ ...prev, payment_terms: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="form-control">
                     <label className="label">
@@ -587,48 +741,63 @@ export default function Vendors() {
                       onChange={(e) => setVendorForm(prev => ({ ...prev, contract_end_date: e.target.value }))}
                     />
                   </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Contract Value</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input input-bordered"
-                      placeholder="0.00"
-                      value={vendorForm.contract_value}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, contract_value: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Payment Terms</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      placeholder="e.g., Net 30"
-                      value={vendorForm.payment_terms}
-                      onChange={(e) => setVendorForm(prev => ({ ...prev, payment_terms: e.target.value }))}
-                    />
-                  </div>
                 </div>
-              </div>
 
-              {/* Notes */}
-              <div className="mt-6">
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Notes</span>
                   </label>
                   <textarea
                     className="textarea textarea-bordered"
-                    rows="3"
                     value={vendorForm.notes}
                     onChange={(e) => setVendorForm(prev => ({ ...prev, notes: e.target.value }))}
-                  />
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="divider"></div>
+
+              {/* Contact History */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-base-content">Contact History</h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Last Contact Date</span>
+                    </label>
+                    <input
+                      type="date"
+                      className="input input-bordered"
+                      value={vendorForm.last_contact_date}
+                      onChange={(e) => setVendorForm(prev => ({ ...prev, last_contact_date: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Next Contact Date</span>
+                    </label>
+                    <input
+                      type="date"
+                      className="input input-bordered"
+                      value={vendorForm.next_contact_date}
+                      onChange={(e) => setVendorForm(prev => ({ ...prev, next_contact_date: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Contact Notes</span>
+                  </label>
+                  <textarea
+                    className="textarea textarea-bordered"
+                    value={vendorForm.contact_notes}
+                    onChange={(e) => setVendorForm(prev => ({ ...prev, contact_notes: e.target.value }))}
+                    rows="3"
+                  ></textarea>
                 </div>
               </div>
             </form>
@@ -636,33 +805,26 @@ export default function Vendors() {
           <AccessibleModal.Footer>
             <button
               type="button"
+              className="btn"
               onClick={() => {
                 setShowCreateModal(false);
                 setShowEditModal(false);
                 setSelectedVendor(null);
                 resetForm();
               }}
-              className="btn btn-outline"
             >
               Cancel
             </button>
             <button
-              type="submit"
               form="vendor-form"
-              disabled={createVendorMutation.isLoading || updateVendorMutation.isLoading}
+              type="submit"
               className="btn btn-primary"
+              disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
             >
-              {createVendorMutation.isLoading || updateVendorMutation.isLoading ? (
-                <>
-                  <div className="loading loading-spinner loading-sm"></div>
-                  {showEditModal ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {showEditModal ? 'Update Vendor' : 'Create Vendor'}
-                </>
+              {(createVendorMutation.isPending || updateVendorMutation.isPending) && (
+                <span className="loading loading-spinner loading-sm"></span>
               )}
+              {showEditModal ? 'Update Vendor' : 'Create Vendor'}
             </button>
           </AccessibleModal.Footer>
         </AccessibleModal>

@@ -1,32 +1,46 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getProfile } from '../services/auth';
 
+/**
+ * @description OAuth callback page that handles the redirect from OAuth providers (Google, Apple).
+ *              The JWT token is now automatically set as an httpOnly cookie by the backend,
+ *              so we just need to fetch the user profile and update the auth context.
+ */
 const OAuthCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { authLogin } = useAuth();
+  const { login } = useAuth();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const provider = searchParams.get('provider');
     const error = searchParams.get('error');
 
     if (error) {
-      console.error('OAuth error:', error);
       navigate('/login?error=oauth_failed');
       return;
     }
 
-    if (token) {
-      // Store the token and redirect to dashboard
-      authLogin({ token }, token);
-      navigate('/dashboard');
-    } else {
-      // No token received, redirect to login
-      navigate('/login?error=no_token');
-    }
-  }, [searchParams, navigate, authLogin]);
+    // The backend has already set the JWT token as an httpOnly cookie
+    // Now we need to fetch the user profile to verify authentication and get user data
+    const completeOAuthFlow = async () => {
+      try {
+        // Fetch user profile - this will use the httpOnly cookie automatically
+        const userData = await getProfile();
+
+        // Update auth context with user data
+        login(userData);
+
+        // Redirect to dashboard
+        navigate('/dashboard');
+      } catch (error) {
+        // If profile fetch fails, the cookie might not have been set or is invalid
+        navigate('/login?error=oauth_failed');
+      }
+    };
+
+    completeOAuthFlow();
+  }, [searchParams, navigate, login]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100">

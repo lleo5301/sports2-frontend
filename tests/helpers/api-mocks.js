@@ -3,11 +3,26 @@
  */
 
 /**
- * Mock authentication endpoints
- * @param {import('@playwright/test').Page} page 
+ * Mock authentication endpoints with cookie-based authentication
+ * @param {import('@playwright/test').Page} page
  */
 export async function mockAuthEndpoints(page) {
-  // Mock login endpoint
+  // Mock CSRF token endpoint
+  await page.route('**/api/auth/csrf-token', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        token: 'mock-csrf-token'
+      }),
+      headers: {
+        'Set-Cookie': '__Host-psifi.x-csrf-token=mock-csrf-cookie; Path=/; HttpOnly; SameSite=Strict'
+      }
+    });
+  });
+
+  // Mock login endpoint - sets JWT in httpOnly cookie
   await page.route('**/api/auth/login', async route => {
     await route.fulfill({
       status: 200,
@@ -15,25 +30,26 @@ export async function mockAuthEndpoints(page) {
       body: JSON.stringify({
         success: true,
         data: {
-          user: {
-            id: 1,
-            email: 'test@example.com',
-            first_name: 'Test',
-            last_name: 'User',
-            role: 'head_coach',
-            team_id: 1
-          },
-          token: 'mock-jwt-token'
+          id: 1,
+          email: 'test@example.com',
+          first_name: 'Test',
+          last_name: 'User',
+          role: 'head_coach',
+          team_id: 1
         }
-      })
+      }),
+      headers: {
+        'Set-Cookie': 'token=mock-jwt-token; Path=/; HttpOnly; SameSite=Strict'
+      }
     });
   });
 
-  // Mock profile endpoint
+  // Mock profile endpoint - checks for cookie instead of Bearer token
   await page.route('**/api/auth/me', async route => {
-    const authHeader = route.request().headers().authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const cookieHeader = route.request().headers().cookie || '';
+    const hasTokenCookie = cookieHeader.includes('token=');
+
+    if (!hasTokenCookie) {
       await route.fulfill({
         status: 401,
         contentType: 'application/json',
@@ -59,7 +75,7 @@ export async function mockAuthEndpoints(page) {
     });
   });
 
-  // Mock registration endpoint
+  // Mock registration endpoint - sets JWT in httpOnly cookie
   await page.route('**/api/auth/register', async route => {
     await route.fulfill({
       status: 201,
@@ -67,17 +83,35 @@ export async function mockAuthEndpoints(page) {
       body: JSON.stringify({
         success: true,
         data: {
-          user: {
-            id: 2,
-            email: 'newuser@example.com',
-            first_name: 'New',
-            last_name: 'User',
-            role: 'assistant_coach',
-            team_id: 1
-          },
-          token: 'new-mock-jwt-token'
+          id: 2,
+          email: 'newuser@example.com',
+          first_name: 'New',
+          last_name: 'User',
+          role: 'assistant_coach',
+          team_id: 1
         }
-      })
+      }),
+      headers: {
+        'Set-Cookie': 'token=new-mock-jwt-token; Path=/; HttpOnly; SameSite=Strict'
+      }
+    });
+  });
+
+  // Mock logout endpoint - clears cookies
+  await page.route('**/api/auth/logout', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        message: 'Logged out successfully'
+      }),
+      headers: {
+        'Set-Cookie': [
+          'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+          '__Host-psifi.x-csrf-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        ].join(', ')
+      }
     });
   });
 }
@@ -214,14 +248,22 @@ export async function setupAllMocks(page) {
 }
 
 /**
- * Setup authenticated user context
- * @param {import('@playwright/test').Page} page 
+ * Setup authenticated user context with cookie-based authentication
+ * @param {import('@playwright/test').Page} page
  */
 export async function setupAuthenticatedUser(page) {
-  await page.evaluate(() => {
-    localStorage.setItem('token', 'mock-jwt-token');
-  });
-  
+  // Set authentication cookie instead of localStorage
+  await page.context().addCookies([
+    {
+      name: 'token',
+      value: 'mock-jwt-token',
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+      sameSite: 'Strict'
+    }
+  ]);
+
   // Setup user context in page
   await page.addInitScript(() => {
     window.__TEST_USER__ = {

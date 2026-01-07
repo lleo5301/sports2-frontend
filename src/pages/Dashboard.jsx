@@ -5,6 +5,7 @@ import { playersService } from '../services/players';
 import { teamsService } from '../services/teams';
 import { reportsService } from '../services/reports';
 import { useAuth } from '../contexts/AuthContext';
+import { useKeyboardClick } from '../hooks/useKeyboardClick';
 import TeamStatistics from '../components/TeamStatistics';
 import { Users, FileText, Activity, Zap, Plus, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react';
 
@@ -195,32 +196,42 @@ const Dashboard = () => {
             <div className="card-content overflow-auto">
               {recentPlayers.length > 0 ? (
                 <div className="space-y-3">
-                  {recentPlayers.map((player, index) => (
-                    <div
-                      key={player.id}
-                      className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/players/${player.id}`)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary font-semibold text-sm">
-                            {player.first_name?.[0]}{player.last_name?.[0]}
-                          </span>
+                  {recentPlayers.map((player, index) => {
+                    const PlayerCard = () => {
+                      const keyboardProps = useKeyboardClick(() => navigate(`/players/${player.id}`));
+
+                      return (
+                        <div
+                          key={player.id}
+                          className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/players/${player.id}`)}
+                          aria-label={`View ${player.first_name} ${player.last_name} - ${player.position} at ${player.school}`}
+                          {...keyboardProps}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-primary font-semibold text-sm">
+                                {player.first_name?.[0]}{player.last_name?.[0]}
+                              </span>
+                            </div>
+                            <div>
+                              <h3 className="font-medium">
+                                {player.first_name} {player.last_name}
+                              </h3>
+                              <p className="text-sm text-base-content/60">
+                                {player.position} • {player.school}
+                              </p>
+                            </div>
+                          </div>
+                          <div className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}>
+                            {player.status}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-medium">
-                            {player.first_name} {player.last_name}
-                          </h3>
-                          <p className="text-sm text-base-content/60">
-                            {player.position} • {player.school}
-                          </p>
-                        </div>
-                      </div>
-                      <div className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}>
-                        {player.status}
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    };
+
+                    return <PlayerCard key={player.id} />;
+                  })}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
@@ -251,30 +262,40 @@ const Dashboard = () => {
             <div className="card-content overflow-auto">
               {recentReportsData.length > 0 ? (
                 <div className="space-y-3">
-                  {recentReportsData.map((report) => (
-                    <div
-                      key={report.id}
-                      className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/scouting/${report.id}`)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-secondary" />
+                  {recentReportsData.map((report) => {
+                    const ReportCard = () => {
+                      const keyboardProps = useKeyboardClick(() => navigate(`/scouting/${report.id}`));
+
+                      return (
+                        <div
+                          key={report.id}
+                          className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/scouting/${report.id}`)}
+                          aria-label={`View scouting report for ${report.Player?.first_name} ${report.Player?.last_name} - Grade ${report.overall_grade}`}
+                          {...keyboardProps}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-secondary" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium">
+                                {report.Player?.first_name} {report.Player?.last_name}
+                              </h3>
+                              <p className="text-sm text-base-content/60">
+                                {new Date(report.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="badge badge-primary font-semibold">
+                            {report.overall_grade}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-medium">
-                            {report.Player?.first_name} {report.Player?.last_name}
-                          </h3>
-                          <p className="text-sm text-base-content/60">
-                            {new Date(report.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="badge badge-primary font-semibold">
-                        {report.overall_grade}
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    };
+
+                    return <ReportCard key={report.id} />;
+                  })}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
@@ -298,7 +319,7 @@ const Dashboard = () => {
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleAddPlayer}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -311,7 +332,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleCreateReport}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -324,7 +345,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleViewPerformance}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -332,12 +353,12 @@ const Dashboard = () => {
                 </div>
                 <div className="text-left">
                   <div className="font-semibold">Performance</div>
-                  <div className="text-xs opacity-60">View rankings</div>
+                  <div className="text-xs opacity-60">View team metrics</div>
                 </div>
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-white hover:bg-base-200 border border-base-300 text-base-content"
                 onClick={handleViewAnalytics}
               >
                 <div className="p-2 rounded-lg bg-base-200">
@@ -345,17 +366,19 @@ const Dashboard = () => {
                 </div>
                 <div className="text-left">
                   <div className="font-semibold">Analytics</div>
-                  <div className="text-xs opacity-60">View insights</div>
+                  <div className="text-xs opacity-60">Detailed insights</div>
                 </div>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Team Statistics */}
-        <div className="animate-fade-in">
-          <TeamStatistics />
-        </div>
+        {/* Team Statistics Section */}
+        {user?.team_id && teamResponse && (
+          <div className="animate-fade-in stagger-3">
+            <TeamStatistics team={teamResponse} />
+          </div>
+        )}
       </div>
     </div>
   );

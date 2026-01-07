@@ -4,9 +4,25 @@ import { setupAllMocks, setupAuthenticatedUser } from './helpers/api-mocks.js';
 
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage before each test
+    // Clear cookies and localStorage before each test
+    await page.context().clearCookies();
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());
+
+    // Mock CSRF token endpoint for all tests
+    await page.route('**/api/auth/csrf-token', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          token: 'mock-csrf-token'
+        }),
+        headers: {
+          'Set-Cookie': '__Host-psifi.x-csrf-token=mock-csrf-cookie; Path=/; HttpOnly; SameSite=Strict'
+        }
+      });
+    });
   });
 
   test.describe('Login', () => {
@@ -66,8 +82,8 @@ test.describe('Authentication', () => {
 
     test('should successfully login with valid credentials', async ({ page }) => {
       await page.goto('/login');
-      
-      // Mock successful login response
+
+      // Mock successful login response with httpOnly cookie
       await page.route('**/api/auth/login', async route => {
         await route.fulfill({
           status: 200,
@@ -87,26 +103,31 @@ test.describe('Authentication', () => {
                 name: 'University of Example',
                 program_name: 'The Shark Tank',
                 school_logo_url: null
-              },
-              token: 'mock-jwt-token'
+              }
             }
-          })
+          }),
+          headers: {
+            'Set-Cookie': 'token=mock-jwt-token; Path=/; HttpOnly; SameSite=Strict'
+          }
         });
       });
-      
+
       // Fill login form
       await page.getByLabel('Email address').fill('headcoach@example.edu');
       await page.getByLabel('Password').fill('password');
-      
+
       // Submit form
       await page.getByRole('button', { name: 'Sign in' }).click();
-      
+
       // Should redirect to dashboard
       await expect(page).toHaveURL('/');
-      
-      // Check that token is stored
-      const token = await page.evaluate(() => localStorage.getItem('token'));
-      expect(token).toBe('mock-jwt-token');
+
+      // Verify authentication by checking cookies
+      const cookies = await page.context().cookies();
+      const tokenCookie = cookies.find(c => c.name === 'token');
+      expect(tokenCookie).toBeDefined();
+      expect(tokenCookie.value).toBe('mock-jwt-token');
+      expect(tokenCookie.httpOnly).toBe(true);
     });
 
     test('should show error message for invalid credentials', async ({ page }) => {
@@ -222,8 +243,8 @@ test.describe('Authentication', () => {
 
     test('should successfully register with valid data', async ({ page }) => {
       await page.goto('/register');
-      
-      // Mock successful registration response
+
+      // Mock successful registration response with httpOnly cookie
       await page.route('**/api/auth/register', async route => {
         await route.fulfill({
           status: 201,
@@ -243,13 +264,15 @@ test.describe('Authentication', () => {
                 name: 'University of Example',
                 program_name: 'The Shark Tank',
                 school_logo_url: null
-              },
-              token: 'mock-jwt-token-new'
+              }
             }
-          })
+          }),
+          headers: {
+            'Set-Cookie': 'token=mock-jwt-token-new; Path=/; HttpOnly; SameSite=Strict'
+          }
         });
       });
-      
+
       // Fill registration form
       await page.getByLabel('First Name').fill('Jane');
       await page.getByLabel('Last Name').fill('Doe');
@@ -257,16 +280,19 @@ test.describe('Authentication', () => {
       await page.getByLabel('Phone Number').fill('555-0124');
       await page.getByLabel('Password').fill('password123');
       await page.getByLabel('Confirm Password').fill('password123');
-      
+
       // Submit form
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should redirect to dashboard
       await expect(page).toHaveURL('/');
-      
-      // Check that token is stored
-      const token = await page.evaluate(() => localStorage.getItem('token'));
-      expect(token).toBe('mock-jwt-token-new');
+
+      // Verify authentication by checking cookies
+      const cookies = await page.context().cookies();
+      const tokenCookie = cookies.find(c => c.name === 'token');
+      expect(tokenCookie).toBeDefined();
+      expect(tokenCookie.value).toBe('mock-jwt-token-new');
+      expect(tokenCookie.httpOnly).toBe(true);
     });
 
     test('should show error for duplicate email', async ({ page }) => {

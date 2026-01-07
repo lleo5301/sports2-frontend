@@ -51,6 +51,12 @@ const vendorService = {
   deleteVendor: async (id) => {
     const response = await api.delete(`/vendors/${id}`)
     return response.data
+  },
+
+  // Bulk delete vendors
+  bulkDeleteVendors: async (ids) => {
+    const response = await api.post('/vendors/bulk-delete', { ids })
+    return response.data
   }
 }
 
