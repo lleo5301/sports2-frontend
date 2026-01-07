@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
 import AccessibleModal from '../components/ui/AccessibleModal';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -26,9 +27,12 @@ const Players = () => {
     pages: 0
   });
 
+  // Debounce search input to prevent API flooding
+  const debouncedSearch = useDebounce(filters.search, 300);
+
   useEffect(() => {
     fetchPlayers();
-  }, [filters, pagination.page]);
+  }, [debouncedSearch, filters.position, filters.status, filters.school_type, pagination.page]);
 
   const fetchPlayers = async () => {
     try {
@@ -37,14 +41,20 @@ const Players = () => {
         page: pagination.page,
         limit: pagination.limit
       };
-      
-      // Only add non-empty filter values
-      Object.entries(filters).forEach(([key, value]) => {
+
+      // Add debounced search value
+      if (debouncedSearch && debouncedSearch.trim() !== '') {
+        params.search = debouncedSearch;
+      }
+
+      // Add immediate filter values (position, status, school_type)
+      ['position', 'status', 'school_type'].forEach((key) => {
+        const value = filters[key];
         if (value && value.trim() !== '') {
           params[key] = value;
         }
       });
-      
+
       const response = await playersService.getPlayers(params);
       setPlayers(response.data || []);
       setPagination(prev => ({
