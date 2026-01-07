@@ -207,4 +207,22 @@ export const updateProfile = async (profileData) => {
 export const changePassword = async (passwordData) => {
   const response = await api.put('/auth/change-password', passwordData)
   return response.data
+}
+
+export const logout = async () => {
+  try {
+    // Call backend logout endpoint to blacklist the token
+    await api.post('/auth/logout')
+  } catch (error) {
+    // Even if the backend call fails, we still clear local storage
+    // This ensures the user can always logout from the frontend
+  } finally {
+    // Clear the token from local storage
+    localStorage.removeItem('token')
+  }
+}
+
+export const revokeAllSessions = async (keepCurrent = false) => {
+  const response = await api.post('/auth/revoke-all-sessions', { keepCurrent })
+  return response.data
 } 

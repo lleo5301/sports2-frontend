@@ -146,6 +146,7 @@ api.interceptors.response.use(
       // Session expired or invalid - redirect to login
       // Cookie will be cleared by backend or browser
       window.location.href = '/login'
+<<<<<<< HEAD
       toast.error('Session expired. Please log in again.')
     } else if (error.response?.status === 403 && error.response?.data?.error?.includes('CSRF')) {
       // CSRF token invalid or missing - fetch new token and retry
@@ -156,6 +157,14 @@ api.interceptors.response.use(
       } catch (csrfError) {
         toast.error('Security token expired. Please try again.')
         return Promise.reject(error)
+=======
+
+      // Show specific message for revoked tokens
+      if (message.includes('Token has been revoked')) {
+        toast.error('Your session has been revoked. Please log in again.')
+      } else {
+        toast.error('Session expired. Please log in again.')
+>>>>>>> auto-claude/020-add-jwt-token-revocation-blacklist-capability
       }
     } else {
       toast.error(message)
