@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
-import { ScoutingReportsSkeleton } from '../components/skeletons'
+import { useDebounce } from '../hooks/useDebounce'
 
 const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F']
 
@@ -53,12 +53,21 @@ export default function ScoutingReports() {
   const [showFilters, setShowFilters] = useState(false)
   const queryClient = useQueryClient()
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300)
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  }
+
   // Fetch scouting reports
   const { data: reportsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['scouting-reports', filters],
+    queryKey: ['scouting-reports', queryFilters],
     queryFn: async () => {
       const cleanParams = Object.fromEntries(
-        Object.entries(filters).filter(([key, value]) => 
+        Object.entries(queryFilters).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
       )
@@ -89,7 +98,6 @@ export default function ScoutingReports() {
         toast.success('Scouting report created successfully')
       },
       onError: (error) => {
-        console.error('Create report error:', error)
         const errorMessage = error.response?.data?.error || 'Failed to create scouting report'
         toast.error(errorMessage)
       }
@@ -334,6 +342,7 @@ export default function ScoutingReports() {
               }
             })
             
+            console.log('Submitting scouting report data:', data)
             createReport.mutate(data)
           }}>
             {/* Basic Information */}
@@ -603,7 +612,12 @@ export default function ScoutingReports() {
 
       {/* Reports List */}
       {isLoading ? (
-        <ScoutingReportsSkeleton />
+        <div className="card p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-2 text-sm text-gray-500">Loading scouting reports...</p>
+          </div>
+        </div>
       ) : error ? (
         <div className="card p-8">
           <div className="text-center">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import vendorService from '../services/vendors';
 import toast from 'react-hot-toast';
+import { useDebounce } from '../hooks/useDebounce';
 import {
   Building2,
   Phone,
@@ -75,10 +76,19 @@ export default function Vendors() {
 
   const queryClient = useQueryClient();
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch vendors
   const { data: vendorsResponse, isLoading, error } = useQuery({
-    queryKey: ['vendors', filters],
-    queryFn: () => vendorService.getVendors(filters),
+    queryKey: ['vendors', queryFilters],
+    queryFn: () => vendorService.getVendors(queryFilters),
     keepPreviousData: true
   });
 

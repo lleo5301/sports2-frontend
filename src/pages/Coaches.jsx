@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Plus, Search, Filter, Phone, Mail, School, UserCheck, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import coachService from '../services/coaches';
-import { GenericPageSkeleton } from '../components/skeletons';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Coaches = () => {
   const queryClient = useQueryClient();
@@ -55,15 +55,24 @@ const Coaches = () => {
   // Position options
   const positionOptions = [
     'Head Coach',
-    'Recruiting Coordinator', 
+    'Recruiting Coordinator',
     'Pitching Coach',
     'Volunteer'
   ];
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch coaches
   const { data: coachesData, isLoading, error, refetch } = useQuery({
-    queryKey: ['coaches', filters],
-    queryFn: () => coachService.getCoaches(filters),
+    queryKey: ['coaches', queryFilters],
+    queryFn: () => coachService.getCoaches(queryFilters),
     placeholderData: (previousData) => previousData,
     staleTime: 30000
   });
@@ -78,7 +87,6 @@ const Coaches = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Create coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to add coach');
     }
   });
@@ -94,7 +102,6 @@ const Coaches = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Update coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to update coach');
     }
   });
@@ -107,7 +114,6 @@ const Coaches = () => {
       toast.success('Coach deleted successfully');
     },
     onError: (error) => {
-      console.error('Delete coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete coach');
     }
   });
@@ -296,17 +302,14 @@ const Coaches = () => {
       </div>
 
       {/* Coaches List */}
-      {isLoading ? (
-        <GenericPageSkeleton
-          contentType="table"
-          showHeader={false}
-          itemCount={10}
-          columns={6}
-        />
-      ) : (
-        <div className="card bg-base-100 shadow-sm">
-          <div className="card-body">
-            {coaches.length === 0 ? (
+      <div className="card bg-base-100 shadow-sm">
+        <div className="card-body">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <span className="loading loading-spinner loading-lg"></span>
+              <p className="mt-2">Loading coaches...</p>
+            </div>
+          ) : coaches.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Coaches Found</h3>
@@ -403,9 +406,8 @@ const Coaches = () => {
               </table>
             </div>
           )}
-          </div>
         </div>
-      )}
+      </div>
 
       {/* Create/Edit Modal */}
       {(showCreateModal || showEditModal) && (

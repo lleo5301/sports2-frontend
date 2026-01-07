@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playersService } from '../services/players';
 import { reportsService } from '../services/reports';
-import { PlayersListSkeleton } from '../components/skeletons';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -26,9 +26,12 @@ const Players = () => {
     pages: 0
   });
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
   useEffect(() => {
     fetchPlayers();
-  }, [filters, pagination.page]);
+  }, [debouncedSearch, filters.position, filters.status, filters.school_type, pagination.page]);
 
   const fetchPlayers = async () => {
     try {
@@ -37,14 +40,20 @@ const Players = () => {
         page: pagination.page,
         limit: pagination.limit
       };
-      
-      // Only add non-empty filter values
-      Object.entries(filters).forEach(([key, value]) => {
+
+      // Add debounced search value
+      if (debouncedSearch && debouncedSearch.trim() !== '') {
+        params.search = debouncedSearch;
+      }
+
+      // Add other filter values (non-search filters)
+      ['position', 'status', 'school_type'].forEach((key) => {
+        const value = filters[key];
         if (value && value.trim() !== '') {
           params[key] = value;
         }
       });
-      
+
       const response = await playersService.getPlayers(params);
       setPlayers(response.data || []);
       setPagination(prev => ({
@@ -53,7 +62,6 @@ const Players = () => {
         pages: response.pagination?.pages || 0
       }));
     } catch (err) {
-      console.error('Error fetching players:', err);
       setError('Failed to load players');
     } finally {
       setLoading(false);
@@ -73,12 +81,11 @@ const Players = () => {
     try {
       setReportsLoading(true);
       const response = await reportsService.getScoutingReports({ player_id: playerId });
-      
+
       if (response.success) {
         setSelectedPlayerReports(response.data);
       }
     } catch (error) {
-      console.error('Error fetching player reports:', error);
       setSelectedPlayerReports([]);
     } finally {
       setReportsLoading(false);
@@ -99,7 +106,7 @@ const Players = () => {
         setSelectedReport(response.data);
       }
     } catch (error) {
-      console.error('Error fetching report details:', error);
+      // Error handling - silently fail for now
     }
   };
 
@@ -120,7 +127,15 @@ const Players = () => {
   };
 
   if (loading && players.length === 0) {
-    return <PlayersListSkeleton />;
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="loading loading-spinner loading-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

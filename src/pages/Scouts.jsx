@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Target, Plus, Search, Filter, Phone, Mail, Building2, UserCheck, Edit, Trash2, Eye, MapPin, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
 import scoutService from '../services/scouts';
-import AccessibleModal from '../components/ui/AccessibleModal';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Scouts = () => {
   const queryClient = useQueryClient();
@@ -64,10 +64,19 @@ const Scouts = () => {
     'Scouting Director'
   ];
 
+  // Debounce the search input to avoid excessive API calls
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Create filters object with debounced search for API calls
+  const queryFilters = {
+    ...filters,
+    search: debouncedSearch
+  };
+
   // Fetch scouts
   const { data: scoutsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['scouts', filters],
-    queryFn: () => scoutService.getScouts(filters),
+    queryKey: ['scouts', queryFilters],
+    queryFn: () => scoutService.getScouts(queryFilters),
     placeholderData: (previousData) => previousData,
     staleTime: 30000
   });
@@ -82,7 +91,6 @@ const Scouts = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Create scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to add scout');
     }
   });
@@ -98,7 +106,6 @@ const Scouts = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Update scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to update scout');
     }
   });
@@ -111,7 +118,6 @@ const Scouts = () => {
       toast.success('Scout deleted successfully');
     },
     onError: (error) => {
-      console.error('Delete scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete scout');
     }
   });
@@ -427,231 +433,218 @@ const Scouts = () => {
       </div>
 
       {/* Create/Edit Modal */}
-      <AccessibleModal
-        isOpen={showCreateModal || showEditModal}
-        onClose={() => {
-          setShowCreateModal(false);
-          setShowEditModal(false);
-          setSelectedScout(null);
-          resetForm();
-        }}
-        title={selectedScout ? 'Edit Scout' : 'Add New Scout'}
-        size="md"
-      >
-        <AccessibleModal.Header
-          title={selectedScout ? 'Edit Scout' : 'Add New Scout'}
-          onClose={() => {
-            setShowCreateModal(false);
-            setShowEditModal(false);
-            setSelectedScout(null);
-            resetForm();
-          }}
-        />
-        <AccessibleModal.Content>
-          <form onSubmit={handleSubmit} id="scout-form" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {(showCreateModal || showEditModal) && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-3xl">
+            <h3 className="font-bold text-lg mb-4">
+              {selectedScout ? 'Edit Scout' : 'Add New Scout'}
+            </h3>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">First Name *</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    className="input input-bordered"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Last Name *</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    className="input input-bordered"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">First Name *</span>
+                  <span className="label-text">Organization Name *</span>
                 </label>
                 <input
                   type="text"
-                  name="first_name"
+                  name="organization_name"
+                  placeholder="e.g. MLB, Perfect Game, Travel Ball Team"
                   className="input input-bordered"
-                  value={formData.first_name}
+                  value={formData.organization_name}
                   onChange={handleInputChange}
                   required
                 />
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Position *</span>
+                  </label>
+                  <select
+                    name="position"
+                    className="select select-bordered"
+                    value={formData.position}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Select Position</option>
+                    {positionOptions.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Phone</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="input input-bordered"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Last Name *</span>
+                  <span className="label-text">Email</span>
                 </label>
                 <input
-                  type="text"
-                  name="last_name"
+                  type="email"
+                  name="email"
                   className="input input-bordered"
-                  value={formData.last_name}
+                  value={formData.email}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
-            </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Organization Name *</span>
-              </label>
-              <input
-                type="text"
-                name="organization_name"
-                placeholder="e.g. MLB, Perfect Game, Travel Ball Team"
-                className="input input-bordered"
-                value={formData.organization_name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Coverage Area</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="coverage_area"
+                    placeholder="e.g. Southeast Region, Texas, California"
+                    className="input input-bordered"
+                    value={formData.coverage_area}
+                    onChange={handleInputChange}
+                  />
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Specialization</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="specialization"
+                    placeholder="e.g. Pitchers, Catchers, Power Hitters"
+                    className="input input-bordered"
+                    value={formData.specialization}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Last Contact Date</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="last_contact_date"
+                    className="input input-bordered"
+                    value={formData.last_contact_date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Next Contact Date</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="next_contact_date"
+                    className="input input-bordered"
+                    value={formData.next_contact_date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Position *</span>
+                  <span className="label-text">Notes</span>
                 </label>
-                <select
-                  name="position"
-                  className="select select-bordered"
-                  value={formData.position}
+                <textarea
+                  name="notes"
+                  className="textarea textarea-bordered h-24"
+                  placeholder="Any additional notes about this scout..."
+                  value={formData.notes}
                   onChange={handleInputChange}
-                  required
+                />
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Contact Notes</span>
+                </label>
+                <textarea
+                  name="contact_notes"
+                  className="textarea textarea-bordered h-24"
+                  placeholder="Notes about recent communications..."
+                  value={formData.contact_notes}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="modal-action">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setShowEditModal(false);
+                    setSelectedScout(null);
+                    resetForm();
+                  }}
                 >
-                  <option value="">Select Position</option>
-                  {positionOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={createScoutMutation.isPending || updateScoutMutation.isPending}
+                >
+                  {createScoutMutation.isPending || updateScoutMutation.isPending ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    selectedScout ? 'Update Scout' : 'Add Scout'
+                  )}
+                </button>
               </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Phone</span>
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="input input-bordered"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Email</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                className="input input-bordered"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Coverage Area</span>
-                </label>
-                <input
-                  type="text"
-                  name="coverage_area"
-                  placeholder="e.g. Southeast Region, Texas, California"
-                  className="input input-bordered"
-                  value={formData.coverage_area}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Specialization</span>
-                </label>
-                <input
-                  type="text"
-                  name="specialization"
-                  placeholder="e.g. Pitchers, Catchers, Power Hitters"
-                  className="input input-bordered"
-                  value={formData.specialization}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Last Contact Date</span>
-                </label>
-                <input
-                  type="date"
-                  name="last_contact_date"
-                  className="input input-bordered"
-                  value={formData.last_contact_date}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Next Contact Date</span>
-                </label>
-                <input
-                  type="date"
-                  name="next_contact_date"
-                  className="input input-bordered"
-                  value={formData.next_contact_date}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Notes</span>
-              </label>
-              <textarea
-                name="notes"
-                className="textarea textarea-bordered h-24"
-                placeholder="Any additional notes about this scout..."
-                value={formData.notes}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Contact Notes</span>
-              </label>
-              <textarea
-                name="contact_notes"
-                className="textarea textarea-bordered h-24"
-                placeholder="Notes about recent communications..."
-                value={formData.contact_notes}
-                onChange={handleInputChange}
-              />
-            </div>
-          </form>
-        </AccessibleModal.Content>
-        <AccessibleModal.Footer>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              setShowCreateModal(false);
-              setShowEditModal(false);
-              setSelectedScout(null);
-              resetForm();
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="scout-form"
-            className="btn btn-primary"
-            disabled={createScoutMutation.isPending || updateScoutMutation.isPending}
-          >
-            {createScoutMutation.isPending || updateScoutMutation.isPending ? (
-              <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-              selectedScout ? 'Update Scout' : 'Add Scout'
-            )}
-          </button>
-        </AccessibleModal.Footer>
-      </AccessibleModal>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
