@@ -21,14 +21,6 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import csrfService from './csrf'
 
-<<<<<<< HEAD
-// Re-export CSRF service functions for backward compatibility
-export const getCsrfToken = csrfService.getCsrfToken
-export const setCsrfToken = csrfService.setCsrfToken
-export const fetchCsrfToken = csrfService.fetchCsrfToken
-
-// Create axios instance with cookie support
-=======
 /**
  * Configured axios instance for API requests
  *
@@ -51,7 +43,6 @@ export const fetchCsrfToken = csrfService.fetchCsrfToken
  * const response = await api.get('/players');
  * const newPlayer = await api.post('/players', { name: 'John Doe' });
  */
->>>>>>> auto-claude/016-document-all-frontend-service-modules-with-jsdoc
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
@@ -60,9 +51,6 @@ const api = axios.create({
   withCredentials: true, // Enable sending cookies with requests
 })
 
-<<<<<<< HEAD
-// Request interceptor to add CSRF token for state-changing requests
-=======
 /**
  * Request interceptor to inject JWT authentication token
  *
@@ -82,7 +70,6 @@ const api = axios.create({
  * // Before interceptor: GET /api/players
  * // After interceptor: GET /api/players with header "Authorization: Bearer eyJhbGc..."
  */
->>>>>>> auto-claude/016-document-all-frontend-service-modules-with-jsdoc
 api.interceptors.request.use(
   async (config) => {
     // Add CSRF token for state-changing requests (POST, PUT, PATCH, DELETE)
@@ -146,25 +133,12 @@ api.interceptors.response.use(
       // Session expired or invalid - redirect to login
       // Cookie will be cleared by backend or browser
       window.location.href = '/login'
-<<<<<<< HEAD
-      toast.error('Session expired. Please log in again.')
-    } else if (error.response?.status === 403 && error.response?.data?.error?.includes('CSRF')) {
-      // CSRF token invalid or missing - fetch new token and retry
-      try {
-        await csrfService.refreshCsrfToken()
-        // Retry the original request with new CSRF token
-        return api.request(error.config)
-      } catch (csrfError) {
-        toast.error('Security token expired. Please try again.')
-        return Promise.reject(error)
-=======
 
       // Show specific message for revoked tokens
       if (message.includes('Token has been revoked')) {
         toast.error('Your session has been revoked. Please log in again.')
       } else {
         toast.error('Session expired. Please log in again.')
->>>>>>> auto-claude/020-add-jwt-token-revocation-blacklist-capability
       }
     } else {
       toast.error(message)

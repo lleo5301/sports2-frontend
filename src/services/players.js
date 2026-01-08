@@ -232,10 +232,6 @@ export const playersService = {
     return response.data
   },
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> auto-claude/034-add-bulk-delete-operation-for-list-items
   // Bulk delete players
   bulkDeletePlayers: async (ids) => {
     const response = await api.post('/players/bulk-delete', { ids })

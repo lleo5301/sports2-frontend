@@ -19,15 +19,6 @@
 import api from './api'
 
 /**
-<<<<<<< HEAD
- * @description Authenticates a user with email and password.
- *              The JWT token is automatically set as an httpOnly cookie by the backend.
- *
- * @param {Object} credentials - Login credentials
- * @param {string} credentials.email - User's email address
- * @param {string} credentials.password - User's password
- * @returns {Promise<Object>} User profile data (id, email, first_name, last_name, role, team_id, phone, team)
-=======
  * Authenticates a user with email and password credentials
  *
  * @async
@@ -52,7 +43,6 @@ import api from './api'
  * });
  * localStorage.setItem('token', result.token);
  * console.log('Logged in as:', result.user.name);
->>>>>>> auto-claude/016-document-all-frontend-service-modules-with-jsdoc
  */
 export const login = async (credentials) => {
   const response = await api.post('/auth/login', credentials)
@@ -62,19 +52,6 @@ export const login = async (credentials) => {
 }
 
 /**
-<<<<<<< HEAD
- * @description Registers a new user account.
- *              The JWT token is automatically set as an httpOnly cookie by the backend.
- *
- * @param {Object} userData - User registration data
- * @param {string} userData.email - User's email address
- * @param {string} userData.password - User's password
- * @param {string} userData.first_name - User's first name
- * @param {string} userData.last_name - User's last name
- * @param {string} userData.role - User's role (head_coach or assistant_coach)
- * @param {string} [userData.phone] - User's phone number
- * @returns {Promise<Object>} User profile data (id, email, first_name, last_name, role, team_id, phone)
-=======
  * Registers a new user account
  *
  * @async
@@ -103,7 +80,6 @@ export const login = async (credentials) => {
  *   role: 'player'
  * });
  * localStorage.setItem('token', result.token);
->>>>>>> auto-claude/016-document-all-frontend-service-modules-with-jsdoc
  */
 export const register = async (userData) => {
   const response = await api.post('/auth/register', userData)
