@@ -89,17 +89,6 @@ export const register = async (userData) => {
 }
 
 /**
- * @description Logs out the current user by clearing authentication cookies.
- *              Clears both the JWT authentication token cookie and the CSRF token cookie.
- *
- * @returns {Promise<Object>} Logout success response
- */
-export const logout = async () => {
-  const response = await api.post('/auth/logout')
-  return response.data
-}
-
-/**
  * Fetches the currently authenticated user's profile information
  *
  * @async
@@ -185,6 +174,25 @@ export const changePassword = async (passwordData) => {
   return response.data
 }
 
+/**
+ * Logs out the current user by revoking the session on the backend and clearing local storage
+ *
+ * @async
+ * @function logout
+ * @returns {Promise<void>} Resolves when logout is complete
+ *
+ * @description This function performs a two-step logout process:
+ * 1. Calls the backend logout endpoint to blacklist the current JWT token
+ * 2. Clears the token from localStorage regardless of backend call success
+ *
+ * The function is designed to always succeed from the user's perspective - even if the
+ * backend call fails (network error, server down), the local token is still cleared,
+ * allowing the user to logout from the frontend.
+ *
+ * @example
+ * await logout();
+ * // User is now logged out and redirected to login page
+ */
 export const logout = async () => {
   try {
     // Call backend logout endpoint to blacklist the token

@@ -238,8 +238,6 @@ export const playersService = {
     return response.data
   },
 
-  // Get player statistics
-=======
   /**
    * Retrieves comprehensive statistics for a specific player
    *
@@ -265,7 +263,6 @@ export const playersService = {
    * console.log('Games played:', stats.gamesPlayed);
    * console.log('Total touchdowns:', stats.stats.touchdowns);
    */
->>>>>>> auto-claude/016-document-all-frontend-service-modules-with-jsdoc
   getPlayerStats: async (id) => {
     const response = await api.get(`/players/byId/${id}/stats`)
     return response.data
