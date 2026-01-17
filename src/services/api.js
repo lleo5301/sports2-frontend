@@ -132,7 +132,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Session expired or invalid - redirect to login
       // Cookie will be cleared by backend or browser
-      window.location.href = '/login'
+      const basePath = import.meta.env.VITE_BASE_PATH || ''
+      window.location.href = `${basePath}/login`
 
       // Show specific message for revoked tokens
       if (message.includes('Token has been revoked')) {
