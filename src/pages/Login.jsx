@@ -57,10 +57,11 @@ export default function Login() {
 
     setIsLoading(true)
     try {
-      const response = await login(formData)
-      
+      // login() returns user data directly (with token included)
+      const userData = await login(formData)
+
       // Store token and user data
-      authLogin(response.data, response.data.token)
+      authLogin(userData, userData.token)
       toast.success('Welcome back!')
       navigate('/dashboard')
     } catch (error) {

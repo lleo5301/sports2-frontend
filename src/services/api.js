@@ -76,9 +76,15 @@ api.interceptors.request.use(
     const requiresCsrf = ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())
 
     if (requiresCsrf) {
-      const token = csrfService.getCsrfToken()
-      if (token) {
-        config.headers['X-CSRF-Token'] = token
+      // Ensure we have a valid CSRF token before making state-changing requests
+      try {
+        const token = await csrfService.ensureCsrfToken()
+        if (token) {
+          config.headers['X-CSRF-Token'] = token
+        }
+      } catch (error) {
+        console.warn('Failed to fetch CSRF token:', error.message)
+        // Continue with request - server will reject if CSRF is required
       }
     }
 
@@ -130,16 +136,22 @@ api.interceptors.response.use(
 
     // Handle authentication errors
     if (error.response?.status === 401) {
-      // Session expired or invalid - redirect to login
-      // Cookie will be cleared by backend or browser
       const basePath = import.meta.env.VITE_BASE_PATH || ''
-      window.location.href = `${basePath}/login`
+      const currentPath = window.location.pathname
+      const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register')
+      const isAuthMeRequest = error.config?.url?.includes('/auth/me')
 
-      // Show specific message for revoked tokens
-      if (message.includes('Token has been revoked')) {
-        toast.error('Your session has been revoked. Please log in again.')
-      } else {
-        toast.error('Session expired. Please log in again.')
+      // Don't redirect if already on login/register page or if this is just an auth check
+      if (!isAuthPage && !isAuthMeRequest) {
+        // Session expired or invalid - redirect to login
+        window.location.href = `${basePath}/login`
+
+        // Show specific message for revoked tokens
+        if (message.includes('Token has been revoked')) {
+          toast.error('Your session has been revoked. Please log in again.')
+        } else {
+          toast.error('Session expired. Please log in again.')
+        }
       }
     } else {
       toast.error(message)
