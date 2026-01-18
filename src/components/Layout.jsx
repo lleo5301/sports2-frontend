@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useBranding } from '../contexts/BrandingContext';
-import { 
-  Home, 
-  Users, 
-  Building2, 
-  Target, 
-  BarChart3, 
-  Calendar, 
-  FileText, 
+import { useAuth } from '../contexts/AuthContext';
+import {
+  Home,
+  Users,
+  Building2,
+  Target,
+  BarChart3,
+  Calendar,
+  FileText,
   Settings,
   Menu,
   ChevronRight,
@@ -25,13 +26,16 @@ import {
   ArrowRightLeft,
   UserCheck,
   School,
-  Eye
+  Eye,
+  LogOut
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, changeTheme } = useTheme();
   const { logoUrl, name, programName, primaryColor, secondaryColor } = useBranding();
+  const { logout, user } = useAuth();
   const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
 
   // Logo URL is served via nginx proxy at /uploads/
@@ -110,6 +114,11 @@ const Layout = ({ children }) => {
 
   const toggleDrawer = () => {
     setIsDrawerCollapsed(!isDrawerCollapsed);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
   };
 
   return (
@@ -213,6 +222,28 @@ const Layout = ({ children }) => {
                 </ul>
               </div>
             ))}
+
+            {/* User section with logout */}
+            <div className="mt-6 pt-6 border-t border-base-300">
+              {!isDrawerCollapsed && user && (
+                <div className="px-3 py-2 mb-2">
+                  <p className="text-sm font-medium truncate">{user.first_name} {user.last_name}</p>
+                  <p className="text-xs text-base-content/60 truncate">{user.email}</p>
+                </div>
+              )}
+              <ul className="menu">
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className={`text-error hover:bg-error/10 ${isDrawerCollapsed ? 'justify-center' : ''}`}
+                    title={isDrawerCollapsed ? 'Logout' : ''}
+                  >
+                    <LogOut className="w-5 h-5" />
+                    {!isDrawerCollapsed && 'Logout'}
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </aside>
       </div>
