@@ -1,0 +1,39 @@
+# Standalone development environment for sports2-frontend
+# This allows frontend development independent of other services
+
+version: '3.8'
+
+services:
+  frontend:
+    image: node:18-alpine
+    container_name: sports2_frontend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+      - VITE_BASE_PATH=/
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend-network
+
+  # Optional: Mock API server for frontend-only development
+  # Uncomment if you need to develop without the real backend
+  # mock-api:
+  #   image: node:18-alpine
+  #   container_name: sports2_mock_api
+  #   working_dir: /app
+  #   command: npx json-server --watch db.json --port 5000 --host 0.0.0.0
+  #   volumes:
+  #     - ./mock-data:/app
+  #   ports:
+  #     - "5000:5000"
+  #   networks:
+  #     - frontend-network
+
+networks:
+  frontend-network:
+    driver: bridge
