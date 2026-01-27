@@ -38,13 +38,14 @@ const PrestoSportsConfig = () => {
   const prestoTeamId = statusData?.data?.prestoTeamId;
   const prestoSeasonId = statusData?.data?.prestoSeasonId;
   const lastSyncAt = statusData?.data?.lastSyncAt;
+  const tokenStatus = statusData?.data?.tokenStatus; // 'valid', 'expired', or null
 
-  // Get seasons (only if configured)
-  const { data: seasonsData, isLoading: seasonsLoading } = useQuery({
-    queryKey: ['presto-seasons'],
-    queryFn: integrationsService.getPrestoSeasons,
-    enabled: isConfigured
-  });
+  // Seasons query disabled - we get season info from teams data now
+  // const { data: seasonsData, isLoading: seasonsLoading } = useQuery({
+  //   queryKey: ['presto-seasons'],
+  //   queryFn: integrationsService.getPrestoSeasons,
+  //   enabled: isConfigured
+  // });
 
   // Get teams (only if configured)
   const { data: teamsData, isLoading: teamsLoading } = useQuery({
@@ -183,13 +184,22 @@ const PrestoSportsConfig = () => {
   };
 
   const handleUpdateSettings = () => {
-    if (!selectedTeamId || !selectedSeasonId) {
-      toast.error('Please select a team and season');
+    if (!selectedTeamId) {
+      toast.error('Please select a team');
       return;
     }
+    // Get seasonId directly from the selected team
+    const selectedTeam = teamsData?.data?.find(t => t.teamId === selectedTeamId);
+    const seasonId = selectedTeam?.seasonId || selectedSeasonId;
+
+    if (!seasonId) {
+      toast.error('Unable to determine season for selected team');
+      return;
+    }
+
     updateSettingsMutation.mutate({
       prestoTeamId: selectedTeamId,
-      prestoSeasonId: selectedSeasonId
+      prestoSeasonId: seasonId
     });
   };
 
@@ -217,9 +227,13 @@ const PrestoSportsConfig = () => {
         <div className="card-body">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isConfigured ? 'bg-success/20' : 'bg-base-200'}`}>
+              <div className={`p-2 rounded-lg ${isConfigured ? (tokenStatus === 'expired' ? 'bg-warning/20' : 'bg-success/20') : 'bg-base-200'}`}>
                 {isConfigured ? (
-                  <CheckCircle className="w-6 h-6 text-success" />
+                  tokenStatus === 'expired' ? (
+                    <AlertCircle className="w-6 h-6 text-warning" />
+                  ) : (
+                    <CheckCircle className="w-6 h-6 text-success" />
+                  )
                 ) : (
                   <XCircle className="w-6 h-6 text-base-content/50" />
                 )}
@@ -227,19 +241,43 @@ const PrestoSportsConfig = () => {
               <div>
                 <h3 className="font-semibold">PrestoSports Integration</h3>
                 <p className="text-sm text-base-content/70">
-                  {isConfigured ? 'Connected' : 'Not configured'}
+                  {isConfigured
+                    ? tokenStatus === 'expired'
+                      ? 'Token expired - re-authenticate required'
+                      : 'Connected'
+                    : 'Not configured'}
                 </p>
               </div>
             </div>
-            {isConfigured && lastSyncAt && (
+            {isConfigured && (
               <div className="text-right text-sm text-base-content/70">
-                <p>Last synced</p>
-                <p className="font-medium">{new Date(lastSyncAt).toLocaleString()}</p>
+                {tokenStatus && (
+                  <p className={`badge badge-sm ${tokenStatus === 'valid' ? 'badge-success' : 'badge-warning'} mb-1`}>
+                    Token: {tokenStatus}
+                  </p>
+                )}
+                {lastSyncAt && (
+                  <>
+                    <p>Last synced</p>
+                    <p className="font-medium">{new Date(lastSyncAt).toLocaleString()}</p>
+                  </>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Token Expired Warning */}
+      {isConfigured && tokenStatus === 'expired' && (
+        <div className="alert alert-warning">
+          <AlertCircle className="w-5 h-5" />
+          <div>
+            <h4 className="font-semibold">Authentication Required</h4>
+            <p className="text-sm">Your PrestoSports token has expired. Please disconnect and reconnect to refresh your credentials.</p>
+          </div>
+        </div>
+      )}
 
       {/* Configuration Form */}
       {!isConfigured && (
@@ -326,44 +364,48 @@ const PrestoSportsConfig = () => {
               Select the team and season to sync data from.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Season</span>
-                </label>
-                <select
-                  className="select select-bordered"
-                  value={selectedSeasonId}
-                  onChange={(e) => setSelectedSeasonId(e.target.value)}
-                  disabled={seasonsLoading}
-                >
-                  <option value="">Select a season...</option>
-                  {seasonsData?.data?.map((season) => (
-                    <option key={season.id} value={season.id}>
-                      {season.name || season.displayName || `Season ${season.id}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Team</span>
-                </label>
-                <select
-                  className="select select-bordered"
-                  value={selectedTeamId}
-                  onChange={(e) => setSelectedTeamId(e.target.value)}
-                  disabled={teamsLoading}
-                >
-                  <option value="">Select a team...</option>
-                  {teamsData?.data?.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name || team.displayName || `Team ${team.id}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Team & Season</span>
+              </label>
+              <p className="text-xs text-base-content/60 mb-2">
+                Select the team and season to sync. Only baseball teams are shown.
+              </p>
+              <select
+                className="select select-bordered"
+                value={selectedTeamId}
+                onChange={(e) => {
+                  const teamId = e.target.value;
+                  setSelectedTeamId(teamId);
+                  // Auto-set the seasonId from the selected team
+                  const selectedTeam = teamsData?.data?.find(t => t.teamId === teamId);
+                  if (selectedTeam?.seasonId) {
+                    setSelectedSeasonId(selectedTeam.seasonId);
+                  }
+                }}
+                disabled={teamsLoading}
+              >
+                <option value="">Select a team & season...</option>
+                {teamsData?.data
+                  ?.filter((team) => {
+                    // Filter to only show baseball teams
+                    const sportName = (team.season?.sport?.sportName || '').toLowerCase();
+                    const sportId = (team.sportId || '').toLowerCase();
+                    const seasonName = (team.season?.seasonName || '').toLowerCase();
+                    return sportName.includes('baseball') || sportId.includes('bsb') || seasonName.includes('baseball');
+                  })
+                  .map((team) => {
+                    const teamId = team.teamId;
+                    const teamName = team.teamName || '';
+                    const seasonName = team.season?.seasonName || '';
+                    const displayName = seasonName ? `${teamName} (${seasonName})` : teamName;
+                    return (
+                      <option key={teamId} value={teamId}>
+                        {displayName}
+                      </option>
+                    );
+                  })}
+              </select>
             </div>
 
             {(!prestoTeamId || !prestoSeasonId ||
@@ -372,7 +414,7 @@ const PrestoSportsConfig = () => {
                 <button
                   className="btn btn-primary btn-sm"
                   onClick={handleUpdateSettings}
-                  disabled={updateSettingsMutation.isPending || !selectedTeamId || !selectedSeasonId}
+                  disabled={updateSettingsMutation.isPending || !selectedTeamId}
                 >
                   {updateSettingsMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -384,10 +426,10 @@ const PrestoSportsConfig = () => {
               </div>
             )}
 
-            {(!prestoTeamId || !prestoSeasonId) && (
+            {(!prestoTeamId || !prestoSeasonId) && !selectedTeamId && (
               <div className="alert alert-warning mt-4">
                 <AlertCircle className="w-5 h-5" />
-                <span>Please select a team and season to enable syncing.</span>
+                <span>Please select a team to enable syncing.</span>
               </div>
             )}
           </div>

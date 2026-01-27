@@ -43,8 +43,8 @@ const playerSchema = z.object({
 
 export default function CreatePlayer() {
   const [isLoading, setIsLoading] = useState(false)
-  const [videoFile, setVideoFile] = useState(null)
-  const [videoPreview, setVideoPreview] = useState(null)
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoPreview, setPhotoPreview] = useState(null)
   const navigate = useNavigate()
   const {
     register,
@@ -65,38 +65,38 @@ export default function CreatePlayer() {
   const hasMedical = watch('has_medical_issues')
   const hasComparison = watch('has_comparison')
 
-  const handleVideoChange = (e) => {
+  const handlePhotoChange = (e) => {
     const file = e.target.files[0]
     if (file) {
       // Validate file type
-      const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/ogg']
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
       if (!validTypes.includes(file.type)) {
-        toast.error('Please select a valid video file (MP4, MOV, AVI, WebM, OGV)')
+        toast.error('Please select a valid image file (JPEG, PNG, GIF, WebP)')
         return
       }
 
-      // Validate file size (100MB max)
-      if (file.size > 100 * 1024 * 1024) {
-        toast.error('Video file must be less than 100MB')
+      // Validate file size (5MB max for images)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image file must be less than 5MB')
         return
       }
 
-      setVideoFile(file)
-      
+      setPhotoFile(file)
+
       // Create preview URL
       const previewUrl = URL.createObjectURL(file)
-      setVideoPreview(previewUrl)
+      setPhotoPreview(previewUrl)
     }
   }
 
-  const removeVideo = () => {
-    setVideoFile(null)
-    if (videoPreview) {
-      URL.revokeObjectURL(videoPreview)
-      setVideoPreview(null)
+  const removePhoto = () => {
+    setPhotoFile(null)
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview)
+      setPhotoPreview(null)
     }
     // Reset file input
-    const fileInput = document.getElementById('video-upload')
+    const fileInput = document.getElementById('photo-upload')
     if (fileInput) {
       fileInput.value = ''
     }
@@ -115,9 +115,9 @@ export default function CreatePlayer() {
         }
       })
 
-      // Add video file if selected
-      if (videoFile) {
-        formData.append('video', videoFile)
+      // Add photo file if selected
+      if (photoFile) {
+        formData.append('photo', photoFile)
       }
 
       await api.post('/players', formData, {
@@ -128,7 +128,7 @@ export default function CreatePlayer() {
 
       toast.success('Player created!')
       reset()
-      removeVideo()
+      removePhoto()
       navigate('/players')
     } catch (error) {
       const msg = error.response?.data?.error || 'Failed to create player'
@@ -301,44 +301,42 @@ export default function CreatePlayer() {
           </div>
         </div>
 
-        <div className="divider">Player Video</div>
+        <div className="divider">Player Photo</div>
         <div className="space-y-4">
           <p className="text-sm text-base-content/70">
-            Upload a video showcasing the player's skills (Max 100MB, MP4/MOV/AVI/WebM/OGV)
+            Upload a photo of the player (Max 5MB, JPEG/PNG/GIF/WebP)
           </p>
-          
+
           <div className="form-control">
             <input
-              id="video-upload"
+              id="photo-upload"
               type="file"
-              accept="video/*"
-              onChange={handleVideoChange}
+              accept="image/*"
+              onChange={handlePhotoChange}
               className="file-input file-input-bordered file-input-primary w-full"
             />
           </div>
 
-          {videoPreview && (
+          {photoPreview && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="label-text">Video Preview</span>
+                <span className="label-text">Photo Preview</span>
                 <button
                   type="button"
-                  onClick={removeVideo}
+                  onClick={removePhoto}
                   className="btn btn-sm btn-outline btn-error"
                 >
                   <X className="h-4 w-4 mr-1" />
                   Remove
                 </button>
               </div>
-              <video 
-                controls 
-                className="w-full max-w-md h-48 bg-black rounded-lg"
-                src={videoPreview}
-              >
-                Your browser does not support the video tag.
-              </video>
+              <img
+                className="w-full max-w-xs h-48 object-cover rounded-lg border"
+                src={photoPreview}
+                alt="Player preview"
+              />
               <p className="text-sm text-base-content/70">
-                File: {videoFile?.name} ({(videoFile?.size / (1024 * 1024)).toFixed(2)} MB)
+                File: {photoFile?.name} ({(photoFile?.size / (1024 * 1024)).toFixed(2)} MB)
               </p>
             </div>
           )}

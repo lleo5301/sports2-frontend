@@ -97,6 +97,30 @@ export const integrationsService = {
   syncPrestoAll: async () => {
     const response = await api.post('/integrations/presto/sync/all');
     return response.data;
+  },
+
+  /**
+   * Sync team record (W-L) from PrestoSports
+   */
+  syncPrestoRecord: async () => {
+    const response = await api.post('/integrations/presto/sync/record');
+    return response.data;
+  },
+
+  /**
+   * Sync season stats from PrestoSports
+   */
+  syncPrestoSeasonStats: async () => {
+    const response = await api.post('/integrations/presto/sync/season-stats');
+    return response.data;
+  },
+
+  /**
+   * Sync career stats from PrestoSports
+   */
+  syncPrestoCareerStats: async () => {
+    const response = await api.post('/integrations/presto/sync/career-stats');
+    return response.data;
   }
 };
 

@@ -246,8 +246,12 @@ export default function TeamSettings() {
   }
 
   const team = teamData?.data
-  const users = teamUsers?.data || []
-  const permissions = userPermissions?.data || []
+  // Handle API response format - may be array or { users: [...] }
+  const usersData = teamUsers?.data
+  const users = Array.isArray(usersData) ? usersData : (usersData?.users || [])
+  // Handle API response format - may be array or { permissions: [...] }
+  const permissionsData = userPermissions?.data
+  const permissions = Array.isArray(permissionsData) ? permissionsData : (permissionsData?.permissions || [])
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
