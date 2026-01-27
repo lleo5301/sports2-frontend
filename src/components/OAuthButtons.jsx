@@ -1,6 +1,13 @@
 import React from 'react';
 
 const OAuthButtons = ({ onError }) => {
+  // OAuth disabled for initial release - will be enabled in future version
+  const OAUTH_ENABLED = false;
+
+  if (!OAUTH_ENABLED) {
+    return null;
+  }
+
   const handleGoogleSignIn = () => {
     try {
       const googleAuthUrl = `${import.meta.env.VITE_API_URL || window.location.origin}/api/auth/google`;

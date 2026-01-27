@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -24,11 +24,18 @@ const registerSchema = z.object({
 })
 
 export default function Register() {
+  // Registration disabled for initial release - users are managed via admin interface
+  const REGISTRATION_ENABLED = false;
+
+  if (!REGISTRATION_ENABLED) {
+    // Redirect to login if someone navigates directly to /register
+    return <Navigate to="/login" replace />;
+  }
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { login: authLogin } = useAuth()
-  const navigate = useNavigate()
 
   const {
     register,

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { login } from '../services/auth'
 import toast from 'react-hot-toast'
@@ -165,17 +165,10 @@ export default function Login() {
                 </button>
               </div>
 
-              {/* OAuth Buttons */}
+              {/* OAuth Buttons - disabled for initial release */}
               <OAuthButtons onError={(message) => toast.error(message)} />
 
-              <div className="text-center">
-                <p className="text-sm text-base-content/70">
-                  Don't have an account?{' '}
-                  <Link to="/register" className="link link-primary">
-                    Sign up here
-                  </Link>
-                </p>
-              </div>
+              {/* Sign up link - disabled for initial release, users managed via admin interface */}
             </form>
           </div>
         </div>
