@@ -77,9 +77,24 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          {/* Logo placeholder - can be customized per team in multi-tenant setup */}
+          {/* Login logo - configurable via VITE_LOGIN_LOGO_URL environment variable */}
           <div className="flex justify-center mb-4">
-            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
+            {import.meta.env.VITE_LOGIN_LOGO_URL ? (
+              <img
+                src={import.meta.env.VITE_LOGIN_LOGO_URL}
+                alt={import.meta.env.VITE_APP_NAME || 'Team Logo'}
+                className="w-24 h-24 object-contain"
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+            ) : null}
+            <div
+              className="w-20 h-20 rounded-full bg-primary flex items-center justify-center"
+              style={{ display: import.meta.env.VITE_LOGIN_LOGO_URL ? 'none' : 'flex' }}
+            >
               <span className="text-3xl font-bold text-primary-content">TP</span>
             </div>
           </div>
@@ -87,7 +102,7 @@ export default function Login() {
             Sign in to your account
           </h2>
           <p className="mt-2 text-sm text-base-content/70">
-            The Program - Collegiate Baseball Management
+            {import.meta.env.VITE_APP_NAME || 'The Program'} - Collegiate Baseball Management
           </p>
         </div>
         
