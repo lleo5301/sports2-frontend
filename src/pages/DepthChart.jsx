@@ -38,6 +38,7 @@ import {
   CheckCircle
 } from 'lucide-react'
 import api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 import DepthChartPositionManager from '../components/DepthChartPositionManager'
 import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
 import DepthChartSheetView from '../components/DepthChartSheetView'
@@ -67,6 +68,7 @@ const statusColors = {
 
 export default function DepthChart() {
   const queryClient = useQueryClient()
+  const { isSuperAdmin } = useAuth()
   const [selectedDepthChart, setSelectedDepthChart] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -369,13 +371,14 @@ export default function DepthChart() {
     return { label: 'Active', color: statusColors.active }
   }
 
-  const canView = userPermissions?.data?.includes('depth_chart_view')
-  const canCreate = userPermissions?.data?.includes('depth_chart_create')
-  const canEdit = userPermissions?.data?.includes('depth_chart_edit')
-  const canDelete = userPermissions?.data?.includes('depth_chart_delete')
-  const canManagePositions = userPermissions?.data?.includes('depth_chart_manage_positions')
-  const canAssignPlayers = userPermissions?.data?.includes('player_assign')
-  const canUnassignPlayers = userPermissions?.data?.includes('player_unassign')
+  // Super admins bypass all permission checks
+  const canView = isSuperAdmin || userPermissions?.data?.includes('depth_chart_view')
+  const canCreate = isSuperAdmin || userPermissions?.data?.includes('depth_chart_create')
+  const canEdit = isSuperAdmin || userPermissions?.data?.includes('depth_chart_edit')
+  const canDelete = isSuperAdmin || userPermissions?.data?.includes('depth_chart_delete')
+  const canManagePositions = isSuperAdmin || userPermissions?.data?.includes('depth_chart_manage_positions')
+  const canAssignPlayers = isSuperAdmin || userPermissions?.data?.includes('player_assign')
+  const canUnassignPlayers = isSuperAdmin || userPermissions?.data?.includes('player_unassign')
 
   const depthCharts = depthChartsData?.data || []
   const depthChart = depthChartData?.data
@@ -1103,7 +1106,7 @@ export default function DepthChart() {
                 <div>
                   <h4 className="text-lg font-semibold mb-3 flex items-center">
                     <Star className="h-5 w-5 mr-2 text-yellow-500" />
-                    Top Recommendations for {selectedPosition.position_name}
+                    Top Recommendations for {selectedPosition?.position_name || 'Position'}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                     {recommendedPlayers

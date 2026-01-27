@@ -122,7 +122,7 @@ export const fetchCsrfToken = async () => {
       // Use a separate axios instance to avoid triggering interceptors
       // that might cause circular token refresh loops
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL || '/api'}/auth/csrf-token`,
+        `${import.meta.env.VITE_API_URL || '/api/v1'}/auth/csrf-token`,
         {
           withCredentials: true,
         }

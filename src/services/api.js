@@ -44,7 +44,7 @@ import csrfService from './csrf'
  * const newPlayer = await api.post('/players', { name: 'John Doe' });
  */
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
