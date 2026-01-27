@@ -68,7 +68,73 @@ Updated frontend to work with new backend integration credentials system. Added 
 - [x] Sync Roster button works (24 players updated)
 - [x] Last synced timestamp updates after sync
 
+---
+
+## 2026-01-27: PrestoSports Full Sync + Live Stats UI
+
+### Summary
+Added UI for all 6 new PrestoSports sync endpoints including live game stats polling.
+
+### New Service Methods (`src/services/integrations.js`)
+- `syncPrestoPlayerDetails()` - Sync player bio, hometown
+- `syncPrestoPlayerPhotos()` - Sync player photos
+- `syncPrestoPlayerVideos()` - Sync player videos
+- `syncPrestoHistoricalStats()` - Sync historical season stats
+- `syncPrestoPressReleases()` - Sync press releases
+- `getPrestoLiveGames()` - Get games eligible for live stats
+- `syncPrestoLiveStats(gameId)` - Sync live stats for specific game
+
+### New UI Sections (`src/components/integrations/PrestoSportsConfig.jsx`)
+
+#### Additional Sync Options
+- Player Details button
+- Player Photos button
+- Player Videos button
+- Historical Stats button
+- Press Releases button
+
+#### Live Game Stats
+- Shows games scheduled for today or in progress
+- Auto-refreshes every 60 seconds
+- Displays game status (LIVE badge for in-progress)
+- Shows current score and inning for active games
+- Per-game sync button for real-time stats
+
+### API Endpoints Reference
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/presto/sync/player-details` | Sync player bio, hometown |
+| POST | `/presto/sync/player-photos` | Sync player photos |
+| POST | `/presto/sync/player-videos` | Sync player videos |
+| POST | `/presto/sync/historical-stats` | Sync historical stats |
+| POST | `/presto/sync/press-releases` | Sync press releases |
+| GET | `/presto/games/live` | Get live-eligible games |
+| POST | `/presto/sync/live-stats/:gameId` | Sync live stats |
+
+### Live Stats Response Structure
+```json
+{
+  "success": true,
+  "data": {
+    "game": { "id": 1, "opponent": "Team B", "game_date": "...", "home_away": "home" },
+    "gameState": {
+      "status": "in_progress",
+      "inning": 5,
+      "inningHalf": "top",
+      "homeScore": 3,
+      "awayScore": 2,
+      "outs": 1,
+      "balls": 2,
+      "strikes": 1
+    },
+    "statsCreated": 0,
+    "statsUpdated": 18
+  }
+}
+```
+
+---
+
 ### Next Steps (Future)
-- Add UI buttons for new sync endpoints (record, season-stats, career-stats)
 - Implement Hudl integration UI
 - Implement Synergy integration UI

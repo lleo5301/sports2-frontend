@@ -13,7 +13,15 @@ import {
   Download,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  Image,
+  Video,
+  FileText,
+  History,
+  Activity,
+  UserCircle,
+  Newspaper,
+  Play
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import integrationsService from '../../services/integrations';
@@ -162,6 +170,87 @@ const PrestoSportsConfig = () => {
     }
   });
 
+  // Additional sync mutations
+  const syncPlayerDetailsMutation = useMutation({
+    mutationFn: integrationsService.syncPrestoPlayerDetails,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Player details synced!');
+      queryClient.invalidateQueries(['players']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to sync player details');
+    }
+  });
+
+  const syncPlayerPhotosMutation = useMutation({
+    mutationFn: integrationsService.syncPrestoPlayerPhotos,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Player photos synced!');
+      queryClient.invalidateQueries(['players']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to sync player photos');
+    }
+  });
+
+  const syncPlayerVideosMutation = useMutation({
+    mutationFn: integrationsService.syncPrestoPlayerVideos,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Player videos synced!');
+      queryClient.invalidateQueries(['players']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to sync player videos');
+    }
+  });
+
+  const syncHistoricalStatsMutation = useMutation({
+    mutationFn: integrationsService.syncPrestoHistoricalStats,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Historical stats synced!');
+      queryClient.invalidateQueries(['players']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to sync historical stats');
+    }
+  });
+
+  const syncPressReleasesMutation = useMutation({
+    mutationFn: integrationsService.syncPrestoPressReleases,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Press releases synced!');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to sync press releases');
+    }
+  });
+
+  // Live games query
+  const { data: liveGamesData, isLoading: liveGamesLoading, refetch: refetchLiveGames } = useQuery({
+    queryKey: ['presto-live-games'],
+    queryFn: integrationsService.getPrestoLiveGames,
+    enabled: isConfigured && !!prestoTeamId && !!prestoSeasonId,
+    refetchInterval: 60000 // Refresh every minute
+  });
+
+  // Live stats sync mutation
+  const syncLiveStatsMutation = useMutation({
+    mutationFn: integrationsService.syncPrestoLiveStats,
+    onSuccess: (data) => {
+      const gameState = data.data?.gameState;
+      if (gameState) {
+        toast.success(`Live stats updated! ${gameState.inningHalf === 'top' ? 'Top' : 'Bot'} ${gameState.inning} - ${gameState.awayScore}-${gameState.homeScore}`);
+      } else {
+        toast.success(data.message || 'Live stats synced!');
+      }
+      queryClient.invalidateQueries(['presto-live-games']);
+      queryClient.invalidateQueries(['games']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to sync live stats');
+    }
+  });
+
   const handleTestConnection = () => {
     if (!username || !password) {
       toast.error('Please enter username and password');
@@ -210,7 +299,10 @@ const PrestoSportsConfig = () => {
   };
 
   const isSyncing = syncScheduleMutation.isPending || syncRosterMutation.isPending ||
-                    syncStatsMutation.isPending || syncAllMutation.isPending;
+                    syncStatsMutation.isPending || syncAllMutation.isPending ||
+                    syncPlayerDetailsMutation.isPending || syncPlayerPhotosMutation.isPending ||
+                    syncPlayerVideosMutation.isPending || syncHistoricalStatsMutation.isPending ||
+                    syncPressReleasesMutation.isPending || syncLiveStatsMutation.isPending;
 
   if (statusLoading) {
     return (
@@ -498,6 +590,164 @@ const PrestoSportsConfig = () => {
                 Sync All
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Additional Sync Options (when configured with team/season) */}
+      {isConfigured && prestoTeamId && prestoSeasonId && (
+        <div className="card bg-base-100">
+          <div className="card-body">
+            <h3 className="card-title text-lg">Additional Sync Options</h3>
+            <p className="text-sm text-base-content/70 mb-4">
+              Sync additional data like player details, photos, videos, and historical stats.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => syncPlayerDetailsMutation.mutate()}
+                disabled={isSyncing}
+              >
+                {syncPlayerDetailsMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <UserCircle className="w-4 h-4" />
+                )}
+                Player Details
+              </button>
+
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => syncPlayerPhotosMutation.mutate()}
+                disabled={isSyncing}
+              >
+                {syncPlayerPhotosMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Image className="w-4 h-4" />
+                )}
+                Player Photos
+              </button>
+
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => syncPlayerVideosMutation.mutate()}
+                disabled={isSyncing}
+              >
+                {syncPlayerVideosMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Video className="w-4 h-4" />
+                )}
+                Player Videos
+              </button>
+
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => syncHistoricalStatsMutation.mutate()}
+                disabled={isSyncing}
+              >
+                {syncHistoricalStatsMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <History className="w-4 h-4" />
+                )}
+                Historical Stats
+              </button>
+
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => syncPressReleasesMutation.mutate()}
+                disabled={isSyncing}
+              >
+                {syncPressReleasesMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Newspaper className="w-4 h-4" />
+                )}
+                Press Releases
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Live Game Stats (when configured with team/season) */}
+      {isConfigured && prestoTeamId && prestoSeasonId && (
+        <div className="card bg-base-100">
+          <div className="card-body">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="card-title text-lg">
+                  <Activity className="w-5 h-5 text-success" />
+                  Live Game Stats
+                </h3>
+                <p className="text-sm text-base-content/70">
+                  Sync real-time stats for games in progress.
+                </p>
+              </div>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => refetchLiveGames()}
+                disabled={liveGamesLoading}
+              >
+                <RefreshCw className={`w-4 h-4 ${liveGamesLoading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+
+            {liveGamesLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </div>
+            ) : liveGamesData?.data?.length > 0 ? (
+              <div className="space-y-3">
+                {liveGamesData.data.map((game) => (
+                  <div
+                    key={game.id}
+                    className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`badge badge-sm ${game.status === 'in_progress' ? 'badge-success' : 'badge-ghost'}`}>
+                          {game.status === 'in_progress' ? 'LIVE' : game.status}
+                        </span>
+                        <span className="font-medium">
+                          {game.home_away === 'home' ? 'vs' : '@'} {game.opponent}
+                        </span>
+                      </div>
+                      <p className="text-sm text-base-content/70">
+                        {new Date(game.game_date).toLocaleDateString()} {game.game_time || ''}
+                      </p>
+                      {game.home_score !== null && game.away_score !== null && (
+                        <p className="text-sm font-medium">
+                          Score: {game.home_away === 'home' ? game.home_score : game.away_score} - {game.home_away === 'home' ? game.away_score : game.home_score}
+                          {game.current_inning && ` (${game.inning_half === 'top' ? 'Top' : 'Bot'} ${game.current_inning})`}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => syncLiveStatsMutation.mutate(game.id)}
+                      disabled={syncLiveStatsMutation.isPending}
+                    >
+                      {syncLiveStatsMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Play className="w-4 h-4" />
+                      )}
+                      Sync
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-base-content/50">
+                <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>No live games available</p>
+                <p className="text-xs">Games scheduled for today will appear here</p>
+              </div>
+            )}
           </div>
         </div>
       )}

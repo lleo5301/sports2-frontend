@@ -121,6 +121,62 @@ export const integrationsService = {
   syncPrestoCareerStats: async () => {
     const response = await api.post('/integrations/presto/sync/career-stats');
     return response.data;
+  },
+
+  /**
+   * Sync player details (bio, hometown) from PrestoSports
+   */
+  syncPrestoPlayerDetails: async () => {
+    const response = await api.post('/integrations/presto/sync/player-details');
+    return response.data;
+  },
+
+  /**
+   * Sync player photos from PrestoSports
+   */
+  syncPrestoPlayerPhotos: async () => {
+    const response = await api.post('/integrations/presto/sync/player-photos');
+    return response.data;
+  },
+
+  /**
+   * Sync press releases from PrestoSports
+   */
+  syncPrestoPressReleases: async () => {
+    const response = await api.post('/integrations/presto/sync/press-releases');
+    return response.data;
+  },
+
+  /**
+   * Sync historical season stats from PrestoSports
+   */
+  syncPrestoHistoricalStats: async () => {
+    const response = await api.post('/integrations/presto/sync/historical-stats');
+    return response.data;
+  },
+
+  /**
+   * Sync player videos from PrestoSports
+   */
+  syncPrestoPlayerVideos: async () => {
+    const response = await api.post('/integrations/presto/sync/player-videos');
+    return response.data;
+  },
+
+  /**
+   * Get games eligible for live stats polling
+   */
+  getPrestoLiveGames: async () => {
+    const response = await api.get('/integrations/presto/games/live');
+    return response.data;
+  },
+
+  /**
+   * Sync live stats for a specific game
+   */
+  syncPrestoLiveStats: async (gameId) => {
+    const response = await api.post(`/integrations/presto/sync/live-stats/${gameId}`);
+    return response.data;
   }
 };
 
