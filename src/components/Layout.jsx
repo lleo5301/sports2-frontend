@@ -95,6 +95,7 @@ const Layout = ({ children }) => {
       items: [
         { path: '/teams', label: 'Teams', icon: Building2 },
         { path: '/team-settings', label: 'Team Settings', icon: Settings },
+        { path: '/games', label: 'Games', icon: Trophy },
         { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
         { path: '/schedule-templates', label: 'Schedule Templates', icon: FileText },
       ]

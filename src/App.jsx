@@ -45,6 +45,8 @@ import Scouts from './pages/Scouts';
 import Vendors from './pages/Vendors';
 import HighSchoolCoaches from './pages/HighSchoolCoaches';
 import TeamSettings from './pages/TeamSettings';
+import Games from './pages/Games';
+import GameDetail from './pages/GameDetail';
 
 function App() {
   return (
@@ -228,6 +230,20 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <TeamSchedule />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/games" element={
+          <ProtectedRoute>
+            <Layout>
+              <Games />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/games/:id" element={
+          <ProtectedRoute>
+            <Layout>
+              <GameDetail />
             </Layout>
           </ProtectedRoute>
         } />

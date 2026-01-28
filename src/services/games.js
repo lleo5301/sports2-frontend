@@ -115,6 +115,33 @@ export const gamesService = {
   },
 
   /**
+   * Retrieves complete box score statistics for a specific game
+   *
+   * @async
+   * @function getGameStats
+   * @memberof gamesService
+   * @param {string} gameId - The unique identifier of the game
+   * @returns {Promise<Object>} Complete box score with batting, pitching, and fielding stats
+   * @returns {Object} return.game - Game details (id, opponent, date, score, result, location)
+   * @returns {Array<Object>} return.batting - Batting stats for players with plate appearances
+   * @returns {Array<Object>} return.pitching - Pitching stats for players who pitched
+   * @returns {Array<Object>} return.fielding - Fielding stats for players with defensive activity
+   * @returns {Object} return.team_totals - Aggregate team statistics
+   * @returns {number} return.player_count - Number of players with recorded stats
+   *
+   * @throws {Error} Throws 404 error if game not found
+   *
+   * @example
+   * const boxScore = await gamesService.getGameStats('game-123');
+   * console.log(`${boxScore.game.opponent}: ${boxScore.player_count} players`);
+   * boxScore.batting.forEach(b => console.log(`${b.player.name}: ${b.h}/${b.ab}`));
+   */
+  getGameStats: async (gameId) => {
+    const response = await api.get(`/games/${gameId}/stats`)
+    return response.data
+  },
+
+  /**
    * Creates a new game record
    *
    * @async
