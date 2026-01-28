@@ -79,13 +79,50 @@ export default function PlayerDetail() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Players
             </Link>
+            {/* Player Photo */}
+            {playerData.photo_url ? (
+              <div className="avatar">
+                <div className="w-20 h-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <img
+                    src={playerData.photo_url}
+                    alt={`${playerData.first_name} ${playerData.last_name}`}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<div class="bg-base-300 w-full h-full flex items-center justify-center text-2xl font-bold text-base-content/50">${(playerData.first_name?.[0] || '')}{(playerData.last_name?.[0] || '')}</div>`;
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="avatar placeholder">
+                <div className="bg-primary text-primary-content rounded-full w-20 h-20">
+                  <span className="text-2xl font-bold">
+                    {(playerData.first_name?.[0] || '')}{(playerData.last_name?.[0] || '')}
+                  </span>
+                </div>
+              </div>
+            )}
             <div>
-              <h1 className="text-3xl font-bold text-base-content">
-                {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}
-              </h1>
+              <div className="flex items-center gap-3">
+                {playerData.jersey_number && (
+                  <span className="text-4xl font-bold text-primary">#{playerData.jersey_number}</span>
+                )}
+                <h1 className="text-3xl font-bold text-base-content">
+                  {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}
+                </h1>
+              </div>
               <p className="text-base-content/70">
-                {playerData.position || 'N/A'} • {playerData.school_type || 'N/A'} • {playerData.status || 'Unknown'}
+                {playerData.position || 'N/A'}
+                {playerData.class_year && ` • ${playerData.class_year}`}
+                {` • ${playerData.school_type || 'N/A'}`}
+                {` • ${playerData.status || 'Unknown'}`}
               </p>
+              {playerData.hometown && (
+                <p className="text-sm text-base-content/60 flex items-center mt-1">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  {playerData.hometown}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex space-x-2">
@@ -145,6 +182,20 @@ export default function PlayerDetail() {
                     <span className="font-medium">{playerData.graduation_year}</span>
                   </div>
                 )}
+                {playerData.class_year && (
+                  <div className="flex justify-between">
+                    <span className="text-base-content/70">Class:</span>
+                    <span className="font-medium">{playerData.class_year}</span>
+                  </div>
+                )}
+                {(playerData.bats || playerData.throws) && (
+                  <div className="flex justify-between">
+                    <span className="text-base-content/70">Bats/Throws:</span>
+                    <span className="font-medium">
+                      {playerData.bats || '-'}/{playerData.throws || '-'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -152,12 +203,34 @@ export default function PlayerDetail() {
           {/* Contact Info */}
           <div className="card">
             <div className="card-body">
-              <h2 className="card-title">Contact Information</h2>
+              <h2 className="card-title">Contact & Background</h2>
               <div className="space-y-3">
+                {playerData.hometown && (
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 text-base-content/50 mr-2" />
+                    <span className="text-sm">{playerData.hometown}</span>
+                  </div>
+                )}
                 {playerData.school && (
                   <div className="flex items-center">
                     <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
                     <span className="text-sm">{playerData.school}</span>
+                  </div>
+                )}
+                {(playerData.high_school || playerData.high_school_city || playerData.high_school_state) && (
+                  <div className="flex items-center">
+                    <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
+                    <span className="text-sm text-base-content/70">
+                      HS: {[playerData.high_school, playerData.high_school_city, playerData.high_school_state].filter(Boolean).join(', ')}
+                    </span>
+                  </div>
+                )}
+                {playerData.previous_school && (
+                  <div className="flex items-center">
+                    <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
+                    <span className="text-sm text-base-content/70">
+                      Previous: {playerData.previous_school}
+                    </span>
                   </div>
                 )}
                 {(playerData.city || playerData.state) && (
@@ -221,6 +294,16 @@ export default function PlayerDetail() {
             </div>
           </div>
         </div>
+
+        {/* Bio Section */}
+        {playerData.bio && (
+          <div className="card mb-8">
+            <div className="card-body">
+              <h2 className="card-title">About</h2>
+              <p className="text-base-content/80 whitespace-pre-wrap">{playerData.bio}</p>
+            </div>
+          </div>
+        )}
 
         {/* Statistics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
