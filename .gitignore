@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Playwright MCP
+.playwright-mcp/
+
+# Logo asset
+Primary_Logo_-_.5x.png
