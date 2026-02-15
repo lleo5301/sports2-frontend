@@ -11,6 +11,13 @@ import { useEffect, useRef } from 'react';
 const useModalAccessibility = (isOpen, onClose) => {
   const modalRef = useRef(null);
   const previousActiveElementRef = useRef(null);
+  // Store onClose in a ref to avoid re-running effect when it changes
+  const onCloseRef = useRef(onClose);
+
+  // Keep the ref updated
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,7 +54,7 @@ const useModalAccessibility = (isOpen, onClose) => {
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
       }
     };
 
@@ -99,7 +106,7 @@ const useModalAccessibility = (isOpen, onClose) => {
         previousActiveElementRef.current.focus();
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]); // Only depend on isOpen, not onClose
 
   return modalRef;
 };

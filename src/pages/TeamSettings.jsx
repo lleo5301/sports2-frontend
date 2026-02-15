@@ -25,9 +25,16 @@ import {
   Edit,
   X,
   Image as ImageIcon,
-  Link2
+  Link2,
+  Search,
+  Mail,
+  Phone,
+  Key,
+  Copy,
+  RefreshCw
 } from 'lucide-react'
 import api from '../services/api'
+import { adminUsersService, USER_ROLES } from '../services/adminUsers'
 import { useAuth } from '../contexts/AuthContext'
 import { useBranding } from '../contexts/BrandingContext'
 import LogoUpload from '../components/LogoUpload'
@@ -88,6 +95,22 @@ export default function TeamSettings() {
     expires_at: '',
     notes: ''
   })
+  // User management state
+  const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [showEditUserModal, setShowEditUserModal] = useState(false)
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [resetPasswordResult, setResetPasswordResult] = useState(null)
+  const [userSearch, setUserSearch] = useState('')
+  const [userRoleFilter, setUserRoleFilter] = useState('')
+  const [newUser, setNewUser] = useState({
+    email: '',
+    password: '',
+    first_name: '',
+    last_name: '',
+    role: 'viewer',
+    phone: ''
+  })
   const queryClient = useQueryClient()
 
   // Fetch team data
@@ -110,6 +133,18 @@ export default function TeamSettings() {
     queryKey: ['user-permissions'],
     queryFn: () => api.get('/teams/permissions'),
     staleTime: 300000
+  })
+
+  // Fetch admin users list (for super_admin only)
+  const { data: adminUsersData, isLoading: isLoadingAdminUsers } = useQuery({
+    queryKey: ['admin-users', userSearch, userRoleFilter],
+    queryFn: () => adminUsersService.getUsers({
+      search: userSearch || undefined,
+      role: userRoleFilter || undefined,
+      limit: 50
+    }),
+    enabled: user?.role === 'super_admin',
+    staleTime: 60000
   })
 
   // Update team settings mutation
@@ -191,6 +226,61 @@ export default function TeamSettings() {
     }
   })
 
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: adminUsersService.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+      queryClient.invalidateQueries({ queryKey: ['team-users'] })
+      setShowAddUserModal(false)
+      setNewUser({ email: '', password: '', first_name: '', last_name: '', role: 'viewer', phone: '' })
+      toast.success('User created successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to create user')
+    }
+  })
+
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: ({ userId, data }) => adminUsersService.updateUser(userId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+      queryClient.invalidateQueries({ queryKey: ['team-users'] })
+      setShowEditUserModal(false)
+      setEditingUser(null)
+      toast.success('User updated successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update user')
+    }
+  })
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: adminUsersService.deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+      queryClient.invalidateQueries({ queryKey: ['team-users'] })
+      toast.success('User deleted successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to delete user')
+    }
+  })
+
+  // Reset password mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: (userId) => adminUsersService.resetPassword(userId),
+    onSuccess: (data) => {
+      setResetPasswordResult(data)
+      toast.success('Password reset successfully')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to reset password')
+    }
+  })
+
   const handleTeamUpdate = (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
@@ -245,6 +335,42 @@ export default function TeamSettings() {
     refreshBranding()
   }
 
+  const handleCreateUser = () => {
+    createUserMutation.mutate(newUser)
+  }
+
+  const handleUpdateUser = () => {
+    if (editingUser) {
+      updateUserMutation.mutate({
+        userId: editingUser.id,
+        data: {
+          first_name: editingUser.first_name,
+          last_name: editingUser.last_name,
+          email: editingUser.email,
+          role: editingUser.role,
+          phone: editingUser.phone,
+          is_active: editingUser.is_active
+        }
+      })
+    }
+  }
+
+  const handleDeleteUser = (userId) => {
+    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      deleteUserMutation.mutate(userId)
+    }
+  }
+
+  const handleResetPassword = (userId) => {
+    setResetPasswordResult(null)
+    resetPasswordMutation.mutate(userId)
+  }
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Copied to clipboard')
+  }
+
   const team = teamData?.data
   // Handle API response format - may be array or { users: [...] }
   const usersData = teamUsers?.data
@@ -252,6 +378,10 @@ export default function TeamSettings() {
   // Handle API response format - may be array or { permissions: [...] }
   const permissionsData = userPermissions?.data
   const permissions = Array.isArray(permissionsData) ? permissionsData : (permissionsData?.permissions || [])
+
+  // Admin users data
+  const adminUsers = adminUsersData?.data?.users || adminUsersData?.data || []
+  const isSuperAdmin = user?.role === 'super_admin'
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -282,6 +412,15 @@ export default function TeamSettings() {
             >
               <Palette className="h-4 w-4 mr-2" />
               Branding
+            </button>
+          )}
+          {isSuperAdmin && (
+            <button
+              className={`tab ${activeTab === 'users' ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab('users')}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Users
             </button>
           )}
           <button
@@ -796,6 +935,180 @@ export default function TeamSettings() {
           </div>
         )}
 
+        {/* Users Management (Super Admin only) */}
+        {activeTab === 'users' && isSuperAdmin && (
+          <div className="space-y-6">
+            <div className="card">
+              <div className="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="card-title">Team Users</h2>
+                  <p className="card-description">Manage user accounts for your team</p>
+                </div>
+                <button
+                  onClick={() => setShowAddUserModal(true)}
+                  className="btn btn-primary"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add User
+                </button>
+              </div>
+              <div className="card-content">
+                {/* Search and Filter */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by name or email..."
+                      className="input input-bordered w-full pl-10"
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                    />
+                  </div>
+                  <select
+                    className="select select-bordered"
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                  >
+                    <option value="">All Roles</option>
+                    {USER_ROLES.map(role => (
+                      <option key={role.value} value={role.value}>{role.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Users Table */}
+                {isLoadingAdminUsers ? (
+                  <div className="flex justify-center py-8">
+                    <span className="loading loading-spinner loading-lg"></span>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="table table-zebra w-full">
+                      <thead>
+                        <tr>
+                          <th>User</th>
+                          <th>Role</th>
+                          <th>Status</th>
+                          <th>Created</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {adminUsers.map((u) => (
+                          <tr key={u.id}>
+                            <td>
+                              <div className="flex items-center space-x-3">
+                                <div className="avatar placeholder">
+                                  <div className="bg-neutral text-neutral-content rounded-full w-10">
+                                    <span>
+                                      {u.first_name?.[0]}{u.last_name?.[0]}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="font-bold">{u.first_name} {u.last_name}</div>
+                                  <div className="text-sm opacity-50 flex items-center gap-1">
+                                    <Mail className="h-3 w-3" />
+                                    {u.email}
+                                  </div>
+                                  {u.phone && (
+                                    <div className="text-sm opacity-50 flex items-center gap-1">
+                                      <Phone className="h-3 w-3" />
+                                      {u.phone}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`badge ${
+                                u.role === 'super_admin' ? 'badge-error' :
+                                u.role === 'head_coach' ? 'badge-primary' :
+                                u.role === 'assistant_coach' ? 'badge-secondary' :
+                                'badge-ghost'
+                              }`}>
+                                {USER_ROLES.find(r => r.value === u.role)?.label || u.role}
+                              </span>
+                            </td>
+                            <td>
+                              {u.is_active !== false ? (
+                                <span className="badge badge-success gap-1">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Active
+                                </span>
+                              ) : (
+                                <span className="badge badge-warning gap-1">
+                                  <AlertCircle className="h-3 w-3" />
+                                  Inactive
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <div className="text-sm">
+                                {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => {
+                                    setEditingUser(u)
+                                    setShowEditUserModal(true)
+                                  }}
+                                  className="btn btn-ghost btn-xs"
+                                  title="Edit User"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingUser(u)
+                                    setResetPasswordResult(null)
+                                    setShowResetPasswordModal(true)
+                                  }}
+                                  className="btn btn-ghost btn-xs"
+                                  title="Reset Password"
+                                >
+                                  <Key className="h-3 w-3" />
+                                </button>
+                                {u.id !== user?.id && (
+                                  <button
+                                    onClick={() => handleDeleteUser(u.id)}
+                                    className="btn btn-ghost btn-xs text-error"
+                                    title="Delete User"
+                                    disabled={deleteUserMutation.isLoading}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {adminUsers.length === 0 && !isLoadingAdminUsers && (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">No users found</p>
+                    <button
+                      onClick={() => setShowAddUserModal(true)}
+                      className="btn btn-outline btn-sm mt-2"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add First User
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Integrations (Head Coach only) */}
         {activeTab === 'integrations' && canModifyBranding && (
           <div className="space-y-6">
@@ -1008,6 +1321,409 @@ export default function TeamSettings() {
             </AccessibleModal.Footer>
           </>
         )}
+      </AccessibleModal>
+
+      {/* Add User Modal */}
+      <AccessibleModal
+        isOpen={showAddUserModal}
+        onClose={() => setShowAddUserModal(false)}
+        title="Add New User"
+        size="md"
+      >
+        <AccessibleModal.Header
+          title="Add New User"
+          onClose={() => setShowAddUserModal(false)}
+        />
+        <AccessibleModal.Content>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="label">
+                  <span className="label-text">First Name *</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={newUser.first_name}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, first_name: e.target.value }))}
+                  placeholder="John"
+                />
+              </div>
+              <div>
+                <label className="label">
+                  <span className="label-text">Last Name *</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={newUser.last_name}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, last_name: e.target.value }))}
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Email *</span>
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="email"
+                  className="input input-bordered w-full pl-10"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="john.doe@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Password *</span>
+              </label>
+              <div className="relative">
+                <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="input input-bordered w-full pl-10 pr-10"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                  placeholder="Enter password"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Minimum 8 characters with at least one uppercase, lowercase, and number
+              </div>
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Role *</span>
+              </label>
+              <select
+                className="select select-bordered w-full"
+                value={newUser.role}
+                onChange={(e) => setNewUser(prev => ({ ...prev, role: e.target.value }))}
+              >
+                {USER_ROLES.map(role => (
+                  <option key={role.value} value={role.value}>
+                    {role.label} - {role.description}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="label-text">Phone (optional)</span>
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="tel"
+                  className="input input-bordered w-full pl-10"
+                  value={newUser.phone}
+                  onChange={(e) => setNewUser(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+          </div>
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={() => setShowAddUserModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={handleCreateUser}
+            disabled={!newUser.email || !newUser.password || !newUser.first_name || !newUser.last_name || createUserMutation.isLoading}
+          >
+            {createUserMutation.isLoading ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Creating...
+              </>
+            ) : (
+              <>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Create User
+              </>
+            )}
+          </button>
+        </AccessibleModal.Footer>
+      </AccessibleModal>
+
+      {/* Edit User Modal */}
+      <AccessibleModal
+        isOpen={showEditUserModal}
+        onClose={() => {
+          setShowEditUserModal(false)
+          setEditingUser(null)
+        }}
+        title="Edit User"
+        size="md"
+      >
+        {editingUser && (
+          <>
+            <AccessibleModal.Header
+              title="Edit User"
+              onClose={() => {
+                setShowEditUserModal(false)
+                setEditingUser(null)
+              }}
+            />
+            <AccessibleModal.Content>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label">
+                      <span className="label-text">First Name *</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered w-full"
+                      value={editingUser.first_name || ''}
+                      onChange={(e) => setEditingUser(prev => ({ ...prev, first_name: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Last Name *</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered w-full"
+                      value={editingUser.last_name || ''}
+                      onChange={(e) => setEditingUser(prev => ({ ...prev, last_name: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="label">
+                    <span className="label-text">Email *</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="email"
+                      className="input input-bordered w-full pl-10"
+                      value={editingUser.email || ''}
+                      onChange={(e) => setEditingUser(prev => ({ ...prev, email: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="label">
+                    <span className="label-text">Role *</span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={editingUser.role || 'viewer'}
+                    onChange={(e) => setEditingUser(prev => ({ ...prev, role: e.target.value }))}
+                    disabled={editingUser.id === user?.id}
+                  >
+                    {USER_ROLES.map(role => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
+                    ))}
+                  </select>
+                  {editingUser.id === user?.id && (
+                    <div className="text-xs text-warning mt-1">
+                      You cannot change your own role
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="label">
+                    <span className="label-text">Phone</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="tel"
+                      className="input input-bordered w-full pl-10"
+                      value={editingUser.phone || ''}
+                      onChange={(e) => setEditingUser(prev => ({ ...prev, phone: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-control">
+                  <label className="label cursor-pointer justify-start gap-4">
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-primary"
+                      checked={editingUser.is_active !== false}
+                      onChange={(e) => setEditingUser(prev => ({ ...prev, is_active: e.target.checked }))}
+                      disabled={editingUser.id === user?.id}
+                    />
+                    <span className="label-text">
+                      {editingUser.is_active !== false ? 'Active' : 'Inactive'}
+                    </span>
+                  </label>
+                  {editingUser.id === user?.id && (
+                    <div className="text-xs text-warning">
+                      You cannot deactivate your own account
+                    </div>
+                  )}
+                </div>
+              </div>
+            </AccessibleModal.Content>
+            <AccessibleModal.Footer>
+              <button
+                className="btn"
+                onClick={() => {
+                  setShowEditUserModal(false)
+                  setEditingUser(null)
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleUpdateUser}
+                disabled={!editingUser.email || !editingUser.first_name || !editingUser.last_name || updateUserMutation.isLoading}
+              >
+                {updateUserMutation.isLoading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </AccessibleModal.Footer>
+          </>
+        )}
+      </AccessibleModal>
+
+      {/* Reset Password Modal */}
+      <AccessibleModal
+        isOpen={showResetPasswordModal}
+        onClose={() => {
+          setShowResetPasswordModal(false)
+          setEditingUser(null)
+          setResetPasswordResult(null)
+        }}
+        title="Reset Password"
+        size="sm"
+      >
+        <AccessibleModal.Header
+          title="Reset Password"
+          onClose={() => {
+            setShowResetPasswordModal(false)
+            setEditingUser(null)
+            setResetPasswordResult(null)
+          }}
+        />
+        <AccessibleModal.Content>
+          {editingUser && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <div className="avatar placeholder mb-4">
+                  <div className="bg-neutral text-neutral-content rounded-full w-16">
+                    <span className="text-xl">
+                      {editingUser.first_name?.[0]}{editingUser.last_name?.[0]}
+                    </span>
+                  </div>
+                </div>
+                <h3 className="font-semibold">{editingUser.first_name} {editingUser.last_name}</h3>
+                <p className="text-sm text-gray-500">{editingUser.email}</p>
+              </div>
+
+              {!resetPasswordResult ? (
+                <div className="alert">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>
+                    This will generate a new temporary password for this user. They will need to log in with the new password.
+                  </span>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="alert alert-success">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Password has been reset successfully!</span>
+                  </div>
+
+                  <div>
+                    <label className="label">
+                      <span className="label-text font-medium">New Temporary Password</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        className="input input-bordered w-full font-mono"
+                        value={resetPasswordResult.temporary_password || resetPasswordResult.password || '********'}
+                        readOnly
+                      />
+                      <button
+                        className="btn btn-outline"
+                        onClick={() => copyToClipboard(resetPasswordResult.temporary_password || resetPasswordResult.password)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="text-xs text-warning mt-2">
+                      Make sure to copy and share this password securely. It won't be shown again.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </AccessibleModal.Content>
+        <AccessibleModal.Footer>
+          <button
+            className="btn"
+            onClick={() => {
+              setShowResetPasswordModal(false)
+              setEditingUser(null)
+              setResetPasswordResult(null)
+            }}
+          >
+            {resetPasswordResult ? 'Close' : 'Cancel'}
+          </button>
+          {!resetPasswordResult && editingUser && (
+            <button
+              className="btn btn-warning"
+              onClick={() => handleResetPassword(editingUser.id)}
+              disabled={resetPasswordMutation.isLoading}
+            >
+              {resetPasswordMutation.isLoading ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Resetting...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Reset Password
+                </>
+              )}
+            </button>
+          )}
+        </AccessibleModal.Footer>
       </AccessibleModal>
     </div>
   )

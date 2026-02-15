@@ -1,9 +1,18 @@
 import React from 'react';
-import { Star, TrendingUp, Trophy, Users } from 'lucide-react';
+import { Star, TrendingUp, Trophy, Users, AlertTriangle } from 'lucide-react';
 
 const OverallPrefList = () => {
   return (
     <div className="p-6">
+      {/* Coming Soon Banner */}
+      <div className="alert alert-warning mb-6">
+        <AlertTriangle className="w-5 h-5" />
+        <div>
+          <h3 className="font-bold">Coming Soon</h3>
+          <p className="text-sm">This page is under development. The data shown below is placeholder content and not connected to live data.</p>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
