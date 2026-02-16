@@ -26,10 +26,38 @@ const Reports = () => {
   });
 
   const reports = reportsData?.data || [
-    { id: 1, title: 'Monthly Player Performance', type: 'Performance', date: '2024-01-15', author: 'John Doe', status: 'Published' },
-    { id: 2, title: 'Team Statistics Summary', type: 'Statistics', date: '2024-01-14', author: 'Jane Smith', status: 'Draft' },
-    { id: 3, title: 'Scouting Analysis Q4', type: 'Scouting', date: '2024-01-13', author: 'Mike Johnson', status: 'Published' },
-    { id: 4, title: 'Recruitment Pipeline', type: 'Recruitment', date: '2024-01-12', author: 'John Doe', status: 'In Review' }
+    {
+      id: 1,
+      title: 'Monthly Player Performance',
+      type: 'Performance',
+      date: '2024-01-15',
+      author: 'John Doe',
+      status: 'Published'
+    },
+    {
+      id: 2,
+      title: 'Team Statistics Summary',
+      type: 'Statistics',
+      date: '2024-01-14',
+      author: 'Jane Smith',
+      status: 'Draft'
+    },
+    {
+      id: 3,
+      title: 'Scouting Analysis Q4',
+      type: 'Scouting',
+      date: '2024-01-13',
+      author: 'Mike Johnson',
+      status: 'Published'
+    },
+    {
+      id: 4,
+      title: 'Recruitment Pipeline',
+      type: 'Recruitment',
+      date: '2024-01-12',
+      author: 'John Doe',
+      status: 'In Review'
+    }
   ];
 
   if (isLoading) {
@@ -49,9 +77,7 @@ const Reports = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2">
-            Reports
-          </h1>
+          <h1 className="text-3xl font-bold text-base-content mb-2">Reports</h1>
           <p className="text-base-content/70">
             Generate and manage analytical reports
           </p>
@@ -64,22 +90,35 @@ const Reports = () => {
               <Users className="w-5 h-5 mr-2" />
               Performance Report
             </div>
-            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow">
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow"
+            >
               <li>
-                <button onClick={() => navigate('/performance/entry')} className="text-left">
+                <button
+                  onClick={() => navigate('/performance/entry')}
+                  className="text-left"
+                >
                   <Plus className="w-4 h-4" />
                   <div>
                     <div className="font-medium">Add Performance Data</div>
-                    <div className="text-xs text-base-content/60">Enter game statistics</div>
+                    <div className="text-xs text-base-content/60">
+                      Enter game statistics
+                    </div>
                   </div>
                 </button>
               </li>
               <li>
-                <button onClick={() => navigate('/reports/create-performance')} className="text-left">
+                <button
+                  onClick={() => navigate('/reports/create-performance')}
+                  className="text-left"
+                >
                   <FileText className="w-4 h-4" />
                   <div>
                     <div className="font-medium">Create Report Template</div>
-                    <div className="text-xs text-base-content/60">Generate analysis report</div>
+                    <div className="text-xs text-base-content/60">
+                      Generate analysis report
+                    </div>
                   </div>
                 </button>
               </li>
@@ -109,99 +148,125 @@ const Reports = () => {
         </div>
 
         {/* Reports List */}
-        <div className="card">
-          <div className="card-body">
-            <div className="overflow-x-auto">
-              <table className="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Author</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reports.map((report) => (
-                    <tr key={report.id}>
-                      <td className="font-medium">{report.title}</td>
-                      <td>
-                        <div className="badge badge-outline">{report.type}</div>
-                      </td>
-                      <td>{report.date}</td>
-                      <td>{report.author}</td>
-                      <td>
-                        <div className={`badge ${
-                          report.status === 'Published' ? 'badge-success' :
-                            report.status === 'Draft' ? 'badge-neutral' :
-                              'badge-warning'
-                        }`}>
-                          {report.status}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="flex space-x-2">
-                          <button
-                            className="btn btn-sm btn-outline"
-                            onClick={() => {
-                              const reportType = report.type.toLowerCase().replace(' ', '-');
-                              if (reportType === 'performance' || reportType === 'player-performance') {
-                                navigate(`/reports/${report.id}/performance`);
-                              } else if (reportType === 'statistics' || reportType === 'team-statistics') {
-                                navigate(`/reports/${report.id}/statistics`);
-                              } else if (reportType === 'scouting') {
-                                navigate(`/scouting/${report.id}`);
-                              } else {
-                                navigate(`/reports/${report.id}/view`);
-                              }
-                            }}
+        <div className="table-container">
+          <table className="table-modern">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Author</th>
+                <th>Status</th>
+                <th className="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((report) => (
+                <tr key={report.id} className="group">
+                  <td className="font-bold text-ui-primary">{report.title}</td>
+                  <td>
+                    <div className="badge badge-outline border-ui-border text-[10px] font-bold uppercase tracking-wider h-6">
+                      {report.type}
+                    </div>
+                  </td>
+                  <td className="text-ui-secondary">{report.date}</td>
+                  <td className="text-ui-secondary">{report.author}</td>
+                  <td>
+                    <div
+                      className={`badge h-6 text-[10px] font-black uppercase tracking-widest ${
+                        report.status === 'Published'
+                          ? 'bg-success/20 text-success border-success/30'
+                          : report.status === 'Draft'
+                            ? 'bg-base-100 text-ui-secondary border-ui-border'
+                            : 'bg-warning/20 text-warning border-warning/30'
+                      }`}
+                    >
+                      {report.status}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        className="btn btn-square btn-ghost btn-sm text-info hover:bg-info/10"
+                        onClick={() => {
+                          const reportType = report.type
+                            .toLowerCase()
+                            .replace(' ', '-');
+                          if (
+                            reportType === 'performance' ||
+                            reportType === 'player-performance'
+                          ) {
+                            navigate(`/reports/${report.id}/performance`);
+                          } else if (
+                            reportType === 'statistics' ||
+                            reportType === 'team-statistics'
+                          ) {
+                            navigate(`/reports/${report.id}/statistics`);
+                          } else if (reportType === 'scouting') {
+                            navigate(`/scouting/${report.id}`);
+                          } else {
+                            navigate(`/reports/${report.id}/view`);
+                          }
+                        }}
+                        title="View Report"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      {report.type.toLowerCase() === 'custom' ? (
+                        <div className="dropdown dropdown-end">
+                          <label
+                            tabIndex={0}
+                            className="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary/10"
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
-                          </button>
-                          {report.type.toLowerCase() === 'custom' ? (
-                            <div className="dropdown dropdown-end">
-                              <button tabIndex={0} className="btn btn-sm btn-primary">
-                                <Edit className="w-4 h-4 mr-1" />
-                                Edit
+                            <Edit className="w-4 h-4" />
+                          </label>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content z-[1] menu p-2 shadow-2xl bg-base-200 rounded-xl border border-ui-border w-52"
+                          >
+                            <li>
+                              <button
+                                onClick={() =>
+                                  navigate(`/reports/${report.id}/edit-content`)
+                                }
+                              >
+                                <Edit className="w-4 h-4" />
+                                Edit Report Content
                               </button>
-                              <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                                <li>
-                                  <a onClick={() => navigate(`/reports/${report.id}/edit-content`)}>
-                                    <Edit className="w-4 h-4" />
-                                    Edit Report Content
-                                  </a>
-                                </li>
-                                <li>
-                                  <a onClick={() => navigate(`/reports/create-custom?edit=${report.id}`)}>
-                                    <Edit className="w-4 h-4" />
-                                    Edit Report Template
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                          ) : (
-                            <button
-                              className="btn btn-sm btn-primary"
-                              onClick={() => navigate(`/reports/${report.id}/edit-content`)}
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Edit
-                            </button>
-                          )}
+                            </li>
+                            <li>
+                              <button
+                                onClick={() =>
+                                  navigate(
+                                    `/reports/create-custom?edit=${report.id}`
+                                  )
+                                }
+                              >
+                                <Edit className="w-4 h-4" />
+                                Edit Report Template
+                              </button>
+                            </li>
+                          </ul>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                      ) : (
+                        <button
+                          className="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary/10"
+                          onClick={() =>
+                            navigate(`/reports/${report.id}/edit-content`)
+                          }
+                          title="Edit Report"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-
     </div>
   );
 };

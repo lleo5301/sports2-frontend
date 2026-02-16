@@ -24,26 +24,108 @@ import toast from 'react-hot-toast';
 import 'react-day-picker/dist/style.css';
 
 const scheduleTypes = [
-  { id: 'general', name: 'General Schedule', color: 'bg-blue-100 text-blue-800' },
-  { id: 'position_players', name: 'Position Players', color: 'bg-green-100 text-green-800' },
+  {
+    id: 'general',
+    name: 'General Schedule',
+    color: 'bg-blue-100 text-blue-800'
+  },
+  {
+    id: 'position_players',
+    name: 'Position Players',
+    color: 'bg-green-100 text-green-800'
+  },
   { id: 'pitchers', name: 'Pitchers', color: 'bg-red-100 text-red-800' },
-  { id: 'grinder_performance', name: 'Grinder - Performance', color: 'bg-purple-100 text-purple-800' },
-  { id: 'grinder_hitting', name: 'Grinder - Hitting', color: 'bg-orange-100 text-orange-800' },
-  { id: 'grinder_defensive', name: 'Grinder - Defensive', color: 'bg-teal-100 text-teal-800' },
-  { id: 'bullpen', name: 'Bullpen Schedule', color: 'bg-indigo-100 text-indigo-800' },
-  { id: 'live_bp', name: 'Live BP Schedule', color: 'bg-pink-100 text-pink-800' }
+  {
+    id: 'grinder_performance',
+    name: 'Grinder - Performance',
+    color: 'bg-purple-100 text-purple-800'
+  },
+  {
+    id: 'grinder_hitting',
+    name: 'Grinder - Hitting',
+    color: 'bg-orange-100 text-orange-800'
+  },
+  {
+    id: 'grinder_defensive',
+    name: 'Grinder - Defensive',
+    color: 'bg-teal-100 text-teal-800'
+  },
+  {
+    id: 'bullpen',
+    name: 'Bullpen Schedule',
+    color: 'bg-indigo-100 text-indigo-800'
+  },
+  {
+    id: 'live_bp',
+    name: 'Live BP Schedule',
+    color: 'bg-pink-100 text-pink-800'
+  }
 ];
 
 const timeSlots = [
-  '6:00', '6:15', '6:30', '6:45', '7:00', '7:15', '7:30', '7:45', '8:00', '8:15', '8:30', '8:45',
-  '9:00', '9:15', '9:30', '9:45', '10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45',
-  '12:00', '12:15', '12:30', '12:45', '1:00', '1:15', '1:30', '1:45', '2:00', '2:15', '2:30', '2:45',
-  '3:00', '3:15', '3:30', '3:45', '4:00', '4:15', '4:30', '4:45', '5:00', '5:15', '5:30', '5:45'
+  '6:00',
+  '6:15',
+  '6:30',
+  '6:45',
+  '7:00',
+  '7:15',
+  '7:30',
+  '7:45',
+  '8:00',
+  '8:15',
+  '8:30',
+  '8:45',
+  '9:00',
+  '9:15',
+  '9:30',
+  '9:45',
+  '10:00',
+  '10:15',
+  '10:30',
+  '10:45',
+  '11:00',
+  '11:15',
+  '11:30',
+  '11:45',
+  '12:00',
+  '12:15',
+  '12:30',
+  '12:45',
+  '1:00',
+  '1:15',
+  '1:30',
+  '1:45',
+  '2:00',
+  '2:15',
+  '2:30',
+  '2:45',
+  '3:00',
+  '3:15',
+  '3:30',
+  '3:45',
+  '4:00',
+  '4:15',
+  '4:30',
+  '4:45',
+  '5:00',
+  '5:15',
+  '5:30',
+  '5:45'
 ];
 
 const locations = [
-  'Clubhouse', 'Weight Room', 'Field 1', 'Field 2', 'Stadium', 'Stadium Bullpen', 'Stadium Cages',
-  'Conference Room', 'Press Box', 'San Palmilla', 'San Portella', 'RFL'
+  'Clubhouse',
+  'Weight Room',
+  'Field 1',
+  'Field 2',
+  'Stadium',
+  'Stadium Bullpen',
+  'Stadium Cages',
+  'Conference Room',
+  'Press Box',
+  'San Palmilla',
+  'San Portella',
+  'RFL'
 ];
 
 export default function TeamSchedule() {
@@ -64,15 +146,16 @@ export default function TeamSchedule() {
 
   // Get user's teams (from junction table if available, fallback to primary Team)
   const userTeams = useMemo(() => {
-    return user?.Teams?.length > 0 ? user.Teams : (user?.Team ? [user.Team] : []);
+    return user?.Teams?.length > 0 ? user.Teams : user?.Team ? [user.Team] : [];
   }, [user]);
   const hasMultipleTeams = userTeams.length > 1;
 
   // Auto-fill team information from authenticated user (use first team by default)
   useEffect(() => {
     if (userTeams.length > 0 && !scheduleData.team_id) {
-      const defaultTeam = userTeams.find(t => t.UserTeam?.role === 'primary') || userTeams[0];
-      setScheduleData(prev => ({
+      const defaultTeam =
+        userTeams.find((t) => t.UserTeam?.role === 'primary') || userTeams[0];
+      setScheduleData((prev) => ({
         ...prev,
         team_id: defaultTeam.id,
         team_name: defaultTeam.name,
@@ -105,9 +188,9 @@ export default function TeamSchedule() {
     if (loadedTemplate) {
       try {
         const templateData = JSON.parse(loadedTemplate);
-        setScheduleData(prev => ({
+        setScheduleData((prev) => ({
           ...prev,
-          sections: templateData.template_data.sections.map(section => ({
+          sections: templateData.template_data.sections.map((section) => ({
             ...section,
             id: Date.now() + Math.random() // Generate unique IDs for frontend
           }))
@@ -154,7 +237,7 @@ export default function TeamSchedule() {
   const handleDateSelect = (date) => {
     if (date) {
       setSelectedDate(date);
-      setScheduleData(prev => ({
+      setScheduleData((prev) => ({
         ...prev,
         date: date.toISOString().split('T')[0]
       }));
@@ -180,7 +263,7 @@ export default function TeamSchedule() {
       return;
     }
 
-    setScheduleData(prev => ({
+    setScheduleData((prev) => ({
       ...prev,
       sections: [...prev.sections, { ...newSection, id: Date.now() }]
     }));
@@ -194,40 +277,58 @@ export default function TeamSchedule() {
       return;
     }
 
-    setScheduleData(prev => ({
+    setScheduleData((prev) => ({
       ...prev,
-      sections: prev.sections.map(section =>
+      sections: prev.sections.map((section) =>
         section.id === sectionId
-          ? { ...section, activities: [...section.activities, { ...newActivity, id: Date.now() }] }
+          ? {
+            ...section,
+            activities: [
+              ...section.activities,
+              { ...newActivity, id: Date.now() }
+            ]
+          }
           : section
       )
     }));
-    setNewActivity({ time: '', activity: '', location: '', staff: '', group: '', notes: '' });
+    setNewActivity({
+      time: '',
+      activity: '',
+      location: '',
+      staff: '',
+      group: '',
+      notes: ''
+    });
     setShowAddActivity(false);
   };
 
   const [selectedSectionId, setSelectedSectionId] = useState(null);
 
   const removeActivity = (sectionId, activityId) => {
-    setScheduleData(prev => ({
+    setScheduleData((prev) => ({
       ...prev,
-      sections: prev.sections.map(section =>
+      sections: prev.sections.map((section) =>
         section.id === sectionId
-          ? { ...section, activities: section.activities.filter(activity => activity.id !== activityId) }
+          ? {
+            ...section,
+            activities: section.activities.filter(
+              (activity) => activity.id !== activityId
+            )
+          }
           : section
       )
     }));
   };
 
   const removeSection = (sectionId) => {
-    setScheduleData(prev => ({
+    setScheduleData((prev) => ({
       ...prev,
-      sections: prev.sections.filter(section => section.id !== sectionId)
+      sections: prev.sections.filter((section) => section.id !== sectionId)
     }));
   };
 
   const getScheduleTypeInfo = (type) => {
-    return scheduleTypes.find(t => t.id === type) || scheduleTypes[0];
+    return scheduleTypes.find((t) => t.id === type) || scheduleTypes[0];
   };
 
   return (
@@ -236,9 +337,12 @@ export default function TeamSchedule() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Team Schedule Creator</h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Create and manage detailed team schedules for practices, games, and training sessions.
+            <h1 className="text-2xl font-bold text-base-content">
+              Team Schedule Creator
+            </h1>
+            <p className="mt-1 text-sm text-base-content/60">
+              Create and manage detailed team schedules for practices, games,
+              and training sessions.
             </p>
           </div>
           <div className="flex gap-2">
@@ -262,7 +366,9 @@ export default function TeamSchedule() {
         {/* Schedule Form */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Schedule Information</h2>
+            <h2 className="text-lg font-semibold text-base-content">
+              Schedule Information
+            </h2>
             <button
               onClick={() => navigate('/schedule-templates')}
               className="btn btn-outline btn-sm"
@@ -274,26 +380,35 @@ export default function TeamSchedule() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
+              <label className="block text-sm font-medium text-base-content/70 mb-1">
+                Team
+              </label>
               {hasMultipleTeams ? (
                 <>
                   <select
                     className="select select-bordered w-full"
                     value={scheduleData.team_id}
                     onChange={(e) => {
-                      const selectedTeam = userTeams.find(t => t.id === parseInt(e.target.value));
+                      const selectedTeam = userTeams.find(
+                        (t) => t.id === parseInt(e.target.value)
+                      );
                       if (selectedTeam) {
-                        setScheduleData(prev => ({
+                        setScheduleData((prev) => ({
                           ...prev,
                           team_id: selectedTeam.id,
                           team_name: selectedTeam.name,
-                          program_name: selectedTeam.program_name || prev.program_name || ''
+                          program_name:
+                            selectedTeam.program_name ||
+                            prev.program_name ||
+                            ''
                         }));
                       }
                     }}
                   >
-                    {userTeams.map(team => (
-                      <option key={team.id} value={team.id}>{team.name}</option>
+                    {userTeams.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
                     ))}
                   </select>
                   <p className="text-xs text-base-content/50 mt-1">
@@ -304,7 +419,13 @@ export default function TeamSchedule() {
                 <>
                   <div className="input w-full flex items-center bg-base-200 cursor-not-allowed">
                     <Building2 className="w-4 h-4 mr-2 text-base-content/50" />
-                    <span className={scheduleData.team_name ? 'text-base-content' : 'text-base-content/50'}>
+                    <span
+                      className={
+                        scheduleData.team_name
+                          ? 'text-base-content'
+                          : 'text-base-content/50'
+                      }
+                    >
                       {scheduleData.team_name || 'Loading team...'}
                     </span>
                   </div>
@@ -316,18 +437,27 @@ export default function TeamSchedule() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
+              <label className="block text-sm font-medium text-base-content/70 mb-1">
+                Program Name
+              </label>
               <input
                 type="text"
                 className="input w-full"
                 placeholder="e.g., Arizona Bridge Program"
                 value={scheduleData.program_name}
-                onChange={(e) => setScheduleData(prev => ({ ...prev, program_name: e.target.value }))}
+                onChange={(e) =>
+                  setScheduleData((prev) => ({
+                    ...prev,
+                    program_name: e.target.value
+                  }))
+                }
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-base-content/70 mb-1">
+                Date
+              </label>
               <div className="relative">
                 <button
                   type="button"
@@ -346,25 +476,31 @@ export default function TeamSchedule() {
                       onSelect={handleDateSelect}
                       className="react-day-picker"
                       classNames={{
-                        months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
+                        months:
+                          'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
                         month: 'space-y-4',
-                        caption: 'flex justify-center pt-1 relative items-center',
+                        caption:
+                          'flex justify-center pt-1 relative items-center',
                         caption_label: 'text-sm font-medium',
                         nav: 'space-x-1 flex items-center',
-                        nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                        nav_button:
+                          'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
                         nav_button_previous: 'absolute left-1',
                         nav_button_next: 'absolute right-1',
                         table: 'w-full border-collapse space-y-1',
                         head_row: 'flex',
-                        head_cell: 'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
+                        head_cell:
+                          'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
                         row: 'flex w-full mt-2',
                         cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
                         day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md',
-                        day_selected: 'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
+                        day_selected:
+                          'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
                         day_today: 'bg-accent text-accent-content',
                         day_outside: 'text-base-content/30 opacity-50',
                         day_disabled: 'text-base-content/30 opacity-50',
-                        day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-content',
+                        day_range_middle:
+                          'aria-selected:bg-accent aria-selected:text-accent-content',
                         day_hidden: 'invisible'
                       }}
                     />
@@ -374,13 +510,20 @@ export default function TeamSchedule() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Motto</label>
+              <label className="block text-sm font-medium text-base-content/70 mb-1">
+                Motto
+              </label>
               <input
                 type="text"
                 className="input w-full"
                 placeholder="e.g., EXECUTION WINS"
                 value={scheduleData.motto}
-                onChange={(e) => setScheduleData(prev => ({ ...prev, motto: e.target.value }))}
+                onChange={(e) =>
+                  setScheduleData((prev) => ({
+                    ...prev,
+                    motto: e.target.value
+                  }))
+                }
               />
             </div>
           </div>
@@ -388,7 +531,9 @@ export default function TeamSchedule() {
           {/* Sections */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-md font-semibold text-gray-900">Schedule Sections</h3>
+              <h3 className="text-md font-semibold text-base-content">
+                Schedule Sections
+              </h3>
               <button
                 onClick={() => setShowAddSection(true)}
                 className="btn btn-primary btn-sm"
@@ -400,12 +545,12 @@ export default function TeamSchedule() {
 
             {/* Add Section Modal */}
             {showAddSection && (
-              <div className="card p-4 bg-gray-50">
+              <div className="card p-4 bg-base-200/50">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-medium">Add New Section</h4>
                   <button
                     onClick={() => setShowAddSection(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-base-content/40 hover:text-base-content/60"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -413,26 +558,42 @@ export default function TeamSchedule() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Section Type</label>
+                    <label className="block text-sm font-medium text-base-content/70 mb-1">
+                      Section Type
+                    </label>
                     <select
                       className="input w-full"
                       value={newSection.type}
-                      onChange={(e) => setNewSection(prev => ({ ...prev, type: e.target.value }))}
+                      onChange={(e) =>
+                        setNewSection((prev) => ({
+                          ...prev,
+                          type: e.target.value
+                        }))
+                      }
                     >
-                      {scheduleTypes.map(type => (
-                        <option key={type.id} value={type.id}>{type.name}</option>
+                      {scheduleTypes.map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.name}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Section Title</label>
+                    <label className="block text-sm font-medium text-base-content/70 mb-1">
+                      Section Title
+                    </label>
                     <input
                       type="text"
                       className="input w-full"
                       placeholder="e.g., Position Players Schedule"
                       value={newSection.title}
-                      onChange={(e) => setNewSection(prev => ({ ...prev, title: e.target.value }))}
+                      onChange={(e) =>
+                        setNewSection((prev) => ({
+                          ...prev,
+                          title: e.target.value
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -463,10 +624,14 @@ export default function TeamSchedule() {
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${typeInfo.color}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${typeInfo.color}`}
+                        >
                           {typeInfo.name}
                         </span>
-                        <h4 className="ml-3 font-semibold text-gray-900">{section.title}</h4>
+                        <h4 className="ml-3 font-semibold text-base-content">
+                          {section.title}
+                        </h4>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -490,8 +655,8 @@ export default function TeamSchedule() {
 
                     {/* Activities Table */}
                     {section.activities.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="table table-zebra w-full">
+                      <div className="table-container">
+                        <table className="table-modern">
                           <thead>
                             <tr>
                               <th>Time</th>
@@ -499,23 +664,35 @@ export default function TeamSchedule() {
                               <th>Location</th>
                               <th>Staff/Group</th>
                               <th>Notes</th>
-                              <th>Actions</th>
+                              <th className="text-right">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {section.activities
                               .sort((a, b) => a.time.localeCompare(b.time))
                               .map((activity) => (
-                                <tr key={activity.id}>
-                                  <td className="font-medium">{activity.time}</td>
-                                  <td>{activity.activity}</td>
-                                  <td>{activity.location}</td>
-                                  <td>{activity.staff || activity.group}</td>
-                                  <td>{activity.notes}</td>
-                                  <td>
+                                <tr key={activity.id} className="group">
+                                  <td className="font-bold text-ui-primary">
+                                    {activity.time}
+                                  </td>
+                                  <td className="text-ui-primary">
+                                    {activity.activity}
+                                  </td>
+                                  <td className="text-ui-secondary">
+                                    {activity.location}
+                                  </td>
+                                  <td className="text-ui-secondary">
+                                    {activity.staff || activity.group}
+                                  </td>
+                                  <td className="text-ui-secondary">
+                                    {activity.notes}
+                                  </td>
+                                  <td className="text-right">
                                     <button
-                                      onClick={() => removeActivity(section.id, activity.id)}
-                                      className="btn btn-ghost btn-sm text-red-600"
+                                      onClick={() =>
+                                        removeActivity(section.id, activity.id)
+                                      }
+                                      className="btn btn-ghost btn-sm text-error opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
                                       <Trash2 className="h-3 w-3" />
                                     </button>
@@ -526,7 +703,7 @@ export default function TeamSchedule() {
                         </table>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
+                      <div className="text-center py-8 text-base-content/50">
                         <Clock className="h-8 w-8 mx-auto mb-2" />
                         <p>No activities added yet</p>
                       </div>
@@ -537,9 +714,12 @@ export default function TeamSchedule() {
             })}
 
             {scheduleData.sections.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-base-content/50">
                 <Calendar className="h-12 w-12 mx-auto mb-2" />
-                <p>No sections added yet. Click &quot;Add Section&quot; to get started.</p>
+                <p>
+                  No sections added yet. Click &quot;Add Section&quot; to get
+                  started.
+                </p>
               </div>
             )}
           </div>
@@ -569,12 +749,12 @@ export default function TeamSchedule() {
         {/* Add Activity Modal */}
         {showAddActivity && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+            <div className="bg-base-100 rounded-lg p-6 w-full max-w-2xl mx-4 border border-ui-border">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Add Activity</h3>
                 <button
                   onClick={() => setShowAddActivity(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-base-content/40 hover:text-base-content/60"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -582,63 +762,102 @@ export default function TeamSchedule() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    Time
+                  </label>
                   <select
                     className="input w-full"
                     value={newActivity.time}
-                    onChange={(e) => setNewActivity(prev => ({ ...prev, time: e.target.value }))}
+                    onChange={(e) =>
+                      setNewActivity((prev) => ({
+                        ...prev,
+                        time: e.target.value
+                      }))
+                    }
                   >
                     <option value="">Select Time</option>
-                    {timeSlots.map(time => (
-                      <option key={time} value={time}>{time}</option>
+                    {timeSlots.map((time) => (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Activity</label>
+                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    Activity
+                  </label>
                   <input
                     type="text"
                     className="input w-full"
                     placeholder="e.g., BREAKFAST, STRETCH, BULLPENS"
                     value={newActivity.activity}
-                    onChange={(e) => setNewActivity(prev => ({ ...prev, activity: e.target.value }))}
+                    onChange={(e) =>
+                      setNewActivity((prev) => ({
+                        ...prev,
+                        activity: e.target.value
+                      }))
+                    }
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    Location
+                  </label>
                   <select
                     className="input w-full"
                     value={newActivity.location}
-                    onChange={(e) => setNewActivity(prev => ({ ...prev, location: e.target.value }))}
+                    onChange={(e) =>
+                      setNewActivity((prev) => ({
+                        ...prev,
+                        location: e.target.value
+                      }))
+                    }
                   >
                     <option value="">Select Location</option>
-                    {locations.map(location => (
-                      <option key={location} value={location}>{location}</option>
+                    {locations.map((location) => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Staff/Group</label>
+                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    Staff/Group
+                  </label>
                   <input
                     type="text"
                     className="input w-full"
                     placeholder="e.g., PIVOT CULINARY, GROUP 1"
                     value={newActivity.staff}
-                    onChange={(e) => setNewActivity(prev => ({ ...prev, staff: e.target.value }))}
+                    onChange={(e) =>
+                      setNewActivity((prev) => ({
+                        ...prev,
+                        staff: e.target.value
+                      }))
+                    }
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    Notes
+                  </label>
                   <textarea
                     className="textarea w-full"
                     rows="2"
                     placeholder="Additional notes or instructions..."
                     value={newActivity.notes}
-                    onChange={(e) => setNewActivity(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setNewActivity((prev) => ({
+                        ...prev,
+                        notes: e.target.value
+                      }))
+                    }
                   />
                 </div>
               </div>

@@ -256,7 +256,7 @@ const Layout = ({ children }) => {
                           )}
 
                           <IconComponent
-                            className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}
+                            className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}
                           />
 
                           {!isDrawerCollapsed && (
