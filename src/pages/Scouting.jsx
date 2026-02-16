@@ -1,14 +1,20 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useScoutingReports } from '../hooks/useReports';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useScoutingReports } from "../hooks/useReports";
 
 const Scouting = () => {
   const [page, setPage] = useState(1);
 
   // Use React Query hook for fetching scouting reports
-  const { data: scoutingReports, isLoading, error, pagination, stats } = useScoutingReports({
+  const {
+    data: scoutingReports,
+    isLoading,
+    error,
+    pagination,
+    stats,
+  } = useScoutingReports({
     page,
-    limit: 20
+    limit: 20,
   });
 
   const handlePageChange = (newPage) => {
@@ -16,12 +22,12 @@ const Scouting = () => {
   };
 
   const getGradeColor = (grade) => {
-    if (!grade) return 'badge-neutral';
-    const gradeValue = grade.replace(/[+-]/g, '');
-    if (gradeValue === 'A') return 'badge-success';
-    if (gradeValue === 'B') return 'badge-warning';
-    if (gradeValue === 'C') return 'badge-info';
-    return 'badge-error';
+    if (!grade) return "badge-neutral";
+    const gradeValue = grade.replace(/[+-]/g, "");
+    if (gradeValue === "A") return "badge-success";
+    if (gradeValue === "B") return "badge-warning";
+    if (gradeValue === "C") return "badge-info";
+    return "badge-error";
   };
 
   if (isLoading && scoutingReports.length === 0) {
@@ -51,10 +57,20 @@ const Scouting = () => {
 
         {error && (
           <div className="alert alert-error mb-6">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
-            <span>{error?.message || 'Failed to load scouting reports'}</span>
+            <span>{error?.message || "Failed to load scouting reports"}</span>
           </div>
         )}
 
@@ -92,7 +108,7 @@ const Scouting = () => {
               <table className="table table-zebra">
                 <thead>
                   <tr>
-                    <th>Player</th>
+                    <th>Player / Prospect</th>
                     <th>Scout</th>
                     <th>Date</th>
                     <th>Grade</th>
@@ -104,36 +120,77 @@ const Scouting = () => {
                   {scoutingReports.map((report) => (
                     <tr key={report.id}>
                       <td className="font-medium">
-                        {report.Player?.first_name} {report.Player?.last_name}
-                      </td>
-                      <td>
-                        {report.User?.first_name} {report.User?.last_name}
-                      </td>
-                      <td>{new Date(report.created_at).toLocaleDateString()}</td>
-                      <td>
-                        {report.overall_grade ? (
-                          <div className={`badge ${getGradeColor(report.overall_grade)}`}>
-                            {report.overall_grade}
-                          </div>
+                        {report.Player ? (
+                          `${report.Player.first_name} ${report.Player.last_name}`
+                        ) : report.Prospect ? (
+                          `${report.Prospect.first_name} ${report.Prospect.last_name} (R)`
                         ) : (
-                          <span className="text-base-content/50">-</span>
+                          <span className="text-base-content/50">Unknown</span>
                         )}
                       </td>
                       <td>
-                        <div className={`badge ${
-                          report.status === 'completed' ? 'badge-success' :
-                            report.status === 'in_progress' ? 'badge-warning' :
-                              'badge-neutral'
-                        }`}>
+                        {report.Creator ? (
+                          `${report.Creator.first_name} ${report.Creator.last_name}`
+                        ) : report.User ? (
+                          `${report.User.first_name} ${report.User.last_name}`
+                        ) : (
+                          <span className="text-base-content/50">Unknown</span>
+                        )}
+                      </td>
+                      <td>
+                        {new Date(
+                          report.report_date || report.created_at,
+                        ).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <div className="flex flex-col gap-1">
+                          {report.overall_grade && (
+                            <div
+                              className={`badge badge-sm ${getGradeColor(report.overall_grade)}`}
+                            >
+                              Old: {report.overall_grade}
+                            </div>
+                          )}
+                          {report.overall_present && (
+                            <div className="badge badge-sm badge-primary">
+                              P: {report.overall_present}
+                            </div>
+                          )}
+                          {report.overall_future && (
+                            <div className="badge badge-sm badge-secondary">
+                              F: {report.overall_future}
+                            </div>
+                          )}
+                          {!report.overall_grade && !report.overall_present && (
+                            <span className="text-base-content/50">-</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div
+                          className={`badge ${
+                            report.status === "completed"
+                              ? "badge-success"
+                              : report.status === "in_progress"
+                                ? "badge-warning"
+                                : "badge-neutral"
+                          }`}
+                        >
                           {report.status}
                         </div>
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <Link to={`/scouting/${report.id}`} className="btn btn-sm btn-outline">
+                          <Link
+                            to={`/scouting/${report.id}`}
+                            className="btn btn-sm btn-outline"
+                          >
                             View
                           </Link>
-                          <Link to={`/scouting/${report.id}/edit`} className="btn btn-sm btn-primary">
+                          <Link
+                            to={`/scouting/${report.id}/edit`}
+                            className="btn btn-sm btn-primary"
+                          >
                             Edit
                           </Link>
                         </div>
@@ -153,26 +210,29 @@ const Scouting = () => {
                     disabled={pagination.page === 1}
                     onClick={() => handlePageChange(pagination.page - 1)}
                   >
-                    «
+                    &laquo;
                   </button>
-                  {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <button
-                        key={pageNum}
-                        className={`join-item btn ${pagination.page === pageNum ? 'btn-active' : ''}`}
-                        onClick={() => handlePageChange(pageNum)}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
+                  {Array.from(
+                    { length: Math.min(5, pagination.pages) },
+                    (_, i) => {
+                      const pageNum = i + 1;
+                      return (
+                        <button
+                          key={pageNum}
+                          className={`join-item btn ${pagination.page === pageNum ? "btn-active" : ""}`}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    },
+                  )}
                   <button
                     className="join-item btn"
                     disabled={pagination.page === pagination.pages}
                     onClick={() => handlePageChange(pagination.page + 1)}
                   >
-                    »
+                    &raquo;
                   </button>
                 </div>
               </div>
@@ -180,7 +240,9 @@ const Scouting = () => {
 
             {/* Results Info */}
             <div className="text-center mt-4 text-sm text-base-content/70">
-              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} reports
+              Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+              {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+              of {pagination.total} reports
             </div>
           </div>
         </div>
@@ -188,8 +250,18 @@ const Scouting = () => {
         {/* Add Report Button */}
         <div className="mt-8 text-center">
           <Link to="/scouting/create" className="btn btn-primary">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
             Create New Report
           </Link>

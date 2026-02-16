@@ -6,74 +6,186 @@
    BASE LAYER - Modern Typography & Foundations
    ============================================ */
 @layer base {
+  /* frontend-ui-dark-ts CSS Custom Properties */
+  /* Theme 1: Executive Oxford (Default - Professional, Grounded) */
+  :root, [data-theme="executive-oxford"] {
+    --color-brand: #3b82f6; /* Trust blue */
+    --color-brand-hover: #2563eb;
+    --color-brand-light: #60a5fa;
+    --color-brand-subtle: rgba(59, 130, 246, 0.1);
+
+    --color-bg-1: hsl(222, 47%, 11%); /* Deep Navy Slate */
+    --color-bg-2: hsl(222, 47%, 13%);
+    --color-bg-3: hsl(222, 47%, 15%);
+    --color-bg-4: hsl(222, 47%, 18%);
+    --color-bg-5: hsl(222, 47%, 22%);
+    --color-bg-6: hsl(222, 47%, 26%);
+
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+
+    --color-border-subtle: rgba(255, 255, 255, 0.05);
+    --color-border-default: rgba(255, 255, 255, 0.1);
+    --color-border-strong: rgba(255, 255, 255, 0.2);
+
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --color-info: #3b82f6;
+  }
+
+  /* Theme 2: Modern Neon (Former default, vivid/energetic) */
+  [data-theme="modern-neon"] {
+    --color-brand: #8251ee;
+    --color-brand-hover: #9366f5;
+    --color-brand-light: #a37ef5;
+    --color-brand-subtle: rgba(130, 81, 238, 0.15);
+
+    --color-bg-1: hsl(240, 10%, 6%);
+    --color-bg-2: hsl(240, 8%, 9%);
+    --color-bg-3: hsl(240, 7%, 12%);
+    --color-bg-4: hsl(240, 6%, 16%);
+    --color-bg-5: hsl(240, 5%, 20%);
+    --color-bg-6: hsl(240, 5%, 24%);
+
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
+  }
+
+  /* Theme 3: Clean Slate (Neutral, Minimalist) */
+  [data-theme="clean-slate"] {
+    --color-brand: #6366f1;
+    --color-brand-hover: #4f46e5;
+    --color-brand-light: #818cf8;
+    --color-brand-subtle: rgba(99, 102, 241, 0.1);
+
+    --color-bg-1: #0f172a;
+    --color-bg-2: #1e293b;
+    --color-bg-3: #334155;
+
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+  }
+
+  /* Shared Foundation Variables */
+  :root {
+    --transition-fast: 150ms ease;
+    --transition-normal: 200ms ease;
+    --transition-slow: 300ms ease;
+
+    /* Common team defaults (can be overridden by context) */
+    --team-primary-rgb: 59, 130, 246; /* Navy Blue default */
+  }
+
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    -moz-osx-year-smoothing: grayscale;
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
   }
 
   body {
-    @apply text-base-content;
-    background-color: var(--page-bg, #f8fafc);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    @apply text-base-content antialiased;
+    background-color: var(--page-bg, var(--color-bg-1));
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  /* Focus styles from skill */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-neutral-bg-bg1;
+  }
+
+  /* Scrollbar styling from skill */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-bg-bg2;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-bg-bg5 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-bg-bg6;
   }
 
   /* Page content area with subtle gradient */
   .drawer-content {
-    background-color: var(--page-bg, #f8fafc);
+    background-color: var(--page-bg, var(--color-bg-1));
     background-image:
-      radial-gradient(at 100% 0%, rgba(var(--team-primary-rgb, 59, 130, 246), 0.03) 0%, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(var(--team-secondary-rgb, 239, 68, 68), 0.02) 0%, transparent 50%);
+      radial-gradient(
+        at 100% 0%,
+        rgba(var(--team-primary-rgb, 130, 81, 238), 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        rgba(var(--team-secondary-rgb, 239, 68, 68), 0.03) 0%,
+        transparent 50%
+      );
   }
 
-  /* Modern heading typography */
-  h1 {
-    @apply text-4xl font-bold tracking-tight;
+  /* Modern heading typography - FLUID SYSTEM */
+  h1, .text-display {
+    font-size: clamp(2.25rem, 5vw + 1rem, 4.5rem);
+    @apply font-bold tracking-tight;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  h2, .text-h2 {
+    font-size: clamp(1.5rem, 3vw + 0.5rem, 2.75rem);
+    @apply font-semibold tracking-tight;
     line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
   }
 
-  h2 {
-    @apply text-2xl font-semibold tracking-tight;
+  h3, .text-h3 {
+    font-size: clamp(1.25rem, 2vw + 0.25rem, 1.75rem);
+    @apply font-semibold tracking-tight;
     line-height: 1.2;
+    color: var(--color-text-primary);
   }
 
-  h3 {
-    @apply text-xl font-semibold;
-    line-height: 1.3;
+  .text-lead {
+    font-size: clamp(1.125rem, 1.5vw + 0.5rem, 1.375rem);
+    @apply leading-relaxed;
+    color: var(--color-text-secondary);
   }
 
-  /* Team-branded heading colors */
-  .drawer-content h1:first-of-type,
-  h1.team-heading,
-  .page-title {
-    color: var(--team-heading, inherit);
+  .text-body {
+    font-size: clamp(0.9375rem, 0.5vw + 0.75rem, 1rem);
+    @apply leading-relaxed;
+    color: var(--color-text-primary);
   }
 
-  h2.team-heading,
-  .section-title {
-    color: var(--team-heading-light, inherit);
+  .text-caption {
+    @apply text-xs font-medium uppercase tracking-[0.15em];
+    color: var(--color-text-muted);
   }
 
-  /* Accent backgrounds using team colors */
-  .team-accent-bg {
-    background-color: var(--team-accent-bg);
-    border-color: var(--team-accent-border);
-  }
-
-  /* Links with team colors */
-  a.team-link {
-    color: var(--team-primary);
-    transition: color 0.2s ease;
-  }
-  a.team-link:hover {
-    color: var(--team-heading);
-  }
-
-  /* Enhanced selection colors */
-  ::selection {
-    background-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.2);
-    color: var(--team-heading, inherit);
+  /* HiDPI & Large Screen Refinements */
+  @media (min-width: 1536px) {
+    :root {
+      font-size: 110%; /* Scale up slightly for ultra-wide/HiDPI desktops */
+    }
   }
 }
 
@@ -82,22 +194,39 @@
    ============================================ */
 @layer components {
   /* ----------------------------------------
-     BUTTONS - Modern with subtle lift
+     UNIFIED HOVER SYSTEM
      ---------------------------------------- */
+  .hover-lift {
+    @apply transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)];
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1 shadow-2xl brightness-110;
+    box-shadow: 0 10px 30px -10px rgba(var(--team-primary-rgb, 0,0,0), 0.3);
+  }
+
+  /* ----------------------------------------
+     CONTRAST-AWARE TEXT
+     ---------------------------------------- */
+  .text-contrast {
+    color: var(--text-color, var(--color-text-primary));
+  }
+
+  .bg-adaptive {
+    background-color: var(--bg-color);
+    --text-color: var(--text-on-bg);
+  }
+
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl text-sm font-medium;
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-bold tracking-tight;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
     @apply disabled:opacity-50 disabled:pointer-events-none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    @apply hover-lift;
     user-select: none;
   }
 
-  .btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
-
   .btn:active:not(:disabled) {
-    transform: translateY(0);
+    @apply translate-y-0 scale-[0.98];
   }
 
   .btn-primary {
@@ -146,23 +275,47 @@
      Uses CSS variables for dynamic team colors
      ---------------------------------------- */
   .stat-card-primary {
-    background: linear-gradient(to bottom right, oklch(var(--p)), oklch(var(--pf))) !important;
-    color: white;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--team-primary-rgb, 59, 130, 246), 1) 0%,
+      rgba(var(--team-primary-rgb, 59, 130, 246), 0.8) 100%
+    ) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    box-shadow: 0 10px 20px -5px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3) !important;
   }
 
   .stat-card-secondary {
-    background: linear-gradient(to bottom right, oklch(var(--s)), oklch(var(--sf))) !important;
-    color: white;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--team-secondary-rgb, 239, 68, 68), 0.9) 0%,
+      rgba(var(--team-secondary-rgb, 239, 68, 68), 0.7) 100%
+    ) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    box-shadow: 0 10px 20px -5px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.2) !important;
   }
 
   .stat-card-accent {
-    background: linear-gradient(to bottom right, oklch(var(--a)), oklch(var(--af))) !important;
-    color: white;
+    background: linear-gradient(
+      135deg,
+      var(--color-brand, #3b82f6) 0%,
+      var(--color-brand-hover, #2563eb) 100%
+    ) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    box-shadow: 0 10px 20px -5px rgba(var(--team-primary-rgb, 59, 130, 246), 0.2) !important;
   }
 
   .stat-card-neutral {
-    background: linear-gradient(to bottom right, oklch(var(--n)), oklch(var(--nf))) !important;
-    color: white;
+    background: linear-gradient(
+      135deg,
+      var(--color-bg-4, #2d3748) 0%,
+      var(--color-bg-2, #1a202c) 100%
+    ) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: white !important;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2) !important;
   }
 
   .btn-glass:hover:not(:disabled) {
@@ -190,7 +343,10 @@
     @apply placeholder:text-base-content/40;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
     @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-base-200;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
   }
 
   .input:focus {
@@ -199,18 +355,25 @@
 
   .input-neu {
     @apply border-0;
-    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.08), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.08),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.9);
   }
 
   .input-neu:focus {
-    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1), inset -3px -3px 6px rgba(255, 255, 255, 0.95), 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.1),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.95),
+      0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
   }
 
   .textarea {
     @apply rounded-xl border-2 border-base-300 bg-base-100 px-4 py-3 text-sm;
     @apply placeholder:text-base-content/40;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
     min-height: 100px;
     resize: vertical;
   }
@@ -218,53 +381,53 @@
   .select {
     @apply h-11 rounded-xl border-2 border-base-300 bg-base-100 px-4 text-sm;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   /* ----------------------------------------
      CARDS - Modern with hover lift
      ---------------------------------------- */
   .card {
-    @apply rounded-2xl border border-base-300/50 bg-base-100 text-base-content;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    @apply rounded-2xl border bg-base-200 text-base-content;
+    border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .card:hover {
+    border-color: var(--border-default, rgba(255, 255, 255, 0.1));
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-
-  .card-glass {
-    @apply rounded-2xl text-base-content;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  }
-
-  .card-neu {
-    @apply rounded-2xl bg-base-100 text-base-content;
-    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px rgba(255, 255, 255, 0.9);
-    border: none;
-  }
-
-  .card-neu:hover {
-    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.95);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.2),
+      0 4px 6px -2px rgba(0, 0, 0, 0.1);
   }
 
   .card-header {
-    @apply flex flex-col space-y-2 p-6 pb-4;
+    @apply flex flex-col space-y-1.5 p-6 pb-2;
   }
 
   .card-title {
-    @apply text-xl font-semibold leading-tight tracking-tight;
-    color: var(--team-heading-light, inherit);
+    @apply text-lg font-bold leading-tight tracking-tight;
+    color: var(--color-text-primary);
+  }
+
+  /* Branded card title variant */
+  .card-title-brand {
+    @apply text-lg font-bold leading-tight tracking-tight;
+    color: var(--color-brand);
   }
 
   .card-description {
-    @apply text-sm text-base-content/60;
+    @apply text-xs font-medium uppercase tracking-wider;
+    color: var(--color-text-muted);
+    opacity: 0.85;
   }
 
   .card-content {
@@ -272,45 +435,59 @@
   }
 
   .card-footer {
-    @apply flex items-center p-6 pt-4 border-t border-base-200/50;
+    @apply flex items-center p-6 pt-4 border-t;
+    border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
   }
 
   /* ----------------------------------------
      GLASSMORPHISM UTILITIES
      ---------------------------------------- */
+  /* ----------------------------------------
+     GLASSMORPHISM UTILITIES - Refined from skill
+     ---------------------------------------- */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    @apply backdrop-blur-md bg-white/5 border border-white/10;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/5 border border-white/10 rounded-xl;
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-lg bg-black/40 border border-white/5;
+  }
+
+  .glass-overlay {
+    @apply backdrop-blur-sm bg-black/60;
+  }
+
+  .glass-input {
+    @apply backdrop-blur-sm bg-white/5 border border-white/10 focus:border-brand focus:bg-white/10;
+  }
+
+  .card-glass {
+    @apply glass-card text-base-content;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
 
   .glass-sm {
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    @apply backdrop-blur-sm bg-white/5 border border-white/5;
   }
 
   .glass-lg {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    @apply backdrop-blur-xl bg-white/10 border border-white/20;
   }
 
   .glass-dark {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    @apply backdrop-blur-md bg-black/40 border border-white/5;
   }
 
   .glass-primary {
-    background: rgba(var(--team-primary-rgb, 59, 130, 246), 0.1);
+    background: rgba(var(--team-primary-rgb, 130, 81, 238), 0.1);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(var(--team-primary-rgb, 59, 130, 246), 0.2);
+    border: 1px solid rgba(var(--team-primary-rgb, 130, 81, 238), 0.2);
   }
 
   /* ----------------------------------------
@@ -371,7 +548,9 @@
   }
 
   @media (max-width: 1024px) {
-    .bento-md, .bento-lg, .bento-wide {
+    .bento-md,
+    .bento-lg,
+    .bento-wide {
       grid-column: span 2;
     }
     .bento-full {
@@ -380,7 +559,12 @@
   }
 
   @media (max-width: 640px) {
-    .bento-sm, .bento-md, .bento-lg, .bento-wide, .bento-tall, .bento-full {
+    .bento-sm,
+    .bento-md,
+    .bento-lg,
+    .bento-wide,
+    .bento-tall,
+    .bento-full {
       grid-column: span 1;
       grid-row: span 1;
     }
@@ -390,7 +574,9 @@
      MICROINTERACTION UTILITIES
      ---------------------------------------- */
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .hover-lift:hover {
@@ -416,7 +602,12 @@
 
   /* Shimmer loading effect */
   .shimmer {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
@@ -427,38 +618,70 @@
   }
 
   /* Staggered animation delays */
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
-  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-1 {
+    animation-delay: 0.1s;
+  }
+  .stagger-2 {
+    animation-delay: 0.2s;
+  }
+  .stagger-3 {
+    animation-delay: 0.3s;
+  }
+  .stagger-4 {
+    animation-delay: 0.4s;
+  }
+  .stagger-5 {
+    animation-delay: 0.5s;
+  }
 
   /* ----------------------------------------
      MODERN TABLE STYLES
      ---------------------------------------- */
+  .table-container {
+    @apply relative overflow-hidden rounded-2xl border bg-base-300/20 backdrop-blur-md;
+    border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+  }
+
   .table-modern {
-    @apply w-full border-collapse;
+    @apply w-full border-collapse text-sm;
   }
 
   .table-modern thead {
-    @apply bg-base-200/50;
+    @apply bg-base-300/50 border-b;
+    border-color: var(--border-default, rgba(255, 255, 255, 0.1));
   }
 
   .table-modern th {
-    @apply px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-base-content/70;
+    @apply px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-base-content/50;
   }
 
   .table-modern tbody tr {
-    @apply border-b border-base-200/50;
-    transition: background-color 0.15s ease;
+    @apply border-b;
+    border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .table-modern tbody tr:last-child {
+    @apply border-0;
   }
 
   .table-modern tbody tr:hover {
-    @apply bg-base-200/30;
+    @apply bg-white/[0.03] translate-x-0.5;
   }
 
   .table-modern td {
-    @apply px-6 py-4 text-sm;
+    @apply px-6 py-4 align-middle whitespace-nowrap;
+    color: var(--color-text-primary);
+  }
+
+  /* Table density modifiers */
+  .table-compact th, .table-compact td {
+    @apply py-2 px-4;
+  }
+
+  .table-comfortable th, .table-comfortable td {
+    @apply py-6 px-8;
   }
 
   /* ----------------------------------------
@@ -469,7 +692,9 @@
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
     animation: scaleIn 0.2s ease-out;
   }
 
@@ -478,7 +703,9 @@
      ---------------------------------------- */
   .badge {
     @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .badge:hover {
@@ -507,97 +734,290 @@
 [data-theme="forest"],
 [data-theme="luxury"],
 [data-theme="coffee"] {
-  /* Better backgrounds with subtle gradients */
+  /* Better backgrounds with refined dark aesthetic */
   .drawer-content {
-    background: var(--page-bg, #0f0f12);
+    background: var(--page-bg, var(--color-bg-1));
     background-image:
-      radial-gradient(at 100% 0%, rgba(var(--team-primary-rgb, 59, 130, 246), 0.08) 0%, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(var(--team-secondary-rgb, 239, 68, 68), 0.05) 0%, transparent 50%);
+      radial-gradient(
+        at 100% 0%,
+        rgba(var(--team-primary-rgb, 130, 81, 238), 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        rgba(var(--team-secondary-rgb, 239, 68, 68), 0.05) 0%,
+        transparent 50%
+      );
   }
 
-  /* Cards with proper dark backgrounds */
+  /* Cards with skill-refined dark backgrounds */
   .card {
-    background: var(--card-bg, rgba(30, 30, 36, 0.6));
-    border-color: var(--border-default, rgba(255, 255, 255, 0.1));
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    background: var(--card-bg, var(--color-bg-2));
+    border-color: var(--border-default, var(--color-border-subtle));
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.4),
+      0 2px 4px -2px rgba(0, 0, 0, 0.3);
   }
 
   .card:hover {
-    background: var(--card-hover, rgba(40, 40, 48, 0.8));
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
+    background: var(--card-hover, var(--color-bg-3));
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.5),
+      0 4px 6px -2px rgba(0, 0, 0, 0.35);
   }
 
-  /* Glass effects for dark mode */
-  .card-glass, .glass {
-    background: var(--glass-bg, rgba(30, 30, 36, 0.8));
+  /* Glass effects for dark mode - skill aesthetic */
+  .card-glass,
+  .glass {
+    background: var(--glass-bg, rgba(24, 24, 27, 0.7));
+    backdrop-filter: blur(12px);
     border-color: var(--glass-border, rgba(255, 255, 255, 0.08));
   }
 
   .glass-sm {
-    background: rgba(30, 30, 36, 0.6);
+    background: rgba(24, 24, 27, 0.5);
   }
 
   .glass-lg {
-    background: rgba(30, 30, 36, 0.9);
+    background: rgba(24, 24, 27, 0.9);
   }
 
-  /* Neumorphic adjustments */
+  /* Neumorphic adjustments for dark mode */
   .card-neu {
-    box-shadow: 6px 6px 12px var(--neu-dark, rgba(0, 0, 0, 0.5)), -6px -6px 12px var(--neu-light, rgba(255, 255, 255, 0.05));
+    box-shadow:
+      6px 6px 12px rgba(0, 0, 0, 0.6),
+      -6px -6px 12px rgba(255, 255, 255, 0.03);
   }
 
-  .card-neu:hover {
-    box-shadow: 8px 8px 16px var(--neu-dark, rgba(0, 0, 0, 0.6)), -8px -8px 16px var(--neu-light, rgba(255, 255, 255, 0.06));
+  /* Input styles with skill neutral colors */
+  .input,
+  .select,
+  .textarea {
+    background: var(--color-bg-1);
+    border-color: var(--color-border-default);
   }
 
-  /* Input styles */
-  .input, .select, .textarea {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: var(--border-default, rgba(255, 255, 255, 0.1));
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 4px var(--color-brand-subtle);
+  }
+}
+
+/* ============================================
+   LIGHT MODE ENHANCEMENTS
+   ============================================ */
+html.light,
+[data-theme="light"] {
+  /* === Drawer / Page Content === */
+  .drawer-content {
+    background: var(--page-bg, #f8fafc);
+    background-image:
+      radial-gradient(
+        at 100% 0%,
+        rgba(var(--team-primary-rgb, 59, 130, 246), 0.04) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        rgba(var(--team-secondary-rgb, 239, 68, 68), 0.02) 0%,
+        transparent 50%
+      );
   }
 
-  .input:focus, .select:focus, .textarea:focus {
-    border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.5);
-    box-shadow: 0 0 0 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+  /* === Cards === */
+  .card {
+    background: var(--card-bg, rgba(255, 255, 255, 0.9));
+    border-color: var(--border-default, rgba(0, 0, 0, 0.08));
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
   }
 
-  .input-neu {
-    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.4), inset -3px -3px 6px rgba(255, 255, 255, 0.05);
+  .card:hover {
+    background: var(--card-hover, rgba(255, 255, 255, 1));
+    border-color: var(--border-strong, rgba(0, 0, 0, 0.12));
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.04);
   }
 
-  /* Button adjustments */
+  .card-footer {
+    border-color: var(--border-subtle, rgba(0, 0, 0, 0.04));
+  }
+
+  /* === Glass effects for light mode === */
+  .card-glass,
+  .glass {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.7));
+    backdrop-filter: blur(12px);
+    border-color: var(--glass-border, rgba(0, 0, 0, 0.06));
+  }
+
+  .glass-sm {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .glass-lg {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  
+  .glass-primary {
+    background: rgba(var(--team-primary-rgb, 59, 130, 246), 0.06);
+    border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+  }
+
+  /* === Table styles === */
+  .table-container {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--border-default, rgba(0, 0, 0, 0.08));
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .table-modern thead {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--border-default, rgba(0, 0, 0, 0.08));
+  }
+
+  .table-modern th {
+    color: var(--color-text-secondary);
+  }
+
+  .table-modern tbody tr {
+    border-color: var(--border-subtle, rgba(0, 0, 0, 0.04));
+  }
+
+  .table-modern tbody tr:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .table-modern td {
+    color: var(--color-text-primary);
+  }
+
+  /* === Inputs for light mode === */
+  .input,
+  .select,
+  .textarea {
+    background: var(--page-bg-secondary, #ffffff);
+    border-color: var(--border-default, rgba(0, 0, 0, 0.12));
+    color: var(--color-text-primary);
+  }
+
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    border-color: var(--color-brand, #3b82f6);
+    box-shadow: 0 0 0 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.1);
+  }
+
+  .input::placeholder,
+  .textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.5;
+  }
+
+  /* === Modals === */
+  .modal-box {
+    background: rgba(255, 255, 255, 0.98);
+    color: var(--color-text-primary);
+  }
+
+  /* === Badges === */
+  .badge-glass {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--color-text-primary);
+  }
+
+  /* === Buttons === */
+  .btn-glass {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--color-text-primary);
+  }
+
+  .btn-glass:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
   .btn-outline {
-    border-color: var(--border-strong, rgba(255, 255, 255, 0.15));
+    border-color: var(--border-strong, rgba(0, 0, 0, 0.15));
   }
 
   .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: var(--border-strong, rgba(0, 0, 0, 0.2));
   }
 
-  .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.1);
+  /* === Dropdown menus === */
+  .dropdown-content {
+    background: var(--page-bg-secondary, #ffffff);
+    border-color: var(--border-default, rgba(0, 0, 0, 0.08));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
-  /* Table rows */
-  .table-modern tbody tr:hover {
-    background: rgba(255, 255, 255, 0.05);
+  /* === Scrollbar for light mode === */
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02);
   }
 
-  /* Modal box */
-  .modal-box {
-    background: rgba(24, 24, 30, 0.95);
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
   }
 
-  /* Badge glass */
-  .badge-glass {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
   }
 
-  /* Shimmer for dark mode */
+  /* === Neumorphic adjustments === */
+  .input-neu {
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.06),
+      inset -3px -3px 6px rgba(255, 255, 255, 1);
+  }
+
+  .input-neu:focus {
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.08),
+      inset -3px -3px 6px rgba(255, 255, 255, 1),
+      0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.12);
+  }
+
+  /* === Shimmer / skeleton for light mode === */
   .shimmer {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.05) 50%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      #0f172a 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* === Hover effects === */
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
   }
 }
 
@@ -624,15 +1044,62 @@
 }
 
 /* ============================================
-   ANIMATIONS - Keyframes
+   ANIMATIONS - Utility Classes
    ============================================ */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: revealUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes revealUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes skeleton-pulse {
@@ -679,7 +1146,10 @@
    BROWSER COMPATIBILITY - Backdrop Filter Fallback
    ============================================ */
 @supports not (backdrop-filter: blur(16px)) {
-  .glass, .card-glass, .glass-sm, .glass-lg {
+  .glass,
+  .card-glass,
+  .glass-sm,
+  .glass-lg {
     background: rgba(255, 255, 255, 0.95);
   }
 

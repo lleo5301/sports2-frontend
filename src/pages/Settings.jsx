@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTheme } from '../contexts/ThemeContext';
-import { useBranding } from '../contexts/BrandingContext';
-import { settingsService, defaultSettings } from '../services/settings';
-import { teamsService } from '../services/teams';
-import { toast } from 'react-hot-toast';
-import { validatePassword } from '../utils/passwordValidator';
-import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
-import AccessibleModal from '../components/ui/AccessibleModal';
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "../contexts/ThemeContext";
+import { useBranding } from "../contexts/BrandingContext";
+import { settingsService, defaultSettings } from "../services/settings";
+import { teamsService } from "../services/teams";
+import { toast } from "react-hot-toast";
+import { validatePassword } from "../utils/passwordValidator";
+import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
+import AccessibleModal from "../components/ui/AccessibleModal";
+import ThemeSelector from "../components/ui/ThemeSelector";
 import {
   User,
   Bell,
@@ -33,45 +34,43 @@ import {
   XCircle,
   Sun,
   Moon,
-  Laptop
-} from 'lucide-react';
+  Laptop,
+} from "lucide-react";
 
 const Settings = () => {
-  const { theme, themeMode, changeTheme, changeThemeMode, THEME_MODES, isDarkMode } = useTheme();
-  const { primaryColor, secondaryColor, updateBranding, refreshBranding } = useBranding();
+  const {
+    theme,
+    themeMode,
+    changeTheme,
+    changeThemeMode,
+    THEME_MODES,
+    isDarkMode,
+  } = useTheme();
+  const { primaryColor, secondaryColor, updateBranding, refreshBranding } =
+    useBranding();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState("general");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  // Button color customization state
-  const [buttonColors, setButtonColors] = useState({
-    primary: primaryColor || '#3B82F6',
-    secondary: secondaryColor || '#EF4444'
-  });
-  const [savedColors, setSavedColors] = useState({
-    primary: primaryColor || '#3B82F6',
-    secondary: secondaryColor || '#EF4444'
-  });
-  const [hasColorChanges, setHasColorChanges] = useState(false);
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-  const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   // Fetch user settings
   const { data: userSettings, isLoading } = useQuery({
-    queryKey: ['user-settings'],
+    queryKey: ["user-settings"],
     queryFn: settingsService.getUserSettings,
     onError: (error) => {
       // console.error('Error fetching settings:', error);
-    }
+    },
   });
 
   const settings = userSettings?.data || defaultSettings;
@@ -80,124 +79,111 @@ const Settings = () => {
   const updateGeneralMutation = useMutation({
     mutationFn: settingsService.updateGeneralSettings,
     onSuccess: () => {
-      toast.success('General settings updated successfully!');
-      queryClient.invalidateQueries(['user-settings']);
+      toast.success("General settings updated successfully!");
+      queryClient.invalidateQueries(["user-settings"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update general settings');
-    }
+      toast.error(
+        error.response?.data?.message || "Failed to update general settings",
+      );
+    },
   });
 
   const updateAccountMutation = useMutation({
     mutationFn: settingsService.updateAccountSettings,
     onSuccess: () => {
-      toast.success('Account settings updated successfully!');
-      queryClient.invalidateQueries(['user-settings']);
+      toast.success("Account settings updated successfully!");
+      queryClient.invalidateQueries(["user-settings"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update account settings');
-    }
+      toast.error(
+        error.response?.data?.message || "Failed to update account settings",
+      );
+    },
   });
 
   const updateNotificationsMutation = useMutation({
     mutationFn: settingsService.updateNotificationSettings,
     onSuccess: () => {
-      toast.success('Notification settings updated successfully!');
-      queryClient.invalidateQueries(['user-settings']);
+      toast.success("Notification settings updated successfully!");
+      queryClient.invalidateQueries(["user-settings"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update notification settings');
-    }
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update notification settings",
+      );
+    },
   });
 
   const updateSecurityMutation = useMutation({
     mutationFn: settingsService.updateSecuritySettings,
     onSuccess: () => {
-      toast.success('Security settings updated successfully!');
-      queryClient.invalidateQueries(['user-settings']);
+      toast.success("Security settings updated successfully!");
+      queryClient.invalidateQueries(["user-settings"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update security settings');
-    }
+      toast.error(
+        error.response?.data?.message || "Failed to update security settings",
+      );
+    },
   });
 
   const changePasswordMutation = useMutation({
     mutationFn: settingsService.changePassword,
     onSuccess: () => {
-      toast.success('Password changed successfully!');
+      toast.success("Password changed successfully!");
       setShowPasswordModal(false);
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to change password');
-    }
+      toast.error(error.response?.data?.message || "Failed to change password");
+    },
   });
 
   const toggleTwoFactorMutation = useMutation({
     mutationFn: settingsService.toggleTwoFactor,
     onSuccess: () => {
-      toast.success('Two-factor authentication updated successfully!');
-      queryClient.invalidateQueries(['user-settings']);
+      toast.success("Two-factor authentication updated successfully!");
+      queryClient.invalidateQueries(["user-settings"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update two-factor authentication');
-    }
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update two-factor authentication",
+      );
+    },
   });
 
   const uploadProfilePictureMutation = useMutation({
     mutationFn: settingsService.uploadProfilePicture,
     onSuccess: () => {
-      toast.success('Profile picture updated successfully!');
+      toast.success("Profile picture updated successfully!");
       setShowProfilePictureModal(false);
       setSelectedFile(null);
-      queryClient.invalidateQueries(['user-settings']);
+      queryClient.invalidateQueries(["user-settings"]);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to upload profile picture');
-    }
+      toast.error(
+        error.response?.data?.message || "Failed to upload profile picture",
+      );
+    },
   });
 
   const deleteAccountMutation = useMutation({
     mutationFn: settingsService.deleteAccount,
     onSuccess: () => {
-      toast.success('Account deleted successfully!');
+      toast.success("Account deleted successfully!");
       // Redirect to logout or home page
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete account');
-    }
-  });
-
-  // Button colors mutation
-  const updateButtonColorsMutation = useMutation({
-    mutationFn: (colors) => teamsService.updateMyTeam({
-      primary_color: colors.primary,
-      secondary_color: colors.secondary
-    }),
-    onSuccess: (_, variables) => {
-      toast.success('Button colors updated successfully!');
-      setSavedColors(variables); // Update saved colors to the newly saved values
-      setHasColorChanges(false);
-      refreshBranding();
+      toast.error(error.response?.data?.message || "Failed to delete account");
     },
-    onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update button colors');
-    }
   });
-
-  // Sync button colors when branding context loads (only on initial load)
-  useEffect(() => {
-    if (primaryColor && secondaryColor && !hasColorChanges) {
-      setButtonColors({
-        primary: primaryColor,
-        secondary: secondaryColor
-      });
-      setSavedColors({
-        primary: primaryColor,
-        secondary: secondaryColor
-      });
-    }
-  }, [primaryColor, secondaryColor, hasColorChanges]);
 
   // Handlers
   const handleThemeChange = (e) => {
@@ -211,12 +197,14 @@ const Settings = () => {
     // Validate new password strength
     const passwordValidation = validatePassword(passwordData.newPassword);
     if (!passwordValidation.isValid) {
-      toast.error(passwordValidation.errors[0] || 'Password does not meet requirements');
+      toast.error(
+        passwordValidation.errors[0] || "Password does not meet requirements",
+      );
       return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('New passwords do not match');
+      toast.error("New passwords do not match");
       return;
     }
     changePasswordMutation.mutate(passwordData);
@@ -235,51 +223,20 @@ const Settings = () => {
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
-    if (deleteConfirmation === 'DELETE') {
+    if (deleteConfirmation === "DELETE") {
       deleteAccountMutation.mutate(deleteConfirmation);
     } else {
-      toast.error('Please type DELETE to confirm account deletion');
+      toast.error("Please type DELETE to confirm account deletion");
     }
   };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setSelectedFile(file);
     } else {
-      toast.error('Please select a valid image file');
+      toast.error("Please select a valid image file");
     }
-  };
-
-  // Button color handlers
-  const handleButtonColorChange = (colorType, value) => {
-    setButtonColors(prev => ({
-      ...prev,
-      [colorType]: value
-    }));
-    setHasColorChanges(true);
-    // Apply color change immediately for live preview
-    updateBranding({
-      primaryColor: colorType === 'primary' ? value : buttonColors.primary,
-      secondaryColor: colorType === 'secondary' ? value : buttonColors.secondary
-    });
-  };
-
-  const handleSaveButtonColors = () => {
-    updateButtonColorsMutation.mutate(buttonColors);
-  };
-
-  const handleResetButtonColors = () => {
-    setButtonColors({
-      primary: savedColors.primary,
-      secondary: savedColors.secondary
-    });
-    setHasColorChanges(false);
-    // Reset the live preview to saved colors
-    updateBranding({
-      primaryColor: savedColors.primary,
-      secondaryColor: savedColors.secondary
-    });
   };
 
   if (isLoading) {
@@ -310,29 +267,29 @@ const Settings = () => {
         {/* Settings Tabs */}
         <div className="tabs tabs-boxed mb-6">
           <button
-            className={`tab ${activeTab === 'general' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('general')}
+            className={`tab ${activeTab === "general" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("general")}
           >
             <SettingsIcon className="w-4 h-4 mr-2" />
             General
           </button>
           <button
-            className={`tab ${activeTab === 'account' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('account')}
+            className={`tab ${activeTab === "account" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("account")}
           >
             <User className="w-4 h-4 mr-2" />
             Account
           </button>
           <button
-            className={`tab ${activeTab === 'notifications' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('notifications')}
+            className={`tab ${activeTab === "notifications" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("notifications")}
           >
             <Bell className="w-4 h-4 mr-2" />
             Notifications
           </button>
           <button
-            className={`tab ${activeTab === 'security' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('security')}
+            className={`tab ${activeTab === "security" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("security")}
           >
             <Shield className="w-4 h-4 mr-2" />
             Security
@@ -342,16 +299,22 @@ const Settings = () => {
         {/* Tab Content */}
         <div className="space-y-6">
           {/* General Settings Tab */}
-          {activeTab === 'general' && (
+          {activeTab === "general" && (
             <>
               {/* Appearance Mode */}
               <div className="card">
                 <div className="card-header">
                   <h2 className="card-title flex items-center gap-2">
-                    {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                    {isDarkMode ? (
+                      <Moon className="w-5 h-5" />
+                    ) : (
+                      <Sun className="w-5 h-5" />
+                    )}
                     Appearance
                   </h2>
-                  <p className="card-description">Choose your preferred appearance mode</p>
+                  <p className="card-description">
+                    Choose your preferred appearance mode
+                  </p>
                 </div>
                 <div className="card-body">
                   <div className="form-control">
@@ -362,22 +325,22 @@ const Settings = () => {
                     {/* Appearance Mode Buttons */}
                     <div className="flex gap-2 mb-4">
                       <button
-                        className={`btn flex-1 ${themeMode === 'light' ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => changeThemeMode('light')}
+                        className={`btn flex-1 ${themeMode === "light" ? "btn-primary" : "btn-outline"}`}
+                        onClick={() => changeThemeMode("light")}
                       >
                         <Sun className="w-4 h-4 mr-2" />
                         Light
                       </button>
                       <button
-                        className={`btn flex-1 ${themeMode === 'dark' ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => changeThemeMode('dark')}
+                        className={`btn flex-1 ${themeMode === "dark" ? "btn-primary" : "btn-outline"}`}
+                        onClick={() => changeThemeMode("dark")}
                       >
                         <Moon className="w-4 h-4 mr-2" />
                         Dark
                       </button>
                       <button
-                        className={`btn flex-1 ${themeMode === 'system' ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => changeThemeMode('system')}
+                        className={`btn flex-1 ${themeMode === "system" ? "btn-primary" : "btn-outline"}`}
+                        onClick={() => changeThemeMode("system")}
                       >
                         <Laptop className="w-4 h-4 mr-2" />
                         System
@@ -385,10 +348,9 @@ const Settings = () => {
                     </div>
 
                     <p className="text-sm text-base-content/70">
-                      {themeMode === 'system'
-                        ? `Following system preference (currently ${isDarkMode ? 'dark' : 'light'})`
-                        : `Using ${themeMode} mode`
-                      }
+                      {themeMode === "system"
+                        ? `Following system preference (currently ${isDarkMode ? "dark" : "light"})`
+                        : `Using ${themeMode} mode`}
                     </p>
                   </div>
                 </div>
@@ -399,35 +361,23 @@ const Settings = () => {
                 <div className="card-header">
                   <h2 className="card-title flex items-center gap-2">
                     <Palette className="w-5 h-5" />
-                    Theme
+                    Visual System
                   </h2>
-                  <p className="card-description">Choose a specific color theme</p>
+                  <p className="card-description">
+                    Choose a curated visual style for the application
+                  </p>
                 </div>
                 <div className="card-body">
-                  <div className="form-control">
+                  <ThemeSelector variant="settings" />
+
+                  <div className="mt-8 pt-6 border-t border-base-300">
                     <label className="label">
-                      <span className="label-text">Color Theme</span>
+                      <span className="label-text font-bold text-xs uppercase tracking-widest text-base-content/50">
+                        Specific Theme (Advanced)
+                      </span>
                     </label>
-
-                    {/* Theme Preview */}
-                    <div className="mb-4 p-4 rounded-lg border bg-base-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Current Theme Preview</span>
-                        <span className="text-xs opacity-70">{theme}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <div className="w-8 h-8 rounded bg-primary"></div>
-                        <div className="w-8 h-8 rounded bg-secondary"></div>
-                        <div className="w-8 h-8 rounded bg-accent"></div>
-                        <div className="w-8 h-8 rounded bg-neutral"></div>
-                        <div className="w-8 h-8 rounded bg-success"></div>
-                        <div className="w-8 h-8 rounded bg-warning"></div>
-                        <div className="w-8 h-8 rounded bg-error"></div>
-                      </div>
-                    </div>
-
                     <select
-                      className="select select-bordered"
+                      className="select select-bordered w-full max-w-xs mt-2"
                       value={theme}
                       onChange={handleThemeChange}
                     >
@@ -469,107 +419,6 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Button Colors Customization */}
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="card-title flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
-                    Button Colors
-                  </h2>
-                  <p className="card-description">Customize your team&apos;s primary and secondary button colors</p>
-                </div>
-                <div className="card-body space-y-6">
-                  {/* Color Pickers */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Primary Color */}
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">Primary Color</span>
-                      </label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={buttonColors.primary}
-                          onChange={(e) => handleButtonColorChange('primary', e.target.value)}
-                          className="w-12 h-12 rounded-lg cursor-pointer border-2 border-base-300"
-                        />
-                        <input
-                          type="text"
-                          value={buttonColors.primary}
-                          onChange={(e) => handleButtonColorChange('primary', e.target.value)}
-                          className="input input-bordered flex-1 font-mono"
-                          placeholder="#3B82F6"
-                        />
-                      </div>
-                      <p className="text-xs text-base-content/60 mt-1">Used for primary buttons and accents</p>
-                    </div>
-
-                    {/* Secondary Color */}
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">Secondary Color</span>
-                      </label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={buttonColors.secondary}
-                          onChange={(e) => handleButtonColorChange('secondary', e.target.value)}
-                          className="w-12 h-12 rounded-lg cursor-pointer border-2 border-base-300"
-                        />
-                        <input
-                          type="text"
-                          value={buttonColors.secondary}
-                          onChange={(e) => handleButtonColorChange('secondary', e.target.value)}
-                          className="input input-bordered flex-1 font-mono"
-                          placeholder="#EF4444"
-                        />
-                      </div>
-                      <p className="text-xs text-base-content/60 mt-1">Used for secondary buttons and highlights</p>
-                    </div>
-                  </div>
-
-                  {/* Live Preview */}
-                  <div className="p-4 rounded-lg border bg-base-200">
-                    <h4 className="text-sm font-medium mb-3">Live Preview</h4>
-                    <div className="flex flex-wrap gap-3">
-                      <button className="btn btn-primary">Primary Button</button>
-                      <button className="btn btn-secondary">Secondary Button</button>
-                      <button className="btn btn-primary btn-outline">Primary Outline</button>
-                      <button className="btn btn-secondary btn-outline">Secondary Outline</button>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  {hasColorChanges && (
-                    <div className="flex justify-end gap-3 pt-2">
-                      <button
-                        className="btn btn-outline"
-                        onClick={handleResetButtonColors}
-                      >
-                        Reset
-                      </button>
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleSaveButtonColors}
-                        disabled={updateButtonColorsMutation.isPending}
-                      >
-                        {updateButtonColorsMutation.isPending ? (
-                          <>
-                            <span className="loading loading-spinner loading-sm"></span>
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Colors
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {/* Display Settings */}
               <div className="card">
                 <div className="card-header">
@@ -577,7 +426,9 @@ const Settings = () => {
                     <Monitor className="w-5 h-5" />
                     Display
                   </h2>
-                  <p className="card-description">Customize your display preferences</p>
+                  <p className="card-description">
+                    Customize your display preferences
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="form-control">
@@ -587,7 +438,11 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.general.showNotifications}
-                        onChange={(e) => updateGeneralMutation.mutate({ showNotifications: e.target.checked })}
+                        onChange={(e) =>
+                          updateGeneralMutation.mutate({
+                            showNotifications: e.target.checked,
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -598,7 +453,11 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.general.autoRefresh}
-                        onChange={(e) => updateGeneralMutation.mutate({ autoRefresh: e.target.checked })}
+                        onChange={(e) =>
+                          updateGeneralMutation.mutate({
+                            autoRefresh: e.target.checked,
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -609,7 +468,11 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.general.compactView}
-                        onChange={(e) => updateGeneralMutation.mutate({ compactView: e.target.checked })}
+                        onChange={(e) =>
+                          updateGeneralMutation.mutate({
+                            compactView: e.target.checked,
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -623,13 +486,17 @@ const Settings = () => {
                     <Database className="w-5 h-5" />
                     Data Management
                   </h2>
-                  <p className="card-description">Manage your data and exports</p>
+                  <p className="card-description">
+                    Manage your data and exports
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Export Data</h3>
-                      <p className="text-sm text-base-content/70">Download your data as CSV or JSON</p>
+                      <p className="text-sm text-base-content/70">
+                        Download your data as CSV or JSON
+                      </p>
                     </div>
                     <button className="btn btn-outline">
                       <Download className="w-4 h-4 mr-2" />
@@ -639,7 +506,9 @@ const Settings = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Clear Cache</h3>
-                      <p className="text-sm text-base-content/70">Clear cached data to free up space</p>
+                      <p className="text-sm text-base-content/70">
+                        Clear cached data to free up space
+                      </p>
                     </div>
                     <button className="btn btn-outline">Clear</button>
                   </div>
@@ -649,7 +518,7 @@ const Settings = () => {
           )}
 
           {/* Account Settings Tab */}
-          {activeTab === 'account' && (
+          {activeTab === "account" && (
             <>
               {/* Profile Information */}
               <div className="card">
@@ -658,7 +527,9 @@ const Settings = () => {
                     <User className="w-5 h-5" />
                     Profile Information
                   </h2>
-                  <p className="card-description">Update your personal information</p>
+                  <p className="card-description">
+                    Update your personal information
+                  </p>
                 </div>
                 <div className="card-body">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -670,7 +541,11 @@ const Settings = () => {
                         type="text"
                         className="input input-bordered"
                         defaultValue={settings.account.firstName}
-                        onChange={(e) => updateAccountMutation.mutate({ firstName: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({
+                            firstName: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="form-control">
@@ -681,7 +556,11 @@ const Settings = () => {
                         type="text"
                         className="input input-bordered"
                         defaultValue={settings.account.lastName}
-                        onChange={(e) => updateAccountMutation.mutate({ lastName: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({
+                            lastName: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="form-control">
@@ -692,7 +571,11 @@ const Settings = () => {
                         type="email"
                         className="input input-bordered"
                         defaultValue={settings.account.email}
-                        onChange={(e) => updateAccountMutation.mutate({ email: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({
+                            email: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="form-control">
@@ -703,7 +586,11 @@ const Settings = () => {
                         type="tel"
                         className="input input-bordered"
                         defaultValue={settings.account.phone}
-                        onChange={(e) => updateAccountMutation.mutate({ phone: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({
+                            phone: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="form-control md:col-span-2">
@@ -713,7 +600,9 @@ const Settings = () => {
                       <textarea
                         className="textarea textarea-bordered h-24"
                         defaultValue={settings.account.bio}
-                        onChange={(e) => updateAccountMutation.mutate({ bio: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({ bio: e.target.value })
+                        }
                       />
                     </div>
                     <div className="form-control">
@@ -724,7 +613,11 @@ const Settings = () => {
                         type="text"
                         className="input input-bordered"
                         defaultValue={settings.account.location}
-                        onChange={(e) => updateAccountMutation.mutate({ location: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({
+                            location: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="form-control">
@@ -735,7 +628,11 @@ const Settings = () => {
                         type="url"
                         className="input input-bordered"
                         defaultValue={settings.account.website}
-                        onChange={(e) => updateAccountMutation.mutate({ website: e.target.value })}
+                        onChange={(e) =>
+                          updateAccountMutation.mutate({
+                            website: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -749,13 +646,21 @@ const Settings = () => {
                     <Upload className="w-5 h-5" />
                     Profile Picture
                   </h2>
-                  <p className="card-description">Upload a new profile picture</p>
+                  <p className="card-description">
+                    Upload a new profile picture
+                  </p>
                 </div>
                 <div className="card-body">
                   <div className="flex items-center gap-4">
                     <div className="avatar">
                       <div className="w-20 h-20 rounded-full">
-                        <img src={settings.account.profilePicture || '/default-avatar.png'} alt="Profile" />
+                        <img
+                          src={
+                            settings.account.profilePicture ||
+                            "/default-avatar.png"
+                          }
+                          alt="Profile"
+                        />
                       </div>
                     </div>
                     <div>
@@ -781,13 +686,17 @@ const Settings = () => {
                     <AlertTriangle className="w-5 h-5" />
                     Account Actions
                   </h2>
-                  <p className="card-description">Dangerous actions - use with caution</p>
+                  <p className="card-description">
+                    Dangerous actions - use with caution
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium text-error">Delete Account</h3>
-                      <p className="text-sm text-base-content/70">Permanently delete your account and all data</p>
+                      <p className="text-sm text-base-content/70">
+                        Permanently delete your account and all data
+                      </p>
                     </div>
                     <button
                       className="btn btn-error btn-outline"
@@ -803,7 +712,7 @@ const Settings = () => {
           )}
 
           {/* Notifications Settings Tab */}
-          {activeTab === 'notifications' && (
+          {activeTab === "notifications" && (
             <>
               {/* Email Notifications */}
               <div className="card">
@@ -812,19 +721,28 @@ const Settings = () => {
                     <Mail className="w-5 h-5" />
                     Email Notifications
                   </h2>
-                  <p className="card-description">Configure email notification preferences</p>
+                  <p className="card-description">
+                    Configure email notification preferences
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="form-control">
                     <label className="label cursor-pointer">
-                      <span className="label-text">Enable email notifications</span>
+                      <span className="label-text">
+                        Enable email notifications
+                      </span>
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.notifications.email.enabled}
-                        onChange={(e) => updateNotificationsMutation.mutate({
-                          email: { ...settings.notifications.email, enabled: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateNotificationsMutation.mutate({
+                            email: {
+                              ...settings.notifications.email,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -836,9 +754,14 @@ const Settings = () => {
                     <select
                       className="select select-bordered"
                       value={settings.notifications.email.frequency}
-                      onChange={(e) => updateNotificationsMutation.mutate({
-                        email: { ...settings.notifications.email, frequency: e.target.value }
-                      })}
+                      onChange={(e) =>
+                        updateNotificationsMutation.mutate({
+                          email: {
+                            ...settings.notifications.email,
+                            frequency: e.target.value,
+                          },
+                        })
+                      }
                     >
                       <option value="immediate">Immediate</option>
                       <option value="hourly">Hourly</option>
@@ -849,24 +772,33 @@ const Settings = () => {
 
                   <div className="space-y-3">
                     <h4 className="font-medium">Notification Types</h4>
-                    {Object.entries(settings.notifications.email.types).map(([key, value]) => (
-                      <div key={key} className="form-control">
-                        <label className="label cursor-pointer">
-                          <span className="label-text capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-primary"
-                            checked={value}
-                            onChange={(e) => updateNotificationsMutation.mutate({
-                              email: {
-                                ...settings.notifications.email,
-                                types: { ...settings.notifications.email.types, [key]: e.target.checked }
+                    {Object.entries(settings.notifications.email.types).map(
+                      ([key, value]) => (
+                        <div key={key} className="form-control">
+                          <label className="label cursor-pointer">
+                            <span className="label-text capitalize">
+                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                            </span>
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-primary"
+                              checked={value}
+                              onChange={(e) =>
+                                updateNotificationsMutation.mutate({
+                                  email: {
+                                    ...settings.notifications.email,
+                                    types: {
+                                      ...settings.notifications.email.types,
+                                      [key]: e.target.checked,
+                                    },
+                                  },
+                                })
                               }
-                            })}
-                          />
-                        </label>
-                      </div>
-                    ))}
+                            />
+                          </label>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>
@@ -878,43 +810,61 @@ const Settings = () => {
                     <Smartphone className="w-5 h-5" />
                     Push Notifications
                   </h2>
-                  <p className="card-description">Configure push notification preferences</p>
+                  <p className="card-description">
+                    Configure push notification preferences
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="form-control">
                     <label className="label cursor-pointer">
-                      <span className="label-text">Enable push notifications</span>
+                      <span className="label-text">
+                        Enable push notifications
+                      </span>
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.notifications.push.enabled}
-                        onChange={(e) => updateNotificationsMutation.mutate({
-                          push: { ...settings.notifications.push, enabled: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateNotificationsMutation.mutate({
+                            push: {
+                              ...settings.notifications.push,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
 
                   <div className="space-y-3">
                     <h4 className="font-medium">Notification Types</h4>
-                    {Object.entries(settings.notifications.push.types).map(([key, value]) => (
-                      <div key={key} className="form-control">
-                        <label className="label cursor-pointer">
-                          <span className="label-text capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-primary"
-                            checked={value}
-                            onChange={(e) => updateNotificationsMutation.mutate({
-                              push: {
-                                ...settings.notifications.push,
-                                types: { ...settings.notifications.push.types, [key]: e.target.checked }
+                    {Object.entries(settings.notifications.push.types).map(
+                      ([key, value]) => (
+                        <div key={key} className="form-control">
+                          <label className="label cursor-pointer">
+                            <span className="label-text capitalize">
+                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                            </span>
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-primary"
+                              checked={value}
+                              onChange={(e) =>
+                                updateNotificationsMutation.mutate({
+                                  push: {
+                                    ...settings.notifications.push,
+                                    types: {
+                                      ...settings.notifications.push.types,
+                                      [key]: e.target.checked,
+                                    },
+                                  },
+                                })
                               }
-                            })}
-                          />
-                        </label>
-                      </div>
-                    ))}
+                            />
+                          </label>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>
@@ -926,57 +876,82 @@ const Settings = () => {
                     <Bell className="w-5 h-5" />
                     In-App Notifications
                   </h2>
-                  <p className="card-description">Configure in-app notification preferences</p>
+                  <p className="card-description">
+                    Configure in-app notification preferences
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="form-control">
                     <label className="label cursor-pointer">
-                      <span className="label-text">Enable in-app notifications</span>
+                      <span className="label-text">
+                        Enable in-app notifications
+                      </span>
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.notifications.inApp.enabled}
-                        onChange={(e) => updateNotificationsMutation.mutate({
-                          inApp: { ...settings.notifications.inApp, enabled: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateNotificationsMutation.mutate({
+                            inApp: {
+                              ...settings.notifications.inApp,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
 
                   <div className="form-control">
                     <label className="label cursor-pointer">
-                      <span className="label-text">Play notification sounds</span>
+                      <span className="label-text">
+                        Play notification sounds
+                      </span>
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.notifications.inApp.sound}
-                        onChange={(e) => updateNotificationsMutation.mutate({
-                          inApp: { ...settings.notifications.inApp, sound: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateNotificationsMutation.mutate({
+                            inApp: {
+                              ...settings.notifications.inApp,
+                              sound: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
 
                   <div className="space-y-3">
                     <h4 className="font-medium">Notification Types</h4>
-                    {Object.entries(settings.notifications.inApp.types).map(([key, value]) => (
-                      <div key={key} className="form-control">
-                        <label className="label cursor-pointer">
-                          <span className="label-text capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-primary"
-                            checked={value}
-                            onChange={(e) => updateNotificationsMutation.mutate({
-                              inApp: {
-                                ...settings.notifications.inApp,
-                                types: { ...settings.notifications.inApp.types, [key]: e.target.checked }
+                    {Object.entries(settings.notifications.inApp.types).map(
+                      ([key, value]) => (
+                        <div key={key} className="form-control">
+                          <label className="label cursor-pointer">
+                            <span className="label-text capitalize">
+                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                            </span>
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-primary"
+                              checked={value}
+                              onChange={(e) =>
+                                updateNotificationsMutation.mutate({
+                                  inApp: {
+                                    ...settings.notifications.inApp,
+                                    types: {
+                                      ...settings.notifications.inApp.types,
+                                      [key]: e.target.checked,
+                                    },
+                                  },
+                                })
                               }
-                            })}
-                          />
-                        </label>
-                      </div>
-                    ))}
+                            />
+                          </label>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>
@@ -984,7 +959,7 @@ const Settings = () => {
           )}
 
           {/* Security Settings Tab */}
-          {activeTab === 'security' && (
+          {activeTab === "security" && (
             <>
               {/* Password */}
               <div className="card">
@@ -993,7 +968,9 @@ const Settings = () => {
                     <Lock className="w-5 h-5" />
                     Password
                   </h2>
-                  <p className="card-description">Change your account password</p>
+                  <p className="card-description">
+                    Change your account password
+                  </p>
                 </div>
                 <div className="card-body">
                   <button
@@ -1013,7 +990,9 @@ const Settings = () => {
                     <Shield className="w-5 h-5" />
                     Two-Factor Authentication
                   </h2>
-                  <p className="card-description">Add an extra layer of security to your account</p>
+                  <p className="card-description">
+                    Add an extra layer of security to your account
+                  </p>
                 </div>
                 <div className="card-body">
                   <div className="flex items-center justify-between">
@@ -1021,16 +1000,18 @@ const Settings = () => {
                       <h3 className="font-medium">Two-Factor Authentication</h3>
                       <p className="text-sm text-base-content/70">
                         {settings.security.twoFactorEnabled
-                          ? 'Enabled - Your account is protected with 2FA'
-                          : 'Disabled - Enable 2FA for enhanced security'
-                        }
+                          ? "Enabled - Your account is protected with 2FA"
+                          : "Disabled - Enable 2FA for enhanced security"}
                       </p>
                     </div>
                     <button
-                      className={`btn ${settings.security.twoFactorEnabled ? 'btn-error' : 'btn-success'}`}
+                      className={`btn ${settings.security.twoFactorEnabled ? "btn-error" : "btn-success"}`}
                       onClick={handleTwoFactorToggle}
                     >
-                      {settings.security.twoFactorEnabled ? 'Disable' : 'Enable'} 2FA
+                      {settings.security.twoFactorEnabled
+                        ? "Disable"
+                        : "Enable"}{" "}
+                      2FA
                     </button>
                   </div>
                 </div>
@@ -1043,12 +1024,16 @@ const Settings = () => {
                     <Clock className="w-5 h-5" />
                     Session Management
                   </h2>
-                  <p className="card-description">Manage your active sessions and login history</p>
+                  <p className="card-description">
+                    Manage your active sessions and login history
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Session Timeout (minutes)</span>
+                      <span className="label-text">
+                        Session Timeout (minutes)
+                      </span>
                     </label>
                     <input
                       type="number"
@@ -1056,7 +1041,11 @@ const Settings = () => {
                       min="5"
                       max="1440"
                       defaultValue={settings.security.sessionTimeout}
-                      onChange={(e) => updateSecurityMutation.mutate({ sessionTimeout: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        updateSecurityMutation.mutate({
+                          sessionTimeout: parseInt(e.target.value),
+                        })
+                      }
                     />
                   </div>
 
@@ -1067,7 +1056,11 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.security.loginNotifications}
-                        onChange={(e) => updateSecurityMutation.mutate({ loginNotifications: e.target.checked })}
+                        onChange={(e) =>
+                          updateSecurityMutation.mutate({
+                            loginNotifications: e.target.checked,
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -1075,7 +1068,9 @@ const Settings = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Active Sessions</h3>
-                      <p className="text-sm text-base-content/70">Manage your current login sessions</p>
+                      <p className="text-sm text-base-content/70">
+                        Manage your current login sessions
+                      </p>
                     </div>
                     <button className="btn btn-outline btn-sm">
                       View Sessions
@@ -1091,7 +1086,9 @@ const Settings = () => {
                     <Globe className="w-5 h-5" />
                     Privacy
                   </h2>
-                  <p className="card-description">Control your privacy and data sharing preferences</p>
+                  <p className="card-description">
+                    Control your privacy and data sharing preferences
+                  </p>
                 </div>
                 <div className="card-body space-y-4">
                   <div className="form-control">
@@ -1101,9 +1098,14 @@ const Settings = () => {
                     <select
                       className="select select-bordered"
                       defaultValue={settings.privacy.profileVisibility}
-                      onChange={(e) => updateSecurityMutation.mutate({
-                        privacy: { ...settings.privacy, profileVisibility: e.target.value }
-                      })}
+                      onChange={(e) =>
+                        updateSecurityMutation.mutate({
+                          privacy: {
+                            ...settings.privacy,
+                            profileVisibility: e.target.value,
+                          },
+                        })
+                      }
                     >
                       <option value="public">Public</option>
                       <option value="team">Team Only</option>
@@ -1118,9 +1120,14 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.privacy.showEmail}
-                        onChange={(e) => updateSecurityMutation.mutate({
-                          privacy: { ...settings.privacy, showEmail: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateSecurityMutation.mutate({
+                            privacy: {
+                              ...settings.privacy,
+                              showEmail: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -1132,9 +1139,14 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.privacy.showPhone}
-                        onChange={(e) => updateSecurityMutation.mutate({
-                          privacy: { ...settings.privacy, showPhone: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateSecurityMutation.mutate({
+                            privacy: {
+                              ...settings.privacy,
+                              showPhone: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -1146,9 +1158,14 @@ const Settings = () => {
                         type="checkbox"
                         className="toggle toggle-primary"
                         checked={settings.privacy.allowDataSharing}
-                        onChange={(e) => updateSecurityMutation.mutate({
-                          privacy: { ...settings.privacy, allowDataSharing: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          updateSecurityMutation.mutate({
+                            privacy: {
+                              ...settings.privacy,
+                              allowDataSharing: e.target.checked,
+                            },
+                          })
+                        }
                       />
                     </label>
                   </div>
@@ -1170,7 +1187,11 @@ const Settings = () => {
             onClose={() => setShowPasswordModal(false)}
           />
           <AccessibleModal.Content>
-            <form id="password-form" onSubmit={handlePasswordChange} className="space-y-4">
+            <form
+              id="password-form"
+              onSubmit={handlePasswordChange}
+              className="space-y-4"
+            >
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Current Password</span>
@@ -1179,7 +1200,12 @@ const Settings = () => {
                   type="password"
                   className="input input-bordered"
                   value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      currentPassword: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
@@ -1191,10 +1217,18 @@ const Settings = () => {
                   type="password"
                   className="input input-bordered"
                   value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      newPassword: e.target.value,
+                    })
+                  }
                   required
                 />
-                <PasswordStrengthIndicator password={passwordData.newPassword} className="mt-2" />
+                <PasswordStrengthIndicator
+                  password={passwordData.newPassword}
+                  className="mt-2"
+                />
               </div>
               <div className="form-control">
                 <label className="label">
@@ -1204,7 +1238,12 @@ const Settings = () => {
                   type="password"
                   className="input input-bordered"
                   value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
@@ -1223,7 +1262,7 @@ const Settings = () => {
                   Changing...
                 </>
               ) : (
-                'Change Password'
+                "Change Password"
               )}
             </button>
             <button
@@ -1247,7 +1286,11 @@ const Settings = () => {
             onClose={() => setShowProfilePictureModal(false)}
           />
           <AccessibleModal.Content>
-            <form id="profile-picture-form" onSubmit={handleProfilePictureUpload} className="space-y-4">
+            <form
+              id="profile-picture-form"
+              onSubmit={handleProfilePictureUpload}
+              className="space-y-4"
+            >
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Select Image</span>
@@ -1280,7 +1323,7 @@ const Settings = () => {
                   Uploading...
                 </>
               ) : (
-                'Upload Picture'
+                "Upload Picture"
               )}
             </button>
             <button
@@ -1306,12 +1349,21 @@ const Settings = () => {
           <AccessibleModal.Content>
             <div className="alert alert-error mb-4">
               <AlertTriangle className="w-5 h-5" />
-              <span>This action cannot be undone. All your data will be permanently deleted.</span>
+              <span>
+                This action cannot be undone. All your data will be permanently
+                deleted.
+              </span>
             </div>
-            <form id="delete-account-form" onSubmit={handleDeleteAccount} className="space-y-4">
+            <form
+              id="delete-account-form"
+              onSubmit={handleDeleteAccount}
+              className="space-y-4"
+            >
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Type &quot;DELETE&quot; to confirm</span>
+                  <span className="label-text">
+                    Type &quot;DELETE&quot; to confirm
+                  </span>
                 </label>
                 <input
                   type="text"
@@ -1329,7 +1381,10 @@ const Settings = () => {
               type="submit"
               form="delete-account-form"
               className="btn btn-error"
-              disabled={deleteAccountMutation.isLoading || deleteConfirmation !== 'DELETE'}
+              disabled={
+                deleteAccountMutation.isLoading ||
+                deleteConfirmation !== "DELETE"
+              }
             >
               {deleteAccountMutation.isLoading ? (
                 <>

@@ -1,40 +1,62 @@
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { playersService } from '../services/players';
-import { teamsService } from '../services/teams';
-import { reportsService } from '../services/reports';
-import { useAuth } from '../contexts/AuthContext';
-import { useKeyboardClick } from '../hooks/useKeyboardClick';
-import TeamStatistics from '../components/TeamStatistics';
-import { DashboardSkeleton } from '../components/skeletons';
-import { Users, FileText, Activity, Zap, Plus, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { playersService } from "../services/players";
+import { teamsService } from "../services/teams";
+import { reportsService } from "../services/reports";
+import { useAuth } from "../contexts/AuthContext";
+import { useKeyboardClick } from "../hooks/useKeyboardClick";
+import TeamStatistics from "../components/TeamStatistics";
+import { DashboardSkeleton } from "../components/skeletons";
+import {
+  Users,
+  FileText,
+  Activity,
+  Zap,
+  Plus,
+  ClipboardList,
+  TrendingUp,
+  BarChart3,
+} from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   // Fetch players
-  const { data: playersResponse, isLoading: playersLoading, error: playersError } = useQuery({
-    queryKey: ['players', { limit: 5 }],
-    queryFn: () => playersService.getPlayers({ limit: 5 })
+  const {
+    data: playersResponse,
+    isLoading: playersLoading,
+    error: playersError,
+  } = useQuery({
+    queryKey: ["players", { limit: 5 }],
+    queryFn: () => playersService.getPlayers({ limit: 5 }),
   });
 
   // Fetch scouting reports
-  const { data: reportsResponse, isLoading: reportsLoading, error: reportsError } = useQuery({
-    queryKey: ['scouting-reports', { limit: 5 }],
-    queryFn: () => reportsService.getScoutingReports({ limit: 5 })
+  const {
+    data: reportsResponse,
+    isLoading: reportsLoading,
+    error: reportsError,
+  } = useQuery({
+    queryKey: ["scouting-reports", { limit: 5 }],
+    queryFn: () => reportsService.getScoutingReports({ limit: 5 }),
   });
 
   // Fetch user's team if they have a team_id
-  const { data: teamResponse, isLoading: teamLoading, error: teamError } = useQuery({
-    queryKey: ['team', user?.team_id],
+  const {
+    data: teamResponse,
+    isLoading: teamLoading,
+    error: teamError,
+  } = useQuery({
+    queryKey: ["team", user?.team_id],
     queryFn: () => teamsService.getTeam(user.team_id),
-    enabled: !!user?.team_id
+    enabled: !!user?.team_id,
   });
 
   // Calculate stats
   const totalPlayers = playersResponse?.pagination?.total || 0;
-  const activePlayers = playersResponse?.data?.filter(p => p.status === 'active').length || 0;
+  const activePlayers =
+    playersResponse?.data?.filter((p) => p.status === "active").length || 0;
   const totalReports = reportsResponse?.pagination?.total || 0;
   const recentReports = reportsResponse?.data?.length || 0;
 
@@ -42,7 +64,7 @@ const Dashboard = () => {
     totalPlayers,
     activePlayers,
     totalReports,
-    recentReports
+    recentReports,
   };
 
   const recentPlayers = playersResponse?.data || [];
@@ -51,10 +73,10 @@ const Dashboard = () => {
   const error = playersError || reportsError || teamError;
 
   // Quick action handlers
-  const handleAddPlayer = () => navigate('/players/create');
-  const handleCreateReport = () => navigate('/scouting/create');
-  const handleViewAnalytics = () => navigate('/reports');
-  const handleViewPerformance = () => navigate('/performance');
+  const handleAddPlayer = () => navigate("/players/create");
+  const handleCreateReport = () => navigate("/scouting/create");
+  const handleViewAnalytics = () => navigate("/reports");
+  const handleViewPerformance = () => navigate("/performance");
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -65,10 +87,20 @@ const Dashboard = () => {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="alert alert-error">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
-            <span>{error.message || 'Failed to load dashboard data'}</span>
+            <span>{error.message || "Failed to load dashboard data"}</span>
           </div>
         </div>
       </div>
@@ -97,14 +129,22 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-primary/10">
                   <Users className="w-6 h-6 text-primary" />
                 </div>
-                <span className="badge badge-primary badge-outline">Players</span>
+                <span className="badge badge-primary badge-outline">
+                  Players
+                </span>
               </div>
               <div className="mt-4">
-                <p className="text-4xl font-bold tracking-tight">{stats.totalPlayers}</p>
-                <p className="text-sm text-base-content/60 mt-1">Total Players</p>
+                <p className="text-4xl font-bold tracking-tight">
+                  {stats.totalPlayers}
+                </p>
+                <p className="text-sm text-base-content/60 mt-1">
+                  Total Players
+                </p>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-success text-sm font-medium">{stats.activePlayers} active</span>
+                <span className="text-success text-sm font-medium">
+                  {stats.activePlayers} active
+                </span>
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-gentle-pulse"></span>
               </div>
             </div>
@@ -117,14 +157,22 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-secondary/10">
                   <FileText className="w-6 h-6 text-secondary" />
                 </div>
-                <span className="badge badge-secondary badge-outline">Reports</span>
+                <span className="badge badge-secondary badge-outline">
+                  Reports
+                </span>
               </div>
               <div className="mt-4">
-                <p className="text-4xl font-bold tracking-tight">{stats.totalReports}</p>
-                <p className="text-sm text-base-content/60 mt-1">Scouting Reports</p>
+                <p className="text-4xl font-bold tracking-tight">
+                  {stats.totalReports}
+                </p>
+                <p className="text-sm text-base-content/60 mt-1">
+                  Scouting Reports
+                </p>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-info text-sm font-medium">{stats.recentReports} recent</span>
+                <span className="text-info text-sm font-medium">
+                  {stats.recentReports} recent
+                </span>
               </div>
             </div>
           </div>
@@ -136,14 +184,18 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-success/10">
                   <Activity className="w-6 h-6 text-success" />
                 </div>
-                <span className="badge badge-success badge-outline">Status</span>
+                <span className="badge badge-success badge-outline">
+                  Status
+                </span>
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">Active</p>
                 <p className="text-sm text-base-content/60 mt-1">Team Status</p>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-success text-sm font-medium">All systems go</span>
+                <span className="text-success text-sm font-medium">
+                  All systems go
+                </span>
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-gentle-pulse"></span>
               </div>
             </div>
@@ -156,14 +208,20 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-warning/10">
                   <Zap className="w-6 h-6 text-warning" />
                 </div>
-                <span className="badge badge-warning badge-outline">Actions</span>
+                <span className="badge badge-warning badge-outline">
+                  Actions
+                </span>
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">4</p>
-                <p className="text-sm text-base-content/60 mt-1">Quick Actions</p>
+                <p className="text-sm text-base-content/60 mt-1">
+                  Quick Actions
+                </p>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-base-content/60 text-sm font-medium">Available now</span>
+                <span className="text-base-content/60 text-sm font-medium">
+                  Available now
+                </span>
               </div>
             </div>
           </div>
@@ -177,20 +235,24 @@ const Dashboard = () => {
                   Recent Players
                 </h2>
                 <button
-                  onClick={() => navigate('/players')}
+                  onClick={() => navigate("/players")}
                   className="btn btn-ghost btn-sm"
                 >
                   View all
                 </button>
               </div>
-              <p className="card-description">Latest players added to your roster</p>
+              <p className="card-description">
+                Latest players added to your roster
+              </p>
             </div>
             <div className="card-content overflow-auto">
               {recentPlayers.length > 0 ? (
                 <div className="space-y-3">
                   {recentPlayers.map((player, index) => {
                     const PlayerCard = () => {
-                      const keyboardProps = useKeyboardClick(() => navigate(`/players/${player.id}`));
+                      const keyboardProps = useKeyboardClick(() =>
+                        navigate(`/players/${player.id}`),
+                      );
 
                       return (
                         <div
@@ -203,7 +265,8 @@ const Dashboard = () => {
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                               <span className="text-primary font-semibold text-sm">
-                                {player.first_name?.[0]}{player.last_name?.[0]}
+                                {player.first_name?.[0]}
+                                {player.last_name?.[0]}
                               </span>
                             </div>
                             <div>
@@ -215,7 +278,9 @@ const Dashboard = () => {
                               </p>
                             </div>
                           </div>
-                          <div className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}>
+                          <div
+                            className={`badge ${player.status === "active" ? "badge-success" : "badge-outline"}`}
+                          >
                             {player.status}
                           </div>
                         </div>
@@ -243,7 +308,7 @@ const Dashboard = () => {
                   Recent Reports
                 </h2>
                 <button
-                  onClick={() => navigate('/scouting')}
+                  onClick={() => navigate("/scouting")}
                   className="btn btn-ghost btn-sm"
                 >
                   View all
@@ -256,7 +321,9 @@ const Dashboard = () => {
                 <div className="space-y-3">
                   {recentReportsData.map((report) => {
                     const ReportCard = () => {
-                      const keyboardProps = useKeyboardClick(() => navigate(`/scouting/${report.id}`));
+                      const keyboardProps = useKeyboardClick(() =>
+                        navigate(`/scouting/${report.id}`),
+                      );
 
                       return (
                         <div
@@ -272,10 +339,13 @@ const Dashboard = () => {
                             </div>
                             <div>
                               <h3 className="font-medium">
-                                {report.Player?.first_name} {report.Player?.last_name}
+                                {report.Player?.first_name}{" "}
+                                {report.Player?.last_name}
                               </h3>
                               <p className="text-sm text-base-content/60">
-                                {new Date(report.created_at).toLocaleDateString()}
+                                {new Date(
+                                  report.created_at,
+                                ).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
@@ -299,8 +369,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions - Full width card with glass effect */}
-        <div className="card card-glass mb-10 animate-fade-in">
+        {/* Quick Actions - Full width card */}
+        <div className="card mb-10 animate-fade-in group">
           <div className="card-header">
             <h2 className="card-title flex items-center gap-2">
               <Zap className="w-5 h-5" />
@@ -319,7 +389,9 @@ const Dashboard = () => {
                 </div>
                 <div className="text-left">
                   <div className="font-semibold">Add Player</div>
-                  <div className="text-xs opacity-60">Create new roster entry</div>
+                  <div className="text-xs opacity-60">
+                    Create new roster entry
+                  </div>
                 </div>
               </button>
 
@@ -365,10 +437,21 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Team Statistics Section */}
+        {/* Team Statistics Section - Wrapped in a single card */}
         {user?.team_id && teamResponse && (
-          <div className="animate-fade-in stagger-3">
-            <TeamStatistics team={teamResponse} />
+          <div className="card animate-fade-in stagger-3 mb-10 overflow-hidden">
+            <div className="card-header bg-base-300/10 border-b border-ui-border">
+              <h2 className="card-title flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                Team Performance
+              </h2>
+              <p className="card-description">
+                Comprehensive analytics and metrics for {teamResponse.name}
+              </p>
+            </div>
+            <div className="card-content p-8">
+              <TeamStatistics team={teamResponse} />
+            </div>
           </div>
         )}
       </div>

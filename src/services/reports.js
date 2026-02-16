@@ -34,10 +34,10 @@
  * @requires file-saver
  */
 
-import api from './api';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { saveAs } from 'file-saver';
+import api from "./api";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { saveAs } from "file-saver";
 
 /**
  * Reports management service object containing all report-related API methods
@@ -66,7 +66,7 @@ export const reportsService = {
    * console.log('Total reports:', allReports.data.length);
    */
   getAllReports: async () => {
-    const response = await api.get('/reports');
+    const response = await api.get("/reports");
     return response.data;
   },
 
@@ -130,13 +130,16 @@ export const reportsService = {
    */
   createReport: async (reportData) => {
     // Filter out empty string parameters to avoid validation errors
-    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-    const response = await api.post('/reports', filteredData);
+    const filteredData = Object.entries(reportData).reduce(
+      (acc, [key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {},
+    );
+    const response = await api.post("/reports", filteredData);
     return response.data;
   },
 
@@ -173,12 +176,15 @@ export const reportsService = {
    */
   updateReport: async (id, reportData) => {
     // Filter out empty string parameters to avoid validation errors
-    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
+    const filteredData = Object.entries(reportData).reduce(
+      (acc, [key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {},
+    );
     const response = await api.put(`/reports/byId/${id}`, filteredData);
     return response.data;
   },
@@ -237,7 +243,9 @@ export const reportsService = {
    * });
    */
   getPlayerPerformance: async (filters = {}) => {
-    const response = await api.get('/reports/player-performance', { params: filters });
+    const response = await api.get("/reports/player-performance", {
+      params: filters,
+    });
     return response.data;
   },
 
@@ -270,7 +278,9 @@ export const reportsService = {
    * });
    */
   getTeamStatistics: async (filters = {}) => {
-    const response = await api.get('/reports/team-statistics', { params: filters });
+    const response = await api.get("/reports/team-statistics", {
+      params: filters,
+    });
     return response.data;
   },
 
@@ -281,87 +291,16 @@ export const reportsService = {
    * @function getScoutingReports
    * @memberof reportsService
    * @param {Object} [filters={}] - Optional query parameters for filtering scouting reports
-   * @param {string} [filters.playerId] - Filter by player ID
-   * @param {string} [filters.scoutId] - Filter by scout ID
+   * @param {string|number} [filters.player_id] - Filter by player ID
+   * @param {string|number} [filters.prospect_id] - Filter by prospect ID
+   * @param {string|number} [filters.scout_id] - Filter by scout ID
    * @param {string} [filters.position] - Filter by player position
    * @param {string} [filters.startDate] - Filter by start date (ISO format)
    * @param {string} [filters.endDate] - Filter by end date (ISO format)
    * @returns {Promise<Object>} Response containing scouting reports
-   * @returns {Array<Object>} return.reports - Array of scouting report objects
-   *
-   * @throws {Error} Throws error if server error occurs
-   *
-   * @example
-   * const reports = await reportsService.getScoutingReports({
-   *   position: 'SS',
-   *   scoutId: 'scout-456'
-   * });
    */
   getScoutingReports: async (filters = {}) => {
-    const response = await api.get('/reports/scouting', { params: filters });
-    return response.data;
-  },
-
-  /**
-   * Retrieves scouting analysis with optional filtering
-   *
-   * @async
-   * @function getScoutingAnalysis
-   * @memberof reportsService
-   * @param {Object} [filters={}] - Optional query parameters for filtering analysis
-   * @param {string} [filters.playerId] - Filter by player ID
-   * @param {string} [filters.position] - Filter by player position
-   * @param {string} [filters.minGrade] - Minimum overall grade filter
-   * @param {string} [filters.maxGrade] - Maximum overall grade filter
-   * @returns {Promise<Object>} Response containing scouting analysis data
-   * @returns {Array<Object>} return.reports - Array of analyzed scouting reports
-   * @returns {string} return.reports[].player_name - Player name
-   * @returns {string} return.reports[].position - Player position
-   * @returns {string} return.reports[].overall_grade - Overall scouting grade
-   * @returns {string} return.reports[].hitting_grade - Hitting grade
-   * @returns {string} return.reports[].pitching_grade - Pitching grade
-   * @returns {string} return.reports[].fielding_grade - Fielding grade
-   * @returns {string} [return.reports[].overall_notes] - Scouting notes
-   *
-   * @throws {Error} Throws error if server error occurs
-   *
-   * @example
-   * const analysis = await reportsService.getScoutingAnalysis({
-   *   position: 'OF',
-   *   minGrade: 'B'
-   * });
-   */
-  getScoutingAnalysis: async (filters = {}) => {
-    const response = await api.get('/reports/scouting-analysis', { params: filters });
-    return response.data;
-  },
-
-  /**
-   * Retrieves recruitment pipeline data with optional filtering
-   *
-   * @async
-   * @function getRecruitmentPipeline
-   * @memberof reportsService
-   * @param {Object} [filters={}] - Optional query parameters for filtering pipeline data
-   * @param {string} [filters.stage] - Filter by recruitment stage
-   * @param {string} [filters.position] - Filter by player position
-   * @param {string} [filters.graduationYear] - Filter by high school graduation year
-   * @returns {Promise<Object>} Response containing recruitment pipeline data
-   * @returns {Array<Object>} return.pipeline - Array of pipeline stage objects
-   * @returns {string} return.pipeline[].stage_name - Name of the recruitment stage
-   * @returns {number} return.pipeline[].player_count - Number of players in this stage
-   * @returns {string} return.pipeline[].avg_grade - Average grade for this stage
-   * @returns {string} return.pipeline[].next_action - Recommended next action
-   *
-   * @throws {Error} Throws error if server error occurs
-   *
-   * @example
-   * const pipeline = await reportsService.getRecruitmentPipeline({
-   *   graduationYear: '2025'
-   * });
-   */
-  getRecruitmentPipeline: async (filters = {}) => {
-    const response = await api.get('/reports/recruitment-pipeline', { params: filters });
+    const response = await api.get("/reports/scouting", { params: filters });
     return response.data;
   },
 
@@ -372,46 +311,27 @@ export const reportsService = {
    * @function createScoutingReport
    * @memberof reportsService
    * @param {Object} reportData - Scouting report data
-   * @param {string} reportData.playerId - Player ID (required)
-   * @param {string} reportData.scoutId - Scout ID (required)
-   * @param {string} reportData.overallGrade - Overall scouting grade (required)
-   * @param {string} [reportData.hittingGrade] - Hitting grade
-   * @param {string} [reportData.pitchingGrade] - Pitching grade
-   * @param {string} [reportData.fieldingGrade] - Fielding grade
-   * @param {string} [reportData.speedGrade] - Speed grade
-   * @param {string} [reportData.armGrade] - Arm strength grade
-   * @param {string} [reportData.overallNotes] - Overall notes
-   * @param {string} [reportData.reportDate] - Report date (ISO format)
+   * @param {string|number} [reportData.player_id] - Player ID (exactly one of player_id or prospect_id required)
+   * @param {string|number} [reportData.prospect_id] - Prospect ID (exactly one of player_id or prospect_id required)
+   * @param {string|number} [reportData.report_date] - Report date (ISO format)
+   * @param {string} [reportData.event_type] - Event type (game, showcase, etc.)
+   * @param {number|string} [reportData.overall_present] - Overall present grade (20-80 or letter)
+   * @param {number|string} [reportData.overall_future] - Overall future grade (20-80 or letter)
+   * @param {string} [reportData.notes] - Scouting notes
    * @returns {Promise<Object>} The newly created scouting report
-   * @returns {string} return.id - Report's unique identifier
-   * @returns {string} return.playerId - Player ID
-   * @returns {string} return.scoutId - Scout ID
-   * @returns {string} return.createdAt - ISO timestamp of creation
-   *
-   * @throws {Error} Throws error if validation fails or required fields are missing
-   *
-   * @description This method automatically filters out empty strings, null, and undefined
-   *              values from the reportData object before sending to the API.
-   *
-   * @example
-   * const scoutingReport = await reportsService.createScoutingReport({
-   *   playerId: 'player-789',
-   *   scoutId: 'scout-456',
-   *   overallGrade: 'A',
-   *   hittingGrade: 'A-',
-   *   fieldingGrade: 'B+',
-   *   overallNotes: 'Excellent bat speed and power potential'
-   * });
    */
   createScoutingReport: async (reportData) => {
     // Filter out empty string parameters to avoid validation errors
-    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-    const response = await api.post('/reports/scouting', filteredData);
+    const filteredData = Object.entries(reportData).reduce(
+      (acc, [key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {},
+    );
+    const response = await api.post("/reports/scouting", filteredData);
     return response.data;
   },
 
@@ -471,12 +391,15 @@ export const reportsService = {
    */
   updateScoutingReport: async (id, reportData) => {
     // Filter out empty string parameters to avoid validation errors
-    const filteredData = Object.entries(reportData).reduce((acc, [key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
+    const filteredData = Object.entries(reportData).reduce(
+      (acc, [key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {},
+    );
     const response = await api.put(`/reports/scouting/${id}`, filteredData);
     return response.data;
   },
@@ -512,13 +435,17 @@ export const reportsService = {
    * saveAs(pdfBlob, 'player-performance-2024.pdf');
    */
   generatePDF: async (reportType, data, options = {}) => {
-    const response = await api.post('/reports/generate-pdf', {
-      type: reportType,
-      data,
-      options
-    }, {
-      responseType: 'blob'
-    });
+    const response = await api.post(
+      "/reports/generate-pdf",
+      {
+        type: reportType,
+        data,
+        options,
+      },
+      {
+        responseType: "blob",
+      },
+    );
     return response.data;
   },
 
@@ -553,15 +480,19 @@ export const reportsService = {
    * saveAs(excelBlob, 'team-statistics-2024.xlsx');
    */
   exportToExcel: async (reportType, data, options = {}) => {
-    const response = await api.post('/reports/export-excel', {
-      type: reportType,
-      data,
-      options
-    }, {
-      responseType: 'blob'
-    });
+    const response = await api.post(
+      "/reports/export-excel",
+      {
+        type: reportType,
+        data,
+        options,
+      },
+      {
+        responseType: "blob",
+      },
+    );
     return response.data;
-  }
+  },
 };
 
 /**
@@ -623,30 +554,37 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text('Player Performance Report', pageWidth / 2, 20, { align: 'center' });
+    doc.text("Player Performance Report", pageWidth / 2, 20, {
+      align: "center",
+    });
 
     doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()}`,
+      pageWidth / 2,
+      30,
+      { align: "center" },
+    );
 
     // Table data
-    const tableData = data.players.map(player => [
+    const tableData = data.players.map((player) => [
       `${player.first_name} ${player.last_name}`,
       player.position,
-      player.batting_avg || 'N/A',
-      player.home_runs || 'N/A',
-      player.rbi || 'N/A',
-      player.era || 'N/A',
-      player.wins || 'N/A'
+      player.batting_avg || "N/A",
+      player.home_runs || "N/A",
+      player.rbi || "N/A",
+      player.era || "N/A",
+      player.wins || "N/A",
     ]);
 
     // Create table
     doc.autoTable({
       startY: 40,
-      head: [['Player', 'Position', 'AVG', 'HR', 'RBI', 'ERA', 'Wins']],
+      head: [["Player", "Position", "AVG", "HR", "RBI", "ERA", "Wins"]],
       body: tableData,
-      theme: 'grid',
+      theme: "grid",
       headStyles: { fillColor: [59, 130, 246] },
-      styles: { fontSize: 10 }
+      styles: { fontSize: 10 },
     });
 
     return doc;
@@ -689,31 +627,36 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text('Team Statistics Summary', pageWidth / 2, 20, { align: 'center' });
+    doc.text("Team Statistics Summary", pageWidth / 2, 20, { align: "center" });
 
     doc.setFontSize(12);
-    doc.text(`Team: ${data.team_name}`, pageWidth / 2, 30, { align: 'center' });
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 40, { align: 'center' });
+    doc.text(`Team: ${data.team_name}`, pageWidth / 2, 30, { align: "center" });
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()}`,
+      pageWidth / 2,
+      40,
+      { align: "center" },
+    );
 
     // Team stats
     const teamStats = [
-      ['Category', 'Value'],
-      ['Total Players', data.total_players || 'N/A'],
-      ['Team Batting Average', data.team_batting_average || 'N/A'],
-      ['Team ERA', data.team_era || 'N/A'],
-      ['Wins', data.wins || 'N/A'],
-      ['Losses', data.losses || 'N/A'],
-      ['Win Percentage', data.win_percentage || 'N/A']
+      ["Category", "Value"],
+      ["Total Players", data.total_players || "N/A"],
+      ["Team Batting Average", data.team_batting_average || "N/A"],
+      ["Team ERA", data.team_era || "N/A"],
+      ["Wins", data.wins || "N/A"],
+      ["Losses", data.losses || "N/A"],
+      ["Win Percentage", data.win_percentage || "N/A"],
     ];
 
     // Create table
     doc.autoTable({
       startY: 50,
-      head: [['Category', 'Value']],
+      head: [["Category", "Value"]],
       body: teamStats.slice(1),
-      theme: 'grid',
+      theme: "grid",
       headStyles: { fillColor: [59, 130, 246] },
-      styles: { fontSize: 12 }
+      styles: { fontSize: 12 },
     });
 
     return doc;
@@ -763,10 +706,17 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text('Scouting Analysis Report', pageWidth / 2, 20, { align: 'center' });
+    doc.text("Scouting Analysis Report", pageWidth / 2, 20, {
+      align: "center",
+    });
 
     doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()}`,
+      pageWidth / 2,
+      30,
+      { align: "center" },
+    );
 
     let yPosition = 40;
 
@@ -792,13 +742,13 @@ export const pdfUtils = {
       yPosition += 7;
 
       // Notes (truncated if too long)
-      const notes = report.overall_notes || 'No notes available';
+      const notes = report.overall_notes || "No notes available";
       const maxWidth = pageWidth - 40;
       const lines = doc.splitTextToSize(notes, maxWidth);
-      doc.text('Notes:', 20, yPosition);
+      doc.text("Notes:", 20, yPosition);
       yPosition += 5;
       doc.text(lines, 20, yPosition);
-      yPosition += (lines.length * 5) + 10;
+      yPosition += lines.length * 5 + 10;
     });
 
     return doc;
@@ -838,27 +788,34 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text('Recruitment Pipeline Report', pageWidth / 2, 20, { align: 'center' });
+    doc.text("Recruitment Pipeline Report", pageWidth / 2, 20, {
+      align: "center",
+    });
 
     doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()}`,
+      pageWidth / 2,
+      30,
+      { align: "center" },
+    );
 
     // Pipeline stages
-    const pipelineData = data.pipeline.map(stage => [
+    const pipelineData = data.pipeline.map((stage) => [
       stage.stage_name,
       stage.player_count,
       stage.avg_grade,
-      stage.next_action
+      stage.next_action,
     ]);
 
     // Create table
     doc.autoTable({
       startY: 40,
-      head: [['Stage', 'Players', 'Avg Grade', 'Next Action']],
+      head: [["Stage", "Players", "Avg Grade", "Next Action"]],
       body: pipelineData,
-      theme: 'grid',
+      theme: "grid",
       headStyles: { fillColor: [59, 130, 246] },
-      styles: { fontSize: 10 }
+      styles: { fontSize: 10 },
     });
 
     return doc;
@@ -911,10 +868,17 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text(data.title || 'Custom Report', pageWidth / 2, 20, { align: 'center' });
+    doc.text(data.title || "Custom Report", pageWidth / 2, 20, {
+      align: "center",
+    });
 
     doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()}`,
+      pageWidth / 2,
+      30,
+      { align: "center" },
+    );
 
     let yPosition = 40;
 
@@ -929,21 +893,21 @@ export const pdfUtils = {
       doc.text(section.title, 20, yPosition);
       yPosition += 10;
 
-      if (section.type === 'table' && section.data) {
+      if (section.type === "table" && section.data) {
         doc.autoTable({
           startY: yPosition,
           head: section.headers || [],
           body: section.data,
-          theme: 'grid',
+          theme: "grid",
           headStyles: { fillColor: [59, 130, 246] },
-          styles: { fontSize: 10 }
+          styles: { fontSize: 10 },
         });
         yPosition = doc.lastAutoTable.finalY + 10;
-      } else if (section.type === 'text' && section.content) {
+      } else if (section.type === "text" && section.content) {
         doc.setFontSize(10);
         const lines = doc.splitTextToSize(section.content, pageWidth - 40);
         doc.text(lines, 20, yPosition);
-        yPosition += (lines.length * 5) + 10;
+        yPosition += lines.length * 5 + 10;
       }
     });
 
@@ -971,7 +935,7 @@ export const pdfUtils = {
    * // Downloads as "my-report.pdf"
    */
   downloadPDF: (doc, filename) => {
-    const pdfBlob = doc.output('blob');
+    const pdfBlob = doc.output("blob");
     saveAs(pdfBlob, `${filename}.pdf`);
   },
 
@@ -1015,19 +979,19 @@ export const pdfUtils = {
     let doc;
 
     switch (reportType) {
-      case 'player-performance':
+      case "player-performance":
         doc = pdfUtils.generatePlayerPerformancePDF(data);
         break;
-      case 'team-statistics':
+      case "team-statistics":
         doc = pdfUtils.generateTeamStatisticsPDF(data);
         break;
-      case 'scouting-analysis':
+      case "scouting-analysis":
         doc = pdfUtils.generateScoutingAnalysisPDF(data);
         break;
-      case 'recruitment-pipeline':
+      case "recruitment-pipeline":
         doc = pdfUtils.generateRecruitmentPipelinePDF(data);
         break;
-      case 'custom':
+      case "custom":
         doc = pdfUtils.generateCustomReportPDF(data);
         break;
       default:
@@ -1035,7 +999,7 @@ export const pdfUtils = {
     }
 
     pdfUtils.downloadPDF(doc, filename);
-  }
+  },
 };
 
 /**
@@ -1093,23 +1057,23 @@ export const chartUtils = {
    */
   createPerformanceChartData: (players) => {
     return {
-      labels: players.map(p => `${p.first_name} ${p.last_name}`),
+      labels: players.map((p) => `${p.first_name} ${p.last_name}`),
       datasets: [
         {
-          label: 'Batting Average',
-          data: players.map(p => p.batting_average || 0),
-          backgroundColor: 'rgba(59, 130, 246, 0.5)',
-          borderColor: 'rgba(59, 130, 246, 1)',
-          borderWidth: 1
+          label: "Batting Average",
+          data: players.map((p) => p.batting_average || 0),
+          backgroundColor: "rgba(59, 130, 246, 0.5)",
+          borderColor: "rgba(59, 130, 246, 1)",
+          borderWidth: 1,
         },
         {
-          label: 'Home Runs',
-          data: players.map(p => p.home_runs || 0),
-          backgroundColor: 'rgba(239, 68, 68, 0.5)',
-          borderColor: 'rgba(239, 68, 68, 1)',
-          borderWidth: 1
-        }
-      ]
+          label: "Home Runs",
+          data: players.map((p) => p.home_runs || 0),
+          backgroundColor: "rgba(239, 68, 68, 0.5)",
+          borderColor: "rgba(239, 68, 68, 1)",
+          borderWidth: 1,
+        },
+      ],
     };
   },
 
@@ -1146,21 +1110,23 @@ export const chartUtils = {
    */
   createTeamStatsChartData: (stats) => {
     return {
-      labels: ['Wins', 'Losses', 'Ties'],
-      datasets: [{
-        data: [stats.wins || 0, stats.losses || 0, stats.ties || 0],
-        backgroundColor: [
-          'rgba(34, 197, 94, 0.5)',
-          'rgba(239, 68, 68, 0.5)',
-          'rgba(156, 163, 175, 0.5)'
-        ],
-        borderColor: [
-          'rgba(34, 197, 94, 1)',
-          'rgba(239, 68, 68, 1)',
-          'rgba(156, 163, 175, 1)'
-        ],
-        borderWidth: 1
-      }]
+      labels: ["Wins", "Losses", "Ties"],
+      datasets: [
+        {
+          data: [stats.wins || 0, stats.losses || 0, stats.ties || 0],
+          backgroundColor: [
+            "rgba(34, 197, 94, 0.5)",
+            "rgba(239, 68, 68, 0.5)",
+            "rgba(156, 163, 175, 0.5)",
+          ],
+          borderColor: [
+            "rgba(34, 197, 94, 1)",
+            "rgba(239, 68, 68, 1)",
+            "rgba(156, 163, 175, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
     };
-  }
+  },
 };

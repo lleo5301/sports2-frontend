@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback
+} from 'react';
 import { useAuth } from './AuthContext';
 import api from '../services/api';
 
@@ -15,7 +21,8 @@ function hexToOKLCH(hex) {
   let b = parseInt(hex.substring(4, 6), 16) / 255;
 
   // Convert sRGB to linear RGB
-  const toLinear = (c) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const toLinear = (c) =>
+    c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
   r = toLinear(r);
   g = toLinear(g);
   b = toLinear(b);
@@ -29,13 +36,13 @@ function hexToOKLCH(hex) {
   const m = Math.cbrt(m_);
   const s = Math.cbrt(s_);
 
-  const L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
-  const a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
-  const bOK = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+  const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const bOK = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
 
   // Convert OKLab to OKLCH
   const C = Math.sqrt(a * a + bOK * bOK);
-  let H = Math.atan2(bOK, a) * 180 / Math.PI;
+  let H = (Math.atan2(bOK, a) * 180) / Math.PI;
   if (H < 0) H += 360;
 
   // Return as OKLCH format: "L C H" (L as decimal 0-1, not percentage)
@@ -121,12 +128,21 @@ function generatePalette(primaryHex) {
   } else {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    const rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
+    const rNorm = r / 255,
+      gNorm = g / 255,
+      bNorm = b / 255;
     switch (max) {
-      case rNorm: h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6; break;
-      case gNorm: h = ((bNorm - rNorm) / d + 2) / 6; break;
-      case bNorm: h = ((rNorm - gNorm) / d + 4) / 6; break;
-      default: h = 0;
+      case rNorm:
+        h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6;
+        break;
+      case gNorm:
+        h = ((bNorm - rNorm) / d + 2) / 6;
+        break;
+      case bNorm:
+        h = ((rNorm - gNorm) / d + 4) / 6;
+        break;
+      default:
+        h = 0;
     }
   }
 
@@ -135,9 +151,9 @@ function generatePalette(primaryHex) {
     const hue2rgb = (p, q, t) => {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
-      if (t < 1/6) return p + (q - p) * 6 * t;
-      if (t < 1/2) return q;
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
       return p;
     };
 
@@ -147,12 +163,15 @@ function generatePalette(primaryHex) {
     } else {
       const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
       const p = 2 * l - q;
-      rOut = hue2rgb(p, q, h + 1/3);
+      rOut = hue2rgb(p, q, h + 1 / 3);
       gOut = hue2rgb(p, q, h);
-      bOut = hue2rgb(p, q, h - 1/3);
+      bOut = hue2rgb(p, q, h - 1 / 3);
     }
 
-    const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
+    const toHex = (x) =>
+      Math.round(x * 255)
+        .toString(16)
+        .padStart(2, '0');
     return `#${toHex(rOut)}${toHex(gOut)}${toHex(bOut)}`;
   };
 
@@ -170,7 +189,11 @@ function generatePalette(primaryHex) {
     // Neutral: Desaturated version of primary
     neutral: hslToHex(h, s * 0.15, 0.25),
     // Additional semantic colors for dashboard cards - all primary-derived
-    primaryLight: hslToHex(h, Math.min(s * 0.6, 0.45), Math.min(l + 0.25, 0.65)),
+    primaryLight: hslToHex(
+      h,
+      Math.min(s * 0.6, 0.45),
+      Math.min(l + 0.25, 0.65)
+    ),
     primaryMuted: hslToHex(h, Math.min(s * 0.5, 0.4), 0.55),
     secondary: hslToHex((h + 0.05) % 1, Math.min(s * 0.75, 0.5), 0.5)
   };
@@ -189,7 +212,7 @@ export function BrandingProvider({ children }) {
 
   const fetchBranding = useCallback(async () => {
     if (!isAuthenticated) {
-      setBranding(prev => ({ ...prev, loading: false }));
+      setBranding((prev) => ({ ...prev, loading: false }));
       return;
     }
 
@@ -207,7 +230,7 @@ export function BrandingProvider({ children }) {
         });
       }
     } catch (error) {
-      setBranding(prev => ({ ...prev, loading: false }));
+      setBranding((prev) => ({ ...prev, loading: false }));
     }
   }, [isAuthenticated]);
 
@@ -223,18 +246,26 @@ export function BrandingProvider({ children }) {
     // Set primary color (DaisyUI) with focus variant
     root.style.setProperty('--p', hexToOKLCH(branding.primaryColor));
     root.style.setProperty('--pc', getContrastColor(branding.primaryColor));
-    root.style.setProperty('--pf', hexToOKLCH(darkenColor(branding.primaryColor, 15)));
+    root.style.setProperty(
+      '--pf',
+      hexToOKLCH(darkenColor(branding.primaryColor, 15))
+    );
 
     // Set secondary color - use palette-derived if the literal is too dark for visibility
     // This ensures gradient cards remain visible while keeping brand cohesion
     const secondaryLuminance = getLuminance(branding.secondaryColor);
-    const visibleSecondary = secondaryLuminance < 0.15 ? palette.secondary : branding.secondaryColor;
+    const visibleSecondary =
+      secondaryLuminance < 0.15 ? palette.secondary : branding.secondaryColor;
     root.style.setProperty('--s', hexToOKLCH(visibleSecondary));
     root.style.setProperty('--sc', getContrastColor(visibleSecondary));
-    root.style.setProperty('--sf', hexToOKLCH(darkenColor(visibleSecondary, 15)));
+    root.style.setProperty(
+      '--sf',
+      hexToOKLCH(darkenColor(visibleSecondary, 15))
+    );
 
     // Set accent - slightly lighter variant of primary for harmony
-    const accentColor = palette.primaryLight || lightenColor(branding.primaryColor, 20);
+    const accentColor =
+      palette.primaryLight || lightenColor(branding.primaryColor, 20);
     root.style.setProperty('--a', hexToOKLCH(accentColor));
     root.style.setProperty('--ac', getContrastColor(accentColor));
     root.style.setProperty('--af', hexToOKLCH(darkenColor(accentColor, 15)));
@@ -264,33 +295,85 @@ export function BrandingProvider({ children }) {
     // Set custom CSS variables for direct color access (hex format)
     root.style.setProperty('--team-primary', branding.primaryColor);
     root.style.setProperty('--team-secondary', branding.secondaryColor);
-    root.style.setProperty('--team-primary-rgb', hexToRGB(branding.primaryColor));
-    root.style.setProperty('--team-secondary-rgb', hexToRGB(branding.secondaryColor));
+    root.style.setProperty(
+      '--team-primary-rgb',
+      hexToRGB(branding.primaryColor)
+    );
+    root.style.setProperty(
+      '--team-secondary-rgb',
+      hexToRGB(branding.secondaryColor)
+    );
+
+    // Support for .bg-adaptive and .text-contrast utilities
+    root.style.setProperty('--bg-color', branding.primaryColor);
+    root.style.setProperty(
+      '--text-on-bg',
+      getLuminance(branding.primaryColor) > 0.5 ? '#000000' : '#FFFFFF'
+    );
 
     // Set heading/text colors based on primary (slightly darker for better readability)
-    root.style.setProperty('--team-heading', darkenColor(branding.primaryColor, 15));
+    root.style.setProperty(
+      '--team-heading',
+      darkenColor(branding.primaryColor, 15)
+    );
     root.style.setProperty('--team-heading-light', branding.primaryColor);
-    root.style.setProperty('--team-accent-bg', lightenColor(branding.primaryColor, 90));
-    root.style.setProperty('--team-accent-border', lightenColor(branding.primaryColor, 70));
+    root.style.setProperty(
+      '--team-accent-bg',
+      lightenColor(branding.primaryColor, 90)
+    );
+    root.style.setProperty(
+      '--team-accent-border',
+      lightenColor(branding.primaryColor, 70)
+    );
 
     // Glass effect colors based on team colors (for glassmorphism)
-    root.style.setProperty('--team-glass-bg', `rgba(${hexToRGB(branding.primaryColor)}, 0.1)`);
-    root.style.setProperty('--team-glass-border', `rgba(${hexToRGB(branding.primaryColor)}, 0.2)`);
+    root.style.setProperty(
+      '--team-glass-bg',
+      `rgba(${hexToRGB(branding.primaryColor)}, 0.1)`
+    );
+    root.style.setProperty(
+      '--team-glass-border',
+      `rgba(${hexToRGB(branding.primaryColor)}, 0.2)`
+    );
 
     // Gradient stops for modern gradients
     root.style.setProperty('--team-gradient-start', branding.primaryColor);
-    root.style.setProperty('--team-gradient-end', lightenColor(branding.primaryColor, 30));
+    root.style.setProperty(
+      '--team-gradient-end',
+      lightenColor(branding.primaryColor, 30)
+    );
 
     // Glow colors for hover effects
-    root.style.setProperty('--team-glow', `rgba(${hexToRGB(branding.primaryColor)}, 0.4)`);
-    root.style.setProperty('--team-glow-subtle', `rgba(${hexToRGB(branding.primaryColor)}, 0.15)`);
+    root.style.setProperty(
+      '--team-glow',
+      `rgba(${hexToRGB(branding.primaryColor)}, 0.4)`
+    );
+    root.style.setProperty(
+      '--team-glow-subtle',
+      `rgba(${hexToRGB(branding.primaryColor)}, 0.15)`
+    );
 
     // Focus ring color
-    root.style.setProperty('--team-focus-ring', `rgba(${hexToRGB(branding.primaryColor)}, 0.3)`);
+    root.style.setProperty(
+      '--team-focus-ring',
+      `rgba(${hexToRGB(branding.primaryColor)}, 0.3)`
+    );
 
     // Set page background color (subtle gray for light mode, handled by theme for dark)
     const currentTheme = root.getAttribute('data-theme');
-    const isDarkTheme = currentTheme && ['dark', 'night', 'black', 'dracula', 'synthwave', 'halloween', 'forest', 'luxury', 'coffee'].includes(currentTheme);
+    const isDarkTheme =
+      currentTheme &&
+      [
+        'dark',
+        'night',
+        'black',
+        'dracula',
+        'synthwave',
+        'halloween',
+        'forest',
+        'luxury',
+        'coffee'
+      ].includes(currentTheme);
     if (!isDarkTheme) {
       root.style.setProperty('--page-bg', '#f8fafc');
     } else {
@@ -364,7 +447,7 @@ export function BrandingProvider({ children }) {
 
   // Update branding (for immediate feedback after changes)
   const updateBranding = useCallback((updates) => {
-    setBranding(prev => ({ ...prev, ...updates }));
+    setBranding((prev) => ({ ...prev, ...updates }));
   }, []);
 
   // Refresh branding from server
