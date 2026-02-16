@@ -1016,13 +1016,13 @@
 /* ============================================
    DARK MODE ENHANCEMENTS
    ============================================ */
-[data-theme="dark"],
-[data-theme="night"],
-[data-theme="black"],
-[data-theme="dracula"],
-[data-theme="forest"],
-[data-theme="luxury"],
-[data-theme="coffee"] {
+html.dark,
+
+
+
+
+
+.dark {
   /* Better backgrounds with refined dark aesthetic */
   .drawer-content {
     background: var(--page-bg, var(--color-bg-1));
@@ -1321,13 +1321,13 @@ html.light,
 }
 
 /* Enhanced focus for dark mode with better visibility */
-[data-theme="dark"] [role="button"]:focus-visible,
-[data-theme="night"] [role="button"]:focus-visible,
-[data-theme="black"] [role="button"]:focus-visible,
-[data-theme="dracula"] [role="button"]:focus-visible,
-[data-theme="forest"] [role="button"]:focus-visible,
-[data-theme="luxury"] [role="button"]:focus-visible,
-[data-theme="coffee"] [role="button"]:focus-visible {
+html.dark [role="button"]:focus-visible {
+
+
+
+
+
+
   box-shadow: 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.6);
   border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 1);
 }
@@ -1442,10 +1442,10 @@ html.light,
     background: rgba(255, 255, 255, 0.95);
   }
 
-  [data-theme="dark"] .glass,
-  [data-theme="dark"] .card-glass,
-  [data-theme="dark"] .glass-sm,
-  [data-theme="dark"] .glass-lg {
+  html.dark .glass,
+  html.dark .card-glass,
+  html.dark .glass-sm,
+  html.dark .glass-lg {
     background: rgba(30, 30, 36, 0.98);
   }
 
