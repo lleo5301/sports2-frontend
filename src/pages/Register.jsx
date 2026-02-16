@@ -65,7 +65,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <Link
@@ -75,10 +75,10 @@ export default function Register() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to login
           </Link>
-          <h2 className="text-center text-3xl font-extrabold text-base-content">
+          <h2 className="text-center text-3xl font-extrabold text-foreground">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-base-content/70">
+          <p className="mt-2 text-center text-sm text-foreground/70">
             Join The Program
           </p>
         </div>
@@ -209,9 +209,9 @@ export default function Register() {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-base-content/50" />
+                        <EyeOff className="h-5 w-5 text-foreground/50" />
                       ) : (
-                        <Eye className="h-5 w-5 text-base-content/50" />
+                        <Eye className="h-5 w-5 text-foreground/50" />
                       )}
                     </button>
                   </div>
@@ -243,9 +243,9 @@ export default function Register() {
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5 text-base-content/50" />
+                        <EyeOff className="h-5 w-5 text-foreground/50" />
                       ) : (
-                        <Eye className="h-5 w-5 text-base-content/50" />
+                        <Eye className="h-5 w-5 text-foreground/50" />
                       )}
                     </button>
                   </div>
@@ -268,7 +268,7 @@ export default function Register() {
               </div>
 
               <div className="text-center">
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-foreground/70">
                   Already have an account?{' '}
                   <Link to="/login" className="link link-primary">
                     Sign in

@@ -314,7 +314,7 @@ const Coaches = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-background shadow-sm mb-6">
         <div className="card-body">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
@@ -354,7 +354,7 @@ const Coaches = () => {
       </div>
 
       {/* Coaches List */}
-      <div className="card bg-base-100 shadow-sm">
+      <div className="card bg-background shadow-sm">
         <div className="card-body">
           {isLoading ? (
             <div className="text-center py-12">

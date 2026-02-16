@@ -112,10 +112,10 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-10 animate-fade-in">
-          <h1 className="text-4xl font-bold text-base-content mb-3 page-title tracking-tight">
+          <h1 className="text-4xl font-bold text-foreground mb-3 page-title tracking-tight">
             Dashboard
           </h1>
-          <p className="text-base-content/60 text-lg">
+          <p className="text-foreground/60 text-lg">
             Welcome back! Here&apos;s an overview of your team&apos;s data.
           </p>
         </div>
@@ -137,7 +137,7 @@ const Dashboard = () => {
                 <p className="text-4xl font-bold tracking-tight">
                   {stats.totalPlayers}
                 </p>
-                <p className="text-sm text-base-content/60 mt-1">
+                <p className="text-sm text-foreground/60 mt-1">
                   Total Players
                 </p>
               </div>
@@ -165,7 +165,7 @@ const Dashboard = () => {
                 <p className="text-4xl font-bold tracking-tight">
                   {stats.totalReports}
                 </p>
-                <p className="text-sm text-base-content/60 mt-1">
+                <p className="text-sm text-foreground/60 mt-1">
                   Scouting Reports
                 </p>
               </div>
@@ -190,7 +190,7 @@ const Dashboard = () => {
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">Active</p>
-                <p className="text-sm text-base-content/60 mt-1">Team Status</p>
+                <p className="text-sm text-foreground/60 mt-1">Team Status</p>
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <span className="text-success text-sm font-medium">
@@ -214,12 +214,12 @@ const Dashboard = () => {
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">4</p>
-                <p className="text-sm text-base-content/60 mt-1">
+                <p className="text-sm text-foreground/60 mt-1">
                   Quick Actions
                 </p>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-base-content/60 text-sm font-medium">
+                <span className="text-foreground/60 text-sm font-medium">
                   Available now
                 </span>
               </div>
@@ -257,7 +257,7 @@ const Dashboard = () => {
                       return (
                         <div
                           key={player.id}
-                          className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                          className="flex items-center justify-between p-4 bg-content1/50 rounded-xl hover:bg-content1 transition-colors cursor-pointer"
                           onClick={() => navigate(`/players/${player.id}`)}
                           aria-label={`View ${player.first_name} ${player.last_name} - ${player.position} at ${player.school}`}
                           {...keyboardProps}
@@ -273,7 +273,7 @@ const Dashboard = () => {
                               <h3 className="font-medium">
                                 {player.first_name} {player.last_name}
                               </h3>
-                              <p className="text-sm text-base-content/60">
+                              <p className="text-sm text-foreground/60">
                                 {player.position} • {player.school}
                               </p>
                             </div>
@@ -291,7 +291,7 @@ const Dashboard = () => {
                   })}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
+                <div className="flex flex-col items-center justify-center py-8 text-foreground/50">
                   <Users className="w-12 h-12 mb-3 opacity-50" />
                   <p>No recent players</p>
                 </div>
@@ -328,7 +328,7 @@ const Dashboard = () => {
                       return (
                         <div
                           key={report.id}
-                          className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl hover:bg-base-200 transition-colors cursor-pointer"
+                          className="flex items-center justify-between p-4 bg-content1/50 rounded-xl hover:bg-content1 transition-colors cursor-pointer"
                           onClick={() => navigate(`/scouting/${report.id}`)}
                           aria-label={`View scouting report for ${report.Player?.first_name} ${report.Player?.last_name} - Grade ${report.overall_grade}`}
                           {...keyboardProps}
@@ -342,7 +342,7 @@ const Dashboard = () => {
                                 {report.Player?.first_name}{' '}
                                 {report.Player?.last_name}
                               </h3>
-                              <p className="text-sm text-base-content/60">
+                              <p className="text-sm text-foreground/60">
                                 {new Date(
                                   report.created_at
                                 ).toLocaleDateString()}
@@ -360,7 +360,7 @@ const Dashboard = () => {
                   })}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-base-content/50">
+                <div className="flex flex-col items-center justify-center py-8 text-foreground/50">
                   <FileText className="w-12 h-12 mb-3 opacity-50" />
                   <p>No recent reports</p>
                 </div>
@@ -381,10 +381,10 @@ const Dashboard = () => {
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleAddPlayer}
               >
-                <div className="p-2 rounded-lg bg-base-200">
+                <div className="p-2 rounded-lg bg-content1">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div className="text-left">
@@ -396,10 +396,10 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleCreateReport}
               >
-                <div className="p-2 rounded-lg bg-base-200">
+                <div className="p-2 rounded-lg bg-content1">
                   <ClipboardList className="w-5 h-5" />
                 </div>
                 <div className="text-left">
@@ -409,10 +409,10 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleViewPerformance}
               >
-                <div className="p-2 rounded-lg bg-base-200">
+                <div className="p-2 rounded-lg bg-content1">
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <div className="text-left">
@@ -422,10 +422,10 @@ const Dashboard = () => {
               </button>
 
               <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-base-100 hover:bg-base-200 border border-base-300 text-base-content"
+                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleViewAnalytics}
               >
-                <div className="p-2 rounded-lg bg-base-200">
+                <div className="p-2 rounded-lg bg-content1">
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div className="text-left">
@@ -440,7 +440,7 @@ const Dashboard = () => {
         {/* Team Statistics Section - Wrapped in a single card */}
         {user?.team_id && teamResponse && (
           <div className="card animate-fade-in stagger-3 mb-10 overflow-hidden">
-            <div className="card-header bg-base-300/10 border-b border-ui-border">
+            <div className="card-header bg-content2/10 border-b border-ui-border">
               <h2 className="card-title flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-primary" />
                 Team Performance

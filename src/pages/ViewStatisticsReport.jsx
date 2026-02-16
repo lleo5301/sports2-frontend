@@ -45,7 +45,7 @@ const ViewStatisticsReport = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-error mb-4">Report Not Found</h1>
-            <p className="text-base-content/70 mb-6">
+            <p className="text-foreground/70 mb-6">
               The statistics report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
             <button
@@ -116,13 +116,13 @@ const ViewStatisticsReport = () => {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 {report.title}
               </h1>
-              <p className="text-base-content/70 mb-4">
+              <p className="text-foreground/70 mb-4">
                 {report.description}
               </p>
-              <div className="flex items-center space-x-6 text-sm text-base-content/60">
+              <div className="flex items-center space-x-6 text-sm text-foreground/60">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
                   Created: {new Date(report.created_at).toLocaleDateString()}
@@ -142,7 +142,7 @@ const ViewStatisticsReport = () => {
             </div>
 
             <div className="text-right">
-              <div className="text-sm text-base-content/60">Report Type</div>
+              <div className="text-sm text-foreground/60">Report Type</div>
               <div className="badge badge-secondary badge-lg">Statistics Report</div>
             </div>
           </div>
@@ -152,7 +152,7 @@ const ViewStatisticsReport = () => {
         <div className="space-y-8">
           {/* Statistics Overview */}
           {statisticsSection && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <BarChart3 className="w-6 h-6 mr-2" />
@@ -183,7 +183,7 @@ const ViewStatisticsReport = () => {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-base-content/60">
+                  <div className="text-center py-8 text-foreground/60">
                     <PieChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>No statistical data available</p>
                   </div>
@@ -201,10 +201,10 @@ const ViewStatisticsReport = () => {
                     <div className="text-3xl font-bold text-primary">
                       {row[2] || row[1]} {/* Value column */}
                     </div>
-                    <div className="text-sm text-base-content/70">
+                    <div className="text-sm text-foreground/70">
                       {row[0]} {/* Label column */}
                     </div>
-                    <div className="text-xs text-base-content/50">
+                    <div className="text-xs text-foreground/50">
                       {statisticsSection.headers?.[2] || 'Value'}
                     </div>
                   </div>
@@ -215,14 +215,14 @@ const ViewStatisticsReport = () => {
 
           {/* Statistical Analysis */}
           {analysisSection && analysisSection.content && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <TrendingUp className="w-6 h-6 mr-2" />
                   Statistical Analysis
                 </h2>
                 <div className="prose max-w-none">
-                  <div className="whitespace-pre-wrap text-base-content">
+                  <div className="whitespace-pre-wrap text-foreground">
                     {analysisSection.content}
                   </div>
                 </div>
@@ -232,14 +232,14 @@ const ViewStatisticsReport = () => {
 
           {/* Recommendations Section */}
           {recommendationsSection && recommendationsSection.content && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <Target className="w-6 h-6 mr-2" />
                   Recommendations
                 </h2>
                 <div className="prose max-w-none">
-                  <div className="whitespace-pre-wrap text-base-content">
+                  <div className="whitespace-pre-wrap text-foreground">
                     {recommendationsSection.content}
                   </div>
                 </div>
@@ -249,7 +249,7 @@ const ViewStatisticsReport = () => {
 
           {/* Comparative Analysis */}
           {report.filters && (report.filters.previous_period || report.filters.league_average) && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <BarChart3 className="w-6 h-6 mr-2" />
@@ -257,9 +257,9 @@ const ViewStatisticsReport = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {report.filters.previous_period && (
-                    <div className="bg-base-200 p-4 rounded-lg">
+                    <div className="bg-content1 p-4 rounded-lg">
                       <h3 className="font-semibold mb-2">Period Comparison</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         Compared to previous reporting period
                       </p>
                       <div className="mt-2">
@@ -268,9 +268,9 @@ const ViewStatisticsReport = () => {
                     </div>
                   )}
                   {report.filters.league_average && (
-                    <div className="bg-base-200 p-4 rounded-lg">
+                    <div className="bg-content1 p-4 rounded-lg">
                       <h3 className="font-semibold mb-2">League Comparison</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         Compared to league averages
                       </p>
                       <div className="mt-2">
@@ -285,7 +285,7 @@ const ViewStatisticsReport = () => {
 
           {/* Report Filters & Metadata */}
           {report.filters && Object.keys(report.filters).length > 0 && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-xl mb-4">
                   Report Filters & Settings
@@ -293,8 +293,8 @@ const ViewStatisticsReport = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {Object.entries(report.filters).map(([key, value]) => (
                     value && typeof value !== 'boolean' && (
-                      <div key={key} className="bg-base-200 p-3 rounded-lg">
-                        <div className="text-sm text-base-content/60 capitalize">
+                      <div key={key} className="bg-content1 p-3 rounded-lg">
+                        <div className="text-sm text-foreground/60 capitalize">
                           {key.replace('_', ' ')}
                         </div>
                         <div className="font-medium">{value}</div>
@@ -308,7 +308,7 @@ const ViewStatisticsReport = () => {
 
           {/* Data Sources */}
           {report.data_sources && report.data_sources.length > 0 && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-xl mb-4">
                   Data Sources
@@ -326,9 +326,9 @@ const ViewStatisticsReport = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-12 pt-8 border-t border-base-300">
+        <div className="mt-12 pt-8 border-t border-divider">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-base-content/60">
+            <div className="text-sm text-foreground/60">
               Last updated: {new Date(report.updated_at).toLocaleString()}
             </div>
             <div className="flex space-x-2">

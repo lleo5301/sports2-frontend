@@ -234,10 +234,10 @@ export default function HighSchoolCoaches() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 High School Coaches
               </h1>
-              <p className="text-base-content/70">
+              <p className="text-foreground/70">
                 Manage relationships with high school coaches for recruiting
               </p>
             </div>
@@ -355,7 +355,7 @@ export default function HighSchoolCoaches() {
                         <div>
                           <div className="font-medium">{coach.first_name} {coach.last_name}</div>
                           {coach.email && (
-                            <div className="text-sm text-base-content/70 flex items-center">
+                            <div className="text-sm text-foreground/70 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
                               {coach.email}
                             </div>
@@ -366,7 +366,7 @@ export default function HighSchoolCoaches() {
                         <div>
                           <div className="font-medium">{coach.school_name}</div>
                           {coach.school_district && (
-                            <div className="text-sm text-base-content/70">{coach.school_district}</div>
+                            <div className="text-sm text-foreground/70">{coach.school_district}</div>
                           )}
                           {coach.conference && (
                             <div className="text-xs badge badge-outline">{coach.conference}</div>
@@ -417,9 +417,9 @@ export default function HighSchoolCoaches() {
 
             {coaches.length === 0 && (
               <div className="text-center py-12">
-                <GraduationCap className="h-16 w-16 mx-auto mb-4 text-base-content/30" />
-                <h3 className="text-lg font-semibold text-base-content mb-2">No High School Coaches Found</h3>
-                <p className="text-base-content/70 mb-4">
+                <GraduationCap className="h-16 w-16 mx-auto mb-4 text-foreground/30" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No High School Coaches Found</h3>
+                <p className="text-foreground/70 mb-4">
                   Add your first high school coach contact to start building recruiting relationships.
                 </p>
                 <button
@@ -460,7 +460,7 @@ export default function HighSchoolCoaches() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-base-content">Personal Information</h4>
+                  <h4 className="font-semibold text-foreground">Personal Information</h4>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="form-control">
@@ -546,7 +546,7 @@ export default function HighSchoolCoaches() {
 
                 {/* School Information */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-base-content">School Information</h4>
+                  <h4 className="font-semibold text-foreground">School Information</h4>
 
                   <div className="form-control">
                     <label className="label">

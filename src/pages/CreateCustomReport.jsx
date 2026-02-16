@@ -188,10 +188,10 @@ const CreateCustomReport = () => {
               Back to Reports
             </button>
           </div>
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Create Custom Report
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Build a custom report with your preferred data sources and visualizations
           </p>
         </div>
@@ -264,7 +264,7 @@ const CreateCustomReport = () => {
                       />
                       <div>
                         <div className="font-medium">{source.name}</div>
-                        <div className="text-sm text-base-content/70">{source.description}</div>
+                        <div className="text-sm text-foreground/70">{source.description}</div>
                       </div>
                     </label>
                   ))}
@@ -293,14 +293,14 @@ const CreateCustomReport = () => {
             </div>
             <div className="card-body">
               {reportData.sections.length === 0 ? (
-                <div className="text-center py-8 text-base-content/70">
+                <div className="text-center py-8 text-foreground/70">
                   <BarChart3 className="w-12 h-12 mx-auto mb-4" />
                   <p>No sections added yet. Click &quot;Add Section&quot; to get started.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {reportData.sections.map((section, index) => (
-                    <div key={section.id} className="card bg-base-200">
+                    <div key={section.id} className="card bg-content1">
                       <div className="card-body">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="font-semibold">Section {index + 1}</h3>
@@ -554,11 +554,11 @@ const CreateCustomReport = () => {
                     )}
 
                     {section.type === 'chart' && (
-                      <div className="h-64 bg-base-200 rounded flex items-center justify-center">
+                      <div className="h-64 bg-content1 rounded flex items-center justify-center">
                         <div className="text-center">
-                          <BarChart3 className="w-12 h-12 mx-auto mb-2 text-base-content/50" />
-                          <p className="text-base-content/70">Chart Preview</p>
-                          <p className="text-sm text-base-content/50">{section.chart_type} Chart</p>
+                          <BarChart3 className="w-12 h-12 mx-auto mb-2 text-foreground/50" />
+                          <p className="text-foreground/70">Chart Preview</p>
+                          <p className="text-sm text-foreground/50">{section.chart_type} Chart</p>
                         </div>
                       </div>
                     )}

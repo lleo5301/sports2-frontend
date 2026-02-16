@@ -119,10 +119,10 @@ const TeamDetail = () => {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 {isEditing ? 'Edit Team' : team?.name}
               </h1>
-              <p className="text-base-content/70">
+              <p className="text-foreground/70">
                 {isEditing ? 'Update team information' : 'Team details and information'}
               </p>
             </div>

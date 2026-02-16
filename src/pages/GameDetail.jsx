@@ -97,7 +97,7 @@ const GameDetail = () => {
       </Link>
 
       {/* Game Header Card */}
-      <div className="card bg-base-200">
+      <div className="card bg-content1">
         <div className="card-body">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -122,7 +122,7 @@ const GameDetail = () => {
                 {isHome ? 'vs' : '@'} {opponent}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-base-content/70">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-foreground/70">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   <span>{formatDate(gameDate)}</span>
@@ -164,7 +164,7 @@ const GameDetail = () => {
 
       {/* Batting Stats */}
       {batting.length > 0 && (
-        <div className="card bg-base-200">
+        <div className="card bg-content1">
           <div className="card-body">
             <h2 className="card-title text-lg flex items-center gap-2">
               <Target className="w-5 h-5 text-primary" />
@@ -201,7 +201,7 @@ const GameDetail = () => {
                           {b.player?.name || `${b.player?.first_name} ${b.player?.last_name}`}
                         </Link>
                         {b.player?.position && (
-                          <span className="text-xs text-base-content/50 ml-2">{b.player.position}</span>
+                          <span className="text-xs text-foreground/50 ml-2">{b.player.position}</span>
                         )}
                       </td>
                       <td className="text-center">{b.ab ?? b.at_bats ?? 0}</td>
@@ -221,7 +221,7 @@ const GameDetail = () => {
                   ))}
                   {/* Team Totals Row */}
                   {teamTotals.batting && (
-                    <tr className="font-semibold bg-base-300">
+                    <tr className="font-semibold bg-content2">
                       <td>Team Totals</td>
                       <td className="text-center">{teamTotals.batting.ab ?? teamTotals.batting.at_bats ?? 0}</td>
                       <td className="text-center">{teamTotals.batting.r ?? teamTotals.batting.runs ?? 0}</td>
@@ -245,7 +245,7 @@ const GameDetail = () => {
 
       {/* Pitching Stats */}
       {pitching.length > 0 && (
-        <div className="card bg-base-200">
+        <div className="card bg-content1">
           <div className="card-body">
             <h2 className="card-title text-lg flex items-center gap-2">
               <Trophy className="w-5 h-5 text-secondary" />
@@ -311,7 +311,7 @@ const GameDetail = () => {
                   ))}
                   {/* Team Totals Row */}
                   {teamTotals.pitching && (
-                    <tr className="font-semibold bg-base-300">
+                    <tr className="font-semibold bg-content2">
                       <td>Team Totals</td>
                       <td className="text-center">{formatIP(teamTotals.pitching.ip ?? teamTotals.pitching.innings_pitched)}</td>
                       <td className="text-center">{teamTotals.pitching.h ?? teamTotals.pitching.hits_allowed ?? 0}</td>
@@ -333,7 +333,7 @@ const GameDetail = () => {
 
       {/* Fielding Stats */}
       {fielding.length > 0 && (
-        <div className="card bg-base-200">
+        <div className="card bg-content1">
           <div className="card-body">
             <h2 className="card-title text-lg flex items-center gap-2">
               <Shield className="w-5 h-5 text-accent" />
@@ -377,7 +377,7 @@ const GameDetail = () => {
                   ))}
                   {/* Team Totals Row */}
                   {teamTotals.fielding && (
-                    <tr className="font-semibold bg-base-300">
+                    <tr className="font-semibold bg-content2">
                       <td>Team Totals</td>
                       <td className="text-center">-</td>
                       <td className="text-center">{teamTotals.fielding.po ?? teamTotals.fielding.putouts ?? 0}</td>
@@ -395,11 +395,11 @@ const GameDetail = () => {
 
       {/* No Stats Message */}
       {batting.length === 0 && pitching.length === 0 && fielding.length === 0 && (
-        <div className="card bg-base-200">
+        <div className="card bg-content1">
           <div className="card-body text-center py-12">
-            <Users className="w-12 h-12 mx-auto mb-3 text-base-content/30" />
-            <p className="font-medium text-base-content/70">No player statistics available for this game</p>
-            <p className="text-sm text-base-content/50">Stats will appear here once they&apos;ve been recorded</p>
+            <Users className="w-12 h-12 mx-auto mb-3 text-foreground/30" />
+            <p className="font-medium text-foreground/70">No player statistics available for this game</p>
+            <p className="text-sm text-foreground/50">Stats will appear here once they&apos;ve been recorded</p>
           </div>
         </div>
       )}

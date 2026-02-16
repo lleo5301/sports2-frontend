@@ -5,7 +5,7 @@ export default function Skeleton({
   className = '',
   animation = 'pulse'
 }) {
-  const baseClasses = 'bg-base-300';
+  const baseClasses = 'bg-content2';
 
   // Variant-specific classes
   const variantClasses = {

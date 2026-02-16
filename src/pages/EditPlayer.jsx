@@ -229,7 +229,7 @@ export default function EditPlayer() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold">Edit Player</h1>
-            <p className="text-base-content/70">
+            <p className="text-foreground/70">
               {player.first_name} {player.last_name}
             </p>
           </div>
@@ -238,7 +238,7 @@ export default function EditPlayer() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information Card */}
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-background shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Basic Information</h2>
 
@@ -386,10 +386,10 @@ export default function EditPlayer() {
         </div>
 
         {/* Video Upload Card */}
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-background shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Player Video</h2>
-            <p className="text-sm text-base-content/70">
+            <p className="text-sm text-foreground/70">
                Upload a video showcasing the player&apos;s skills (Max 100MB, MP4/MOV/AVI/WebM/OGV)
             </p>
 
@@ -446,7 +446,7 @@ export default function EditPlayer() {
                 >
                   Your browser does not support the video tag.
                 </video>
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-foreground/70">
                   File: {videoFile?.name} ({(videoFile?.size / (1024 * 1024)).toFixed(2)} MB)
                 </p>
               </div>
@@ -455,7 +455,7 @@ export default function EditPlayer() {
         </div>
 
         {/* Contact Information Card */}
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-background shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Contact Information</h2>
 
@@ -548,7 +548,7 @@ export default function EditPlayer() {
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Batting Stats */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Batting Statistics</h2>
 
@@ -629,7 +629,7 @@ export default function EditPlayer() {
           </div>
 
           {/* Pitching Stats */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Pitching Statistics</h2>
 
@@ -728,7 +728,7 @@ export default function EditPlayer() {
         </div>
 
         {/* Medical Information Card */}
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-background shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Medical Information</h2>
 
@@ -764,7 +764,7 @@ export default function EditPlayer() {
         </div>
 
         {/* Player Comparison Card */}
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-background shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Player Comparison</h2>
 

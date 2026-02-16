@@ -69,7 +69,7 @@ export default function ProspectDetail() {
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <div className="card bg-base-100 shadow-sm overflow-hidden">
+      <div className="card bg-background shadow-sm overflow-hidden">
         <div className="bg-primary/5 p-8 flex flex-col md:flex-row gap-8 items-start">
           <div className="w-32 h-32 rounded-2xl bg-primary/10 flex items-center justify-center border-4 border-base-100 shadow-sm">
             <User className="w-16 h-16 text-primary/40" />
@@ -123,7 +123,7 @@ export default function ProspectDetail() {
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
+              <div className="bg-background/50 p-3 rounded-xl border border-primary/10">
                 <p className="text-[10px] uppercase font-bold opacity-50 tracking-wider">
                   Fastball Vel
                 </p>
@@ -131,7 +131,7 @@ export default function ProspectDetail() {
                   {prospect.fastball_velocity || 'N/A'} MPH
                 </p>
               </div>
-              <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
+              <div className="bg-background/50 p-3 rounded-xl border border-primary/10">
                 <p className="text-[10px] uppercase font-bold opacity-50 tracking-wider">
                   Exit Vel
                 </p>
@@ -139,7 +139,7 @@ export default function ProspectDetail() {
                   {prospect.exit_velocity || 'N/A'} MPH
                 </p>
               </div>
-              <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
+              <div className="bg-background/50 p-3 rounded-xl border border-primary/10">
                 <p className="text-[10px] uppercase font-bold opacity-50 tracking-wider">
                   60yd Dash
                 </p>
@@ -147,7 +147,7 @@ export default function ProspectDetail() {
                   {prospect.sixty_yard_dash || 'N/A'}s
                 </p>
               </div>
-              <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
+              <div className="bg-background/50 p-3 rounded-xl border border-primary/10">
                 <p className="text-[10px] uppercase font-bold opacity-50 tracking-wider">
                   GPA
                 </p>
@@ -161,7 +161,7 @@ export default function ProspectDetail() {
       {/* Main Content Tabs */}
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 space-y-6">
-          <div className="tabs tabs-boxed bg-base-200/50 p-1 w-fit">
+          <div className="tabs tabs-boxed bg-content1/50 p-1 w-fit">
             <button
               className={`tab tab-md ${activeTab === 'overview' ? 'tab-active' : ''}`}
               onClick={() => setActiveTab('overview')}
@@ -184,32 +184,32 @@ export default function ProspectDetail() {
 
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="card bg-base-100 shadow-sm border border-base-200">
+              <div className="card bg-background shadow-sm border border-divider">
                 <div className="card-body">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Info className="w-5 h-5 text-primary" />
                     Personal & Academic
                   </h3>
                   <div className="space-y-4">
-                    <div className="flex justify-between border-b border-base-200 pb-2">
+                    <div className="flex justify-between border-b border-divider pb-2">
                       <span className="opacity-60">School</span>
                       <span className="font-medium">
                         {prospect.school_name}
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-base-200 pb-2">
+                    <div className="flex justify-between border-b border-divider pb-2">
                       <span className="opacity-60">Bats / Throws</span>
                       <span className="font-medium">
                         {prospect.bats} / {prospect.throws}
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-base-200 pb-2">
+                    <div className="flex justify-between border-b border-divider pb-2">
                       <span className="opacity-60">Height / Weight</span>
                       <span className="font-medium">
                         {prospect.height} &bull; {prospect.weight} lbs
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-base-200 pb-2">
+                    <div className="flex justify-between border-b border-divider pb-2">
                       <span className="opacity-60">SAT / ACT</span>
                       <span className="font-medium">
                         {prospect.sat_score || '-'} /{' '}
@@ -220,7 +220,7 @@ export default function ProspectDetail() {
                 </div>
               </div>
 
-              <div className="card bg-base-100 shadow-sm border border-base-200">
+              <div className="card bg-background shadow-sm border border-divider">
                 <div className="card-body">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Phone className="w-5 h-5 text-primary" />
@@ -228,7 +228,7 @@ export default function ProspectDetail() {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-content1 flex items-center justify-center">
                         <Mail className="w-4 h-4" />
                       </div>
                       <div>
@@ -239,7 +239,7 @@ export default function ProspectDetail() {
                       </div>
                     </div>
                     <div className="items-center gap-3 flex">
-                      <div className="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-content1 flex items-center justify-center">
                         <Phone className="w-4 h-4" />
                       </div>
                       <div>
@@ -288,7 +288,7 @@ export default function ProspectDetail() {
               </div>
 
               {reports.length === 0 ? (
-                <div className="text-center py-12 bg-base-200/30 rounded-2xl border-2 border-dashed border-base-300">
+                <div className="text-center py-12 bg-content1/30 rounded-2xl border-2 border-dashed border-divider">
                   <FileText className="w-12 h-12 opacity-20 mx-auto mb-4" />
                   <p className="opacity-50">No scouting reports yet</p>
                 </div>
@@ -296,7 +296,7 @@ export default function ProspectDetail() {
                 reports.map((report) => (
                   <div
                     key={report.id}
-                    className="card bg-base-100 shadow-sm border border-base-200 hover:border-primary/30 transition-all"
+                    className="card bg-background shadow-sm border border-divider hover:border-primary/30 transition-all"
                   >
                     <div className="card-body p-5">
                       <div className="flex justify-between items-start">
@@ -325,7 +325,7 @@ export default function ProspectDetail() {
                               {report.overall_present}
                             </p>
                           </div>
-                          <div className="w-px h-10 bg-base-200"></div>
+                          <div className="w-px h-10 bg-content1"></div>
                           <div>
                             <p className="text-[10px] uppercase opacity-50 font-bold">
                               Future
@@ -367,14 +367,14 @@ export default function ProspectDetail() {
               </div>
 
               {prospect.media?.length === 0 ? (
-                <div className="text-center py-12 bg-base-200/30 rounded-2xl border-2 border-dashed border-base-300">
+                <div className="text-center py-12 bg-content1/30 rounded-2xl border-2 border-dashed border-divider">
                   <Video className="w-12 h-12 opacity-20 mx-auto mb-4" />
                   <p className="opacity-50">No media files uploaded</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {prospect.video_url && (
-                    <div className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden group">
+                    <div className="card bg-background shadow-sm border border-divider overflow-hidden group">
                       <div className="aspect-video bg-black flex items-center justify-center relative">
                         <Video className="w-12 h-12 text-white/20" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
@@ -399,9 +399,9 @@ export default function ProspectDetail() {
                   {prospect.media?.map((m) => (
                     <div
                       key={m.id}
-                      className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden"
+                      className="card bg-background shadow-sm border border-divider overflow-hidden"
                     >
-                      <div className="aspect-video bg-base-200 flex items-center justify-center">
+                      <div className="aspect-video bg-content1 flex items-center justify-center">
                         {m.media_type === 'video' ? (
                           <Video className="w-8 h-8 opacity-20" />
                         ) : (
@@ -426,7 +426,7 @@ export default function ProspectDetail() {
 
         {/* Sidebar Info */}
         <div className="w-full lg:w-80 space-y-6">
-          <div className="card bg-base-100 shadow-sm border border-base-200">
+          <div className="card bg-background shadow-sm border border-divider">
             <div className="card-body">
               <h3 className="font-bold text-sm uppercase opacity-50 tracking-wider mb-4">
                 Pipeline Progress

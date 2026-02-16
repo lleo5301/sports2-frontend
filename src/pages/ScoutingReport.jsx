@@ -26,10 +26,10 @@ const ScoutingReport = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 Scouting Report: {report.player}
               </h1>
-              <p className="text-base-content/70">
+              <p className="text-foreground/70">
                 {report.position} • {report.school} • {report.date}
               </p>
             </div>
@@ -70,7 +70,7 @@ const ScoutingReport = () => {
             <div className="card-body text-center">
               <h2 className="card-title text-neutral">Status</h2>
               <p className="text-2xl font-bold">{report.status}</p>
-              <div className="text-sm text-base-content/70">Ready for review</div>
+              <div className="text-sm text-foreground/70">Ready for review</div>
             </div>
           </div>
         </div>
@@ -145,21 +145,21 @@ const ScoutingReport = () => {
           <div className="card-content">
             <div className="space-y-6">
               {ratings.map((rating, index) => (
-                <div key={index} className="border-b border-base-300 pb-4 last:border-b-0">
+                <div key={index} className="border-b border-divider pb-4 last:border-b-0">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-medium">{rating.category}</h3>
                     <div className="text-2xl font-bold text-primary">{rating.rating}/10</div>
                   </div>
                   <div className="flex items-center mb-2">
-                    <div className="flex-1 bg-base-300 rounded-full h-2 mr-4">
+                    <div className="flex-1 bg-content2 rounded-full h-2 mr-4">
                       <div
                         className="bg-primary h-2 rounded-full"
                         style={{ width: `${(rating.rating / 10) * 100}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-base-content/70">{rating.rating}/10</span>
+                    <span className="text-sm text-foreground/70">{rating.rating}/10</span>
                   </div>
-                  <p className="text-sm text-base-content/70">{rating.notes}</p>
+                  <p className="text-sm text-foreground/70">{rating.notes}</p>
                 </div>
               ))}
             </div>

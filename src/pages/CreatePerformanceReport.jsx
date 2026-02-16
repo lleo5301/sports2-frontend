@@ -213,17 +213,17 @@ const CreatePerformanceReport = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Reports
           </button>
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             {isEditMode ? 'Edit Performance Report' : 'Create Performance Report'}
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             {isEditMode ? 'Update your player performance analysis report' : 'Create a comprehensive player performance analysis report'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Report Information */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <Users className="w-5 h-5 mr-2" />
@@ -301,7 +301,7 @@ const CreatePerformanceReport = () => {
           />
 
           {/* Additional Filters */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <Filter className="w-5 h-5 mr-2" />
@@ -345,7 +345,7 @@ const CreatePerformanceReport = () => {
           </div>
 
           {/* Metrics Selection */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <TrendingUp className="w-5 h-5 mr-2" />
@@ -355,7 +355,7 @@ const CreatePerformanceReport = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {Object.entries(reportData.metrics).map(([metric, enabled]) => (
                   <label key={metric} className="cursor-pointer">
-                    <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-base-200">
+                    <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-content1">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-primary"
@@ -373,7 +373,7 @@ const CreatePerformanceReport = () => {
           </div>
 
           {/* Analysis & Recommendations */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <Award className="w-5 h-5 mr-2" />

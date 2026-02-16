@@ -101,7 +101,7 @@ export default function DepthChartSheetViewV2({ depthChart }) {
     <div className="w-full">
       {/* Action Buttons */}
       <div className="flex justify-between items-center mb-6 print:hidden">
-        <h2 className="text-2xl font-bold text-base-content">Depth Chart - Sheet View V2</h2>
+        <h2 className="text-2xl font-bold text-foreground">Depth Chart - Sheet View V2</h2>
         <div className="flex gap-2">
           <button
             onClick={handlePrint}

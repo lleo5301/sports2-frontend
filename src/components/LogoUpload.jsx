@@ -138,14 +138,14 @@ export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = fa
 
       {/* Current/Preview Logo */}
       {displayLogoUrl && (
-        <div className="flex items-center gap-4 p-4 bg-base-200 rounded-lg">
+        <div className="flex items-center gap-4 p-4 bg-content1 rounded-lg">
           <img
             src={displayLogoUrl}
             alt="Team logo"
             className="w-24 h-24 object-contain rounded-lg bg-white"
           />
           <div className="flex-1">
-            <p className="text-sm text-base-content/70">Current logo</p>
+            <p className="text-sm text-foreground/70">Current logo</p>
             {!disabled && (
               <button
                 type="button"
@@ -165,7 +165,7 @@ export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = fa
       <div
         className={`
           border-2 border-dashed rounded-lg p-8 text-center transition-colors
-          ${isDragging ? 'border-primary bg-primary/10' : 'border-base-300'}
+          ${isDragging ? 'border-primary bg-primary/10' : 'border-divider'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'}
         `}
         onDragEnter={handleDragEnter}
@@ -186,25 +186,25 @@ export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = fa
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
             <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-sm text-base-content/70">Uploading...</p>
+            <p className="text-sm text-foreground/70">Uploading...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-base-200 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-content1 flex items-center justify-center">
               {displayLogoUrl ? (
-                <ImageIcon className="w-6 h-6 text-base-content/50" />
+                <ImageIcon className="w-6 h-6 text-foreground/50" />
               ) : (
-                <Upload className="w-6 h-6 text-base-content/50" />
+                <Upload className="w-6 h-6 text-foreground/50" />
               )}
             </div>
             <div>
-              <p className="font-medium text-base-content">
+              <p className="font-medium text-foreground">
                 {displayLogoUrl ? 'Replace logo' : 'Upload logo'}
               </p>
-              <p className="text-sm text-base-content/70">
+              <p className="text-sm text-foreground/70">
                 Drag and drop or click to select
               </p>
-              <p className="text-xs text-base-content/50 mt-1">
+              <p className="text-xs text-foreground/50 mt-1">
                 PNG, JPG, SVG, or WebP (max 5MB)
               </p>
             </div>

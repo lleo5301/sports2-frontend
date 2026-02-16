@@ -337,10 +337,10 @@ export default function TeamSchedule() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-base-content">
+            <h1 className="text-2xl font-bold text-foreground">
               Team Schedule Creator
             </h1>
-            <p className="mt-1 text-sm text-base-content/60">
+            <p className="mt-1 text-sm text-foreground/60">
               Create and manage detailed team schedules for practices, games,
               and training sessions.
             </p>
@@ -366,7 +366,7 @@ export default function TeamSchedule() {
         {/* Schedule Form */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-base-content">
+            <h2 className="text-lg font-semibold text-foreground">
               Schedule Information
             </h2>
             <button
@@ -380,7 +380,7 @@ export default function TeamSchedule() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-medium text-base-content/70 mb-1">
+              <label className="block text-sm font-medium text-foreground/70 mb-1">
                 Team
               </label>
               {hasMultipleTeams ? (
@@ -411,25 +411,25 @@ export default function TeamSchedule() {
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-base-content/50 mt-1">
+                  <p className="text-xs text-foreground/50 mt-1">
                     Select from your assigned teams
                   </p>
                 </>
               ) : (
                 <>
-                  <div className="input w-full flex items-center bg-base-200 cursor-not-allowed">
-                    <Building2 className="w-4 h-4 mr-2 text-base-content/50" />
+                  <div className="input w-full flex items-center bg-content1 cursor-not-allowed">
+                    <Building2 className="w-4 h-4 mr-2 text-foreground/50" />
                     <span
                       className={
                         scheduleData.team_name
-                          ? 'text-base-content'
-                          : 'text-base-content/50'
+                          ? 'text-foreground'
+                          : 'text-foreground/50'
                       }
                     >
                       {scheduleData.team_name || 'Loading team...'}
                     </span>
                   </div>
-                  <p className="text-xs text-base-content/50 mt-1">
+                  <p className="text-xs text-foreground/50 mt-1">
                     Schedules are created for your assigned team
                   </p>
                 </>
@@ -437,7 +437,7 @@ export default function TeamSchedule() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-base-content/70 mb-1">
+              <label className="block text-sm font-medium text-foreground/70 mb-1">
                 Program Name
               </label>
               <input
@@ -455,7 +455,7 @@ export default function TeamSchedule() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-base-content/70 mb-1">
+              <label className="block text-sm font-medium text-foreground/70 mb-1">
                 Date
               </label>
               <div className="relative">
@@ -469,7 +469,7 @@ export default function TeamSchedule() {
                 </button>
 
                 {showDatePicker && (
-                  <div className="absolute top-full left-0 mt-1 z-50 bg-base-100 border border-base-300 rounded-box shadow-lg">
+                  <div className="absolute top-full left-0 mt-1 z-50 bg-background border border-divider rounded-box shadow-lg">
                     <DayPicker
                       mode="single"
                       selected={selectedDate}
@@ -490,15 +490,15 @@ export default function TeamSchedule() {
                         table: 'w-full border-collapse space-y-1',
                         head_row: 'flex',
                         head_cell:
-                          'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
+                          'text-foreground/70 rounded-md w-8 font-normal text-[0.8rem]',
                         row: 'flex w-full mt-2',
                         cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                        day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md',
+                        day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-content1 rounded-md',
                         day_selected:
                           'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
                         day_today: 'bg-accent text-accent-content',
-                        day_outside: 'text-base-content/30 opacity-50',
-                        day_disabled: 'text-base-content/30 opacity-50',
+                        day_outside: 'text-foreground/30 opacity-50',
+                        day_disabled: 'text-foreground/30 opacity-50',
                         day_range_middle:
                           'aria-selected:bg-accent aria-selected:text-accent-content',
                         day_hidden: 'invisible'
@@ -510,7 +510,7 @@ export default function TeamSchedule() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-base-content/70 mb-1">
+              <label className="block text-sm font-medium text-foreground/70 mb-1">
                 Motto
               </label>
               <input
@@ -531,7 +531,7 @@ export default function TeamSchedule() {
           {/* Sections */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-md font-semibold text-base-content">
+              <h3 className="text-md font-semibold text-foreground">
                 Schedule Sections
               </h3>
               <button
@@ -545,12 +545,12 @@ export default function TeamSchedule() {
 
             {/* Add Section Modal */}
             {showAddSection && (
-              <div className="card p-4 bg-base-200/50">
+              <div className="card p-4 bg-content1/50">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-medium">Add New Section</h4>
                   <button
                     onClick={() => setShowAddSection(false)}
-                    className="text-base-content/40 hover:text-base-content/60"
+                    className="text-foreground/40 hover:text-foreground/60"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -558,7 +558,7 @@ export default function TeamSchedule() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    <label className="block text-sm font-medium text-foreground/70 mb-1">
                       Section Type
                     </label>
                     <select
@@ -580,7 +580,7 @@ export default function TeamSchedule() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-base-content/70 mb-1">
+                    <label className="block text-sm font-medium text-foreground/70 mb-1">
                       Section Title
                     </label>
                     <input
@@ -629,7 +629,7 @@ export default function TeamSchedule() {
                         >
                           {typeInfo.name}
                         </span>
-                        <h4 className="ml-3 font-semibold text-base-content">
+                        <h4 className="ml-3 font-semibold text-foreground">
                           {section.title}
                         </h4>
                       </div>
@@ -703,7 +703,7 @@ export default function TeamSchedule() {
                         </table>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-base-content/50">
+                      <div className="text-center py-8 text-foreground/50">
                         <Clock className="h-8 w-8 mx-auto mb-2" />
                         <p>No activities added yet</p>
                       </div>
@@ -714,7 +714,7 @@ export default function TeamSchedule() {
             })}
 
             {scheduleData.sections.length === 0 && (
-              <div className="text-center py-8 text-base-content/50">
+              <div className="text-center py-8 text-foreground/50">
                 <Calendar className="h-12 w-12 mx-auto mb-2" />
                 <p>
                   No sections added yet. Click &quot;Add Section&quot; to get
@@ -749,12 +749,12 @@ export default function TeamSchedule() {
         {/* Add Activity Modal */}
         {showAddActivity && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-base-100 rounded-lg p-6 w-full max-w-2xl mx-4 border border-ui-border">
+            <div className="bg-background rounded-lg p-6 w-full max-w-2xl mx-4 border border-ui-border">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Add Activity</h3>
                 <button
                   onClick={() => setShowAddActivity(false)}
-                  className="text-base-content/40 hover:text-base-content/60"
+                  className="text-foreground/40 hover:text-foreground/60"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -762,7 +762,7 @@ export default function TeamSchedule() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">
                     Time
                   </label>
                   <select
@@ -785,7 +785,7 @@ export default function TeamSchedule() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">
                     Activity
                   </label>
                   <input
@@ -803,7 +803,7 @@ export default function TeamSchedule() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">
                     Location
                   </label>
                   <select
@@ -826,7 +826,7 @@ export default function TeamSchedule() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">
                     Staff/Group
                   </label>
                   <input
@@ -844,7 +844,7 @@ export default function TeamSchedule() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-base-content/70 mb-1">
+                  <label className="block text-sm font-medium text-foreground/70 mb-1">
                     Notes
                   </label>
                   <textarea

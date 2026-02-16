@@ -51,10 +51,10 @@ const Teams = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Teams
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Manage and view all teams in the system
           </p>
         </div>
@@ -62,13 +62,13 @@ const Teams = () => {
         {/* My Team Section */}
         {myTeam && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-base-content mb-4">My Team</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">My Team</h2>
             <div className="card bg-primary/10 border-primary">
               <div className="card-body">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold">{myTeam.name}</h3>
-                    <p className="text-base-content/70">{myTeam.program_name}</p>
+                    <p className="text-foreground/70">{myTeam.program_name}</p>
                     <div className="flex gap-4 mt-2 text-sm">
                       <span>Division: {myTeam.division}</span>
                       <span>Conference: {myTeam.conference}</span>
@@ -97,7 +97,7 @@ const Teams = () => {
 
         {/* All Teams Grid */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-base-content mb-4">All Teams</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-4">All Teams</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((team) => (
               <div key={team.id} className="card hover:shadow-lg transition-shadow">
@@ -105,19 +105,19 @@ const Teams = () => {
                   <h2 className="card-title">{team.name}</h2>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm text-base-content/70">Program:</span>
+                      <span className="text-sm text-foreground/70">Program:</span>
                       <span className="text-sm font-medium">{team.program_name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-base-content/70">Division:</span>
+                      <span className="text-sm text-foreground/70">Division:</span>
                       <span className="text-sm font-medium">{team.division}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-base-content/70">Conference:</span>
+                      <span className="text-sm text-foreground/70">Conference:</span>
                       <span className="text-sm font-medium">{team.conference}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-base-content/70">Location:</span>
+                      <span className="text-sm text-foreground/70">Location:</span>
                       <span className="text-sm font-medium">{team.city}, {team.state}</span>
                     </div>
                   </div>

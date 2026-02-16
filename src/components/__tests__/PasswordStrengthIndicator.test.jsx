@@ -86,7 +86,7 @@ describe('PasswordStrengthIndicator', () => {
         li.textContent.includes('8 characters')
       );
       expect(minLengthItem).not.toHaveClass('text-success');
-      expect(minLengthItem).toHaveClass('text-base-content/60');
+      expect(minLengthItem).toHaveClass('text-foreground/60');
     });
   });
 

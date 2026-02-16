@@ -44,7 +44,7 @@ const ViewPerformanceReport = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-error mb-4">Report Not Found</h1>
-            <p className="text-base-content/70 mb-6">
+            <p className="text-foreground/70 mb-6">
               The performance report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
             <button
@@ -115,13 +115,13 @@ const ViewPerformanceReport = () => {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 {report.title}
               </h1>
-              <p className="text-base-content/70 mb-4">
+              <p className="text-foreground/70 mb-4">
                 {report.description}
               </p>
-              <div className="flex items-center space-x-6 text-sm text-base-content/60">
+              <div className="flex items-center space-x-6 text-sm text-foreground/60">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
                   Created: {new Date(report.created_at).toLocaleDateString()}
@@ -141,7 +141,7 @@ const ViewPerformanceReport = () => {
             </div>
 
             <div className="text-right">
-              <div className="text-sm text-base-content/60">Report Type</div>
+              <div className="text-sm text-foreground/60">Report Type</div>
               <div className="badge badge-primary badge-lg">Performance Report</div>
             </div>
           </div>
@@ -151,7 +151,7 @@ const ViewPerformanceReport = () => {
         <div className="space-y-8">
           {/* Performance Metrics */}
           {performanceSection && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <TrendingUp className="w-6 h-6 mr-2" />
@@ -182,7 +182,7 @@ const ViewPerformanceReport = () => {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-base-content/60">
+                  <div className="text-center py-8 text-foreground/60">
                     <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>No performance data available</p>
                   </div>
@@ -193,14 +193,14 @@ const ViewPerformanceReport = () => {
 
           {/* Analysis Section */}
           {analysisSection && analysisSection.content && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <Target className="w-6 h-6 mr-2" />
                   Performance Analysis
                 </h2>
                 <div className="prose max-w-none">
-                  <div className="whitespace-pre-wrap text-base-content">
+                  <div className="whitespace-pre-wrap text-foreground">
                     {analysisSection.content}
                   </div>
                 </div>
@@ -210,14 +210,14 @@ const ViewPerformanceReport = () => {
 
           {/* Recommendations Section */}
           {recommendationsSection && recommendationsSection.content && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-2xl mb-6">
                   <FileText className="w-6 h-6 mr-2" />
                   Recommendations
                 </h2>
                 <div className="prose max-w-none">
-                  <div className="whitespace-pre-wrap text-base-content">
+                  <div className="whitespace-pre-wrap text-foreground">
                     {recommendationsSection.content}
                   </div>
                 </div>
@@ -227,7 +227,7 @@ const ViewPerformanceReport = () => {
 
           {/* Report Filters & Metadata */}
           {report.filters && Object.keys(report.filters).length > 0 && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-xl mb-4">
                   Report Filters & Settings
@@ -235,8 +235,8 @@ const ViewPerformanceReport = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {Object.entries(report.filters).map(([key, value]) => (
                     value && (
-                      <div key={key} className="bg-base-200 p-3 rounded-lg">
-                        <div className="text-sm text-base-content/60 capitalize">
+                      <div key={key} className="bg-content1 p-3 rounded-lg">
+                        <div className="text-sm text-foreground/60 capitalize">
                           {key.replace('_', ' ')}
                         </div>
                         <div className="font-medium">{value}</div>
@@ -250,7 +250,7 @@ const ViewPerformanceReport = () => {
 
           {/* Data Sources */}
           {report.data_sources && report.data_sources.length > 0 && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-xl mb-4">
                   Data Sources
@@ -268,9 +268,9 @@ const ViewPerformanceReport = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-12 pt-8 border-t border-base-300">
+        <div className="mt-12 pt-8 border-t border-divider">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-base-content/60">
+            <div className="text-sm text-foreground/60">
               Last updated: {new Date(report.updated_at).toLocaleString()}
             </div>
             <div className="flex space-x-2">

@@ -423,7 +423,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
   return (
     <div className="w-full" data-testid="enhanced-baseball-field">
-      <div className="bg-base-100 rounded-lg shadow-lg p-6">
+      <div className="bg-background rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold mb-6 text-center text-gray-800">
           Enhanced Baseball Field View
         </h3>

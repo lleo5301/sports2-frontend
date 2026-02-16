@@ -454,10 +454,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 Schedule Templates
               </h1>
-              <p className="text-base-content/70">
+              <p className="text-foreground/70">
                 Create and manage reusable schedule templates for your team practices and games.
               </p>
             </div>
@@ -483,7 +483,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         {/* Templates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-            <div key={template.id} className="card bg-base-100 shadow-lg">
+            <div key={template.id} className="card bg-background shadow-lg">
               <div className="card-body">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center">
@@ -497,7 +497,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                     <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
                       ⋮
                     </div>
-                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-background rounded-box w-52 z-50">
                       <li>
                         <button onClick={() => handleLoadTemplate(template)}>
                           <Eye className="h-4 w-4" />
@@ -546,11 +546,11 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 </div>
 
                 {template.description && (
-                  <p className="text-sm text-base-content/70 mt-2">{template.description}</p>
+                  <p className="text-sm text-foreground/70 mt-2">{template.description}</p>
                 )}
 
                 <div className="mt-4">
-                  <div className="text-xs text-base-content/50 mb-2">
+                  <div className="text-xs text-foreground/50 mb-2">
                     {template.template_data?.sections?.length || 0} sections
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -574,7 +574,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 </div>
 
                 <div className="card-actions justify-between items-center mt-4">
-                  <div className="text-xs text-base-content/50">
+                  <div className="text-xs text-foreground/50">
                     Created by {template.Creator?.first_name} {template.Creator?.last_name}
                   </div>
                   <button
@@ -592,9 +592,9 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
 
         {templates.length === 0 && (
           <div className="text-center py-12">
-            <FileText className="h-16 w-16 mx-auto mb-4 text-base-content/30" />
-            <h3 className="text-lg font-semibold text-base-content mb-2">No Templates Yet</h3>
-            <p className="text-base-content/70 mb-4">
+            <FileText className="h-16 w-16 mx-auto mb-4 text-foreground/30" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Templates Yet</h3>
+            <p className="text-foreground/70 mb-4">
               Create your first schedule template to get started with reusable schedules.
             </p>
             <button
@@ -631,7 +631,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           <AccessibleModal.Content>
             <form onSubmit={handleSubmit} id="template-form" className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-base-content mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Template Name *
                 </label>
                 <input
@@ -645,7 +645,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-base-content mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Description
                 </label>
                 <textarea
@@ -658,21 +658,21 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-base-content mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Template Sections ({templateForm.template_data.sections.length})
                 </label>
                 <div className="max-h-60 overflow-y-auto space-y-2">
                   {templateForm.template_data.sections.map((section, index) => {
                     const typeInfo = getScheduleTypeInfo(section.type);
                     return (
-                      <div key={section.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                      <div key={section.id} className="flex items-center justify-between p-3 bg-content1 rounded-lg">
                         <div className="flex items-center">
                           <span className={`text-xs px-2 py-1 rounded-full font-medium mr-3 ${typeInfo.color}`}>
                             {typeInfo.name}
                           </span>
                           <span className="font-medium">{section.title}</span>
                         </div>
-                        <div className="text-sm text-base-content/70">
+                        <div className="text-sm text-foreground/70">
                           {section.activities?.length || 0} activities
                         </div>
                       </div>
@@ -736,7 +736,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           <AccessibleModal.Content>
             <form onSubmit={handleDuplicateSubmit} id="duplicate-form" className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-base-content mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   New Template Name *
                 </label>
                 <input
@@ -750,7 +750,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-base-content mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Description
                 </label>
                 <textarea
@@ -823,11 +823,11 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 <h4 className="font-semibold mb-3">Existing Events ({templateEvents.length})</h4>
                 <div className="max-h-60 overflow-y-auto space-y-2">
                   {templateEvents.map((event) => (
-                    <div key={event.id} className="p-3 bg-base-200 rounded-lg">
+                    <div key={event.id} className="p-3 bg-content1 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
                           <h5 className="font-medium">{event.title}</h5>
-                          <p className="text-sm text-base-content/70">
+                          <p className="text-sm text-foreground/70">
                             {event.event_type} • {event.EventDates?.length || 0} dates
                           </p>
                         </div>
@@ -838,7 +838,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                     </div>
                   ))}
                   {templateEvents.length === 0 && (
-                    <p className="text-center text-base-content/50 py-4">
+                    <p className="text-center text-foreground/50 py-4">
                         No events created yet
                     </p>
                   )}
@@ -928,7 +928,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
 
                   {/* New Location Form */}
                   {showNewLocationForm && (
-                    <div className="p-4 bg-base-200 rounded-lg">
+                    <div className="p-4 bg-content1 rounded-lg">
                       <h5 className="font-medium mb-3">Add New Location</h5>
                       <div className="space-y-3">
                         <div>

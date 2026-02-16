@@ -68,7 +68,7 @@ const BaseballFieldView = ({ positions, assignedPlayers, onPositionClick, select
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-base-100 rounded-lg shadow-lg p-6">
+      <div className="bg-background rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold mb-6 text-center text-gray-800">Baseball Field View</h3>
 
         {/* Baseball Field SVG */}

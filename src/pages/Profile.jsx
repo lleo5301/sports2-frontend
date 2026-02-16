@@ -5,10 +5,10 @@ const Profile = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Profile
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Manage your personal information and preferences
           </p>
         </div>
@@ -24,7 +24,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <h2 className="text-xl font-bold">John Doe</h2>
-                <p className="text-base-content/70">Head Scout</p>
+                <p className="text-foreground/70">Head Scout</p>
                 <div className="divider"></div>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">

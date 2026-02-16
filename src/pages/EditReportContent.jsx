@@ -150,15 +150,15 @@ const EditReportContent = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Reports
           </button>
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Edit Report Content
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Edit the data values within your report sections
           </p>
           <div className="mt-4 p-4 bg-info/10 rounded-lg">
             <h3 className="font-semibold text-info mb-2">Report: {reportData.title}</h3>
-            <p className="text-sm text-base-content/70">{reportData.description}</p>
+            <p className="text-sm text-foreground/70">{reportData.description}</p>
           </div>
         </div>
 
@@ -166,7 +166,7 @@ const EditReportContent = () => {
           {/* Report Sections */}
           <div className="space-y-6">
             {reportData.sections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="card bg-base-100 shadow-xl">
+              <div key={sectionIndex} className="card bg-background shadow-xl">
                 <div className="card-body">
                   <div className="flex items-center mb-4">
                     {section.type === 'table' ? (
@@ -194,7 +194,7 @@ const EditReportContent = () => {
                           <thead>
                             <tr>
                               {section.headers?.map((header, headerIndex) => (
-                                <th key={headerIndex} className="bg-base-200">
+                                <th key={headerIndex} className="bg-content1">
                                   {header}
                                 </th>
                               ))}

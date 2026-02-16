@@ -264,10 +264,10 @@ export default function Vendors() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 Vendors
               </h1>
-              <p className="text-base-content/70">
+              <p className="text-foreground/70">
                 Manage your team&apos;s vendor relationships and contracts
               </p>
             </div>
@@ -388,7 +388,7 @@ export default function Vendors() {
                         <div>
                           <div className="font-medium">{vendor.company_name}</div>
                           {vendor.contact_person && (
-                            <div className="text-sm text-base-content/70">{vendor.contact_person}</div>
+                            <div className="text-sm text-foreground/70">{vendor.contact_person}</div>
                           )}
                         </div>
                       </td>
@@ -425,7 +425,7 @@ export default function Vendors() {
                             <div className="font-medium">${parseFloat(vendor.contract_value).toLocaleString()}</div>
                           )}
                           {vendor.contract_end_date && (
-                            <div className="text-base-content/70">
+                            <div className="text-foreground/70">
                               Expires: {new Date(vendor.contract_end_date).toLocaleDateString()}
                             </div>
                           )}
@@ -455,9 +455,9 @@ export default function Vendors() {
 
             {vendors.length === 0 && (
               <div className="text-center py-12">
-                <Building2 className="h-16 w-16 mx-auto mb-4 text-base-content/30" />
-                <h3 className="text-lg font-semibold text-base-content mb-2">No Vendors Found</h3>
-                <p className="text-base-content/70 mb-4">
+                <Building2 className="h-16 w-16 mx-auto mb-4 text-foreground/30" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No Vendors Found</h3>
+                <p className="text-foreground/70 mb-4">
                   Add your first vendor to start managing vendor relationships.
                 </p>
                 <button
@@ -484,7 +484,7 @@ export default function Vendors() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Company Information */}
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-base-content">Company Information</h4>
+                    <h4 className="font-semibold text-foreground">Company Information</h4>
 
                     <div className="form-control">
                       <label className="label">
@@ -542,7 +542,7 @@ export default function Vendors() {
 
                   {/* Contact & Location */}
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-base-content">Contact & Location</h4>
+                    <h4 className="font-semibold text-foreground">Contact & Location</h4>
 
                     <div className="form-control">
                       <label className="label">
@@ -621,7 +621,7 @@ export default function Vendors() {
 
                 {/* Contract Information */}
                 <div className="mt-6">
-                  <h4 className="font-semibold text-base-content mb-4">Contract Information</h4>
+                  <h4 className="font-semibold text-foreground mb-4">Contract Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="form-control">
                       <label className="label">

@@ -9,7 +9,7 @@ const ThemeToggle = ({ isCollapsed }) => {
       <div className="flex justify-center py-2">
         <button
           onClick={toggleDarkMode}
-          className="w-10 h-10 rounded-xl bg-base-300/50 flex items-center justify-center text-base-content/60 hover:text-base-content hover:bg-base-300 transition-all cursor-pointer"
+          className="w-10 h-10 rounded-xl bg-content2/50 flex items-center justify-center text-foreground/60 hover:text-foreground hover:bg-content2 transition-all cursor-pointer"
           title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDarkMode ? (
@@ -26,7 +26,7 @@ const ThemeToggle = ({ isCollapsed }) => {
     <div className="px-4 py-2">
       <button
         onClick={toggleDarkMode}
-        className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-base-content/60 hover:text-base-content hover:bg-base-300/50 transition-all group"
+        className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-foreground/60 hover:text-foreground hover:bg-content2/50 transition-all group"
       >
         <div
           className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDarkMode ? 'bg-amber-500/10 text-amber-500' : 'bg-indigo-500/10 text-indigo-500'}`}

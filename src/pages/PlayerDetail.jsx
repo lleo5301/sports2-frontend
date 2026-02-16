@@ -88,7 +88,7 @@ export default function PlayerDetail() {
                     alt={`${playerData.first_name} ${playerData.last_name}`}
                     onError={(e) => {
                       e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<div class="bg-base-300 w-full h-full flex items-center justify-center text-2xl font-bold text-base-content/50">${(playerData.first_name?.[0] || '')}{(playerData.last_name?.[0] || '')}</div>`;
+                      e.target.parentElement.innerHTML = `<div class="bg-content2 w-full h-full flex items-center justify-center text-2xl font-bold text-foreground/50">${(playerData.first_name?.[0] || '')}{(playerData.last_name?.[0] || '')}</div>`;
                     }}
                   />
                 </div>
@@ -107,18 +107,18 @@ export default function PlayerDetail() {
                 {playerData.jersey_number && (
                   <span className="text-4xl font-bold text-primary">#{playerData.jersey_number}</span>
                 )}
-                <h1 className="text-3xl font-bold text-base-content">
+                <h1 className="text-3xl font-bold text-foreground">
                   {playerData.first_name || 'Unknown'} {playerData.last_name || 'Player'}
                 </h1>
               </div>
-              <p className="text-base-content/70">
+              <p className="text-foreground/70">
                 {playerData.position || 'N/A'}
                 {playerData.class_year && ` • ${playerData.class_year}`}
                 {` • ${playerData.school_type || 'N/A'}`}
                 {` • ${playerData.status || 'Unknown'}`}
               </p>
               {playerData.hometown && (
-                <p className="text-sm text-base-content/60 flex items-center mt-1">
+                <p className="text-sm text-foreground/60 flex items-center mt-1">
                   <MapPin className="h-3 w-3 mr-1" />
                   {playerData.hometown}
                 </p>
@@ -151,46 +151,46 @@ export default function PlayerDetail() {
               <h2 className="card-title">Basic Information</h2>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-base-content/70">Position:</span>
+                  <span className="text-foreground/70">Position:</span>
                   <span className="font-medium">{playerData.position || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-base-content/70">School Type:</span>
+                  <span className="text-foreground/70">School Type:</span>
                   <span className="font-medium">{playerData.school_type || 'N/A'}</span>
                 </div>
                 {playerData.height && (
                   <div className="flex justify-between">
-                    <span className="text-base-content/70">Height:</span>
+                    <span className="text-foreground/70">Height:</span>
                     <span className="font-medium">{playerData.height}</span>
                   </div>
                 )}
                 {playerData.weight && (
                   <div className="flex justify-between">
-                    <span className="text-base-content/70">Weight:</span>
+                    <span className="text-foreground/70">Weight:</span>
                     <span className="font-medium">{playerData.weight} lbs</span>
                   </div>
                 )}
                 {playerData.birth_date && (
                   <div className="flex justify-between">
-                    <span className="text-base-content/70">Birth Date:</span>
+                    <span className="text-foreground/70">Birth Date:</span>
                     <span className="font-medium">{new Date(playerData.birth_date).toLocaleDateString()}</span>
                   </div>
                 )}
                 {playerData.graduation_year && (
                   <div className="flex justify-between">
-                    <span className="text-base-content/70">Grad Year:</span>
+                    <span className="text-foreground/70">Grad Year:</span>
                     <span className="font-medium">{playerData.graduation_year}</span>
                   </div>
                 )}
                 {playerData.class_year && (
                   <div className="flex justify-between">
-                    <span className="text-base-content/70">Class:</span>
+                    <span className="text-foreground/70">Class:</span>
                     <span className="font-medium">{playerData.class_year}</span>
                   </div>
                 )}
                 {(playerData.bats || playerData.throws) && (
                   <div className="flex justify-between">
-                    <span className="text-base-content/70">Bats/Throws:</span>
+                    <span className="text-foreground/70">Bats/Throws:</span>
                     <span className="font-medium">
                       {playerData.bats || '-'}/{playerData.throws || '-'}
                     </span>
@@ -207,47 +207,47 @@ export default function PlayerDetail() {
               <div className="space-y-3">
                 {playerData.hometown && (
                   <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-base-content/50 mr-2" />
+                    <MapPin className="h-4 w-4 text-foreground/50 mr-2" />
                     <span className="text-sm">{playerData.hometown}</span>
                   </div>
                 )}
                 {playerData.school && (
                   <div className="flex items-center">
-                    <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
+                    <GraduationCap className="h-4 w-4 text-foreground/50 mr-2" />
                     <span className="text-sm">{playerData.school}</span>
                   </div>
                 )}
                 {(playerData.high_school || playerData.high_school_city || playerData.high_school_state) && (
                   <div className="flex items-center">
-                    <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
-                    <span className="text-sm text-base-content/70">
+                    <GraduationCap className="h-4 w-4 text-foreground/50 mr-2" />
+                    <span className="text-sm text-foreground/70">
                       HS: {[playerData.high_school, playerData.high_school_city, playerData.high_school_state].filter(Boolean).join(', ')}
                     </span>
                   </div>
                 )}
                 {playerData.previous_school && (
                   <div className="flex items-center">
-                    <GraduationCap className="h-4 w-4 text-base-content/50 mr-2" />
-                    <span className="text-sm text-base-content/70">
+                    <GraduationCap className="h-4 w-4 text-foreground/50 mr-2" />
+                    <span className="text-sm text-foreground/70">
                       Previous: {playerData.previous_school}
                     </span>
                   </div>
                 )}
                 {(playerData.city || playerData.state) && (
                   <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-base-content/50 mr-2" />
+                    <MapPin className="h-4 w-4 text-foreground/50 mr-2" />
                     <span className="text-sm">{[playerData.city, playerData.state].filter(Boolean).join(', ')}</span>
                   </div>
                 )}
                 {playerData.phone && (
                   <div className="flex items-center">
-                    <Phone className="h-4 w-4 text-base-content/50 mr-2" />
+                    <Phone className="h-4 w-4 text-foreground/50 mr-2" />
                     <span className="text-sm">{playerData.phone}</span>
                   </div>
                 )}
                 {playerData.email && (
                   <div className="flex items-center">
-                    <Mail className="h-4 w-4 text-base-content/50 mr-2" />
+                    <Mail className="h-4 w-4 text-foreground/50 mr-2" />
                     <span className="text-sm">{playerData.email}</span>
                   </div>
                 )}
@@ -261,7 +261,7 @@ export default function PlayerDetail() {
               <h2 className="card-title">Status & Medical</h2>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-base-content/70">Status:</span>
+                  <span className="text-foreground/70">Status:</span>
                   <div className={`badge ${
                     !playerData.status ? 'badge-neutral' :
                       playerData.status === 'active' ? 'badge-success' :
@@ -279,14 +279,14 @@ export default function PlayerDetail() {
                   </div>
                 )}
                 {playerData.injury_details && (
-                  <div className="text-sm text-base-content/70">
+                  <div className="text-sm text-foreground/70">
                     <span className="font-medium">Injury Details:</span>
                     <p className="mt-1">{playerData.injury_details}</p>
                   </div>
                 )}
                 {playerData.has_comparison && playerData.comparison_player && (
                   <div className="text-sm">
-                    <span className="text-base-content/70">Comparison:</span>
+                    <span className="text-foreground/70">Comparison:</span>
                     <p className="font-medium">{playerData.comparison_player}</p>
                   </div>
                 )}
@@ -300,7 +300,7 @@ export default function PlayerDetail() {
           <div className="card mb-8">
             <div className="card-body">
               <h2 className="card-title">About</h2>
-              <p className="text-base-content/80 whitespace-pre-wrap">{playerData.bio}</p>
+              <p className="text-foreground/80 whitespace-pre-wrap">{playerData.bio}</p>
             </div>
           </div>
         )}
@@ -313,27 +313,27 @@ export default function PlayerDetail() {
               <h2 className="card-title">Batting Statistics</h2>
               <div className="grid grid-cols-2 gap-4">
                 {playerData.batting_avg && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-primary">{playerData.batting_avg}</div>
-                    <div className="text-sm text-base-content/70">Batting Average</div>
+                    <div className="text-sm text-foreground/70">Batting Average</div>
                   </div>
                 )}
                 {playerData.home_runs && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-primary">{playerData.home_runs}</div>
-                    <div className="text-sm text-base-content/70">Home Runs</div>
+                    <div className="text-sm text-foreground/70">Home Runs</div>
                   </div>
                 )}
                 {playerData.rbi && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-primary">{playerData.rbi}</div>
-                    <div className="text-sm text-base-content/70">RBI</div>
+                    <div className="text-sm text-foreground/70">RBI</div>
                   </div>
                 )}
                 {playerData.stolen_bases && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-primary">{playerData.stolen_bases}</div>
-                    <div className="text-sm text-base-content/70">Stolen Bases</div>
+                    <div className="text-sm text-foreground/70">Stolen Bases</div>
                   </div>
                 )}
               </div>
@@ -346,33 +346,33 @@ export default function PlayerDetail() {
               <h2 className="card-title">Pitching Statistics</h2>
               <div className="grid grid-cols-2 gap-4">
                 {playerData.era && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-success">{playerData.era}</div>
-                    <div className="text-sm text-base-content/70">ERA</div>
+                    <div className="text-sm text-foreground/70">ERA</div>
                   </div>
                 )}
                 {playerData.wins && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-success">{playerData.wins}</div>
-                    <div className="text-sm text-base-content/70">Wins</div>
+                    <div className="text-sm text-foreground/70">Wins</div>
                   </div>
                 )}
                 {playerData.losses && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-error">{playerData.losses}</div>
-                    <div className="text-sm text-base-content/70">Losses</div>
+                    <div className="text-sm text-foreground/70">Losses</div>
                   </div>
                 )}
                 {playerData.strikeouts && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg">
+                  <div className="text-center p-3 bg-content1 rounded-lg">
                     <div className="text-2xl font-bold text-success">{playerData.strikeouts}</div>
-                    <div className="text-sm text-base-content/70">Strikeouts</div>
+                    <div className="text-sm text-foreground/70">Strikeouts</div>
                   </div>
                 )}
                 {playerData.innings_pitched && (
-                  <div className="text-center p-3 bg-base-200 rounded-lg col-span-2">
+                  <div className="text-center p-3 bg-content1 rounded-lg col-span-2">
                     <div className="text-2xl font-bold text-success">{playerData.innings_pitched}</div>
-                    <div className="text-sm text-base-content/70">Innings Pitched</div>
+                    <div className="text-sm text-foreground/70">Innings Pitched</div>
                   </div>
                 )}
               </div>
@@ -387,19 +387,19 @@ export default function PlayerDetail() {
               <FileText className="w-5 h-5 mr-2" />
               Reports
             </h2>
-            <p className="text-base-content/70 mb-6">
+            <p className="text-foreground/70 mb-6">
               Create detailed reports and analysis for {playerData.first_name} {playerData.last_name}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Performance Report */}
-              <div className="card bg-base-200">
+              <div className="card bg-content1">
                 <div className="card-body">
                   <div className="flex items-center mb-3">
                     <TrendingUp className="w-6 h-6 text-primary mr-3" />
                     <h3 className="font-semibold">Performance Report</h3>
                   </div>
-                  <p className="text-sm text-base-content/70 mb-4">
+                  <p className="text-sm text-foreground/70 mb-4">
                     Enter game performance statistics and data for this player
                   </p>
                   <Link
@@ -413,13 +413,13 @@ export default function PlayerDetail() {
               </div>
 
               {/* Scouting Report */}
-              <div className="card bg-base-200">
+              <div className="card bg-content1">
                 <div className="card-body">
                   <div className="flex items-center mb-3">
                     <Target className="w-6 h-6 text-secondary mr-3" />
                     <h3 className="font-semibold">Scouting Report</h3>
                   </div>
-                  <p className="text-sm text-base-content/70 mb-4">
+                  <p className="text-sm text-foreground/70 mb-4">
                     Create detailed scouting evaluation with grades and observations
                   </p>
                   <Link
@@ -433,13 +433,13 @@ export default function PlayerDetail() {
               </div>
 
               {/* Statistics Report */}
-              <div className="card bg-base-200">
+              <div className="card bg-content1">
                 <div className="card-body">
                   <div className="flex items-center mb-3">
                     <BarChart3 className="w-6 h-6 text-accent mr-3" />
                     <h3 className="font-semibold">Statistics Report</h3>
                   </div>
-                  <p className="text-sm text-base-content/70 mb-4">
+                  <p className="text-sm text-foreground/70 mb-4">
                     Generate statistical analysis and comparison reports
                   </p>
                   <Link
@@ -497,13 +497,13 @@ export default function PlayerDetail() {
               <h2 className="card-title">Recent Scouting Reports</h2>
               <div className="space-y-4">
                 {playerData.ScoutingReports.map((report) => (
-                  <div key={report.id} className="border border-base-300 rounded-lg p-4">
+                  <div key={report.id} className="border border-divider rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-medium text-base-content">
+                        <h3 className="font-medium text-foreground">
                           Report by {report.Creator?.first_name} {report.Creator?.last_name}
                         </h3>
-                        <p className="text-sm text-base-content/70">
+                        <p className="text-sm text-foreground/70">
                           {new Date(report.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -514,7 +514,7 @@ export default function PlayerDetail() {
                       )}
                     </div>
                     {report.notes && (
-                      <p className="text-sm text-base-content/70">{report.notes}</p>
+                      <p className="text-sm text-foreground/70">{report.notes}</p>
                     )}
                   </div>
                 ))}

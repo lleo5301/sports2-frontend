@@ -81,10 +81,10 @@ const CreateTeam = () => {
               Back to Teams
             </button>
           </div>
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Create New Team
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Add a new team to the system
           </p>
         </div>

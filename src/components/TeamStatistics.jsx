@@ -123,7 +123,7 @@ const TeamStatistics = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-end items-center">
-        <div className="tabs tabs-boxed bg-base-300/30 p-1 border border-ui-border">
+        <div className="tabs tabs-boxed bg-content2/30 p-1 border border-ui-border">
           <button
             className={`tab tab-sm ${activeTab === 'overview' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('overview')}
@@ -259,11 +259,11 @@ const TeamStatistics = () => {
                     recentEvents.map((event, index) => (
                       <div
                         key={event.id || index}
-                        className="flex items-center justify-between p-4 bg-base-300/30 rounded-xl border border-ui-border hover:border-ui-border-strong transition-colors"
+                        className="flex items-center justify-between p-4 bg-content2/30 rounded-xl border border-ui-border hover:border-ui-border-strong transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`p-2 rounded-lg bg-base-200 ${getGameResultColor(event.result)}`}
+                            className={`p-2 rounded-lg bg-content1 ${getGameResultColor(event.result)}`}
                           >
                             {getGameResultIcon(event.result)}
                           </div>
@@ -307,7 +307,7 @@ const TeamStatistics = () => {
                     upcomingEvents.map((event, index) => (
                       <div
                         key={event.id || index}
-                        className="flex items-center justify-between p-4 bg-base-300/30 rounded-xl border border-ui-border hover:border-ui-border-strong transition-colors"
+                        className="flex items-center justify-between p-4 bg-content2/30 rounded-xl border border-ui-border hover:border-ui-border-strong transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className="p-3 bg-brand/10 rounded-xl">

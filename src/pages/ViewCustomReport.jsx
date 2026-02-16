@@ -64,7 +64,7 @@ const ViewCustomReport = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-error mb-4">Report Not Found</h1>
-            <p className="text-base-content/70 mb-6">
+            <p className="text-foreground/70 mb-6">
               The custom report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
             <button
@@ -134,7 +134,7 @@ const ViewCustomReport = () => {
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Report
                 </button>
-                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-background rounded-box w-52">
                   <li>
                     <a onClick={() => navigate(`/reports/${id}/edit-content`)}>
                       <Edit className="w-4 h-4" />
@@ -154,13 +154,13 @@ const ViewCustomReport = () => {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-base-content mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 {report.title}
               </h1>
-              <p className="text-base-content/70 mb-4">
+              <p className="text-foreground/70 mb-4">
                 {report.description}
               </p>
-              <div className="flex items-center space-x-6 text-sm text-base-content/60">
+              <div className="flex items-center space-x-6 text-sm text-foreground/60">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
                   Created: {new Date(report.created_at).toLocaleDateString()}
@@ -180,7 +180,7 @@ const ViewCustomReport = () => {
             </div>
 
             <div className="text-right">
-              <div className="text-sm text-base-content/60">Report Type</div>
+              <div className="text-sm text-foreground/60">Report Type</div>
               <div className="badge badge-accent badge-lg">Custom Report</div>
             </div>
           </div>
@@ -190,7 +190,7 @@ const ViewCustomReport = () => {
         <div className="space-y-8">
           {report.sections && report.sections.length > 0 ? (
             report.sections.map((section, index) => (
-              <div key={index} className="card bg-base-100 shadow-xl">
+              <div key={index} className="card bg-background shadow-xl">
                 <div className="card-body">
                   <h2 className="card-title text-2xl mb-6">
                     {getSectionIcon(section.type)}
@@ -224,18 +224,18 @@ const ViewCustomReport = () => {
                     </div>
                   ) : section.type === 'text' && section.content ? (
                     <div className="prose max-w-none">
-                      <div className="whitespace-pre-wrap text-base-content">
+                      <div className="whitespace-pre-wrap text-foreground">
                         {section.content}
                       </div>
                     </div>
                   ) : section.type === 'chart' ? (
-                    <div className="text-center py-8 text-base-content/60">
+                    <div className="text-center py-8 text-foreground/60">
                       <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>Chart visualization would be displayed here</p>
                       <p className="text-sm">Chart data: {JSON.stringify(section.data)}</p>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-base-content/60">
+                    <div className="text-center py-8 text-foreground/60">
                       <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>No content available for this section</p>
                     </div>
@@ -244,11 +244,11 @@ const ViewCustomReport = () => {
               </div>
             ))
           ) : (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body text-center py-12">
                 <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <h3 className="text-xl font-semibold mb-2">No Sections Available</h3>
-                <p className="text-base-content/60">
+                <p className="text-foreground/60">
                   This custom report doesn&apos;t have any sections configured yet.
                 </p>
                 <Link
@@ -266,7 +266,7 @@ const ViewCustomReport = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Data Sources */}
             {report.data_sources && report.data_sources.length > 0 && (
-              <div className="card bg-base-100 shadow-xl">
+              <div className="card bg-background shadow-xl">
                 <div className="card-body">
                   <h2 className="card-title text-xl mb-4">
                     <Target className="w-5 h-5 mr-2" />
@@ -285,7 +285,7 @@ const ViewCustomReport = () => {
 
             {/* Report Filters */}
             {report.filters && Object.keys(report.filters).length > 0 && (
-              <div className="card bg-base-100 shadow-xl">
+              <div className="card bg-background shadow-xl">
                 <div className="card-body">
                   <h2 className="card-title text-xl mb-4">
                     <Settings className="w-5 h-5 mr-2" />
@@ -294,8 +294,8 @@ const ViewCustomReport = () => {
                   <div className="space-y-2">
                     {Object.entries(report.filters).map(([key, value]) => (
                       value && (
-                        <div key={key} className="flex justify-between items-center py-2 border-b border-base-300 last:border-b-0">
-                          <span className="text-sm text-base-content/60 capitalize">
+                        <div key={key} className="flex justify-between items-center py-2 border-b border-divider last:border-b-0">
+                          <span className="text-sm text-foreground/60 capitalize">
                             {key.replace('_', ' ')}
                           </span>
                           <span className="font-medium">{value}</span>
@@ -310,14 +310,14 @@ const ViewCustomReport = () => {
 
           {/* Schedule Information */}
           {report.schedule && (
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-background shadow-xl">
               <div className="card-body">
                 <h2 className="card-title text-xl mb-4">
                   <Calendar className="w-5 h-5 mr-2" />
                   Report Schedule
                 </h2>
-                <div className="bg-base-200 p-4 rounded-lg">
-                  <p className="text-sm text-base-content/70">
+                <div className="bg-content1 p-4 rounded-lg">
+                  <p className="text-sm text-foreground/70">
                     This report is configured to run automatically based on the specified schedule.
                   </p>
                   <div className="mt-2">
@@ -330,9 +330,9 @@ const ViewCustomReport = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-12 pt-8 border-t border-base-300">
+        <div className="mt-12 pt-8 border-t border-divider">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-base-content/60">
+            <div className="text-sm text-foreground/60">
               Last updated: {new Date(report.updated_at).toLocaleString()}
             </div>
             <div className="flex space-x-2">

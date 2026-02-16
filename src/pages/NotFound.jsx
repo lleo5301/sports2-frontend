@@ -6,10 +6,10 @@ const NotFound = () => {
       <div className="text-center">
         <div className="mb-8">
           <h1 className="text-9xl font-bold text-primary">404</h1>
-          <h2 className="text-3xl font-bold text-base-content mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Page Not Found
           </h2>
-          <p className="text-base-content/70 mb-8 max-w-md mx-auto">
+          <p className="text-foreground/70 mb-8 max-w-md mx-auto">
             Sorry, the page you&apos;re looking for doesn&apos;t exist. It might have been moved, deleted, or you entered the wrong URL.
           </p>
         </div>
@@ -35,7 +35,7 @@ const NotFound = () => {
           </div>
         </div>
 
-        <div className="mt-12 text-base-content/50">
+        <div className="mt-12 text-foreground/50">
           <p className="text-sm">
             If you believe this is an error, please contact support.
           </p>

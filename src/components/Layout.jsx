@@ -145,7 +145,7 @@ const Layout = ({ children }) => {
       {/* Page content */}
       <div className="drawer-content flex flex-col">
         {/* Mobile menu toggle - only visible on mobile */}
-        <div className="lg:hidden p-4 border-b border-base-300">
+        <div className="lg:hidden p-4 border-b border-divider">
           <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
             <Menu className="w-6 h-6" />
           </label>
@@ -163,7 +163,7 @@ const Layout = ({ children }) => {
           className="drawer-overlay"
         ></label>
         <aside
-          className={`min-h-full flex flex-col bg-base-200 border-r border-base-300 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isDrawerCollapsed ? 'w-[72px]' : 'w-72'}`}
+          className={`min-h-full flex flex-col bg-content1 border-r border-divider transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isDrawerCollapsed ? 'w-[72px]' : 'w-72'}`}
         >
           {/* Sidebar Header - Monolithic precision */}
           <div className="h-20 flex items-center px-6 relative overflow-hidden group">
@@ -177,7 +177,7 @@ const Layout = ({ children }) => {
                   <img
                     src={fullLogoUrl}
                     alt={programName || name || 'Logo'}
-                    className="w-9 h-9 object-contain rounded-lg relative bg-base-300 p-1 border border-base-content/10"
+                    className="w-9 h-9 object-contain rounded-lg relative bg-content2 p-1 border border-base-content/10"
                     onError={(e) => {
                       e.target.style.display = 'none';
                     }}
@@ -192,10 +192,10 @@ const Layout = ({ children }) => {
               </div>
               {!isDrawerCollapsed && (
                 <div className="flex flex-col min-w-0">
-                  <span className="text-base-content font-bold leading-tight truncate tracking-tight">
+                  <span className="text-foreground font-bold leading-tight truncate tracking-tight">
                     {programName || name || 'The Program'}
                   </span>
-                  <span className="text-[10px] text-base-content/40 uppercase font-black tracking-[0.2em] leading-none">
+                  <span className="text-[10px] text-foreground/40 uppercase font-black tracking-[0.2em] leading-none">
                     Management
                   </span>
                 </div>
@@ -205,7 +205,7 @@ const Layout = ({ children }) => {
             {!isDrawerCollapsed && (
               <button
                 onClick={toggleDrawer}
-                className="ml-auto p-1.5 rounded-lg text-base-content/40 hover:text-base-content hover:bg-base-300/50 transition-all z-10"
+                className="ml-auto p-1.5 rounded-lg text-foreground/40 hover:text-foreground hover:bg-content2/50 transition-all z-10"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -226,7 +226,7 @@ const Layout = ({ children }) => {
               <div key={section.title} className="space-y-4">
                 {/* Section header - High precision tracking */}
                 {!isDrawerCollapsed && (
-                  <h3 className="px-4 text-[11px] font-bold text-base-content/40 uppercase tracking-[0.25em]">
+                  <h3 className="px-4 text-[11px] font-bold text-foreground/40 uppercase tracking-[0.25em]">
                     {section.title}
                   </h3>
                 )}
@@ -245,7 +245,7 @@ const Layout = ({ children }) => {
                             ${
                               isActive
                                 ? 'bg-brand/10 text-brand font-semibold'
-                                : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
+                                : 'text-foreground/60 hover:text-foreground hover:bg-content2/50'
                             }
                             ${isDrawerCollapsed ? 'justify-center' : ''}
                           `}
@@ -267,7 +267,7 @@ const Layout = ({ children }) => {
 
                           {/* Tooltip for collapsed state */}
                           {isDrawerCollapsed && (
-                            <div className="absolute left-full ml-4 px-3 py-1.5 bg-base-300 text-base-content text-xs font-bold rounded-lg border border-base-content/10 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 -translate-x-2 group-hover:translate-x-0 whitespace-nowrap z-50">
+                            <div className="absolute left-full ml-4 px-3 py-1.5 bg-content2 text-foreground text-xs font-bold rounded-lg border border-base-content/10 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 -translate-x-2 group-hover:translate-x-0 whitespace-nowrap z-50">
                               {item.label}
                             </div>
                           )}
@@ -284,17 +284,17 @@ const Layout = ({ children }) => {
           <ThemeToggle isCollapsed={isDrawerCollapsed} />
 
           {/* User & Footer Area */}
-          <div className="p-4 bg-base-300/20 border-t border-base-300">
+          <div className="p-4 bg-content2/20 border-t border-divider">
             {user && !isDrawerCollapsed && (
-              <div className="flex items-center gap-3 px-4 py-4 mb-2 bg-base-300/30 rounded-2xl border border-base-content/5">
+              <div className="flex items-center gap-3 px-4 py-4 mb-2 bg-content2/30 rounded-2xl border border-base-content/5">
                 <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center border border-brand/20">
                   <UserCheck className="w-5 h-5 text-brand" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-base-content truncate leading-none mb-1">
+                  <p className="text-sm font-bold text-foreground truncate leading-none mb-1">
                     {user.first_name || 'Admin'}
                   </p>
-                  <p className="text-[11px] text-base-content/40 truncate uppercase tracking-tighter">
+                  <p className="text-[11px] text-foreground/40 truncate uppercase tracking-tighter">
                     {user.role || 'Staff Member'}
                   </p>
                 </div>
@@ -304,7 +304,7 @@ const Layout = ({ children }) => {
             <button
               onClick={handleLogout}
               className={`
-                w-full flex items-center gap-4 px-4 py-3 rounded-xl text-base-content/40 hover:text-red-400 hover:bg-red-500/5 transition-all duration-300 group
+                w-full flex items-center gap-4 px-4 py-3 rounded-xl text-foreground/40 hover:text-red-400 hover:bg-red-500/5 transition-all duration-300 group
                 ${isDrawerCollapsed ? 'justify-center' : ''}
               `}
               title={isDrawerCollapsed ? 'Logout' : ''}

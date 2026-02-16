@@ -119,7 +119,7 @@ export default function CreateProspect() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Info */}
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h2 className="card-title mb-4 flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-primary" />
@@ -186,7 +186,7 @@ export default function CreateProspect() {
         </div>
 
         {/* School & Location */}
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h2 className="card-title mb-4">Background & Location</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -246,7 +246,7 @@ export default function CreateProspect() {
         </div>
 
         {/* Physical & Skill Data */}
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h2 className="card-title mb-4">Physicals & Skills</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -328,7 +328,7 @@ export default function CreateProspect() {
         </div>
 
         {/* Academic Data */}
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h2 className="card-title mb-4">Academics</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -364,7 +364,7 @@ export default function CreateProspect() {
         </div>
 
         {/* Contact & Links */}
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h2 className="card-title mb-4">Contact & Media</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

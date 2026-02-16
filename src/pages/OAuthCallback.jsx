@@ -43,11 +43,11 @@ const OAuthCallback = () => {
   }, [searchParams, navigate, login]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-100">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
         <div className="loading loading-spinner loading-lg mb-4"></div>
         <h2 className="text-xl font-semibold mb-2">Completing Sign In</h2>
-        <p className="text-base-content/70">Please wait while we complete your authentication...</p>
+        <p className="text-foreground/70">Please wait while we complete your authentication...</p>
       </div>
     </div>
   );

@@ -139,7 +139,7 @@ const Games = () => {
               {isHome ? 'vs' : '@'} {game.opponent || 'TBD'}
             </h3>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-base-content/70">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-foreground/70">
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>{formatDate(game.game_date || game.gameDate)}</span>
@@ -171,14 +171,14 @@ const Games = () => {
     // Past games are clickable to view stats
     if (isPast) {
       return (
-        <Link to={`/games/${game.id}`} className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+        <Link to={`/games/${game.id}`} className="card bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer">
           {cardContent}
         </Link>
       );
     }
 
     return (
-      <div className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+      <div className="card bg-background shadow-sm hover:shadow-md transition-shadow">
         {cardContent}
       </div>
     );
@@ -201,7 +201,7 @@ const Games = () => {
             <Trophy className="w-7 h-7 text-primary" />
             Games
           </h1>
-          <p className="text-base-content/70 mt-1">
+          <p className="text-foreground/70 mt-1">
             View upcoming and past games
           </p>
         </div>
@@ -262,7 +262,7 @@ const Games = () => {
       </div>
 
       {/* Upcoming Games */}
-      <div className="card bg-base-200">
+      <div className="card bg-content1">
         <div className="card-body">
           <h2 className="card-title text-lg flex items-center gap-2">
             <Calendar className="w-5 h-5 text-info" />
@@ -298,7 +298,7 @@ const Games = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-8 text-base-content/50">
+            <div className="text-center py-8 text-foreground/50">
               <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="font-medium">No upcoming games</p>
               <p className="text-sm">Sync your schedule from PrestoSports in Team Settings</p>
@@ -308,7 +308,7 @@ const Games = () => {
       </div>
 
       {/* Past Games */}
-      <div className="card bg-base-200">
+      <div className="card bg-content1">
         <div className="card-body">
           <div className="flex items-center justify-between">
             <h2 className="card-title text-lg flex items-center gap-2">
@@ -317,7 +317,7 @@ const Games = () => {
               <span className="badge badge-ghost badge-sm">{pastGames.length}</span>
             </h2>
             {pastGames.length > 0 && (
-              <span className="text-xs text-base-content/50">Click a game to view stats</span>
+              <span className="text-xs text-foreground/50">Click a game to view stats</span>
             )}
           </div>
 
@@ -349,7 +349,7 @@ const Games = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-8 text-base-content/50">
+            <div className="text-center py-8 text-foreground/50">
               <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="font-medium">No past games</p>
               <p className="text-sm">Games will appear here after they&apos;re played</p>

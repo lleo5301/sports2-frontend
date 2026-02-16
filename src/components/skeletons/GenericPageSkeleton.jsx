@@ -36,7 +36,7 @@ export default function GenericPageSkeleton({
                 {[...Array(itemCount)].map((_, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-base-200/50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-content1/50 rounded-lg"
                   >
                     <div className="flex items-center gap-3 flex-1">
                       <Skeleton

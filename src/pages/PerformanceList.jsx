@@ -148,11 +148,11 @@ const PerformanceList = () => {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <Trophy className="w-8 h-8 text-orange-500" />
-            <h1 className="text-3xl font-bold text-base-content">
+            <h1 className="text-3xl font-bold text-foreground">
               Player Performance Rankings
             </h1>
           </div>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             View and analyze player performance statistics with rankings and
             comparisons
           </p>
@@ -234,7 +234,7 @@ const PerformanceList = () => {
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/40" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-foreground/40" />
                 <input
                   type="text"
                   placeholder="Search players by name, school, city, state..."
@@ -248,7 +248,7 @@ const PerformanceList = () => {
             <div className="flex flex-wrap items-center gap-4">
               {/* View Toggle */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-base-content/70">
+                <span className="text-sm font-medium text-foreground/70">
                   View:
                 </span>
                 <div className="btn-group">
@@ -275,7 +275,7 @@ const PerformanceList = () => {
 
               {/* Position Filter */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-base-content/70">
+                <span className="text-sm font-medium text-foreground/70">
                   Position:
                 </span>
                 <select
@@ -302,7 +302,7 @@ const PerformanceList = () => {
 
               {/* School Type Filter */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-base-content/70">
+                <span className="text-sm font-medium text-foreground/70">
                   School:
                 </span>
                 <select
@@ -320,7 +320,7 @@ const PerformanceList = () => {
 
               {/* Status Filter */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-base-content/70">
+                <span className="text-sm font-medium text-foreground/70">
                   Status:
                 </span>
                 <select

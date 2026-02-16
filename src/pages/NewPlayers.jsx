@@ -30,7 +30,7 @@ const NewPlayers = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-background shadow-sm mb-6">
         <div className="card-body">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
@@ -61,7 +61,7 @@ const NewPlayers = () => {
       </div>
 
       {/* Content Area */}
-      <div className="card bg-base-100 shadow-sm">
+      <div className="card bg-background shadow-sm">
         <div className="card-body">
           <div className="text-center py-12">
             <UserPlus className="w-16 h-16 text-gray-300 mx-auto mb-4" />

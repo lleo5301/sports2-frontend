@@ -68,7 +68,7 @@ const CollegePortal = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-background shadow-sm mb-6">
         <div className="card-body">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
@@ -107,12 +107,12 @@ const CollegePortal = () => {
 
       {/* Transfer Portal Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h3 className="text-lg font-semibold mb-4">Recent Transfer Activity</h3>
             <div className="space-y-3">
               {[1, 2, 3].map((item) => (
-                <div key={item} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                <div key={item} className="flex items-center justify-between p-3 bg-content1 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
                       <ArrowRightLeft className="w-4 h-4 text-primary" />
@@ -129,12 +129,12 @@ const CollegePortal = () => {
           </div>
         </div>
 
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <h3 className="text-lg font-semibold mb-4">Top College Prospects</h3>
             <div className="space-y-3">
               {[1, 2, 3].map((item) => (
-                <div key={item} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                <div key={item} className="flex items-center justify-between p-3 bg-content1 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
                       <Building2 className="w-4 h-4 text-orange-600" />
@@ -155,7 +155,7 @@ const CollegePortal = () => {
       </div>
 
       {/* Main Content */}
-      <div className="card bg-base-100 shadow-sm">
+      <div className="card bg-background shadow-sm">
         <div className="card-body">
           <div className="text-center py-12">
             <ArrowRightLeft className="w-16 h-16 text-gray-300 mx-auto mb-4" />

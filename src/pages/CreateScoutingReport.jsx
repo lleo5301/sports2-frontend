@@ -234,10 +234,10 @@ const CreateScoutingReport = () => {
               Back to Scouting
             </button>
           </div>
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             {isEditMode ? 'Edit Scouting Report' : 'Create New Scouting Report'}
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Evaluate a player&apos;s performance and potential
           </p>
         </div>
@@ -278,7 +278,7 @@ const CreateScoutingReport = () => {
                     </button>
 
                     {showReportDatePicker && (
-                      <div className="absolute top-full left-0 mt-1 z-50 bg-base-100 border border-base-300 rounded-box shadow-lg">
+                      <div className="absolute top-full left-0 mt-1 z-50 bg-background border border-divider rounded-box shadow-lg">
                         <DayPicker
                           mode="single"
                           selected={reportDate}
@@ -295,14 +295,14 @@ const CreateScoutingReport = () => {
                             nav_button_next: 'absolute right-1',
                             table: 'w-full border-collapse space-y-1',
                             head_row: 'flex',
-                            head_cell: 'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
+                            head_cell: 'text-foreground/70 rounded-md w-8 font-normal text-[0.8rem]',
                             row: 'flex w-full mt-2',
                             cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                            day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md',
+                            day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-content1 rounded-md',
                             day_selected: 'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
                             day_today: 'bg-accent text-accent-content',
-                            day_outside: 'text-base-content/30 opacity-50',
-                            day_disabled: 'text-base-content/30 opacity-50',
+                            day_outside: 'text-foreground/30 opacity-50',
+                            day_disabled: 'text-foreground/30 opacity-50',
                             day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-content',
                             day_hidden: 'invisible'
                           }}
@@ -327,7 +327,7 @@ const CreateScoutingReport = () => {
                     </button>
 
                     {showGameDatePicker && (
-                      <div className="absolute top-full left-0 mt-1 z-50 bg-base-100 border border-base-300 rounded-box shadow-lg">
+                      <div className="absolute top-full left-0 mt-1 z-50 bg-background border border-divider rounded-box shadow-lg">
                         <DayPicker
                           mode="single"
                           selected={gameDate}
@@ -344,14 +344,14 @@ const CreateScoutingReport = () => {
                             nav_button_next: 'absolute right-1',
                             table: 'w-full border-collapse space-y-1',
                             head_row: 'flex',
-                            head_cell: 'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
+                            head_cell: 'text-foreground/70 rounded-md w-8 font-normal text-[0.8rem]',
                             row: 'flex w-full mt-2',
                             cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                            day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md',
+                            day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-content1 rounded-md',
                             day_selected: 'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
                             day_today: 'bg-accent text-accent-content',
-                            day_outside: 'text-base-content/30 opacity-50',
-                            day_disabled: 'text-base-content/30 opacity-50',
+                            day_outside: 'text-foreground/30 opacity-50',
+                            day_disabled: 'text-foreground/30 opacity-50',
                             day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-content',
                             day_hidden: 'invisible'
                           }}

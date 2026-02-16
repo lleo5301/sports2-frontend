@@ -167,17 +167,17 @@ const CreatePlayerPerformanceEntry = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Players
           </button>
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             {isEditMode ? 'Edit Performance Data' : 'Add Performance Data'}
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             {isEditMode ? 'Update player performance statistics' : 'Enter player performance statistics for a game'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <User className="w-5 h-5 mr-2" />
@@ -225,7 +225,7 @@ const CreatePlayerPerformanceEntry = () => {
           </div>
 
           {/* Batting Statistics */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <BarChart3 className="w-5 h-5 mr-2" />
@@ -384,12 +384,12 @@ const CreatePlayerPerformanceEntry = () => {
           </div>
 
           {/* Pitching Statistics */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <Target className="w-5 h-5 mr-2" />
                 Pitching Statistics
-                <span className="text-sm font-normal text-base-content/60">(if applicable)</span>
+                <span className="text-sm font-normal text-foreground/60">(if applicable)</span>
               </h2>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -519,7 +519,7 @@ const CreatePlayerPerformanceEntry = () => {
           </div>
 
           {/* Fielding Statistics */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <Award className="w-5 h-5 mr-2" />
@@ -584,7 +584,7 @@ const CreatePlayerPerformanceEntry = () => {
           </div>
 
           {/* Notes */}
-          <div className="card bg-base-100 shadow-xl">
+          <div className="card bg-background shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-xl mb-4">
                 <TrendingUp className="w-5 h-5 mr-2" />

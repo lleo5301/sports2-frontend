@@ -77,8 +77,8 @@ const Reports = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2">Reports</h1>
-          <p className="text-base-content/70">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Reports</h1>
+          <p className="text-foreground/70">
             Generate and manage analytical reports
           </p>
         </div>
@@ -92,7 +92,7 @@ const Reports = () => {
             </div>
             <ul
               tabIndex={0}
-              className="dropdown-content menu bg-base-100 rounded-box z-[1] w-64 p-2 shadow"
+              className="dropdown-content menu bg-background rounded-box z-[1] w-64 p-2 shadow"
             >
               <li>
                 <button
@@ -102,7 +102,7 @@ const Reports = () => {
                   <Plus className="w-4 h-4" />
                   <div>
                     <div className="font-medium">Add Performance Data</div>
-                    <div className="text-xs text-base-content/60">
+                    <div className="text-xs text-foreground/60">
                       Enter game statistics
                     </div>
                   </div>
@@ -116,7 +116,7 @@ const Reports = () => {
                   <FileText className="w-4 h-4" />
                   <div>
                     <div className="font-medium">Create Report Template</div>
-                    <div className="text-xs text-base-content/60">
+                    <div className="text-xs text-foreground/60">
                       Generate analysis report
                     </div>
                   </div>
@@ -177,7 +177,7 @@ const Reports = () => {
                         report.status === 'Published'
                           ? 'bg-success/20 text-success border-success/30'
                           : report.status === 'Draft'
-                            ? 'bg-base-100 text-ui-secondary border-ui-border'
+                            ? 'bg-background text-ui-secondary border-ui-border'
                             : 'bg-warning/20 text-warning border-warning/30'
                       }`}
                     >
@@ -222,7 +222,7 @@ const Reports = () => {
                           </label>
                           <ul
                             tabIndex={0}
-                            className="dropdown-content z-[1] menu p-2 shadow-2xl bg-base-200 rounded-xl border border-ui-border w-52"
+                            className="dropdown-content z-[1] menu p-2 shadow-2xl bg-content1 rounded-xl border border-ui-border w-52"
                           >
                             <li>
                               <button

@@ -29,7 +29,7 @@ const HSPrefList = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-background shadow-sm mb-6">
         <div className="card-body">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
@@ -65,7 +65,7 @@ const HSPrefList = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -77,7 +77,7 @@ const HSPrefList = () => {
           </div>
         </div>
 
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -89,7 +89,7 @@ const HSPrefList = () => {
           </div>
         </div>
 
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -101,7 +101,7 @@ const HSPrefList = () => {
           </div>
         </div>
 
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -115,7 +115,7 @@ const HSPrefList = () => {
       </div>
 
       {/* Main Content */}
-      <div className="card bg-base-100 shadow-sm">
+      <div className="card bg-background shadow-sm">
         <div className="card-body">
           <div className="text-center py-12">
             <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />

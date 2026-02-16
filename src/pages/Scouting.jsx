@@ -47,10 +47,10 @@ const Scouting = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Scouting Reports
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Manage and view scouting reports
           </p>
         </div>
@@ -125,7 +125,7 @@ const Scouting = () => {
                         ) : report.Prospect ? (
                           `${report.Prospect.first_name} ${report.Prospect.last_name} (R)`
                         ) : (
-                          <span className="text-base-content/50">Unknown</span>
+                          <span className="text-foreground/50">Unknown</span>
                         )}
                       </td>
                       <td>
@@ -134,7 +134,7 @@ const Scouting = () => {
                         ) : report.User ? (
                           `${report.User.first_name} ${report.User.last_name}`
                         ) : (
-                          <span className="text-base-content/50">Unknown</span>
+                          <span className="text-foreground/50">Unknown</span>
                         )}
                       </td>
                       <td>
@@ -162,7 +162,7 @@ const Scouting = () => {
                             </div>
                           )}
                           {!report.overall_grade && !report.overall_present && (
-                            <span className="text-base-content/50">-</span>
+                            <span className="text-foreground/50">-</span>
                           )}
                         </div>
                       </td>
@@ -239,7 +239,7 @@ const Scouting = () => {
             )}
 
             {/* Results Info */}
-            <div className="text-center mt-4 text-sm text-base-content/70">
+            <div className="text-center mt-4 text-sm text-foreground/70">
               Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
               {Math.min(pagination.page * pagination.limit, pagination.total)}{' '}
               of {pagination.total} reports

@@ -303,7 +303,7 @@ export default function CreatePlayer() {
 
               <div className="divider">Player Photo</div>
               <div className="space-y-4">
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-foreground/70">
             Upload a photo of the player (Max 5MB, JPEG/PNG/GIF/WebP)
                 </p>
 
@@ -335,7 +335,7 @@ export default function CreatePlayer() {
                       src={photoPreview}
                       alt="Player preview"
                     />
-                    <p className="text-sm text-base-content/70">
+                    <p className="text-sm text-foreground/70">
                 File: {photoFile?.name} ({(photoFile?.size / (1024 * 1024)).toFixed(2)} MB)
                     </p>
                   </div>

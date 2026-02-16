@@ -247,10 +247,10 @@ const Settings = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-base-content mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Settings
           </h1>
-          <p className="text-base-content/70">
+          <p className="text-foreground/70">
             Manage your account and application preferences
           </p>
         </div>
@@ -405,7 +405,7 @@ const Settings = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Export Data</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         Download your data as CSV or JSON
                       </p>
                     </div>
@@ -417,7 +417,7 @@ const Settings = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Clear Cache</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         Clear cached data to free up space
                       </p>
                     </div>
@@ -582,7 +582,7 @@ const Settings = () => {
                         <Upload className="w-4 h-4 mr-2" />
                         Upload New Picture
                       </button>
-                      <p className="text-sm text-base-content/70 mt-2">
+                      <p className="text-sm text-foreground/70 mt-2">
                         Recommended: Square image, 200x200 pixels or larger
                       </p>
                     </div>
@@ -605,7 +605,7 @@ const Settings = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium text-error">Delete Account</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         Permanently delete your account and all data
                       </p>
                     </div>
@@ -909,7 +909,7 @@ const Settings = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium">Two-Factor Authentication</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         {settings.security.twoFactorEnabled
                           ? 'Enabled - Your account is protected with 2FA'
                           : 'Disabled - Enable 2FA for enhanced security'}
@@ -979,7 +979,7 @@ const Settings = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Active Sessions</h3>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         Manage your current login sessions
                       </p>
                     </div>
@@ -1215,7 +1215,7 @@ const Settings = () => {
                 />
               </div>
               {selectedFile && (
-                <div className="text-sm text-base-content/70">
+                <div className="text-sm text-foreground/70">
                   Selected: {selectedFile.name}
                 </div>
               )}

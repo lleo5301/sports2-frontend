@@ -237,7 +237,7 @@ export default function RecruitingBoard() {
       </div>
 
       {/* Preference List Tabs */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-background shadow-sm mb-6">
         <div className="card-body">
           <h3 className="text-lg font-semibold mb-4">Preference Lists</h3>
           <div className="flex flex-wrap gap-2">
@@ -261,7 +261,7 @@ export default function RecruitingBoard() {
       </div>
 
       {/* Search and Filters */}
-      <div className="card bg-base-100 shadow-sm mb-6">
+      <div className="card bg-background shadow-sm mb-6">
         <div className="card-body">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
@@ -287,7 +287,7 @@ export default function RecruitingBoard() {
           </div>
 
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-base-300">
+            <div className="mt-4 pt-4 border-t border-divider">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="label">
@@ -348,7 +348,7 @@ export default function RecruitingBoard() {
 
       {/* Recruits Grid */}
       {isLoading ? (
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <div className="text-center py-12">
               <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -357,7 +357,7 @@ export default function RecruitingBoard() {
           </div>
         </div>
       ) : error ? (
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <div className="text-center py-12">
               <div className="text-error mb-4">
@@ -386,7 +386,7 @@ export default function RecruitingBoard() {
           </div>
         </div>
       ) : recruits.length === 0 ? (
-        <div className="card bg-base-100 shadow-sm">
+        <div className="card bg-background shadow-sm">
           <div className="card-body">
             <div className="text-center py-12">
               <UserCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -430,7 +430,7 @@ export default function RecruitingBoard() {
                 return (
                   <div
                     key={recruit.id}
-                    className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow"
+                    className="card bg-background shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="card-body">
                       {/* Recruit Header */}
@@ -506,7 +506,7 @@ export default function RecruitingBoard() {
                       </div>
 
                       {/* Stats Preview (for Prospects, show skill data) */}
-                      <div className="border-t border-base-300 pt-4 mb-4">
+                      <div className="border-t border-divider pt-4 mb-4">
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           {recruit.fastball_velocity && (
                             <div>

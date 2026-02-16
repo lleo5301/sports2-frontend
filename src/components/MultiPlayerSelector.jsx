@@ -103,7 +103,7 @@ const MultiPlayerSelector = ({
   const selectedPlayers = players.filter(p => selectedPlayerIds.includes(p.id.toString()));
 
   return (
-    <div className="card bg-base-100 shadow-xl">
+    <div className="card bg-background shadow-xl">
       <div className="card-body">
         <h2 className="card-title text-xl mb-4">
           <Users className="w-5 h-5 mr-2" />
@@ -141,7 +141,7 @@ const MultiPlayerSelector = ({
               <label className="label">
                 <span className="label-text">Selected Players</span>
               </label>
-              <div className="text-sm text-base-content/70 mt-2">
+              <div className="text-sm text-foreground/70 mt-2">
                 {selectedPlayerIds.length} player(s) selected
               </div>
             </div>
@@ -152,7 +152,7 @@ const MultiPlayerSelector = ({
         <div className="form-control mb-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-base-content/50" />
+              <Search className="h-4 w-4 text-foreground/50" />
             </div>
             <input
               type="text"
@@ -192,7 +192,7 @@ const MultiPlayerSelector = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {filteredPlayers.map(player => (
                   <label key={player.id} className="cursor-pointer">
-                    <div className="flex items-center space-x-3 p-2 rounded hover:bg-base-200">
+                    <div className="flex items-center space-x-3 p-2 rounded hover:bg-content1">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-primary"
@@ -203,7 +203,7 @@ const MultiPlayerSelector = ({
                         <div className="font-medium">
                           {player.first_name} {player.last_name}
                         </div>
-                        <div className="text-sm text-base-content/70">
+                        <div className="text-sm text-foreground/70">
                           {player.position} • {player.school || 'No school'}
                         </div>
                       </div>
@@ -213,7 +213,7 @@ const MultiPlayerSelector = ({
 
                 {/* No players found / Create new option */}
                 {filteredPlayers.length === 0 && searchTerm && (
-                  <div className="col-span-2 p-4 text-center text-base-content/70">
+                  <div className="col-span-2 p-4 text-center text-foreground/70">
                     <div className="mb-2">No players found matching &quot;{searchTerm}&quot;</div>
                     {allowCreate && (
                       <button

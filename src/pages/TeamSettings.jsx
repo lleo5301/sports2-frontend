@@ -702,7 +702,7 @@ export default function TeamSettings() {
                           type="color"
                           value={brandingColors.primary_color}
                           onChange={(e) => setBrandingColors(prev => ({ ...prev, primary_color: e.target.value }))}
-                          className="w-16 h-16 rounded-lg cursor-pointer border-2 border-base-300"
+                          className="w-16 h-16 rounded-lg cursor-pointer border-2 border-divider"
                         />
                         <div className="flex-1">
                           <input
@@ -713,7 +713,7 @@ export default function TeamSettings() {
                             pattern="^#[0-9A-Fa-f]{6}$"
                             placeholder="#3B82F6"
                           />
-                          <p className="text-xs text-base-content/50 mt-1">
+                          <p className="text-xs text-foreground/50 mt-1">
                             Used for buttons, links, and accents
                           </p>
                         </div>
@@ -729,7 +729,7 @@ export default function TeamSettings() {
                           type="color"
                           value={brandingColors.secondary_color}
                           onChange={(e) => setBrandingColors(prev => ({ ...prev, secondary_color: e.target.value }))}
-                          className="w-16 h-16 rounded-lg cursor-pointer border-2 border-base-300"
+                          className="w-16 h-16 rounded-lg cursor-pointer border-2 border-divider"
                         />
                         <div className="flex-1">
                           <input
@@ -740,7 +740,7 @@ export default function TeamSettings() {
                             pattern="^#[0-9A-Fa-f]{6}$"
                             placeholder="#EF4444"
                           />
-                          <p className="text-xs text-base-content/50 mt-1">
+                          <p className="text-xs text-foreground/50 mt-1">
                             Used for secondary elements and highlights
                           </p>
                         </div>
@@ -749,7 +749,7 @@ export default function TeamSettings() {
                   </div>
 
                   {/* Color Preview */}
-                  <div className="bg-base-200 p-4 rounded-lg">
+                  <div className="bg-content1 p-4 rounded-lg">
                     <h4 className="font-medium mb-3">Preview</h4>
                     <div className="flex flex-wrap gap-3">
                       <button

@@ -71,7 +71,7 @@ export default function DepthChartPositionCard({
           </div>
         ) : (
           /* Empty State */
-          <div className="text-center py-10 bg-base-300/20 rounded-xl border border-dashed border-ui-border">
+          <div className="text-center py-10 bg-content2/20 rounded-xl border border-dashed border-ui-border">
             <Users className="h-10 w-10 text-brand/20 mx-auto mb-3" />
             <p className="text-sm font-medium text-ui-secondary">
               No players assigned
@@ -79,7 +79,7 @@ export default function DepthChartPositionCard({
             {canAssignPlayers && (
               <button
                 onClick={() => onAddPlayer(position)}
-                className="btn btn-outline btn-sm mt-4 border-ui-border hover:bg-base-300/50"
+                className="btn btn-outline btn-sm mt-4 border-ui-border hover:bg-content2/50"
               >
                 <UserPlus className="h-4 w-4 mr-1 text-brand" />
                 Assign Player

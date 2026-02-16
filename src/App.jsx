@@ -51,7 +51,7 @@ import GameDetail from './pages/GameDetail';
 
 function App() {
   return (
-    <div className="bg-base-100">
+    <div className="bg-background">
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />

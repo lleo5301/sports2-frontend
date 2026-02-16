@@ -315,11 +315,11 @@ const PrestoSportsConfig = () => {
   return (
     <div className="space-y-6">
       {/* Connection Status Card */}
-      <div className="card bg-base-100">
+      <div className="card bg-background">
         <div className="card-body">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isConfigured ? (tokenStatus === 'expired' ? 'bg-warning/20' : 'bg-success/20') : 'bg-base-200'}`}>
+              <div className={`p-2 rounded-lg ${isConfigured ? (tokenStatus === 'expired' ? 'bg-warning/20' : 'bg-success/20') : 'bg-content1'}`}>
                 {isConfigured ? (
                   tokenStatus === 'expired' ? (
                     <AlertCircle className="w-6 h-6 text-warning" />
@@ -327,12 +327,12 @@ const PrestoSportsConfig = () => {
                     <CheckCircle className="w-6 h-6 text-success" />
                   )
                 ) : (
-                  <XCircle className="w-6 h-6 text-base-content/50" />
+                  <XCircle className="w-6 h-6 text-foreground/50" />
                 )}
               </div>
               <div>
                 <h3 className="font-semibold">PrestoSports Integration</h3>
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-foreground/70">
                   {isConfigured
                     ? tokenStatus === 'expired'
                       ? 'Token expired - re-authenticate required'
@@ -342,7 +342,7 @@ const PrestoSportsConfig = () => {
               </div>
             </div>
             {isConfigured && (
-              <div className="text-right text-sm text-base-content/70">
+              <div className="text-right text-sm text-foreground/70">
                 {tokenStatus && (
                   <p className={`badge badge-sm ${tokenStatus === 'valid' ? 'badge-success' : 'badge-warning'} mb-1`}>
                     Token: {tokenStatus}
@@ -373,10 +373,10 @@ const PrestoSportsConfig = () => {
 
       {/* Configuration Form */}
       {!isConfigured && (
-        <div className="card bg-base-100">
+        <div className="card bg-background">
           <div className="card-body">
             <h3 className="card-title text-lg">Connect to PrestoSports</h3>
-            <p className="text-sm text-base-content/70 mb-4">
+            <p className="text-sm text-foreground/70 mb-4">
               Enter your PrestoSports credentials to sync schedules, rosters, and game statistics.
             </p>
 
@@ -408,7 +408,7 @@ const PrestoSportsConfig = () => {
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -449,10 +449,10 @@ const PrestoSportsConfig = () => {
 
       {/* Team/Season Selection (when configured) */}
       {isConfigured && (
-        <div className="card bg-base-100">
+        <div className="card bg-background">
           <div className="card-body">
             <h3 className="card-title text-lg">Sync Settings</h3>
-            <p className="text-sm text-base-content/70 mb-4">
+            <p className="text-sm text-foreground/70 mb-4">
               Select the team and season to sync data from.
             </p>
 
@@ -460,7 +460,7 @@ const PrestoSportsConfig = () => {
               <label className="label">
                 <span className="label-text">Team & Season</span>
               </label>
-              <p className="text-xs text-base-content/60 mb-2">
+              <p className="text-xs text-foreground/60 mb-2">
                 Select the team and season to sync. Only baseball teams are shown.
               </p>
               <select
@@ -530,10 +530,10 @@ const PrestoSportsConfig = () => {
 
       {/* Sync Controls (when configured with team/season) */}
       {isConfigured && prestoTeamId && prestoSeasonId && (
-        <div className="card bg-base-100">
+        <div className="card bg-background">
           <div className="card-body">
             <h3 className="card-title text-lg">Sync Data</h3>
-            <p className="text-sm text-base-content/70 mb-4">
+            <p className="text-sm text-foreground/70 mb-4">
               Sync data from PrestoSports to your local database.
             </p>
 
@@ -596,10 +596,10 @@ const PrestoSportsConfig = () => {
 
       {/* Additional Sync Options (when configured with team/season) */}
       {isConfigured && prestoTeamId && prestoSeasonId && (
-        <div className="card bg-base-100">
+        <div className="card bg-background">
           <div className="card-body">
             <h3 className="card-title text-lg">Additional Sync Options</h3>
-            <p className="text-sm text-base-content/70 mb-4">
+            <p className="text-sm text-foreground/70 mb-4">
               Sync additional data like player details, photos, videos, and historical stats.
             </p>
 
@@ -675,7 +675,7 @@ const PrestoSportsConfig = () => {
 
       {/* Live Game Stats (when configured with team/season) */}
       {isConfigured && prestoTeamId && prestoSeasonId && (
-        <div className="card bg-base-100">
+        <div className="card bg-background">
           <div className="card-body">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -683,7 +683,7 @@ const PrestoSportsConfig = () => {
                   <Activity className="w-5 h-5 text-success" />
                   Live Game Stats
                 </h3>
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-foreground/70">
                   Sync real-time stats for games in progress.
                 </p>
               </div>
@@ -705,7 +705,7 @@ const PrestoSportsConfig = () => {
                 {liveGamesData.data.map((game) => (
                   <div
                     key={game.id}
-                    className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-content1 rounded-lg"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -716,7 +716,7 @@ const PrestoSportsConfig = () => {
                           {game.home_away === 'home' ? 'vs' : '@'} {game.opponent}
                         </span>
                       </div>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-sm text-foreground/70">
                         {new Date(game.game_date).toLocaleDateString()} {game.game_time || ''}
                       </p>
                       {game.home_score !== null && game.away_score !== null && (
@@ -742,7 +742,7 @@ const PrestoSportsConfig = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-base-content/50">
+              <div className="text-center py-4 text-foreground/50">
                 <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No live games available</p>
                 <p className="text-xs">Games scheduled for today will appear here</p>
@@ -754,10 +754,10 @@ const PrestoSportsConfig = () => {
 
       {/* Disconnect Button */}
       {isConfigured && (
-        <div className="card bg-base-100">
+        <div className="card bg-background">
           <div className="card-body">
             <h3 className="card-title text-lg text-error">Danger Zone</h3>
-            <p className="text-sm text-base-content/70 mb-4">
+            <p className="text-sm text-foreground/70 mb-4">
               Disconnect from PrestoSports. This will remove your saved credentials.
             </p>
             <button

@@ -68,7 +68,7 @@ const OverallPrefList = () => {
       </div>
 
       {/* Preference List Table */}
-      <div className="card bg-base-100 shadow-sm">
+      <div className="card bg-background shadow-sm">
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Preference Rankings</h2>

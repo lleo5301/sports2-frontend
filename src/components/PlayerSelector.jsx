@@ -102,7 +102,7 @@ const PlayerSelector = ({
           {/* Search and Select */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-base-content/50" />
+              <Search className="h-4 w-4 text-foreground/50" />
             </div>
             <input
               type="text"
@@ -122,7 +122,7 @@ const PlayerSelector = ({
                   <div className="font-medium">
                     {selectedPlayer.first_name} {selectedPlayer.last_name}
                   </div>
-                  <div className="text-sm text-base-content/70">
+                  <div className="text-sm text-foreground/70">
                     {selectedPlayer.position} • {selectedPlayer.school || 'No school'}
                   </div>
                 </div>
@@ -139,7 +139,7 @@ const PlayerSelector = ({
 
           {/* Player List */}
           {searchTerm && !selectedPlayer && (
-            <div className="max-h-48 overflow-y-auto border rounded-lg bg-base-100">
+            <div className="max-h-48 overflow-y-auto border rounded-lg bg-background">
               {filteredPlayers.length > 0 ? (
                 <div className="p-2 space-y-1">
                   {filteredPlayers.map(player => (
@@ -150,14 +150,14 @@ const PlayerSelector = ({
                         onPlayerSelect(player.id.toString());
                         setSearchTerm('');
                       }}
-                      className="w-full text-left p-2 rounded hover:bg-base-200 flex items-center space-x-3"
+                      className="w-full text-left p-2 rounded hover:bg-content1 flex items-center space-x-3"
                     >
-                      <User className="w-4 h-4 text-base-content/50" />
+                      <User className="w-4 h-4 text-foreground/50" />
                       <div>
                         <div className="font-medium">
                           {player.first_name} {player.last_name}
                         </div>
-                        <div className="text-sm text-base-content/70">
+                        <div className="text-sm text-foreground/70">
                           {player.position} • {player.school || 'No school'}
                         </div>
                       </div>
@@ -165,7 +165,7 @@ const PlayerSelector = ({
                   ))}
                 </div>
               ) : (
-                <div className="p-4 text-center text-base-content/70">
+                <div className="p-4 text-center text-foreground/70">
                   <div className="mb-2">No players found matching &quot;{searchTerm}&quot;</div>
                   {allowCreate && (
                     <button
@@ -211,7 +211,7 @@ const PlayerSelector = ({
         </div>
       ) : (
         /* Create Player Form */
-        <div className="card bg-base-100 border">
+        <div className="card bg-background border">
           <div className="card-body p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Create New Player</h3>

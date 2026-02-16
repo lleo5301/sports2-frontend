@@ -193,7 +193,7 @@ export default function PlayerDetailSkeleton({ animation = 'pulse' }) {
               />
               <div className="grid grid-cols-2 gap-4">
                 {[...Array(4)].map((_, index) => (
-                  <div key={index} className="text-center p-3 bg-base-200 rounded-lg">
+                  <div key={index} className="text-center p-3 bg-content1 rounded-lg">
                     <Skeleton
                       variant="rectangular"
                       width={60}
@@ -226,7 +226,7 @@ export default function PlayerDetailSkeleton({ animation = 'pulse' }) {
               />
               <div className="grid grid-cols-2 gap-4">
                 {[...Array(4)].map((_, index) => (
-                  <div key={index} className="text-center p-3 bg-base-200 rounded-lg">
+                  <div key={index} className="text-center p-3 bg-content1 rounded-lg">
                     <Skeleton
                       variant="rectangular"
                       width={60}
@@ -277,7 +277,7 @@ export default function PlayerDetailSkeleton({ animation = 'pulse' }) {
             {/* Report Cards - 3 columns */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {[...Array(3)].map((_, index) => (
-                <div key={index} className="card bg-base-200">
+                <div key={index} className="card bg-content1">
                   <div className="card-body">
                     <div className="flex items-center mb-3">
                       <Skeleton
@@ -355,7 +355,7 @@ export default function PlayerDetailSkeleton({ animation = 'pulse' }) {
             />
             <div className="space-y-4">
               {[...Array(2)].map((_, index) => (
-                <div key={index} className="border border-base-300 rounded-lg p-4">
+                <div key={index} className="border border-divider rounded-lg p-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <Skeleton

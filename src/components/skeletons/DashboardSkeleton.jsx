@@ -244,7 +244,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                 {[...Array(5)].map((_, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl"
+                    className="flex items-center justify-between p-4 bg-content1/50 rounded-xl"
                   >
                     <div className="flex items-center gap-3">
                       <Skeleton
@@ -322,7 +322,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                 {[...Array(5)].map((_, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-base-200/50 rounded-xl"
+                    className="flex items-center justify-between p-4 bg-content1/50 rounded-xl"
                   >
                     <div className="flex items-center gap-3">
                       <Skeleton
@@ -392,7 +392,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
               {[...Array(4)].map((_, index) => (
                 <div
                   key={index}
-                  className="p-4 bg-white border border-base-300 rounded-lg"
+                  className="p-4 bg-white border border-divider rounded-lg"
                 >
                   <div className="flex items-start gap-3">
                     <Skeleton
@@ -444,7 +444,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[...Array(3)].map((_, index) => (
-                <div key={index} className="p-4 bg-base-200/50 rounded-lg">
+                <div key={index} className="p-4 bg-content1/50 rounded-lg">
                   <Skeleton
                     variant="rectangular"
                     width={100}

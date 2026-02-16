@@ -209,7 +209,7 @@ const Players = () => {
               <h1 className="text-4xl font-black text-ui-primary tracking-tight mb-2">
                 Players
               </h1>
-              <p className="text-base-content/50 font-medium">
+              <p className="text-foreground/50 font-medium">
                 Manage and analyze your team&apos;s player roster
               </p>
             </div>
@@ -336,21 +336,21 @@ const Players = () => {
         {/* Players Table Section */}
         <div className="space-y-4">
           {/* Table Toolbar */}
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-200/50 p-4 rounded-2xl border border-ui-border backdrop-blur-md">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-content1/50 p-4 rounded-2xl border border-ui-border backdrop-blur-md">
             <div className="flex items-center gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ui-secondary opacity-50" />
                 <input
                   type="text"
                   placeholder="Search players by name, school..."
-                  className="input input-bordered w-full pl-12 h-11 bg-base-100 border-ui-border focus:border-primary/50 rounded-xl"
+                  className="input input-bordered w-full pl-12 h-11 bg-background border-ui-border focus:border-primary/50 rounded-xl"
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10 transition-all ${filters.position || filters.status || filters.school_type ? 'border-primary text-primary' : ''}`}
+                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10 transition-all ${filters.position || filters.status || filters.school_type ? 'border-primary text-primary' : ''}`}
                   onClick={() => {
                     /* Toggle filters panel if we had one */
                   }}
@@ -362,7 +362,7 @@ const Players = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="join bg-base-100 rounded-xl border border-ui-border overflow-hidden">
+              <div className="join bg-background rounded-xl border border-ui-border overflow-hidden">
                 <button
                   className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === 'compact' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
                   onClick={() => setDensity('compact')}
@@ -381,7 +381,7 @@ const Players = () => {
 
               <div className="relative">
                 <button
-                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10 ${showColumnSettings ? 'text-primary' : ''}`}
+                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10 ${showColumnSettings ? 'text-primary' : ''}`}
                   onClick={() => setShowColumnSettings(!showColumnSettings)}
                 >
                   <Columns className="w-4 h-4 mr-2" />
@@ -389,7 +389,7 @@ const Players = () => {
                 </button>
 
                 {showColumnSettings && (
-                  <div className="absolute right-0 mt-2 w-56 bg-base-200 border border-ui-border rounded-2xl shadow-2xl z-50 p-4">
+                  <div className="absolute right-0 mt-2 w-56 bg-content1 border border-ui-border rounded-2xl shadow-2xl z-50 p-4">
                     <h4 className="text-xs font-bold uppercase tracking-widest text-ui-secondary mb-3">
                       Visible Columns
                     </h4>
@@ -398,7 +398,7 @@ const Players = () => {
                         (col) => (
                           <label
                             key={col}
-                            className="flex items-center justify-between cursor-pointer hover:bg-base-300/50 p-2 rounded-lg transition-colors"
+                            className="flex items-center justify-between cursor-pointer hover:bg-content2/50 p-2 rounded-lg transition-colors"
                           >
                             <span className="text-sm">{col}</span>
                             <input
@@ -414,7 +414,7 @@ const Players = () => {
                 )}
               </div>
 
-              <button className="btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10">
+              <button className="btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10">
                 <Settings2 className="w-4 h-4" />
               </button>
             </div>
@@ -487,7 +487,7 @@ const Players = () => {
                             player.status === 'active'
                               ? 'bg-success/20 text-success border-success/30'
                               : player.status === 'inactive'
-                                ? 'bg-base-100 text-ui-secondary border-ui-border'
+                                ? 'bg-background text-ui-secondary border-ui-border'
                                 : player.status === 'graduated'
                                   ? 'bg-info/20 text-info border-info/30'
                                   : 'bg-warning/20 text-warning border-warning/30'
@@ -523,7 +523,7 @@ const Players = () => {
                             </label>
                             <ul
                               tabIndex={0}
-                              className="dropdown-content z-[1] menu p-2 shadow-2xl bg-base-200 rounded-xl border border-ui-border w-44"
+                              className="dropdown-content z-[1] menu p-2 shadow-2xl bg-content1 rounded-xl border border-ui-border w-44"
                             >
                               <li>
                                 <button
@@ -579,7 +579,7 @@ const Players = () => {
             </p>
 
             {pagination.pages > 1 && (
-              <div className="join bg-base-200/30 rounded-xl border border-ui-border">
+              <div className="join bg-content1/30 rounded-xl border border-ui-border">
                 <button
                   className="join-item btn btn-sm h-10 px-4 border-0 hover:bg-primary/10"
                   disabled={pagination.page === 1}
@@ -688,31 +688,31 @@ const Players = () => {
             <div className="mt-6 pt-4 border-t">
               <h4 className="font-semibold mb-3">Performance Stats</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-base-200 rounded-lg">
+                <div className="text-center p-3 bg-content1 rounded-lg">
                   <div className="text-2xl font-bold text-primary">
                     {selectedPlayer.batting_avg || 'N/A'}
                   </div>
-                  <div className="text-sm text-base-content/70">
+                  <div className="text-sm text-foreground/70">
                     Batting Avg
                   </div>
                 </div>
-                <div className="text-center p-3 bg-base-200 rounded-lg">
+                <div className="text-center p-3 bg-content1 rounded-lg">
                   <div className="text-2xl font-bold text-secondary">
                     {selectedPlayer.home_runs || '0'}
                   </div>
-                  <div className="text-sm text-base-content/70">Home Runs</div>
+                  <div className="text-sm text-foreground/70">Home Runs</div>
                 </div>
-                <div className="text-center p-3 bg-base-200 rounded-lg">
+                <div className="text-center p-3 bg-content1 rounded-lg">
                   <div className="text-2xl font-bold text-accent">
                     {selectedPlayer.rbi || '0'}
                   </div>
-                  <div className="text-sm text-base-content/70">RBI</div>
+                  <div className="text-sm text-foreground/70">RBI</div>
                 </div>
-                <div className="text-center p-3 bg-base-200 rounded-lg">
+                <div className="text-center p-3 bg-content1 rounded-lg">
                   <div className="text-2xl font-bold text-info">
                     {selectedPlayer.stolen_bases || '0'}
                   </div>
-                  <div className="text-sm text-base-content/70">
+                  <div className="text-sm text-foreground/70">
                     Stolen Bases
                   </div>
                 </div>
@@ -731,7 +731,7 @@ const Players = () => {
                   {selectedPlayerReports.map((report) => (
                     <div
                       key={report.id}
-                      className="flex justify-between items-center p-3 bg-base-200 rounded-lg hover:bg-base-300 cursor-pointer transition-colors"
+                      className="flex justify-between items-center p-3 bg-content1 rounded-lg hover:bg-content2 cursor-pointer transition-colors"
                       onClick={() => handleReportSelect(report.id)}
                     >
                       <div className="flex-1">
@@ -739,12 +739,12 @@ const Players = () => {
                           Report Date: {formatReportDate(report.report_date)}
                         </div>
                         {report.game_date && (
-                          <div className="text-sm text-base-content/70">
+                          <div className="text-sm text-foreground/70">
                             Game Date: {formatReportDate(report.game_date)}
                           </div>
                         )}
                         {report.opponent && (
-                          <div className="text-sm text-base-content/70">
+                          <div className="text-sm text-foreground/70">
                             vs {report.opponent}
                           </div>
                         )}
@@ -761,7 +761,7 @@ const Players = () => {
                             </div>
                           ))}
                         {getToolGrades(report).length > 2 && (
-                          <div className="text-xs text-base-content/50">
+                          <div className="text-xs text-foreground/50">
                             +{getToolGrades(report).length - 2} more grades
                           </div>
                         )}
@@ -770,7 +770,7 @@ const Players = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4 text-base-content/50">
+                <div className="text-center py-4 text-foreground/50">
                   No scouting reports available for this player
                 </div>
               )}
@@ -877,7 +877,7 @@ const Players = () => {
             {/* Tool Grades Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {selectedReport.overall_grade && (
-                <div className="bg-base-200 p-3 rounded-lg text-center">
+                <div className="bg-content1 p-3 rounded-lg text-center">
                   <div className="text-lg font-bold text-primary">
                     {selectedReport.overall_grade}
                   </div>
@@ -885,7 +885,7 @@ const Players = () => {
                 </div>
               )}
               {selectedReport.hitting_grade && (
-                <div className="bg-base-200 p-3 rounded-lg text-center">
+                <div className="bg-content1 p-3 rounded-lg text-center">
                   <div className="text-lg font-bold text-secondary">
                     {selectedReport.hitting_grade}
                   </div>
@@ -893,7 +893,7 @@ const Players = () => {
                 </div>
               )}
               {selectedReport.pitching_grade && (
-                <div className="bg-base-200 p-3 rounded-lg text-center">
+                <div className="bg-content1 p-3 rounded-lg text-center">
                   <div className="text-lg font-bold text-accent">
                     {selectedReport.pitching_grade}
                   </div>
@@ -901,7 +901,7 @@ const Players = () => {
                 </div>
               )}
               {selectedReport.fielding_grade && (
-                <div className="bg-base-200 p-3 rounded-lg text-center">
+                <div className="bg-content1 p-3 rounded-lg text-center">
                   <div className="text-lg font-bold text-info">
                     {selectedReport.fielding_grade}
                   </div>
@@ -909,7 +909,7 @@ const Players = () => {
                 </div>
               )}
               {selectedReport.speed_grade && (
-                <div className="bg-base-200 p-3 rounded-lg text-center">
+                <div className="bg-content1 p-3 rounded-lg text-center">
                   <div className="text-lg font-bold text-warning">
                     {selectedReport.speed_grade}
                   </div>
@@ -917,7 +917,7 @@ const Players = () => {
                 </div>
               )}
               {selectedReport.intangibles_grade && (
-                <div className="bg-base-200 p-3 rounded-lg text-center">
+                <div className="bg-content1 p-3 rounded-lg text-center">
                   <div className="text-lg font-bold text-success">
                     {selectedReport.intangibles_grade}
                   </div>

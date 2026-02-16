@@ -33,12 +33,12 @@ const PasswordStrengthIndicator = ({ password = '', showRequirements = true, cla
       {/* Strength Progress Bar */}
       <div className="space-y-1">
         <div className="flex justify-between items-center text-sm">
-          <span className="text-base-content/70">Password strength</span>
+          <span className="text-foreground/70">Password strength</span>
           <span className={`font-medium ${getStrengthTextColor(strength.level)}`}>
             {strength.label}
           </span>
         </div>
-        <div className="w-full bg-base-300 rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-content2 rounded-full h-2 overflow-hidden">
           <div
             className={`h-full transition-all duration-300 ease-out ${strength.colorClass}`}
             style={{ width: `${(strength.level / 5) * 100}%` }}
@@ -49,7 +49,7 @@ const PasswordStrengthIndicator = ({ password = '', showRequirements = true, cla
       {/* Requirements Checklist */}
       {showRequirements && (
         <div className="space-y-1.5">
-          <span className="text-sm text-base-content/70">Requirements:</span>
+          <span className="text-sm text-foreground/70">Requirements:</span>
           <ul className="space-y-1">
             {PASSWORD_REQUIREMENTS_LIST.map((req) => {
               const isMet = requirements[req.key]?.met;
@@ -57,7 +57,7 @@ const PasswordStrengthIndicator = ({ password = '', showRequirements = true, cla
                 <li
                   key={req.key}
                   className={`flex items-center gap-2 text-sm transition-colors duration-200 ${
-                    isMet ? 'text-success' : 'text-base-content/60'
+                    isMet ? 'text-success' : 'text-foreground/60'
                   }`}
                 >
                   {isMet ? (
