@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTheme } from "../contexts/ThemeContext";
-import { useBranding } from "../contexts/BrandingContext";
-import { settingsService, defaultSettings } from "../services/settings";
-import { teamsService } from "../services/teams";
-import { toast } from "react-hot-toast";
-import { validatePassword } from "../utils/passwordValidator";
-import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
-import AccessibleModal from "../components/ui/AccessibleModal";
-import ThemeSelector from "../components/ui/ThemeSelector";
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTheme } from '../contexts/ThemeContext';
+import { useBranding } from '../contexts/BrandingContext';
+import { settingsService, defaultSettings } from '../services/settings';
+import { teamsService } from '../services/teams';
+import { toast } from 'react-hot-toast';
+import { validatePassword } from '../utils/passwordValidator';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import AccessibleModal from '../components/ui/AccessibleModal';
+import ThemeSelector from '../components/ui/ThemeSelector';
 import {
   User,
   Bell,
@@ -34,8 +34,8 @@ import {
   XCircle,
   Sun,
   Moon,
-  Laptop,
-} from "lucide-react";
+  Laptop
+} from 'lucide-react';
 
 const Settings = () => {
   const {
@@ -44,12 +44,12 @@ const Settings = () => {
     changeTheme,
     changeThemeMode,
     THEME_MODES,
-    isDarkMode,
+    isDarkMode
   } = useTheme();
   const { primaryColor, secondaryColor, updateBranding, refreshBranding } =
     useBranding();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState('general');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
@@ -57,20 +57,20 @@ const Settings = () => {
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
-  const [twoFactorCode, setTwoFactorCode] = useState("");
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
   // Fetch user settings
   const { data: userSettings, isLoading } = useQuery({
-    queryKey: ["user-settings"],
+    queryKey: ['user-settings'],
     queryFn: settingsService.getUserSettings,
     onError: (error) => {
       // console.error('Error fetching settings:', error);
-    },
+    }
   });
 
   const settings = userSettings?.data || defaultSettings;
@@ -79,110 +79,110 @@ const Settings = () => {
   const updateGeneralMutation = useMutation({
     mutationFn: settingsService.updateGeneralSettings,
     onSuccess: () => {
-      toast.success("General settings updated successfully!");
-      queryClient.invalidateQueries(["user-settings"]);
+      toast.success('General settings updated successfully!');
+      queryClient.invalidateQueries(['user-settings']);
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to update general settings",
+        error.response?.data?.message || 'Failed to update general settings'
       );
-    },
+    }
   });
 
   const updateAccountMutation = useMutation({
     mutationFn: settingsService.updateAccountSettings,
     onSuccess: () => {
-      toast.success("Account settings updated successfully!");
-      queryClient.invalidateQueries(["user-settings"]);
+      toast.success('Account settings updated successfully!');
+      queryClient.invalidateQueries(['user-settings']);
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to update account settings",
+        error.response?.data?.message || 'Failed to update account settings'
       );
-    },
+    }
   });
 
   const updateNotificationsMutation = useMutation({
     mutationFn: settingsService.updateNotificationSettings,
     onSuccess: () => {
-      toast.success("Notification settings updated successfully!");
-      queryClient.invalidateQueries(["user-settings"]);
+      toast.success('Notification settings updated successfully!');
+      queryClient.invalidateQueries(['user-settings']);
     },
     onError: (error) => {
       toast.error(
         error.response?.data?.message ||
-          "Failed to update notification settings",
+          'Failed to update notification settings'
       );
-    },
+    }
   });
 
   const updateSecurityMutation = useMutation({
     mutationFn: settingsService.updateSecuritySettings,
     onSuccess: () => {
-      toast.success("Security settings updated successfully!");
-      queryClient.invalidateQueries(["user-settings"]);
+      toast.success('Security settings updated successfully!');
+      queryClient.invalidateQueries(['user-settings']);
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to update security settings",
+        error.response?.data?.message || 'Failed to update security settings'
       );
-    },
+    }
   });
 
   const changePasswordMutation = useMutation({
     mutationFn: settingsService.changePassword,
     onSuccess: () => {
-      toast.success("Password changed successfully!");
+      toast.success('Password changed successfully!');
       setShowPasswordModal(false);
       setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
       });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to change password");
-    },
+      toast.error(error.response?.data?.message || 'Failed to change password');
+    }
   });
 
   const toggleTwoFactorMutation = useMutation({
     mutationFn: settingsService.toggleTwoFactor,
     onSuccess: () => {
-      toast.success("Two-factor authentication updated successfully!");
-      queryClient.invalidateQueries(["user-settings"]);
+      toast.success('Two-factor authentication updated successfully!');
+      queryClient.invalidateQueries(['user-settings']);
     },
     onError: (error) => {
       toast.error(
         error.response?.data?.message ||
-          "Failed to update two-factor authentication",
+          'Failed to update two-factor authentication'
       );
-    },
+    }
   });
 
   const uploadProfilePictureMutation = useMutation({
     mutationFn: settingsService.uploadProfilePicture,
     onSuccess: () => {
-      toast.success("Profile picture updated successfully!");
+      toast.success('Profile picture updated successfully!');
       setShowProfilePictureModal(false);
       setSelectedFile(null);
-      queryClient.invalidateQueries(["user-settings"]);
+      queryClient.invalidateQueries(['user-settings']);
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to upload profile picture",
+        error.response?.data?.message || 'Failed to upload profile picture'
       );
-    },
+    }
   });
 
   const deleteAccountMutation = useMutation({
     mutationFn: settingsService.deleteAccount,
     onSuccess: () => {
-      toast.success("Account deleted successfully!");
+      toast.success('Account deleted successfully!');
       // Redirect to logout or home page
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to delete account");
-    },
+      toast.error(error.response?.data?.message || 'Failed to delete account');
+    }
   });
 
   // Handlers
@@ -198,13 +198,13 @@ const Settings = () => {
     const passwordValidation = validatePassword(passwordData.newPassword);
     if (!passwordValidation.isValid) {
       toast.error(
-        passwordValidation.errors[0] || "Password does not meet requirements",
+        passwordValidation.errors[0] || 'Password does not meet requirements'
       );
       return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("New passwords do not match");
+      toast.error('New passwords do not match');
       return;
     }
     changePasswordMutation.mutate(passwordData);
@@ -223,19 +223,19 @@ const Settings = () => {
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
-    if (deleteConfirmation === "DELETE") {
+    if (deleteConfirmation === 'DELETE') {
       deleteAccountMutation.mutate(deleteConfirmation);
     } else {
-      toast.error("Please type DELETE to confirm account deletion");
+      toast.error('Please type DELETE to confirm account deletion');
     }
   };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
+    if (file && file.type.startsWith('image/')) {
       setSelectedFile(file);
     } else {
-      toast.error("Please select a valid image file");
+      toast.error('Please select a valid image file');
     }
   };
 
@@ -267,29 +267,29 @@ const Settings = () => {
         {/* Settings Tabs */}
         <div className="tabs tabs-boxed mb-6">
           <button
-            className={`tab ${activeTab === "general" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("general")}
+            className={`tab ${activeTab === 'general' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('general')}
           >
             <SettingsIcon className="w-4 h-4 mr-2" />
             General
           </button>
           <button
-            className={`tab ${activeTab === "account" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("account")}
+            className={`tab ${activeTab === 'account' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('account')}
           >
             <User className="w-4 h-4 mr-2" />
             Account
           </button>
           <button
-            className={`tab ${activeTab === "notifications" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("notifications")}
+            className={`tab ${activeTab === 'notifications' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('notifications')}
           >
             <Bell className="w-4 h-4 mr-2" />
             Notifications
           </button>
           <button
-            className={`tab ${activeTab === "security" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("security")}
+            className={`tab ${activeTab === 'security' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('security')}
           >
             <Shield className="w-4 h-4 mr-2" />
             Security
@@ -299,7 +299,7 @@ const Settings = () => {
         {/* Tab Content */}
         <div className="space-y-6">
           {/* General Settings Tab */}
-          {activeTab === "general" && (
+          {activeTab === 'general' && (
             <>
               {/* Appearance Mode */}
               <div className="card">
@@ -325,22 +325,22 @@ const Settings = () => {
                     {/* Appearance Mode Buttons */}
                     <div className="flex gap-2 mb-4">
                       <button
-                        className={`btn flex-1 ${themeMode === "light" ? "btn-primary" : "btn-outline"}`}
-                        onClick={() => changeThemeMode("light")}
+                        className={`btn flex-1 ${themeMode === 'light' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => changeThemeMode('light')}
                       >
                         <Sun className="w-4 h-4 mr-2" />
                         Light
                       </button>
                       <button
-                        className={`btn flex-1 ${themeMode === "dark" ? "btn-primary" : "btn-outline"}`}
-                        onClick={() => changeThemeMode("dark")}
+                        className={`btn flex-1 ${themeMode === 'dark' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => changeThemeMode('dark')}
                       >
                         <Moon className="w-4 h-4 mr-2" />
                         Dark
                       </button>
                       <button
-                        className={`btn flex-1 ${themeMode === "system" ? "btn-primary" : "btn-outline"}`}
-                        onClick={() => changeThemeMode("system")}
+                        className={`btn flex-1 ${themeMode === 'system' ? 'btn-primary' : 'btn-outline'}`}
+                        onClick={() => changeThemeMode('system')}
                       >
                         <Laptop className="w-4 h-4 mr-2" />
                         System
@@ -348,8 +348,8 @@ const Settings = () => {
                     </div>
 
                     <p className="text-sm text-base-content/70">
-                      {themeMode === "system"
-                        ? `Following system preference (currently ${isDarkMode ? "dark" : "light"})`
+                      {themeMode === 'system'
+                        ? `Following system preference (currently ${isDarkMode ? 'dark' : 'light'})`
                         : `Using ${themeMode} mode`}
                     </p>
                   </div>
@@ -440,7 +440,7 @@ const Settings = () => {
                         checked={settings.general.showNotifications}
                         onChange={(e) =>
                           updateGeneralMutation.mutate({
-                            showNotifications: e.target.checked,
+                            showNotifications: e.target.checked
                           })
                         }
                       />
@@ -455,7 +455,7 @@ const Settings = () => {
                         checked={settings.general.autoRefresh}
                         onChange={(e) =>
                           updateGeneralMutation.mutate({
-                            autoRefresh: e.target.checked,
+                            autoRefresh: e.target.checked
                           })
                         }
                       />
@@ -470,7 +470,7 @@ const Settings = () => {
                         checked={settings.general.compactView}
                         onChange={(e) =>
                           updateGeneralMutation.mutate({
-                            compactView: e.target.checked,
+                            compactView: e.target.checked
                           })
                         }
                       />
@@ -518,7 +518,7 @@ const Settings = () => {
           )}
 
           {/* Account Settings Tab */}
-          {activeTab === "account" && (
+          {activeTab === 'account' && (
             <>
               {/* Profile Information */}
               <div className="card">
@@ -543,7 +543,7 @@ const Settings = () => {
                         defaultValue={settings.account.firstName}
                         onChange={(e) =>
                           updateAccountMutation.mutate({
-                            firstName: e.target.value,
+                            firstName: e.target.value
                           })
                         }
                       />
@@ -558,7 +558,7 @@ const Settings = () => {
                         defaultValue={settings.account.lastName}
                         onChange={(e) =>
                           updateAccountMutation.mutate({
-                            lastName: e.target.value,
+                            lastName: e.target.value
                           })
                         }
                       />
@@ -573,7 +573,7 @@ const Settings = () => {
                         defaultValue={settings.account.email}
                         onChange={(e) =>
                           updateAccountMutation.mutate({
-                            email: e.target.value,
+                            email: e.target.value
                           })
                         }
                       />
@@ -588,7 +588,7 @@ const Settings = () => {
                         defaultValue={settings.account.phone}
                         onChange={(e) =>
                           updateAccountMutation.mutate({
-                            phone: e.target.value,
+                            phone: e.target.value
                           })
                         }
                       />
@@ -615,7 +615,7 @@ const Settings = () => {
                         defaultValue={settings.account.location}
                         onChange={(e) =>
                           updateAccountMutation.mutate({
-                            location: e.target.value,
+                            location: e.target.value
                           })
                         }
                       />
@@ -630,7 +630,7 @@ const Settings = () => {
                         defaultValue={settings.account.website}
                         onChange={(e) =>
                           updateAccountMutation.mutate({
-                            website: e.target.value,
+                            website: e.target.value
                           })
                         }
                       />
@@ -657,7 +657,7 @@ const Settings = () => {
                         <img
                           src={
                             settings.account.profilePicture ||
-                            "/default-avatar.png"
+                            '/default-avatar.png'
                           }
                           alt="Profile"
                         />
@@ -712,7 +712,7 @@ const Settings = () => {
           )}
 
           {/* Notifications Settings Tab */}
-          {activeTab === "notifications" && (
+          {activeTab === 'notifications' && (
             <>
               {/* Email Notifications */}
               <div className="card">
@@ -739,8 +739,8 @@ const Settings = () => {
                           updateNotificationsMutation.mutate({
                             email: {
                               ...settings.notifications.email,
-                              enabled: e.target.checked,
-                            },
+                              enabled: e.target.checked
+                            }
                           })
                         }
                       />
@@ -758,8 +758,8 @@ const Settings = () => {
                         updateNotificationsMutation.mutate({
                           email: {
                             ...settings.notifications.email,
-                            frequency: e.target.value,
-                          },
+                            frequency: e.target.value
+                          }
                         })
                       }
                     >
@@ -777,7 +777,7 @@ const Settings = () => {
                         <div key={key} className="form-control">
                           <label className="label cursor-pointer">
                             <span className="label-text capitalize">
-                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                              {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                             </span>
                             <input
                               type="checkbox"
@@ -789,15 +789,15 @@ const Settings = () => {
                                     ...settings.notifications.email,
                                     types: {
                                       ...settings.notifications.email.types,
-                                      [key]: e.target.checked,
-                                    },
-                                  },
+                                      [key]: e.target.checked
+                                    }
+                                  }
                                 })
                               }
                             />
                           </label>
                         </div>
-                      ),
+                      )
                     )}
                   </div>
                 </div>
@@ -828,8 +828,8 @@ const Settings = () => {
                           updateNotificationsMutation.mutate({
                             push: {
                               ...settings.notifications.push,
-                              enabled: e.target.checked,
-                            },
+                              enabled: e.target.checked
+                            }
                           })
                         }
                       />
@@ -843,7 +843,7 @@ const Settings = () => {
                         <div key={key} className="form-control">
                           <label className="label cursor-pointer">
                             <span className="label-text capitalize">
-                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                              {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                             </span>
                             <input
                               type="checkbox"
@@ -855,15 +855,15 @@ const Settings = () => {
                                     ...settings.notifications.push,
                                     types: {
                                       ...settings.notifications.push.types,
-                                      [key]: e.target.checked,
-                                    },
-                                  },
+                                      [key]: e.target.checked
+                                    }
+                                  }
                                 })
                               }
                             />
                           </label>
                         </div>
-                      ),
+                      )
                     )}
                   </div>
                 </div>
@@ -894,8 +894,8 @@ const Settings = () => {
                           updateNotificationsMutation.mutate({
                             inApp: {
                               ...settings.notifications.inApp,
-                              enabled: e.target.checked,
-                            },
+                              enabled: e.target.checked
+                            }
                           })
                         }
                       />
@@ -915,8 +915,8 @@ const Settings = () => {
                           updateNotificationsMutation.mutate({
                             inApp: {
                               ...settings.notifications.inApp,
-                              sound: e.target.checked,
-                            },
+                              sound: e.target.checked
+                            }
                           })
                         }
                       />
@@ -930,7 +930,7 @@ const Settings = () => {
                         <div key={key} className="form-control">
                           <label className="label cursor-pointer">
                             <span className="label-text capitalize">
-                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                              {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                             </span>
                             <input
                               type="checkbox"
@@ -942,15 +942,15 @@ const Settings = () => {
                                     ...settings.notifications.inApp,
                                     types: {
                                       ...settings.notifications.inApp.types,
-                                      [key]: e.target.checked,
-                                    },
-                                  },
+                                      [key]: e.target.checked
+                                    }
+                                  }
                                 })
                               }
                             />
                           </label>
                         </div>
-                      ),
+                      )
                     )}
                   </div>
                 </div>
@@ -959,7 +959,7 @@ const Settings = () => {
           )}
 
           {/* Security Settings Tab */}
-          {activeTab === "security" && (
+          {activeTab === 'security' && (
             <>
               {/* Password */}
               <div className="card">
@@ -1000,17 +1000,17 @@ const Settings = () => {
                       <h3 className="font-medium">Two-Factor Authentication</h3>
                       <p className="text-sm text-base-content/70">
                         {settings.security.twoFactorEnabled
-                          ? "Enabled - Your account is protected with 2FA"
-                          : "Disabled - Enable 2FA for enhanced security"}
+                          ? 'Enabled - Your account is protected with 2FA'
+                          : 'Disabled - Enable 2FA for enhanced security'}
                       </p>
                     </div>
                     <button
-                      className={`btn ${settings.security.twoFactorEnabled ? "btn-error" : "btn-success"}`}
+                      className={`btn ${settings.security.twoFactorEnabled ? 'btn-error' : 'btn-success'}`}
                       onClick={handleTwoFactorToggle}
                     >
                       {settings.security.twoFactorEnabled
-                        ? "Disable"
-                        : "Enable"}{" "}
+                        ? 'Disable'
+                        : 'Enable'}{' '}
                       2FA
                     </button>
                   </div>
@@ -1043,7 +1043,7 @@ const Settings = () => {
                       defaultValue={settings.security.sessionTimeout}
                       onChange={(e) =>
                         updateSecurityMutation.mutate({
-                          sessionTimeout: parseInt(e.target.value),
+                          sessionTimeout: parseInt(e.target.value)
                         })
                       }
                     />
@@ -1058,7 +1058,7 @@ const Settings = () => {
                         checked={settings.security.loginNotifications}
                         onChange={(e) =>
                           updateSecurityMutation.mutate({
-                            loginNotifications: e.target.checked,
+                            loginNotifications: e.target.checked
                           })
                         }
                       />
@@ -1102,8 +1102,8 @@ const Settings = () => {
                         updateSecurityMutation.mutate({
                           privacy: {
                             ...settings.privacy,
-                            profileVisibility: e.target.value,
-                          },
+                            profileVisibility: e.target.value
+                          }
                         })
                       }
                     >
@@ -1124,8 +1124,8 @@ const Settings = () => {
                           updateSecurityMutation.mutate({
                             privacy: {
                               ...settings.privacy,
-                              showEmail: e.target.checked,
-                            },
+                              showEmail: e.target.checked
+                            }
                           })
                         }
                       />
@@ -1143,8 +1143,8 @@ const Settings = () => {
                           updateSecurityMutation.mutate({
                             privacy: {
                               ...settings.privacy,
-                              showPhone: e.target.checked,
-                            },
+                              showPhone: e.target.checked
+                            }
                           })
                         }
                       />
@@ -1162,8 +1162,8 @@ const Settings = () => {
                           updateSecurityMutation.mutate({
                             privacy: {
                               ...settings.privacy,
-                              allowDataSharing: e.target.checked,
-                            },
+                              allowDataSharing: e.target.checked
+                            }
                           })
                         }
                       />
@@ -1203,7 +1203,7 @@ const Settings = () => {
                   onChange={(e) =>
                     setPasswordData({
                       ...passwordData,
-                      currentPassword: e.target.value,
+                      currentPassword: e.target.value
                     })
                   }
                   required
@@ -1220,7 +1220,7 @@ const Settings = () => {
                   onChange={(e) =>
                     setPasswordData({
                       ...passwordData,
-                      newPassword: e.target.value,
+                      newPassword: e.target.value
                     })
                   }
                   required
@@ -1241,7 +1241,7 @@ const Settings = () => {
                   onChange={(e) =>
                     setPasswordData({
                       ...passwordData,
-                      confirmPassword: e.target.value,
+                      confirmPassword: e.target.value
                     })
                   }
                   required
@@ -1262,7 +1262,7 @@ const Settings = () => {
                   Changing...
                 </>
               ) : (
-                "Change Password"
+                'Change Password'
               )}
             </button>
             <button
@@ -1323,7 +1323,7 @@ const Settings = () => {
                   Uploading...
                 </>
               ) : (
-                "Upload Picture"
+                'Upload Picture'
               )}
             </button>
             <button
@@ -1383,7 +1383,7 @@ const Settings = () => {
               className="btn btn-error"
               disabled={
                 deleteAccountMutation.isLoading ||
-                deleteConfirmation !== "DELETE"
+                deleteConfirmation !== 'DELETE'
               }
             >
               {deleteAccountMutation.isLoading ? (

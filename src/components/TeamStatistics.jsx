@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Calendar,
   Clock,
@@ -12,61 +12,61 @@ import {
   Play,
   CheckCircle,
   XCircle,
-  Minus,
-} from "lucide-react";
-import { teamsService } from "../services/teams";
-import { schedulesService } from "../services/schedules";
-import { gamesService } from "../services/games";
+  Minus
+} from 'lucide-react';
+import { teamsService } from '../services/teams';
+import { schedulesService } from '../services/schedules';
+import { gamesService } from '../services/games';
 
 const TeamStatistics = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Fetch team statistics
   const { data: teamStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["team-stats"],
-    queryFn: teamsService.getTeamStats,
+    queryKey: ['team-stats'],
+    queryFn: teamsService.getTeamStats
   });
 
   // Fetch schedule statistics
   const { data: scheduleStats, isLoading: scheduleLoading } = useQuery({
-    queryKey: ["schedule-stats"],
-    queryFn: schedulesService.getScheduleStats,
+    queryKey: ['schedule-stats'],
+    queryFn: schedulesService.getScheduleStats
   });
 
   // Fetch upcoming events
   const { data: upcomingEvents, isLoading: upcomingLoading } = useQuery({
-    queryKey: ["upcoming-events"],
-    queryFn: () => schedulesService.getUpcomingSchedules(5),
+    queryKey: ['upcoming-events'],
+    queryFn: () => schedulesService.getUpcomingSchedules(5)
   });
 
   // Fetch recent events
   const { data: recentEvents, isLoading: recentLoading } = useQuery({
-    queryKey: ["recent-events"],
-    queryFn: () => schedulesService.getRecentSchedules(5),
+    queryKey: ['recent-events'],
+    queryFn: () => schedulesService.getRecentSchedules(5)
   });
 
   // Fetch game log
   const { data: gameLog, isLoading: gameLogLoading } = useQuery({
-    queryKey: ["game-log"],
-    queryFn: () => gamesService.getGameLog(10),
+    queryKey: ['game-log'],
+    queryFn: () => gamesService.getGameLog(10)
   });
 
   // Fetch team game statistics
   const { data: teamGameStats, isLoading: gameStatsLoading } = useQuery({
-    queryKey: ["team-game-stats"],
-    queryFn: gamesService.getTeamGameStats,
+    queryKey: ['team-game-stats'],
+    queryFn: gamesService.getTeamGameStats
   });
 
   const getGameResultIcon = (result) => {
     switch (result?.toLowerCase()) {
-      case "w":
-      case "win":
+      case 'w':
+      case 'win':
         return <CheckCircle className="w-4 h-4 text-success" />;
-      case "l":
-      case "loss":
+      case 'l':
+      case 'loss':
         return <XCircle className="w-4 h-4 text-error" />;
-      case "t":
-      case "tie":
+      case 't':
+      case 'tie':
         return <Minus className="w-4 h-4 text-warning" />;
       default:
         return <Play className="w-4 h-4 text-info" />;
@@ -75,33 +75,33 @@ const TeamStatistics = () => {
 
   const getGameResultColor = (result) => {
     switch (result?.toLowerCase()) {
-      case "w":
-      case "win":
-        return "text-success";
-      case "l":
-      case "loss":
-        return "text-error";
-      case "t":
-      case "tie":
-        return "text-warning";
+      case 'w':
+      case 'win':
+        return 'text-success';
+      case 'l':
+      case 'loss':
+        return 'text-error';
+      case 't':
+      case 'tie':
+        return 'text-warning';
       default:
-        return "text-info";
+        return 'text-info';
     }
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
   const formatTime = (timeString) => {
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
+    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
   };
 
@@ -125,20 +125,20 @@ const TeamStatistics = () => {
       <div className="flex justify-end items-center">
         <div className="tabs tabs-boxed bg-base-300/30 p-1 border border-ui-border">
           <button
-            className={`tab tab-sm ${activeTab === "overview" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("overview")}
+            className={`tab tab-sm ${activeTab === 'overview' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('overview')}
           >
             Overview
           </button>
           <button
-            className={`tab tab-sm ${activeTab === "performance" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("performance")}
+            className={`tab tab-sm ${activeTab === 'performance' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('performance')}
           >
             Performance
           </button>
           <button
-            className={`tab tab-sm ${activeTab === "roster" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("roster")}
+            className={`tab tab-sm ${activeTab === 'roster' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('roster')}
           >
             Roster
           </button>
@@ -146,7 +146,7 @@ const TeamStatistics = () => {
       </div>
 
       {/* Overview Tab */}
-      {activeTab === "overview" && (
+      {activeTab === 'overview' && (
         <div className="space-y-6">
           {/* Team Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -160,7 +160,7 @@ const TeamStatistics = () => {
                     <p className="text-3xl font-black text-white mt-1">
                       {teamGameStats?.winRate
                         ? `${(teamGameStats.winRate * 100).toFixed(1)}%`
-                        : "N/A"}
+                        : 'N/A'}
                     </p>
                   </div>
                   <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
@@ -188,7 +188,7 @@ const TeamStatistics = () => {
                     <p className="text-3xl font-black text-white mt-1">
                       {teamGameStats?.era
                         ? teamGameStats.era.toFixed(2)
-                        : "N/A"}
+                        : 'N/A'}
                     </p>
                   </div>
                   <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
@@ -211,7 +211,7 @@ const TeamStatistics = () => {
                     <p className="text-3xl font-black text-white mt-1">
                       {teamGameStats?.battingAvg
                         ? teamGameStats.battingAvg.toFixed(3)
-                        : "N/A"}
+                        : 'N/A'}
                     </p>
                   </div>
                   <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
@@ -269,7 +269,7 @@ const TeamStatistics = () => {
                           </div>
                           <div>
                             <p className="font-bold text-sm">
-                              {event.opponent || "Opponent"}
+                              {event.opponent || 'Opponent'}
                             </p>
                             <p className="text-xs text-ui-muted">
                               {formatDate(event.date)}
@@ -315,12 +315,12 @@ const TeamStatistics = () => {
                           </div>
                           <div>
                             <p className="font-bold text-sm">
-                              {event.opponent || "Opponent"}
+                              {event.opponent || 'Opponent'}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-ui-muted">
                                 <MapPin className="w-3 h-3" />
-                                {event.location || "TBD"}
+                                {event.location || 'TBD'}
                               </span>
                             </div>
                           </div>
@@ -331,7 +331,7 @@ const TeamStatistics = () => {
                           </p>
                           <div className="flex items-center justify-end gap-1 mt-0.5 text-xs text-ui-muted">
                             <Clock className="w-3 h-3" />
-                            {event.time ? formatTime(event.time) : "TBD"}
+                            {event.time ? formatTime(event.time) : 'TBD'}
                           </div>
                         </div>
                       </div>
@@ -350,7 +350,7 @@ const TeamStatistics = () => {
       )}
 
       {/* Placeholder for other tabs */}
-      {activeTab === "performance" && (
+      {activeTab === 'performance' && (
         <div className="card p-12 text-center opacity-50">
           <Activity className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="text-lg font-bold">Detailed Performance Metrics</p>
@@ -358,7 +358,7 @@ const TeamStatistics = () => {
         </div>
       )}
 
-      {activeTab === "roster" && (
+      {activeTab === 'roster' && (
         <div className="card p-12 text-center opacity-50">
           <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p className="text-lg font-bold">Roster Management</p>

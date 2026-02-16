@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   User,
   MapPin,
@@ -14,38 +14,38 @@ import {
   ChevronRight,
   ExternalLink,
   Star,
-  Info,
-} from "lucide-react";
-import { prospectsService } from "../services/prospects";
-import toast from "react-hot-toast";
+  Info
+} from 'lucide-react';
+import { prospectsService } from '../services/prospects';
+import toast from 'react-hot-toast';
 
 export default function ProspectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
 
   const {
     data: prospectResponse,
     isLoading,
-    error,
+    error
   } = useQuery({
-    queryKey: ["prospect", id],
+    queryKey: ['prospect', id],
     queryFn: () => prospectsService.getProspect(id),
-    enabled: !!id,
+    enabled: !!id
   });
 
   const { data: reportsResponse } = useQuery({
-    queryKey: ["prospect-reports", id],
+    queryKey: ['prospect-reports', id],
     queryFn: () => prospectsService.getScoutingReports(id),
-    enabled: !!id,
+    enabled: !!id
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => prospectsService.deleteProspect(id),
     onSuccess: () => {
-      toast.success("Prospect deleted");
-      navigate("/recruiting");
-    },
+      toast.success('Prospect deleted');
+      navigate('/recruiting');
+    }
   });
 
   if (isLoading)
@@ -111,7 +111,7 @@ export default function ProspectDetail() {
                 <button
                   onClick={() => {
                     if (
-                      confirm("Are you sure you want to delete this prospect?")
+                      confirm('Are you sure you want to delete this prospect?')
                     )
                       deleteMutation.mutate();
                   }}
@@ -128,7 +128,7 @@ export default function ProspectDetail() {
                   Fastball Vel
                 </p>
                 <p className="text-lg font-bold">
-                  {prospect.fastball_velocity || "N/A"} MPH
+                  {prospect.fastball_velocity || 'N/A'} MPH
                 </p>
               </div>
               <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
@@ -136,7 +136,7 @@ export default function ProspectDetail() {
                   Exit Vel
                 </p>
                 <p className="text-lg font-bold">
-                  {prospect.exit_velocity || "N/A"} MPH
+                  {prospect.exit_velocity || 'N/A'} MPH
                 </p>
               </div>
               <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
@@ -144,14 +144,14 @@ export default function ProspectDetail() {
                   60yd Dash
                 </p>
                 <p className="text-lg font-bold">
-                  {prospect.sixty_yard_dash || "N/A"}s
+                  {prospect.sixty_yard_dash || 'N/A'}s
                 </p>
               </div>
               <div className="bg-base-100/50 p-3 rounded-xl border border-primary/10">
                 <p className="text-[10px] uppercase font-bold opacity-50 tracking-wider">
                   GPA
                 </p>
-                <p className="text-lg font-bold">{prospect.gpa || "N/A"}</p>
+                <p className="text-lg font-bold">{prospect.gpa || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -163,26 +163,26 @@ export default function ProspectDetail() {
         <div className="flex-1 space-y-6">
           <div className="tabs tabs-boxed bg-base-200/50 p-1 w-fit">
             <button
-              className={`tab tab-md ${activeTab === "overview" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("overview")}
+              className={`tab tab-md ${activeTab === 'overview' ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab('overview')}
             >
               Overview
             </button>
             <button
-              className={`tab tab-md ${activeTab === "scouting" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("scouting")}
+              className={`tab tab-md ${activeTab === 'scouting' ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab('scouting')}
             >
               Scouting Reports ({reports.length})
             </button>
             <button
-              className={`tab tab-md ${activeTab === "media" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("media")}
+              className={`tab tab-md ${activeTab === 'media' ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab('media')}
             >
               Media & Video
             </button>
           </div>
 
-          {activeTab === "overview" && (
+          {activeTab === 'overview' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="card bg-base-100 shadow-sm border border-base-200">
                 <div className="card-body">
@@ -212,8 +212,8 @@ export default function ProspectDetail() {
                     <div className="flex justify-between border-b border-base-200 pb-2">
                       <span className="opacity-60">SAT / ACT</span>
                       <span className="font-medium">
-                        {prospect.sat_score || "-"} /{" "}
-                        {prospect.act_score || "-"}
+                        {prospect.sat_score || '-'} /{' '}
+                        {prospect.act_score || '-'}
                       </span>
                     </div>
                   </div>
@@ -234,7 +234,7 @@ export default function ProspectDetail() {
                       <div>
                         <p className="text-xs opacity-50">Email Address</p>
                         <p className="font-medium">
-                          {prospect.email || "Not provided"}
+                          {prospect.email || 'Not provided'}
                         </p>
                       </div>
                     </div>
@@ -245,7 +245,7 @@ export default function ProspectDetail() {
                       <div>
                         <p className="text-xs opacity-50">Phone Number</p>
                         <p className="font-medium">
-                          {prospect.phone || "Not provided"}
+                          {prospect.phone || 'Not provided'}
                         </p>
                       </div>
                     </div>
@@ -267,17 +267,17 @@ export default function ProspectDetail() {
             </div>
           )}
 
-          {activeTab === "scouting" && (
+          {activeTab === 'scouting' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold">Scouting History</h3>
                 <button
                   onClick={() =>
-                    navigate("/scouting/create", {
+                    navigate('/scouting/create', {
                       state: {
                         prospect_id: id,
-                        prospect_name: `${prospect.first_name} ${prospect.last_name}`,
-                      },
+                        prospect_name: `${prospect.first_name} ${prospect.last_name}`
+                      }
                     })
                   }
                   className="btn btn-primary btn-sm"
@@ -304,7 +304,7 @@ export default function ProspectDetail() {
                           <div className="flex items-center gap-2">
                             <h4 className="font-bold text-lg">
                               {new Date(
-                                report.report_date,
+                                report.report_date
                               ).toLocaleDateString()}
                             </h4>
                             <span className="badge badge-sm badge-ghost uppercase">
@@ -312,7 +312,7 @@ export default function ProspectDetail() {
                             </span>
                           </div>
                           <p className="text-sm opacity-60">
-                            by {report.Creator?.first_name}{" "}
+                            by {report.Creator?.first_name}{' '}
                             {report.Creator?.last_name}
                           </p>
                         </div>
@@ -356,7 +356,7 @@ export default function ProspectDetail() {
             </div>
           )}
 
-          {activeTab === "media" && (
+          {activeTab === 'media' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold">Media Library</h3>
@@ -402,7 +402,7 @@ export default function ProspectDetail() {
                       className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden"
                     >
                       <div className="aspect-video bg-base-200 flex items-center justify-center">
-                        {m.media_type === "video" ? (
+                        {m.media_type === 'video' ? (
                           <Video className="w-8 h-8 opacity-20" />
                         ) : (
                           <FileText className="w-8 h-8 opacity-20" />
@@ -410,7 +410,7 @@ export default function ProspectDetail() {
                       </div>
                       <div className="p-3">
                         <p className="font-bold text-sm truncate">
-                          {m.title || "Untitled Media"}
+                          {m.title || 'Untitled Media'}
                         </p>
                         <p className="text-[10px] opacity-50 uppercase">
                           {m.media_type}
@@ -433,32 +433,32 @@ export default function ProspectDetail() {
               </h3>
               <ul className="steps steps-vertical -ml-4">
                 <li
-                  className={`step ${["identified", "evaluating", "contacted", "visiting", "offered", "committed", "signed"].includes(prospect.status) ? "step-primary" : ""}`}
+                  className={`step ${['identified', 'evaluating', 'contacted', 'visiting', 'offered', 'committed', 'signed'].includes(prospect.status) ? 'step-primary' : ''}`}
                 >
                   Identified
                 </li>
                 <li
-                  className={`step ${["evaluating", "contacted", "visiting", "offered", "committed", "signed"].includes(prospect.status) ? "step-primary" : ""}`}
+                  className={`step ${['evaluating', 'contacted', 'visiting', 'offered', 'committed', 'signed'].includes(prospect.status) ? 'step-primary' : ''}`}
                 >
                   Evaluating
                 </li>
                 <li
-                  className={`step ${["contacted", "visiting", "offered", "committed", "signed"].includes(prospect.status) ? "step-primary" : ""}`}
+                  className={`step ${['contacted', 'visiting', 'offered', 'committed', 'signed'].includes(prospect.status) ? 'step-primary' : ''}`}
                 >
                   Contacted
                 </li>
                 <li
-                  className={`step ${["visiting", "offered", "committed", "signed"].includes(prospect.status) ? "step-primary" : ""}`}
+                  className={`step ${['visiting', 'offered', 'committed', 'signed'].includes(prospect.status) ? 'step-primary' : ''}`}
                 >
                   Visiting
                 </li>
                 <li
-                  className={`step ${["offered", "committed", "signed"].includes(prospect.status) ? "step-primary" : ""}`}
+                  className={`step ${['offered', 'committed', 'signed'].includes(prospect.status) ? 'step-primary' : ''}`}
                 >
                   Offered
                 </li>
                 <li
-                  className={`step ${["committed", "signed"].includes(prospect.status) ? "step-primary" : ""}`}
+                  className={`step ${['committed', 'signed'].includes(prospect.status) ? 'step-primary' : ''}`}
                 >
                   Committed
                 </li>
@@ -474,7 +474,7 @@ export default function ProspectDetail() {
               </h3>
               <p className="text-sm italic opacity-80 mt-2">
                 {prospect.notes ||
-                  "No general notes recorded for this prospect."}
+                  'No general notes recorded for this prospect.'}
               </p>
               <div className="flex items-center gap-2 mt-4 pt-4 border-t border-primary/10">
                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold">

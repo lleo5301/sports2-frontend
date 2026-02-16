@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { playersService } from "../services/players";
-import { reportsService } from "../services/reports";
-import toast from "react-hot-toast";
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { playersService } from '../services/players';
+import { reportsService } from '../services/reports';
+import toast from 'react-hot-toast';
 import {
   Search,
   Filter,
@@ -17,8 +17,8 @@ import {
   Edit3,
   ChevronLeft,
   ChevronRight,
-  MoreVertical,
-} from "lucide-react";
+  MoreVertical
+} from 'lucide-react';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -30,20 +30,20 @@ const Players = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [reportsLoading, setReportsLoading] = useState(false);
   const [filters, setFilters] = useState({
-    search: "",
-    position: "",
-    status: "",
-    school_type: "",
+    search: '',
+    position: '',
+    status: '',
+    school_type: ''
   });
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
     total: 0,
-    pages: 0,
+    pages: 0
   });
   const [selectedIds, setSelectedIds] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [density, setDensity] = useState("normal"); // 'compact', 'normal', 'comfortable'
+  const [density, setDensity] = useState('normal'); // 'compact', 'normal', 'comfortable'
   const [showColumnSettings, setShowColumnSettings] = useState(false);
 
   const queryClient = useQueryClient();
@@ -53,12 +53,12 @@ const Players = () => {
       setLoading(true);
       const params = {
         page: pagination.page,
-        limit: pagination.limit,
+        limit: pagination.limit
       };
 
       // Only add non-empty filter values
       Object.entries(filters).forEach(([key, value]) => {
-        if (value && value.trim() !== "") {
+        if (value && value.trim() !== '') {
           params[key] = value;
         }
       });
@@ -68,11 +68,11 @@ const Players = () => {
       setPagination((prev) => ({
         ...prev,
         total: response.pagination?.total || 0,
-        pages: response.pagination?.pages || 0,
+        pages: response.pagination?.pages || 0
       }));
     } catch (err) {
       // console.error('Error fetching players:', err);
-      setError("Failed to load players");
+      setError('Failed to load players');
     } finally {
       setLoading(false);
     }
@@ -84,16 +84,16 @@ const Players = () => {
     onSuccess: (data) => {
       const count = data.data?.deletedCount || selectedIds.length;
       toast.success(
-        `Successfully deleted ${count} player${count !== 1 ? "s" : ""}!`,
+        `Successfully deleted ${count} player${count !== 1 ? 's' : ''}!`
       );
-      queryClient.invalidateQueries(["players"]);
+      queryClient.invalidateQueries(['players']);
       setSelectedIds([]);
       setShowDeleteConfirm(false);
       fetchPlayers();
     },
     onError: (error) => {
-      toast.error(error.response?.data?.error || "Failed to delete players");
-    },
+      toast.error(error.response?.data?.error || 'Failed to delete players');
+    }
   });
 
   useEffect(() => {
@@ -137,7 +137,7 @@ const Players = () => {
     try {
       setReportsLoading(true);
       const response = await reportsService.getScoutingReports({
-        player_id: playerId,
+        player_id: playerId
       });
 
       if (response.success) {
@@ -170,7 +170,7 @@ const Players = () => {
   };
 
   const formatReportDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
@@ -225,7 +225,7 @@ const Players = () => {
               )}
               <button
                 className="btn btn-primary btn-sm h-11 px-6 rounded-xl shadow-lg shadow-primary/20"
-                onClick={() => navigate("/players/create")}
+                onClick={() => navigate('/players/create')}
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add Player
@@ -266,7 +266,7 @@ const Players = () => {
                   placeholder="Search players..."
                   className="input input-bordered"
                   value={filters.search}
-                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
               </div>
 
@@ -278,7 +278,7 @@ const Players = () => {
                   className="select select-bordered"
                   value={filters.position}
                   onChange={(e) =>
-                    handleFilterChange("position", e.target.value)
+                    handleFilterChange('position', e.target.value)
                   }
                 >
                   <option value="">All Positions</option>
@@ -303,7 +303,7 @@ const Players = () => {
                 <select
                   className="select select-bordered"
                   value={filters.status}
-                  onChange={(e) => handleFilterChange("status", e.target.value)}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
                 >
                   <option value="">All Status</option>
                   <option value="active">Active</option>
@@ -321,7 +321,7 @@ const Players = () => {
                   className="select select-bordered"
                   value={filters.school_type}
                   onChange={(e) =>
-                    handleFilterChange("school_type", e.target.value)
+                    handleFilterChange('school_type', e.target.value)
                   }
                 >
                   <option value="">All Types</option>
@@ -345,12 +345,12 @@ const Players = () => {
                   placeholder="Search players by name, school..."
                   className="input input-bordered w-full pl-12 h-11 bg-base-100 border-ui-border focus:border-primary/50 rounded-xl"
                   value={filters.search}
-                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10 transition-all ${filters.position || filters.status || filters.school_type ? "border-primary text-primary" : ""}`}
+                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10 transition-all ${filters.position || filters.status || filters.school_type ? 'border-primary text-primary' : ''}`}
                   onClick={() => {
                     /* Toggle filters panel if we had one */
                   }}
@@ -364,15 +364,15 @@ const Players = () => {
             <div className="flex items-center gap-2">
               <div className="join bg-base-100 rounded-xl border border-ui-border overflow-hidden">
                 <button
-                  className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === "compact" ? "bg-primary/20 text-primary" : "bg-transparent"}`}
-                  onClick={() => setDensity("compact")}
+                  className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === 'compact' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
+                  onClick={() => setDensity('compact')}
                   title="Compact View"
                 >
                   <Minimize2 className="w-4 h-4" />
                 </button>
                 <button
-                  className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === "normal" ? "bg-primary/20 text-primary" : "bg-transparent"}`}
-                  onClick={() => setDensity("normal")}
+                  className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === 'normal' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
+                  onClick={() => setDensity('normal')}
                   title="Normal View"
                 >
                   <Maximize2 className="w-4 h-4" />
@@ -381,7 +381,7 @@ const Players = () => {
 
               <div className="relative">
                 <button
-                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10 ${showColumnSettings ? "text-primary" : ""}`}
+                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-base-100 hover:bg-primary/10 ${showColumnSettings ? 'text-primary' : ''}`}
                   onClick={() => setShowColumnSettings(!showColumnSettings)}
                 >
                   <Columns className="w-4 h-4 mr-2" />
@@ -394,7 +394,7 @@ const Players = () => {
                       Visible Columns
                     </h4>
                     <div className="space-y-2">
-                      {["Name", "Position", "School", "Location", "Status"].map(
+                      {['Name', 'Position', 'School', 'Location', 'Status'].map(
                         (col) => (
                           <label
                             key={col}
@@ -407,7 +407,7 @@ const Players = () => {
                               defaultChecked
                             />
                           </label>
-                        ),
+                        )
                       )}
                     </div>
                   </div>
@@ -423,7 +423,7 @@ const Players = () => {
           {/* New Modern Table */}
           <div className="table-container">
             <table
-              className={`table-modern ${density === "compact" ? "table-compact" : density === "comfortable" ? "table-comfortable" : ""}`}
+              className={`table-modern ${density === 'compact' ? 'table-compact' : density === 'comfortable' ? 'table-comfortable' : ''}`}
             >
               <thead>
                 <tr>
@@ -459,15 +459,15 @@ const Players = () => {
                       <td className="font-bold text-ui-primary">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
-                            {player.first_name?.[0] || "?"}
-                            {player.last_name?.[0] || "?"}
+                            {player.first_name?.[0] || '?'}
+                            {player.last_name?.[0] || '?'}
                           </div>
                           <div>
                             <p>
                               {player.first_name} {player.last_name}
                             </p>
                             <p className="text-[10px] text-ui-secondary opacity-50 uppercase font-black tracking-tighter">
-                              ID: #{player.id?.toString().slice(0, 8) || "N/A"}
+                              ID: #{player.id?.toString().slice(0, 8) || 'N/A'}
                             </p>
                           </div>
                         </div>
@@ -484,13 +484,13 @@ const Players = () => {
                       <td>
                         <div
                           className={`badge h-6 text-[10px] font-black uppercase tracking-widest ${
-                            player.status === "active"
-                              ? "bg-success/20 text-success border-success/30"
-                              : player.status === "inactive"
-                                ? "bg-base-100 text-ui-secondary border-ui-border"
-                                : player.status === "graduated"
-                                  ? "bg-info/20 text-info border-info/30"
-                                  : "bg-warning/20 text-warning border-warning/30"
+                            player.status === 'active'
+                              ? 'bg-success/20 text-success border-success/30'
+                              : player.status === 'inactive'
+                                ? 'bg-base-100 text-ui-secondary border-ui-border'
+                                : player.status === 'graduated'
+                                  ? 'bg-info/20 text-info border-info/30'
+                                  : 'bg-warning/20 text-warning border-warning/30'
                           }`}
                         >
                           {player.status}
@@ -563,18 +563,18 @@ const Players = () => {
           {/* Pagination Modern */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4">
             <p className="text-xs font-medium text-ui-secondary opacity-60">
-              Showing{" "}
+              Showing{' '}
               <span className="text-ui-primary font-bold">
                 {(pagination.page - 1) * pagination.limit + 1}
-              </span>{" "}
-              to{" "}
+              </span>{' '}
+              to{' '}
               <span className="text-ui-primary font-bold">
                 {Math.min(pagination.page * pagination.limit, pagination.total)}
-              </span>{" "}
-              of{" "}
+              </span>{' '}
+              of{' '}
               <span className="text-ui-primary font-bold">
                 {pagination.total}
-              </span>{" "}
+              </span>{' '}
               players
             </p>
 
@@ -594,13 +594,13 @@ const Players = () => {
                     return (
                       <button
                         key={pageNum}
-                        className={`join-item btn btn-sm h-10 px-4 border-0 ${pagination.page === pageNum ? "bg-primary text-primary-content shadow-lg shadow-primary/30" : "bg-transparent hover:bg-primary/10"}`}
+                        className={`join-item btn btn-sm h-10 px-4 border-0 ${pagination.page === pageNum ? 'bg-primary text-primary-content shadow-lg shadow-primary/30' : 'bg-transparent hover:bg-primary/10'}`}
                         onClick={() => handlePageChange(pageNum)}
                       >
                         {pageNum}
                       </button>
                     );
-                  },
+                  }
                 )}
                 <button
                   className="join-item btn btn-sm h-10 px-4 border-0 hover:bg-primary/10"
@@ -620,7 +620,7 @@ const Players = () => {
         <div className="modal modal-open">
           <div className="modal-box max-w-4xl">
             <h3 className="font-bold text-lg mb-4">
-              Quick View - {selectedPlayer.first_name}{" "}
+              Quick View - {selectedPlayer.first_name}{' '}
               {selectedPlayer.last_name}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -645,13 +645,13 @@ const Players = () => {
                   <span className="font-medium">Status:</span>
                   <span
                     className={`badge ${
-                      selectedPlayer.status === "active"
-                        ? "badge-success"
-                        : selectedPlayer.status === "inactive"
-                          ? "badge-neutral"
-                          : selectedPlayer.status === "graduated"
-                            ? "badge-info"
-                            : "badge-warning"
+                      selectedPlayer.status === 'active'
+                        ? 'badge-success'
+                        : selectedPlayer.status === 'inactive'
+                          ? 'badge-neutral'
+                          : selectedPlayer.status === 'graduated'
+                            ? 'badge-info'
+                            : 'badge-warning'
                     }`}
                   >
                     {selectedPlayer.status}
@@ -661,19 +661,19 @@ const Players = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="font-medium">Height:</span>
-                  <span>{selectedPlayer.height || "N/A"}</span>
+                  <span>{selectedPlayer.height || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Weight:</span>
                   <span>
                     {selectedPlayer.weight
                       ? `${selectedPlayer.weight} lbs`
-                      : "N/A"}
+                      : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Graduation Year:</span>
-                  <span>{selectedPlayer.graduation_year || "N/A"}</span>
+                  <span>{selectedPlayer.graduation_year || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">School Type:</span>
@@ -690,7 +690,7 @@ const Players = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 bg-base-200 rounded-lg">
                   <div className="text-2xl font-bold text-primary">
-                    {selectedPlayer.batting_avg || "N/A"}
+                    {selectedPlayer.batting_avg || 'N/A'}
                   </div>
                   <div className="text-sm text-base-content/70">
                     Batting Avg
@@ -698,19 +698,19 @@ const Players = () => {
                 </div>
                 <div className="text-center p-3 bg-base-200 rounded-lg">
                   <div className="text-2xl font-bold text-secondary">
-                    {selectedPlayer.home_runs || "0"}
+                    {selectedPlayer.home_runs || '0'}
                   </div>
                   <div className="text-sm text-base-content/70">Home Runs</div>
                 </div>
                 <div className="text-center p-3 bg-base-200 rounded-lg">
                   <div className="text-2xl font-bold text-accent">
-                    {selectedPlayer.rbi || "0"}
+                    {selectedPlayer.rbi || '0'}
                   </div>
                   <div className="text-sm text-base-content/70">RBI</div>
                 </div>
                 <div className="text-center p-3 bg-base-200 rounded-lg">
                   <div className="text-2xl font-bold text-info">
-                    {selectedPlayer.stolen_bases || "0"}
+                    {selectedPlayer.stolen_bases || '0'}
                   </div>
                   <div className="text-sm text-base-content/70">
                     Stolen Bases
@@ -837,7 +837,7 @@ const Players = () => {
         <div className="modal modal-open">
           <div className="modal-box max-w-4xl max-h-screen overflow-y-auto">
             <h3 className="font-bold text-lg mb-4">
-              Scouting Report - {selectedReport.Player?.first_name}{" "}
+              Scouting Report - {selectedReport.Player?.first_name}{' '}
               {selectedReport.Player?.last_name}
             </h3>
 
@@ -845,12 +845,12 @@ const Players = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-2">
                 <div>
-                  <strong>Report Date:</strong>{" "}
+                  <strong>Report Date:</strong>{' '}
                   {formatReportDate(selectedReport.report_date)}
                 </div>
                 {selectedReport.game_date && (
                   <div>
-                    <strong>Game Date:</strong>{" "}
+                    <strong>Game Date:</strong>{' '}
                     {formatReportDate(selectedReport.game_date)}
                   </div>
                 )}
@@ -862,7 +862,7 @@ const Players = () => {
               </div>
               <div className="space-y-2">
                 <div>
-                  <strong>Scout:</strong> {selectedReport.User?.first_name}{" "}
+                  <strong>Scout:</strong> {selectedReport.User?.first_name}{' '}
                   {selectedReport.User?.last_name}
                 </div>
                 <div>
@@ -948,7 +948,7 @@ const Players = () => {
                     )}
                     {selectedReport.plate_discipline && (
                       <div>
-                        <strong>Plate Discipline:</strong>{" "}
+                        <strong>Plate Discipline:</strong>{' '}
                         {selectedReport.plate_discipline}
                       </div>
                     )}
@@ -972,19 +972,19 @@ const Players = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                     {selectedReport.fastball_velocity && (
                       <div>
-                        <strong>Fastball Velocity:</strong>{" "}
+                        <strong>Fastball Velocity:</strong>{' '}
                         {selectedReport.fastball_velocity} mph
                       </div>
                     )}
                     {selectedReport.fastball_grade && (
                       <div>
-                        <strong>Fastball Grade:</strong>{" "}
+                        <strong>Fastball Grade:</strong>{' '}
                         {selectedReport.fastball_grade}
                       </div>
                     )}
                     {selectedReport.breaking_ball_grade && (
                       <div>
-                        <strong>Breaking Ball:</strong>{" "}
+                        <strong>Breaking Ball:</strong>{' '}
                         {selectedReport.breaking_ball_grade}
                       </div>
                     )}
@@ -1012,13 +1012,13 @@ const Players = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                     {selectedReport.arm_strength && (
                       <div>
-                        <strong>Arm Strength:</strong>{" "}
+                        <strong>Arm Strength:</strong>{' '}
                         {selectedReport.arm_strength}
                       </div>
                     )}
                     {selectedReport.arm_accuracy && (
                       <div>
-                        <strong>Arm Accuracy:</strong>{" "}
+                        <strong>Arm Accuracy:</strong>{' '}
                         {selectedReport.arm_accuracy}
                       </div>
                     )}
@@ -1042,7 +1042,7 @@ const Players = () => {
                   <h5 className="font-semibold mb-2">Speed Assessment</h5>
                   {selectedReport.home_to_first && (
                     <div className="mb-3">
-                      <strong>Home to First:</strong>{" "}
+                      <strong>Home to First:</strong>{' '}
                       {selectedReport.home_to_first} seconds
                     </div>
                   )}
@@ -1082,7 +1082,7 @@ const Players = () => {
             <h3 className="font-bold text-lg">Delete Selected Players</h3>
             <p className="py-4">
               Are you sure you want to delete {selectedIds.length} player
-              {selectedIds.length !== 1 ? "s" : ""}? This action cannot be
+              {selectedIds.length !== 1 ? 's' : ''}? This action cannot be
               undone.
             </p>
             <div className="modal-action">
@@ -1106,7 +1106,7 @@ const Players = () => {
                 ) : (
                   <>
                     Delete {selectedIds.length} Player
-                    {selectedIds.length !== 1 ? "s" : ""}
+                    {selectedIds.length !== 1 ? 's' : ''}
                   </>
                 )}
               </button>

@@ -15,7 +15,7 @@
  * @requires ./api
  */
 
-import api from "./api";
+import api from './api';
 
 /**
  * Prospect management service object containing all prospect-related API methods
@@ -39,7 +39,7 @@ export const prospectsService = {
    * @returns {Promise<Object>} Response containing array of prospect objects and metadata
    */
   getProspects: async (params = {}) => {
-    const response = await api.get("/prospects", { params });
+    const response = await api.get('/prospects', { params });
     return response.data;
   },
 
@@ -70,14 +70,14 @@ export const prospectsService = {
     // Filter out empty values
     const filteredData = Object.entries(prospectData).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
-    const response = await api.post("/prospects", filteredData);
+    const response = await api.post('/prospects', filteredData);
     return response.data;
   },
 
@@ -94,12 +94,12 @@ export const prospectsService = {
   updateProspect: async (id, prospectData) => {
     const filteredData = Object.entries(prospectData).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
     const response = await api.put(`/prospects/${id}`, filteredData);
     return response.data;
@@ -132,12 +132,12 @@ export const prospectsService = {
   uploadMedia: async (id, mediaData) => {
     const config =
       mediaData instanceof FormData
-        ? { headers: { "Content-Type": "multipart/form-data" } }
+        ? { headers: { 'Content-Type': 'multipart/form-data' } }
         : {};
     const response = await api.post(
       `/prospects/${id}/media`,
       mediaData,
-      config,
+      config
     );
     return response.data;
   },
@@ -184,8 +184,8 @@ export const prospectsService = {
   createScoutingReport: async (id, reportData) => {
     const response = await api.post(
       `/prospects/${id}/scouting-reports`,
-      reportData,
+      reportData
     );
     return response.data;
-  },
+  }
 };

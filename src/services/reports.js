@@ -34,10 +34,10 @@
  * @requires file-saver
  */
 
-import api from "./api";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import { saveAs } from "file-saver";
+import api from './api';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { saveAs } from 'file-saver';
 
 /**
  * Reports management service object containing all report-related API methods
@@ -66,7 +66,7 @@ export const reportsService = {
    * console.log('Total reports:', allReports.data.length);
    */
   getAllReports: async () => {
-    const response = await api.get("/reports");
+    const response = await api.get('/reports');
     return response.data;
   },
 
@@ -132,14 +132,14 @@ export const reportsService = {
     // Filter out empty string parameters to avoid validation errors
     const filteredData = Object.entries(reportData).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
-    const response = await api.post("/reports", filteredData);
+    const response = await api.post('/reports', filteredData);
     return response.data;
   },
 
@@ -178,12 +178,12 @@ export const reportsService = {
     // Filter out empty string parameters to avoid validation errors
     const filteredData = Object.entries(reportData).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
     const response = await api.put(`/reports/byId/${id}`, filteredData);
     return response.data;
@@ -243,8 +243,8 @@ export const reportsService = {
    * });
    */
   getPlayerPerformance: async (filters = {}) => {
-    const response = await api.get("/reports/player-performance", {
-      params: filters,
+    const response = await api.get('/reports/player-performance', {
+      params: filters
     });
     return response.data;
   },
@@ -278,8 +278,8 @@ export const reportsService = {
    * });
    */
   getTeamStatistics: async (filters = {}) => {
-    const response = await api.get("/reports/team-statistics", {
-      params: filters,
+    const response = await api.get('/reports/team-statistics', {
+      params: filters
     });
     return response.data;
   },
@@ -300,7 +300,7 @@ export const reportsService = {
    * @returns {Promise<Object>} Response containing scouting reports
    */
   getScoutingReports: async (filters = {}) => {
-    const response = await api.get("/reports/scouting", { params: filters });
+    const response = await api.get('/reports/scouting', { params: filters });
     return response.data;
   },
 
@@ -324,14 +324,14 @@ export const reportsService = {
     // Filter out empty string parameters to avoid validation errors
     const filteredData = Object.entries(reportData).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
-    const response = await api.post("/reports/scouting", filteredData);
+    const response = await api.post('/reports/scouting', filteredData);
     return response.data;
   },
 
@@ -393,12 +393,12 @@ export const reportsService = {
     // Filter out empty string parameters to avoid validation errors
     const filteredData = Object.entries(reportData).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
     const response = await api.put(`/reports/scouting/${id}`, filteredData);
     return response.data;
@@ -436,15 +436,15 @@ export const reportsService = {
    */
   generatePDF: async (reportType, data, options = {}) => {
     const response = await api.post(
-      "/reports/generate-pdf",
+      '/reports/generate-pdf',
       {
         type: reportType,
         data,
-        options,
+        options
       },
       {
-        responseType: "blob",
-      },
+        responseType: 'blob'
+      }
     );
     return response.data;
   },
@@ -481,18 +481,18 @@ export const reportsService = {
    */
   exportToExcel: async (reportType, data, options = {}) => {
     const response = await api.post(
-      "/reports/export-excel",
+      '/reports/export-excel',
       {
         type: reportType,
         data,
-        options,
+        options
       },
       {
-        responseType: "blob",
-      },
+        responseType: 'blob'
+      }
     );
     return response.data;
-  },
+  }
 };
 
 /**
@@ -554,8 +554,8 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text("Player Performance Report", pageWidth / 2, 20, {
-      align: "center",
+    doc.text('Player Performance Report', pageWidth / 2, 20, {
+      align: 'center'
     });
 
     doc.setFontSize(12);
@@ -563,28 +563,28 @@ export const pdfUtils = {
       `Generated on: ${new Date().toLocaleDateString()}`,
       pageWidth / 2,
       30,
-      { align: "center" },
+      { align: 'center' }
     );
 
     // Table data
     const tableData = data.players.map((player) => [
       `${player.first_name} ${player.last_name}`,
       player.position,
-      player.batting_avg || "N/A",
-      player.home_runs || "N/A",
-      player.rbi || "N/A",
-      player.era || "N/A",
-      player.wins || "N/A",
+      player.batting_avg || 'N/A',
+      player.home_runs || 'N/A',
+      player.rbi || 'N/A',
+      player.era || 'N/A',
+      player.wins || 'N/A'
     ]);
 
     // Create table
     doc.autoTable({
       startY: 40,
-      head: [["Player", "Position", "AVG", "HR", "RBI", "ERA", "Wins"]],
+      head: [['Player', 'Position', 'AVG', 'HR', 'RBI', 'ERA', 'Wins']],
       body: tableData,
-      theme: "grid",
+      theme: 'grid',
       headStyles: { fillColor: [59, 130, 246] },
-      styles: { fontSize: 10 },
+      styles: { fontSize: 10 }
     });
 
     return doc;
@@ -627,36 +627,36 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text("Team Statistics Summary", pageWidth / 2, 20, { align: "center" });
+    doc.text('Team Statistics Summary', pageWidth / 2, 20, { align: 'center' });
 
     doc.setFontSize(12);
-    doc.text(`Team: ${data.team_name}`, pageWidth / 2, 30, { align: "center" });
+    doc.text(`Team: ${data.team_name}`, pageWidth / 2, 30, { align: 'center' });
     doc.text(
       `Generated on: ${new Date().toLocaleDateString()}`,
       pageWidth / 2,
       40,
-      { align: "center" },
+      { align: 'center' }
     );
 
     // Team stats
     const teamStats = [
-      ["Category", "Value"],
-      ["Total Players", data.total_players || "N/A"],
-      ["Team Batting Average", data.team_batting_average || "N/A"],
-      ["Team ERA", data.team_era || "N/A"],
-      ["Wins", data.wins || "N/A"],
-      ["Losses", data.losses || "N/A"],
-      ["Win Percentage", data.win_percentage || "N/A"],
+      ['Category', 'Value'],
+      ['Total Players', data.total_players || 'N/A'],
+      ['Team Batting Average', data.team_batting_average || 'N/A'],
+      ['Team ERA', data.team_era || 'N/A'],
+      ['Wins', data.wins || 'N/A'],
+      ['Losses', data.losses || 'N/A'],
+      ['Win Percentage', data.win_percentage || 'N/A']
     ];
 
     // Create table
     doc.autoTable({
       startY: 50,
-      head: [["Category", "Value"]],
+      head: [['Category', 'Value']],
       body: teamStats.slice(1),
-      theme: "grid",
+      theme: 'grid',
       headStyles: { fillColor: [59, 130, 246] },
-      styles: { fontSize: 12 },
+      styles: { fontSize: 12 }
     });
 
     return doc;
@@ -706,8 +706,8 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text("Scouting Analysis Report", pageWidth / 2, 20, {
-      align: "center",
+    doc.text('Scouting Analysis Report', pageWidth / 2, 20, {
+      align: 'center'
     });
 
     doc.setFontSize(12);
@@ -715,7 +715,7 @@ export const pdfUtils = {
       `Generated on: ${new Date().toLocaleDateString()}`,
       pageWidth / 2,
       30,
-      { align: "center" },
+      { align: 'center' }
     );
 
     let yPosition = 40;
@@ -742,10 +742,10 @@ export const pdfUtils = {
       yPosition += 7;
 
       // Notes (truncated if too long)
-      const notes = report.overall_notes || "No notes available";
+      const notes = report.overall_notes || 'No notes available';
       const maxWidth = pageWidth - 40;
       const lines = doc.splitTextToSize(notes, maxWidth);
-      doc.text("Notes:", 20, yPosition);
+      doc.text('Notes:', 20, yPosition);
       yPosition += 5;
       doc.text(lines, 20, yPosition);
       yPosition += lines.length * 5 + 10;
@@ -788,8 +788,8 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text("Recruitment Pipeline Report", pageWidth / 2, 20, {
-      align: "center",
+    doc.text('Recruitment Pipeline Report', pageWidth / 2, 20, {
+      align: 'center'
     });
 
     doc.setFontSize(12);
@@ -797,7 +797,7 @@ export const pdfUtils = {
       `Generated on: ${new Date().toLocaleDateString()}`,
       pageWidth / 2,
       30,
-      { align: "center" },
+      { align: 'center' }
     );
 
     // Pipeline stages
@@ -805,17 +805,17 @@ export const pdfUtils = {
       stage.stage_name,
       stage.player_count,
       stage.avg_grade,
-      stage.next_action,
+      stage.next_action
     ]);
 
     // Create table
     doc.autoTable({
       startY: 40,
-      head: [["Stage", "Players", "Avg Grade", "Next Action"]],
+      head: [['Stage', 'Players', 'Avg Grade', 'Next Action']],
       body: pipelineData,
-      theme: "grid",
+      theme: 'grid',
       headStyles: { fillColor: [59, 130, 246] },
-      styles: { fontSize: 10 },
+      styles: { fontSize: 10 }
     });
 
     return doc;
@@ -868,8 +868,8 @@ export const pdfUtils = {
 
     // Header
     doc.setFontSize(20);
-    doc.text(data.title || "Custom Report", pageWidth / 2, 20, {
-      align: "center",
+    doc.text(data.title || 'Custom Report', pageWidth / 2, 20, {
+      align: 'center'
     });
 
     doc.setFontSize(12);
@@ -877,7 +877,7 @@ export const pdfUtils = {
       `Generated on: ${new Date().toLocaleDateString()}`,
       pageWidth / 2,
       30,
-      { align: "center" },
+      { align: 'center' }
     );
 
     let yPosition = 40;
@@ -893,17 +893,17 @@ export const pdfUtils = {
       doc.text(section.title, 20, yPosition);
       yPosition += 10;
 
-      if (section.type === "table" && section.data) {
+      if (section.type === 'table' && section.data) {
         doc.autoTable({
           startY: yPosition,
           head: section.headers || [],
           body: section.data,
-          theme: "grid",
+          theme: 'grid',
           headStyles: { fillColor: [59, 130, 246] },
-          styles: { fontSize: 10 },
+          styles: { fontSize: 10 }
         });
         yPosition = doc.lastAutoTable.finalY + 10;
-      } else if (section.type === "text" && section.content) {
+      } else if (section.type === 'text' && section.content) {
         doc.setFontSize(10);
         const lines = doc.splitTextToSize(section.content, pageWidth - 40);
         doc.text(lines, 20, yPosition);
@@ -935,7 +935,7 @@ export const pdfUtils = {
    * // Downloads as "my-report.pdf"
    */
   downloadPDF: (doc, filename) => {
-    const pdfBlob = doc.output("blob");
+    const pdfBlob = doc.output('blob');
     saveAs(pdfBlob, `${filename}.pdf`);
   },
 
@@ -979,19 +979,19 @@ export const pdfUtils = {
     let doc;
 
     switch (reportType) {
-      case "player-performance":
+      case 'player-performance':
         doc = pdfUtils.generatePlayerPerformancePDF(data);
         break;
-      case "team-statistics":
+      case 'team-statistics':
         doc = pdfUtils.generateTeamStatisticsPDF(data);
         break;
-      case "scouting-analysis":
+      case 'scouting-analysis':
         doc = pdfUtils.generateScoutingAnalysisPDF(data);
         break;
-      case "recruitment-pipeline":
+      case 'recruitment-pipeline':
         doc = pdfUtils.generateRecruitmentPipelinePDF(data);
         break;
-      case "custom":
+      case 'custom':
         doc = pdfUtils.generateCustomReportPDF(data);
         break;
       default:
@@ -999,7 +999,7 @@ export const pdfUtils = {
     }
 
     pdfUtils.downloadPDF(doc, filename);
-  },
+  }
 };
 
 /**
@@ -1060,20 +1060,20 @@ export const chartUtils = {
       labels: players.map((p) => `${p.first_name} ${p.last_name}`),
       datasets: [
         {
-          label: "Batting Average",
+          label: 'Batting Average',
           data: players.map((p) => p.batting_average || 0),
-          backgroundColor: "rgba(59, 130, 246, 0.5)",
-          borderColor: "rgba(59, 130, 246, 1)",
-          borderWidth: 1,
+          backgroundColor: 'rgba(59, 130, 246, 0.5)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1
         },
         {
-          label: "Home Runs",
+          label: 'Home Runs',
           data: players.map((p) => p.home_runs || 0),
-          backgroundColor: "rgba(239, 68, 68, 0.5)",
-          borderColor: "rgba(239, 68, 68, 1)",
-          borderWidth: 1,
-        },
-      ],
+          backgroundColor: 'rgba(239, 68, 68, 0.5)',
+          borderColor: 'rgba(239, 68, 68, 1)',
+          borderWidth: 1
+        }
+      ]
     };
   },
 
@@ -1110,23 +1110,23 @@ export const chartUtils = {
    */
   createTeamStatsChartData: (stats) => {
     return {
-      labels: ["Wins", "Losses", "Ties"],
+      labels: ['Wins', 'Losses', 'Ties'],
       datasets: [
         {
           data: [stats.wins || 0, stats.losses || 0, stats.ties || 0],
           backgroundColor: [
-            "rgba(34, 197, 94, 0.5)",
-            "rgba(239, 68, 68, 0.5)",
-            "rgba(156, 163, 175, 0.5)",
+            'rgba(34, 197, 94, 0.5)',
+            'rgba(239, 68, 68, 0.5)',
+            'rgba(156, 163, 175, 0.5)'
           ],
           borderColor: [
-            "rgba(34, 197, 94, 1)",
-            "rgba(239, 68, 68, 1)",
-            "rgba(156, 163, 175, 1)",
+            'rgba(34, 197, 94, 1)',
+            'rgba(239, 68, 68, 1)',
+            'rgba(156, 163, 175, 1)'
           ],
-          borderWidth: 1,
-        },
-      ],
+          borderWidth: 1
+        }
+      ]
     };
-  },
+  }
 };

@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
-import { useBranding } from "../contexts/BrandingContext";
-import { useAuth } from "../contexts/AuthContext";
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { useBranding } from '../contexts/BrandingContext';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Home,
   Users,
@@ -23,10 +23,10 @@ import {
   UserCheck,
   School,
   Eye,
-  LogOut,
-} from "lucide-react";
+  LogOut
+} from 'lucide-react';
 
-import ThemeToggle from "./ui/ThemeToggle";
+import ThemeToggle from './ui/ThemeToggle';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -43,7 +43,7 @@ const Layout = ({ children }) => {
   // Calculate if primary color is light or dark for text contrast
   const isLightColor = (hex) => {
     if (!hex) return false;
-    const c = hex.replace("#", "");
+    const c = hex.replace('#', '');
     const r = parseInt(c.substring(0, 2), 16);
     const g = parseInt(c.substring(2, 4), 16);
     const b = parseInt(c.substring(4, 6), 16);
@@ -52,79 +52,79 @@ const Layout = ({ children }) => {
   };
 
   const headerTextColor = isLightColor(primaryColor)
-    ? "text-gray-900"
-    : "text-white";
+    ? 'text-gray-900'
+    : 'text-white';
 
   const navSections = [
     {
-      title: "Overview",
-      items: [{ path: "/", label: "Dashboard", icon: Home }],
+      title: 'Overview',
+      items: [{ path: '/', label: 'Dashboard', icon: Home }]
     },
     {
-      title: "Player Management",
+      title: 'Player Management',
       items: [
-        { path: "/players", label: "Roster Players", icon: Users },
-        { path: "/performance", label: "Performance Rankings", icon: Trophy },
-        { path: "/scouting", label: "Scouting Reports", icon: Target },
-        { path: "/depth-chart", label: "Depth Chart", icon: BarChart3 },
-      ],
+        { path: '/players', label: 'Roster Players', icon: Users },
+        { path: '/performance', label: 'Performance Rankings', icon: Trophy },
+        { path: '/scouting', label: 'Scouting Reports', icon: Target },
+        { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 }
+      ]
     },
     {
-      title: "Contacts & Networks",
+      title: 'Contacts & Networks',
       items: [
-        { path: "/coaches", label: "Coaches", icon: School },
-        { path: "/scouts", label: "Scouts", icon: Eye },
-        { path: "/vendors", label: "Vendors", icon: Building2 },
+        { path: '/coaches', label: 'Coaches', icon: School },
+        { path: '/scouts', label: 'Scouts', icon: Eye },
+        { path: '/vendors', label: 'Vendors', icon: Building2 },
         {
-          path: "/high-school-coaches",
-          label: "High School Coaches",
-          icon: GraduationCap,
-        },
-      ],
+          path: '/high-school-coaches',
+          label: 'High School Coaches',
+          icon: GraduationCap
+        }
+      ]
     },
     {
-      title: "Prospect Pipelines",
+      title: 'Prospect Pipelines',
       items: [
-        { path: "/recruiting", label: "Recruiting Board", icon: UserCheck },
+        { path: '/recruiting', label: 'Recruiting Board', icon: UserCheck },
         {
-          path: "/pref-list/new-players",
-          label: "New Players",
-          icon: UserPlus,
+          path: '/pref-list/new-players',
+          label: 'New Players',
+          icon: UserPlus
         },
-        { path: "/pref-list/overall", label: "Overall Pref List", icon: Star },
+        { path: '/pref-list/overall', label: 'Overall Pref List', icon: Star },
         {
-          path: "/pref-list/high-school",
-          label: "HS Pref List",
-          icon: GraduationCap,
+          path: '/pref-list/high-school',
+          label: 'HS Pref List',
+          icon: GraduationCap
         },
         {
-          path: "/pref-list/college-portal",
-          label: "College Portal/transfers",
-          icon: ArrowRightLeft,
-        },
-      ],
+          path: '/pref-list/college-portal',
+          label: 'College Portal/transfers',
+          icon: ArrowRightLeft
+        }
+      ]
     },
     {
-      title: "Team Management",
+      title: 'Team Management',
       items: [
-        { path: "/teams", label: "Teams", icon: Building2 },
-        { path: "/team-settings", label: "Team Settings", icon: Settings },
-        { path: "/games", label: "Games", icon: Trophy },
-        { path: "/team-schedule", label: "Team Schedule", icon: Calendar },
+        { path: '/teams', label: 'Teams', icon: Building2 },
+        { path: '/team-settings', label: 'Team Settings', icon: Settings },
+        { path: '/games', label: 'Games', icon: Trophy },
+        { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
         {
-          path: "/schedule-templates",
-          label: "Schedule Templates",
-          icon: FileText,
-        },
-      ],
+          path: '/schedule-templates',
+          label: 'Schedule Templates',
+          icon: FileText
+        }
+      ]
     },
     {
-      title: "Reports & Settings",
+      title: 'Reports & Settings',
       items: [
-        { path: "/reports", label: "Reports", icon: FileText },
-        { path: "/settings", label: "Settings", icon: Settings },
-      ],
-    },
+        { path: '/reports', label: 'Reports', icon: FileText },
+        { path: '/settings', label: 'Settings', icon: Settings }
+      ]
+    }
   ];
 
   const toggleDrawer = () => {
@@ -133,12 +133,12 @@ const Layout = ({ children }) => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate('/login');
   };
 
   return (
     <div
-      className={`drawer lg:drawer-open ${isDrawerCollapsed ? "lg:drawer-collapsed" : ""}`}
+      className={`drawer lg:drawer-open ${isDrawerCollapsed ? 'lg:drawer-collapsed' : ''}`}
     >
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
 
@@ -163,7 +163,7 @@ const Layout = ({ children }) => {
           className="drawer-overlay"
         ></label>
         <aside
-          className={`min-h-full flex flex-col bg-base-200 border-r border-base-300 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isDrawerCollapsed ? "w-[72px]" : "w-72"}`}
+          className={`min-h-full flex flex-col bg-base-200 border-r border-base-300 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isDrawerCollapsed ? 'w-[72px]' : 'w-72'}`}
         >
           {/* Sidebar Header - Monolithic precision */}
           <div className="h-20 flex items-center px-6 relative overflow-hidden group">
@@ -176,10 +176,10 @@ const Layout = ({ children }) => {
                 {fullLogoUrl ? (
                   <img
                     src={fullLogoUrl}
-                    alt={programName || name || "Logo"}
+                    alt={programName || name || 'Logo'}
                     className="w-9 h-9 object-contain rounded-lg relative bg-base-300 p-1 border border-base-content/10"
                     onError={(e) => {
-                      e.target.style.display = "none";
+                      e.target.style.display = 'none';
                     }}
                   />
                 ) : (
@@ -193,7 +193,7 @@ const Layout = ({ children }) => {
               {!isDrawerCollapsed && (
                 <div className="flex flex-col min-w-0">
                   <span className="text-base-content font-bold leading-tight truncate tracking-tight">
-                    {programName || name || "The Program"}
+                    {programName || name || 'The Program'}
                   </span>
                   <span className="text-[10px] text-base-content/40 uppercase font-black tracking-[0.2em] leading-none">
                     Management
@@ -244,10 +244,10 @@ const Layout = ({ children }) => {
                             relative flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all duration-300 group
                             ${
                               isActive
-                                ? "bg-brand/10 text-brand font-semibold"
-                                : "text-base-content/60 hover:text-base-content hover:bg-base-300/50"
+                                ? 'bg-brand/10 text-brand font-semibold'
+                                : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
                             }
-                            ${isDrawerCollapsed ? "justify-center" : ""}
+                            ${isDrawerCollapsed ? 'justify-center' : ''}
                           `}
                         >
                           {/* Active Indicator Bar */}
@@ -256,7 +256,7 @@ const Layout = ({ children }) => {
                           )}
 
                           <IconComponent
-                            className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}
+                            className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}
                           />
 
                           {!isDrawerCollapsed && (
@@ -292,10 +292,10 @@ const Layout = ({ children }) => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-base-content truncate leading-none mb-1">
-                    {user.first_name || "Admin"}
+                    {user.first_name || 'Admin'}
                   </p>
                   <p className="text-[11px] text-base-content/40 truncate uppercase tracking-tighter">
-                    {user.role || "Staff Member"}
+                    {user.role || 'Staff Member'}
                   </p>
                 </div>
               </div>
@@ -305,9 +305,9 @@ const Layout = ({ children }) => {
               onClick={handleLogout}
               className={`
                 w-full flex items-center gap-4 px-4 py-3 rounded-xl text-base-content/40 hover:text-red-400 hover:bg-red-500/5 transition-all duration-300 group
-                ${isDrawerCollapsed ? "justify-center" : ""}
+                ${isDrawerCollapsed ? 'justify-center' : ''}
               `}
-              title={isDrawerCollapsed ? "Logout" : ""}
+              title={isDrawerCollapsed ? 'Logout' : ''}
             >
               <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
               {!isDrawerCollapsed && (

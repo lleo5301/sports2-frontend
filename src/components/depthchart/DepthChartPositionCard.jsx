@@ -6,8 +6,8 @@
  * components and shows an empty state when no players are assigned.
  */
 
-import { Users, UserPlus } from "lucide-react";
-import DepthChartPlayerCard from "./DepthChartPlayerCard";
+import { Users, UserPlus } from 'lucide-react';
+import DepthChartPlayerCard from './DepthChartPlayerCard';
 
 /**
  * DepthChartPositionCard - Position card wrapper for depth chart
@@ -23,7 +23,7 @@ export default function DepthChartPositionCard({
   canAssignPlayers,
   canUnassignPlayers,
   onAddPlayer,
-  onUnassignPlayer,
+  onUnassignPlayer
 }) {
   return (
     <div className="card h-full">
@@ -36,8 +36,8 @@ export default function DepthChartPositionCard({
             ></div>
             <h3 className="card-title">{position.position_name}</h3>
             <span className="ml-3 text-xs font-medium text-ui-secondary opacity-70">
-              {position.DepthChartPlayers?.length || 0} /{" "}
-              {position.max_players || "∞"}
+              {position.DepthChartPlayers?.length || 0} /{' '}
+              {position.max_players || '∞'}
             </span>
           </div>
           {canAssignPlayers && (

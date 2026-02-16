@@ -1,24 +1,24 @@
-import { useTheme } from "../../contexts/ThemeContext";
-import { Palette, Check, Sparkles, ShieldCheck, Zap } from "lucide-react";
+import { useTheme } from '../../contexts/ThemeContext';
+import { Palette, Check, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 
-const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
+const ThemeSelector = ({ isCollapsed, variant = 'sidebar' }) => {
   const { theme: currentTheme, changeTheme, availableThemes } = useTheme();
   const setTheme = (id) => changeTheme(id);
 
   const getThemeIcon = (id) => {
     switch (id) {
-      case "executive-oxford":
+      case 'executive-oxford':
         return <ShieldCheck className="w-4 h-4" />;
-      case "modern-neon":
+      case 'modern-neon':
         return <Zap className="w-4 h-4" />;
-      case "clean-slate":
+      case 'clean-slate':
         return <Palette className="w-4 h-4" />;
       default:
         return <Sparkles className="w-4 h-4" />;
     }
   };
 
-  if (variant === "settings") {
+  if (variant === 'settings') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {availableThemes.map((theme) => (
@@ -29,8 +29,8 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
               relative flex flex-col gap-3 p-5 rounded-3xl border transition-all duration-300 group
               ${
                 currentTheme === theme.id
-                  ? "bg-brand/5 border-brand/20 ring-1 ring-brand/10"
-                  : "bg-base-100 border-base-300 hover:border-brand/40 hover:bg-brand/5"
+                  ? 'bg-brand/5 border-brand/20 ring-1 ring-brand/10'
+                  : 'bg-base-100 border-base-300 hover:border-brand/40 hover:bg-brand/5'
               }
             `}
           >
@@ -38,7 +38,7 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
               <div
                 className={`
                   w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500
-                  ${currentTheme === theme.id ? "bg-brand text-primary-content shadow-lg shadow-brand/20 rotate-6" : "bg-base-200 text-base-content/40 group-hover:bg-brand/10 group-hover:text-brand"}
+                  ${currentTheme === theme.id ? 'bg-brand text-primary-content shadow-lg shadow-brand/20 rotate-6' : 'bg-base-200 text-base-content/40 group-hover:bg-brand/10 group-hover:text-brand'}
                 `}
               >
                 {getThemeIcon(theme.id)}
@@ -51,7 +51,7 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
             </div>
             <div className="text-left">
               <p
-                className={`text-base font-bold tracking-tight ${currentTheme === theme.id ? "text-brand" : "text-base-content"}`}
+                className={`text-base font-bold tracking-tight ${currentTheme === theme.id ? 'text-brand' : 'text-base-content'}`}
               >
                 {theme.name}
               </p>
@@ -63,10 +63,10 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
             {/* Theme color indicators */}
             <div className="flex gap-1.5 mt-2">
               <div
-                className={`w-3 h-3 rounded-full ${theme.id === "executive-oxford" ? "bg-[#3b82f6]" : theme.id === "modern-neon" ? "bg-[#8251ee]" : "bg-[#6366f1]"}`}
+                className={`w-3 h-3 rounded-full ${theme.id === 'executive-oxford' ? 'bg-[#3b82f6]' : theme.id === 'modern-neon' ? 'bg-[#8251ee]' : 'bg-[#6366f1]'}`}
               ></div>
               <div
-                className={`w-3 h-3 rounded-full ${theme.id === "executive-oxford" ? "bg-[#0f172a]" : "bg-[#1a1a20]"}`}
+                className={`w-3 h-3 rounded-full ${theme.id === 'executive-oxford' ? 'bg-[#0f172a]' : 'bg-[#1a1a20]'}`}
               ></div>
               <div className="w-3 h-3 rounded-full bg-base-300"></div>
             </div>
@@ -95,8 +95,8 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
                 onClick={() => setTheme(theme.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all ${
                   currentTheme === theme.id
-                    ? "bg-brand/10 text-brand"
-                    : "text-base-content/60 hover:text-base-content hover:bg-base-300/50"
+                    ? 'bg-brand/10 text-brand'
+                    : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -130,8 +130,8 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
               relative flex flex-col gap-1 p-3 rounded-2xl border transition-all duration-300 group
               ${
                 currentTheme === theme.id
-                  ? "bg-brand/5 border-brand/20 ring-1 ring-brand/10"
-                  : "bg-base-300/30 border-ui-border hover:border-ui-border-strong hover:bg-base-300/50"
+                  ? 'bg-brand/5 border-brand/20 ring-1 ring-brand/10'
+                  : 'bg-base-300/30 border-ui-border hover:border-ui-border-strong hover:bg-base-300/50'
               }
             `}
           >
@@ -140,14 +140,14 @@ const ThemeSelector = ({ isCollapsed, variant = "sidebar" }) => {
                 <div
                   className={`
                   w-8 h-8 rounded-lg flex items-center justify-center transition-colors
-                  ${currentTheme === theme.id ? "bg-brand text-primary-content" : "bg-base-300/50 text-base-content/60 group-hover:text-base-content"}
+                  ${currentTheme === theme.id ? 'bg-brand text-primary-content' : 'bg-base-300/50 text-base-content/60 group-hover:text-base-content'}
                 `}
                 >
                   {getThemeIcon(theme.id)}
                 </div>
                 <div className="text-left">
                   <p
-                    className={`text-sm font-bold leading-none ${currentTheme === theme.id ? "text-base-content" : "text-base-content/80"}`}
+                    className={`text-sm font-bold leading-none ${currentTheme === theme.id ? 'text-base-content' : 'text-base-content/80'}`}
                   >
                     {theme.name}
                   </p>

@@ -1,12 +1,12 @@
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { playersService } from "../services/players";
-import { teamsService } from "../services/teams";
-import { reportsService } from "../services/reports";
-import { useAuth } from "../contexts/AuthContext";
-import { useKeyboardClick } from "../hooks/useKeyboardClick";
-import TeamStatistics from "../components/TeamStatistics";
-import { DashboardSkeleton } from "../components/skeletons";
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { playersService } from '../services/players';
+import { teamsService } from '../services/teams';
+import { reportsService } from '../services/reports';
+import { useAuth } from '../contexts/AuthContext';
+import { useKeyboardClick } from '../hooks/useKeyboardClick';
+import TeamStatistics from '../components/TeamStatistics';
+import { DashboardSkeleton } from '../components/skeletons';
 import {
   Users,
   FileText,
@@ -15,8 +15,8 @@ import {
   Plus,
   ClipboardList,
   TrendingUp,
-  BarChart3,
-} from "lucide-react";
+  BarChart3
+} from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -26,37 +26,37 @@ const Dashboard = () => {
   const {
     data: playersResponse,
     isLoading: playersLoading,
-    error: playersError,
+    error: playersError
   } = useQuery({
-    queryKey: ["players", { limit: 5 }],
-    queryFn: () => playersService.getPlayers({ limit: 5 }),
+    queryKey: ['players', { limit: 5 }],
+    queryFn: () => playersService.getPlayers({ limit: 5 })
   });
 
   // Fetch scouting reports
   const {
     data: reportsResponse,
     isLoading: reportsLoading,
-    error: reportsError,
+    error: reportsError
   } = useQuery({
-    queryKey: ["scouting-reports", { limit: 5 }],
-    queryFn: () => reportsService.getScoutingReports({ limit: 5 }),
+    queryKey: ['scouting-reports', { limit: 5 }],
+    queryFn: () => reportsService.getScoutingReports({ limit: 5 })
   });
 
   // Fetch user's team if they have a team_id
   const {
     data: teamResponse,
     isLoading: teamLoading,
-    error: teamError,
+    error: teamError
   } = useQuery({
-    queryKey: ["team", user?.team_id],
+    queryKey: ['team', user?.team_id],
     queryFn: () => teamsService.getTeam(user.team_id),
-    enabled: !!user?.team_id,
+    enabled: !!user?.team_id
   });
 
   // Calculate stats
   const totalPlayers = playersResponse?.pagination?.total || 0;
   const activePlayers =
-    playersResponse?.data?.filter((p) => p.status === "active").length || 0;
+    playersResponse?.data?.filter((p) => p.status === 'active').length || 0;
   const totalReports = reportsResponse?.pagination?.total || 0;
   const recentReports = reportsResponse?.data?.length || 0;
 
@@ -64,7 +64,7 @@ const Dashboard = () => {
     totalPlayers,
     activePlayers,
     totalReports,
-    recentReports,
+    recentReports
   };
 
   const recentPlayers = playersResponse?.data || [];
@@ -73,10 +73,10 @@ const Dashboard = () => {
   const error = playersError || reportsError || teamError;
 
   // Quick action handlers
-  const handleAddPlayer = () => navigate("/players/create");
-  const handleCreateReport = () => navigate("/scouting/create");
-  const handleViewAnalytics = () => navigate("/reports");
-  const handleViewPerformance = () => navigate("/performance");
+  const handleAddPlayer = () => navigate('/players/create');
+  const handleCreateReport = () => navigate('/scouting/create');
+  const handleViewAnalytics = () => navigate('/reports');
+  const handleViewPerformance = () => navigate('/performance');
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -100,7 +100,7 @@ const Dashboard = () => {
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>{error.message || "Failed to load dashboard data"}</span>
+            <span>{error.message || 'Failed to load dashboard data'}</span>
           </div>
         </div>
       </div>
@@ -235,7 +235,7 @@ const Dashboard = () => {
                   Recent Players
                 </h2>
                 <button
-                  onClick={() => navigate("/players")}
+                  onClick={() => navigate('/players')}
                   className="btn btn-ghost btn-sm"
                 >
                   View all
@@ -251,7 +251,7 @@ const Dashboard = () => {
                   {recentPlayers.map((player, index) => {
                     const PlayerCard = () => {
                       const keyboardProps = useKeyboardClick(() =>
-                        navigate(`/players/${player.id}`),
+                        navigate(`/players/${player.id}`)
                       );
 
                       return (
@@ -279,7 +279,7 @@ const Dashboard = () => {
                             </div>
                           </div>
                           <div
-                            className={`badge ${player.status === "active" ? "badge-success" : "badge-outline"}`}
+                            className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}
                           >
                             {player.status}
                           </div>
@@ -308,7 +308,7 @@ const Dashboard = () => {
                   Recent Reports
                 </h2>
                 <button
-                  onClick={() => navigate("/scouting")}
+                  onClick={() => navigate('/scouting')}
                   className="btn btn-ghost btn-sm"
                 >
                   View all
@@ -322,7 +322,7 @@ const Dashboard = () => {
                   {recentReportsData.map((report) => {
                     const ReportCard = () => {
                       const keyboardProps = useKeyboardClick(() =>
-                        navigate(`/scouting/${report.id}`),
+                        navigate(`/scouting/${report.id}`)
                       );
 
                       return (
@@ -339,12 +339,12 @@ const Dashboard = () => {
                             </div>
                             <div>
                               <h3 className="font-medium">
-                                {report.Player?.first_name}{" "}
+                                {report.Player?.first_name}{' '}
                                 {report.Player?.last_name}
                               </h3>
                               <p className="text-sm text-base-content/60">
                                 {new Date(
-                                  report.created_at,
+                                  report.created_at
                                 ).toLocaleDateString()}
                               </p>
                             </div>

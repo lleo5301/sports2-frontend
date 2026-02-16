@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -12,30 +12,30 @@ import {
   Target,
   Bookmark,
   UserCheck,
-  Award,
-} from "lucide-react";
-import api from "../services/api";
-import toast from "react-hot-toast";
-import { useDebounce } from "../hooks/useDebounce";
+  Award
+} from 'lucide-react';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import { useDebounce } from '../hooks/useDebounce';
 
-const positions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "OF"];
-const schoolTypes = ["HS", "COLL"];
-const interestLevels = ["High", "Medium", "Low", "Unknown"];
+const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF'];
+const schoolTypes = ['HS', 'COLL'];
+const interestLevels = ['High', 'Medium', 'Low', 'Unknown'];
 const listTypes = [
-  "new_players",
-  "overall_pref_list",
-  "hs_pref_list",
-  "college_transfers",
+  'new_players',
+  'overall_pref_list',
+  'hs_pref_list',
+  'college_transfers'
 ];
 
 export default function RecruitingBoard() {
   const [filters, setFilters] = useState({
-    search: "",
-    page: 1,
+    search: '',
+    page: 1
   });
 
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedListType, setSelectedListType] = useState("overall_pref_list");
+  const [selectedListType, setSelectedListType] = useState('overall_pref_list');
   const queryClient = useQueryClient();
 
   // Debounce the search input to avoid excessive API calls
@@ -44,7 +44,7 @@ export default function RecruitingBoard() {
   // Create filters object with debounced search for API calls
   const queryFilters = {
     ...filters,
-    search: debouncedSearch,
+    search: debouncedSearch
   };
 
   // Fetch recruits with filters
@@ -52,43 +52,43 @@ export default function RecruitingBoard() {
     data: recruitsData,
     isLoading,
     error,
-    refetch,
+    refetch
   } = useQuery({
-    queryKey: ["recruits", queryFilters],
+    queryKey: ['recruits', queryFilters],
     queryFn: () => {
       // Filter out empty values to avoid validation errors
       const cleanParams = Object.fromEntries(
         Object.entries(queryFilters).filter(
-          ([, value]) => value !== "" && value !== null && value !== undefined,
-        ),
+          ([, value]) => value !== '' && value !== null && value !== undefined
+        )
       );
-      return api.get("/recruits", { params: cleanParams });
+      return api.get('/recruits', { params: cleanParams });
     },
     placeholderData: (previousData) => previousData,
-    staleTime: 30000,
+    staleTime: 30000
   });
 
   // Fetch preference lists
   const { data: preferenceListsData } = useQuery({
-    queryKey: ["preference-lists", selectedListType],
+    queryKey: ['preference-lists', selectedListType],
     queryFn: () =>
-      api.get("/recruits/preference-lists", {
-        params: { list_type: selectedListType },
+      api.get('/recruits/preference-lists', {
+        params: { list_type: selectedListType }
       }),
-    staleTime: 30000,
+    staleTime: 30000
   });
 
   // Add to preference list mutation
   const addToPreferenceList = useMutation({
-    mutationFn: (data) => api.post("/recruits/preference-lists", data),
+    mutationFn: (data) => api.post('/recruits/preference-lists', data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["preference-lists"] });
-      queryClient.invalidateQueries({ queryKey: ["recruits"] });
-      toast.success("Added to preference list");
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['recruits'] });
+      toast.success('Added to preference list');
     },
     onError: () => {
-      toast.error("Failed to add to preference list");
-    },
+      toast.error('Failed to add to preference list');
+    }
   });
 
   // Update preference list mutation
@@ -96,19 +96,19 @@ export default function RecruitingBoard() {
     mutationFn: ({ id, data }) =>
       api.put(`/recruits/preference-lists/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["preference-lists"] });
-      toast.success("Preference list updated");
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] });
+      toast.success('Preference list updated');
     },
     onError: () => {
-      toast.error("Failed to update preference list");
-    },
+      toast.error('Failed to update preference list');
+    }
   });
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => {
       const newFilters = { ...prev, page: 1 };
 
-      if (value && value !== "") {
+      if (value && value !== '') {
         newFilters[key] = value;
       } else {
         delete newFilters[key];
@@ -125,7 +125,7 @@ export default function RecruitingBoard() {
   const handleUpdateInterestLevel = (preferenceId, interestLevel) => {
     updatePreferenceList.mutate({
       id: preferenceId,
-      data: { interest_level: interestLevel },
+      data: { interest_level: interestLevel }
     });
   };
 
@@ -149,7 +149,7 @@ export default function RecruitingBoard() {
   // Get recruit stats
   const totalRecruits = Array.isArray(recruits) ? recruits.length : 0;
   const highInterestRecruits = Array.isArray(preferenceLists)
-    ? preferenceLists.filter((p) => p.interest_level === "High").length
+    ? preferenceLists.filter((p) => p.interest_level === 'High').length
     : 0;
   const scheduledVisits = Array.isArray(preferenceLists)
     ? preferenceLists.filter((p) => p.visit_scheduled).length
@@ -247,12 +247,12 @@ export default function RecruitingBoard() {
                 onClick={() => setSelectedListType(listType)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedListType === listType
-                    ? "btn btn-primary"
-                    : "btn btn-outline"
+                    ? 'btn btn-primary'
+                    : 'btn btn-outline'
                 }`}
               >
                 {listType
-                  .replace(/_/g, " ")
+                  .replace(/_/g, ' ')
                   .replace(/\b\w/g, (l) => l.toUpperCase())}
               </button>
             ))}
@@ -272,7 +272,7 @@ export default function RecruitingBoard() {
                   placeholder="Search recruits by name, school, city, state..."
                   className="input input-bordered w-full pl-10"
                   value={filters.search}
-                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
               </div>
             </div>
@@ -295,9 +295,9 @@ export default function RecruitingBoard() {
                   </label>
                   <select
                     className="select select-bordered w-full"
-                    value={filters.school_type || ""}
+                    value={filters.school_type || ''}
                     onChange={(e) =>
-                      handleFilterChange("school_type", e.target.value)
+                      handleFilterChange('school_type', e.target.value)
                     }
                   >
                     <option value="">All Types</option>
@@ -314,9 +314,9 @@ export default function RecruitingBoard() {
                   </label>
                   <select
                     className="select select-bordered w-full"
-                    value={filters.position || ""}
+                    value={filters.position || ''}
                     onChange={(e) =>
-                      handleFilterChange("position", e.target.value)
+                      handleFilterChange('position', e.target.value)
                     }
                   >
                     <option value="">All Positions</option>
@@ -331,8 +331,8 @@ export default function RecruitingBoard() {
                   <button
                     onClick={() =>
                       setFilters({
-                        search: "",
-                        page: 1,
+                        search: '',
+                        page: 1
                       })
                     }
                     className="btn btn-secondary w-full"
@@ -396,20 +396,20 @@ export default function RecruitingBoard() {
               <p className="text-gray-500 mb-4">
                 {filters.search ||
                 Object.keys(filters).some(
-                  (key) => key !== "search" && key !== "page" && filters[key],
+                  (key) => key !== 'search' && key !== 'page' && filters[key]
                 )
-                  ? "Try adjusting your filters or search terms."
-                  : "Get started by adding your first recruit."}
+                  ? 'Try adjusting your filters or search terms.'
+                  : 'Get started by adding your first recruit.'}
               </p>
               {!filters.search &&
                 Object.keys(filters).every(
-                  (key) => key === "search" || key === "page",
+                  (key) => key === 'search' || key === 'page'
                 ) && (
-                  <Link to="/prospects/create" className="btn btn-primary">
-                    <Plus className="w-4 h-4 mr-2" />
+                <Link to="/prospects/create" className="btn btn-primary">
+                  <Plus className="w-4 h-4 mr-2" />
                     Add Recruit
-                  </Link>
-                )}
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -421,10 +421,10 @@ export default function RecruitingBoard() {
                 // Now recruits are Prospects, so they have prospect_id
                 const preference = Array.isArray(preferenceLists)
                   ? preferenceLists.find(
-                      (p) =>
-                        p.prospect_id === recruit.id ||
-                        p.player_id === recruit.id,
-                    )
+                    (p) =>
+                      p.prospect_id === recruit.id ||
+                        p.player_id === recruit.id
+                  )
                   : null;
 
                 return (
@@ -440,7 +440,7 @@ export default function RecruitingBoard() {
                             {recruit.first_name} {recruit.last_name}
                           </h3>
                           <p className="text-sm opacity-70">
-                            {recruit.primary_position || recruit.position}{" "}
+                            {recruit.primary_position || recruit.position}{' '}
                             &bull; {recruit.school_type}
                           </p>
                         </div>
@@ -459,7 +459,7 @@ export default function RecruitingBoard() {
                                   prospect_id: recruit.id,
                                   list_type: selectedListType,
                                   priority: 999,
-                                  interest_level: "Unknown",
+                                  interest_level: 'Unknown'
                                 });
                               }}
                               className="btn btn-ghost btn-sm btn-circle text-yellow-600 hover:bg-yellow-100"
@@ -483,24 +483,24 @@ export default function RecruitingBoard() {
                           <p className="text-sm opacity-70">
                             {[recruit.city, recruit.state]
                               .filter(Boolean)
-                              .join(", ")}
+                              .join(', ')}
                           </p>
                         )}
                         {recruit.graduation_year && (
                           <p className="text-sm opacity-70">
-                            <span className="font-medium">Grad Year:</span>{" "}
+                            <span className="font-medium">Grad Year:</span>{' '}
                             {recruit.graduation_year}
                           </p>
                         )}
                         {(recruit.height || recruit.weight) && (
                           <p className="text-sm opacity-70">
-                            <span className="font-medium">Size:</span>{" "}
+                            <span className="font-medium">Size:</span>{' '}
                             {[
                               recruit.height,
-                              recruit.weight && `${recruit.weight} lbs`,
+                              recruit.weight && `${recruit.weight} lbs`
                             ]
                               .filter(Boolean)
-                              .join(" \u2022 ")}
+                              .join(' \u2022 ')}
                           </p>
                         )}
                       </div>
@@ -551,11 +551,11 @@ export default function RecruitingBoard() {
                               Interest Level:
                             </span>
                             <select
-                              value={preference.interest_level || "Unknown"}
+                              value={preference.interest_level || 'Unknown'}
                               onChange={(e) =>
                                 handleUpdateInterestLevel(
                                   preference.id,
-                                  e.target.value,
+                                  e.target.value
                                 )
                               }
                               className="select select-bordered select-xs max-w-xs"
@@ -598,7 +598,7 @@ export default function RecruitingBoard() {
                                 prospect_id: recruit.id,
                                 list_type: selectedListType,
                                 priority: 999,
-                                interest_level: "Unknown",
+                                interest_level: 'Unknown'
                               });
                             }}
                             className="btn btn-outline btn-sm w-full"
@@ -636,14 +636,14 @@ export default function RecruitingBoard() {
                         onClick={() => handlePageChange(page)}
                         className={`join-item btn ${
                           page === pagination.page
-                            ? "btn-primary"
-                            : "btn-outline"
+                            ? 'btn-primary'
+                            : 'btn-outline'
                         }`}
                       >
                         {page}
                       </button>
                     );
-                  },
+                  }
                 )}
 
                 <button
@@ -659,8 +659,8 @@ export default function RecruitingBoard() {
 
           {/* Results Summary */}
           <div className="text-center text-sm opacity-70 mt-4">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
+            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+            {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
             {pagination.total} recruits
           </div>
         </>

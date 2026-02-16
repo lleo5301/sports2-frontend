@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useScoutingReports } from "../hooks/useReports";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useScoutingReports } from '../hooks/useReports';
 
 const Scouting = () => {
   const [page, setPage] = useState(1);
@@ -11,10 +11,10 @@ const Scouting = () => {
     isLoading,
     error,
     pagination,
-    stats,
+    stats
   } = useScoutingReports({
     page,
-    limit: 20,
+    limit: 20
   });
 
   const handlePageChange = (newPage) => {
@@ -22,12 +22,12 @@ const Scouting = () => {
   };
 
   const getGradeColor = (grade) => {
-    if (!grade) return "badge-neutral";
-    const gradeValue = grade.replace(/[+-]/g, "");
-    if (gradeValue === "A") return "badge-success";
-    if (gradeValue === "B") return "badge-warning";
-    if (gradeValue === "C") return "badge-info";
-    return "badge-error";
+    if (!grade) return 'badge-neutral';
+    const gradeValue = grade.replace(/[+-]/g, '');
+    if (gradeValue === 'A') return 'badge-success';
+    if (gradeValue === 'B') return 'badge-warning';
+    if (gradeValue === 'C') return 'badge-info';
+    return 'badge-error';
   };
 
   if (isLoading && scoutingReports.length === 0) {
@@ -70,7 +70,7 @@ const Scouting = () => {
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>{error?.message || "Failed to load scouting reports"}</span>
+            <span>{error?.message || 'Failed to load scouting reports'}</span>
           </div>
         )}
 
@@ -139,7 +139,7 @@ const Scouting = () => {
                       </td>
                       <td>
                         {new Date(
-                          report.report_date || report.created_at,
+                          report.report_date || report.created_at
                         ).toLocaleDateString()}
                       </td>
                       <td>
@@ -169,11 +169,11 @@ const Scouting = () => {
                       <td>
                         <div
                           className={`badge ${
-                            report.status === "completed"
-                              ? "badge-success"
-                              : report.status === "in_progress"
-                                ? "badge-warning"
-                                : "badge-neutral"
+                            report.status === 'completed'
+                              ? 'badge-success'
+                              : report.status === 'in_progress'
+                                ? 'badge-warning'
+                                : 'badge-neutral'
                           }`}
                         >
                           {report.status}
@@ -219,13 +219,13 @@ const Scouting = () => {
                       return (
                         <button
                           key={pageNum}
-                          className={`join-item btn ${pagination.page === pageNum ? "btn-active" : ""}`}
+                          className={`join-item btn ${pagination.page === pageNum ? 'btn-active' : ''}`}
                           onClick={() => handlePageChange(pageNum)}
                         >
                           {pageNum}
                         </button>
                       );
-                    },
+                    }
                   )}
                   <button
                     className="join-item btn"
@@ -240,8 +240,8 @@ const Scouting = () => {
 
             {/* Results Info */}
             <div className="text-center mt-4 text-sm text-base-content/70">
-              Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-              {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+              Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+              {Math.min(pagination.page * pagination.limit, pagination.total)}{' '}
               of {pagination.total} reports
             </div>
           </div>
