@@ -11,6 +11,7 @@ import {
   Search
 } from 'lucide-react';
 import { useDebounce } from '../hooks/useDebounce';
+import { Spinner, Chip, Button, ButtonGroup } from '@heroui/react';
 
 const PerformanceList = () => {
   const navigate = useNavigate();
@@ -120,7 +121,7 @@ const PerformanceList = () => {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -251,26 +252,6 @@ const PerformanceList = () => {
                 <span className="text-sm font-medium text-foreground/70">
                   View:
                 </span>
-                <div className="btn-group">
-                  <button
-                    className={`btn btn-sm ${selectedView === 'all' ? 'btn-active' : ''}`}
-                    onClick={() => setSelectedView('all')}
-                  >
-                    All Players
-                  </button>
-                  <button
-                    className={`btn btn-sm ${selectedView === 'batting' ? 'btn-active' : ''}`}
-                    onClick={() => setSelectedView('batting')}
-                  >
-                    Position Players
-                  </button>
-                  <button
-                    className={`btn btn-sm ${selectedView === 'pitching' ? 'btn-active' : ''}`}
-                    onClick={() => setSelectedView('pitching')}
-                  >
-                    Pitchers
-                  </button>
-                </div>
               </div>
 
               {/* Position Filter */}
@@ -436,9 +417,12 @@ const PerformanceList = () => {
                       </div>
                     </td>
                     <td>
-                      <div className="badge badge-outline border-ui-border text-[10px] font-bold uppercase tracking-wider h-6">
+                      <Chip
+                        className="border-ui-border text-[10px] font-bold uppercase tracking-wider h-6"
+                        variant="bordered"
+                      >
                         {player.position}
-                      </div>
+                      </Chip>
                     </td>
                     <td className="text-ui-secondary">
                       <div>
@@ -490,13 +474,16 @@ const PerformanceList = () => {
                     </td>
                     <td>
                       <div className="flex items-center justify-end">
-                        <button
-                          className="btn btn-square btn-ghost btn-sm text-info hover:bg-info/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                        <Button
+                          className="text-info hover:bg-info/10 opacity-0 group-hover:opacity-100 transition-opacity"
                           onClick={() => handleViewPlayer(player.id)}
                           title="View Profile"
+                          size="sm"
+                          variant="light"
+                          isIconOnly
                         >
                           <Eye className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>

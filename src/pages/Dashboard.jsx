@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Chip, Button, Tabs, Tab, Spinner } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
@@ -15,12 +17,19 @@ import {
   Plus,
   ClipboardList,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Settings,
+  Palette,
+  Shield,
+  Link2
 } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // State for tabs
+  const [activeTeamStatsTab, setActiveTeamStatsTab] = useState('overview');
 
   // Fetch players
   const {
@@ -129,17 +138,15 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-primary/10">
                   <Users className="w-6 h-6 text-primary" />
                 </div>
-                <span className="badge badge-primary badge-outline">
+                <Chip color="primary" variant="bordered">
                   Players
-                </span>
+                </Chip>
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">
                   {stats.totalPlayers}
                 </p>
-                <p className="text-sm text-foreground/60 mt-1">
-                  Total Players
-                </p>
+                <p className="text-sm text-foreground/60 mt-1">Total Players</p>
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <span className="text-success text-sm font-medium">
@@ -157,9 +164,9 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-secondary/10">
                   <FileText className="w-6 h-6 text-secondary" />
                 </div>
-                <span className="badge badge-secondary badge-outline">
+                <Chip color="secondary" variant="bordered">
                   Reports
-                </span>
+                </Chip>
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">
@@ -184,9 +191,9 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-success/10">
                   <Activity className="w-6 h-6 text-success" />
                 </div>
-                <span className="badge badge-success badge-outline">
+                <Chip color="success" variant="bordered">
                   Status
-                </span>
+                </Chip>
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">Active</p>
@@ -208,15 +215,13 @@ const Dashboard = () => {
                 <div className="p-3 rounded-xl bg-warning/10">
                   <Zap className="w-6 h-6 text-warning" />
                 </div>
-                <span className="badge badge-warning badge-outline">
+                <Chip color="warning" variant="bordered">
                   Actions
-                </span>
+                </Chip>
               </div>
               <div className="mt-4">
                 <p className="text-4xl font-bold tracking-tight">4</p>
-                <p className="text-sm text-foreground/60 mt-1">
-                  Quick Actions
-                </p>
+                <p className="text-sm text-foreground/60 mt-1">Quick Actions</p>
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <span className="text-foreground/60 text-sm font-medium">
@@ -234,12 +239,13 @@ const Dashboard = () => {
                   <Users className="w-5 h-5" />
                   Recent Players
                 </h2>
-                <button
+                <Button
                   onClick={() => navigate('/players')}
-                  className="btn btn-ghost btn-sm"
+                  size="sm"
+                  variant="light"
                 >
                   View all
-                </button>
+                </Button>
               </div>
               <p className="card-description">
                 Latest players added to your roster
@@ -278,11 +284,17 @@ const Dashboard = () => {
                               </p>
                             </div>
                           </div>
-                          <div
-                            className={`badge ${player.status === 'active' ? 'badge-success' : 'badge-outline'}`}
+                          <Chip
+                            variant={
+                              player.status === 'active' ? 'flat' : 'bordered'
+                            }
+                            color={
+                              player.status === 'active' ? 'success' : 'default'
+                            }
+                            size="sm"
                           >
                             {player.status}
-                          </div>
+                          </Chip>
                         </div>
                       );
                     };
@@ -307,12 +319,13 @@ const Dashboard = () => {
                   <FileText className="w-5 h-5" />
                   Recent Reports
                 </h2>
-                <button
+                <Button
                   onClick={() => navigate('/scouting')}
-                  className="btn btn-ghost btn-sm"
+                  size="sm"
+                  variant="light"
                 >
                   View all
-                </button>
+                </Button>
               </div>
               <p className="card-description">Latest scouting reports</p>
             </div>
@@ -349,9 +362,9 @@ const Dashboard = () => {
                               </p>
                             </div>
                           </div>
-                          <div className="badge badge-primary font-semibold">
+                          <Chip className="font-semibold" color="primary">
                             {report.overall_grade}
-                          </div>
+                          </Chip>
                         </div>
                       );
                     };
@@ -380,9 +393,10 @@ const Dashboard = () => {
           </div>
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
+              <Button
+                className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleAddPlayer}
+                size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
                   <Plus className="w-5 h-5" />
@@ -393,11 +407,12 @@ const Dashboard = () => {
                     Create new roster entry
                   </div>
                 </div>
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
+              <Button
+                className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleCreateReport}
+                size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
                   <ClipboardList className="w-5 h-5" />
@@ -406,11 +421,12 @@ const Dashboard = () => {
                   <div className="font-semibold">Create Report</div>
                   <div className="text-xs opacity-60">New scouting report</div>
                 </div>
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
+              <Button
+                className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleViewPerformance}
+                size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
                   <TrendingUp className="w-5 h-5" />
@@ -419,11 +435,12 @@ const Dashboard = () => {
                   <div className="font-semibold">Performance</div>
                   <div className="text-xs opacity-60">View team metrics</div>
                 </div>
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-lg justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
+              <Button
+                className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
                 onClick={handleViewAnalytics}
+                size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
                   <BarChart3 className="w-5 h-5" />
@@ -432,7 +449,7 @@ const Dashboard = () => {
                   <div className="font-semibold">Analytics</div>
                   <div className="text-xs opacity-60">Detailed insights</div>
                 </div>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -450,7 +467,37 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="card-content p-8">
-              <TeamStatistics team={teamResponse} />
+              <Tabs
+                selectedKey={activeTeamStatsTab}
+                onSelectionChange={setActiveTeamStatsTab}
+                variant="bordered"
+                size="sm"
+                classNames={{
+                  base: 'bg-content2/30 p-1 border border-ui-border rounded-xl',
+                  tabList: 'gap-2',
+                  cursor: 'w-full bg-primary',
+                  tab: 'max-w-fit px-4 h-8',
+                  tabContent:
+                    'group-data-[selected=true]:text-primary-foreground font-medium'
+                }}
+              >
+                <Tab key="overview" title="Overview" />
+                <Tab key="performance" title="Performance" />
+                <Tab key="roster" title="Roster" />
+              </Tabs>
+              {activeTeamStatsTab === 'overview' && (
+                <TeamStatistics team={teamResponse} />
+              )}
+              {activeTeamStatsTab === 'performance' && (
+                <div className="py-4 text-center text-foreground/60">
+                  Performance data coming soon!
+                </div>
+              )}
+              {activeTeamStatsTab === 'roster' && (
+                <div className="py-4 text-center text-foreground/60">
+                  Roster details coming soon!
+                </div>
+              )}
             </div>
           </div>
         )}

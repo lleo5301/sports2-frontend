@@ -19,6 +19,7 @@ import {
   Calendar,
   Award
 } from 'lucide-react';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const positions = [
   'Head Coach',
@@ -220,7 +221,7 @@ export default function HighSchoolCoaches() {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -241,13 +242,10 @@ export default function HighSchoolCoaches() {
                 Manage relationships with high school coaches for recruiting
               </p>
             </div>
-            <button
-              onClick={handleCreateCoach}
-              className="btn btn-primary"
-            >
+            <Button onClick={handleCreateCoach} color="primary">
               <Plus className="h-4 w-4 mr-2" />
               Add Coach
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -369,23 +367,23 @@ export default function HighSchoolCoaches() {
                             <div className="text-sm text-foreground/70">{coach.school_district}</div>
                           )}
                           {coach.conference && (
-                            <div className="text-xs badge badge-outline">{coach.conference}</div>
+                            <Chip className="text-xs" variant="bordered">{coach.conference}</Chip>
                           )}
                         </div>
                       </td>
                       <td>
-                        <div className="badge badge-outline">{coach.position}</div>
+                        <Chip variant="bordered">{coach.position}</Chip>
                       </td>
                       <td>
                         <div>
                           {coach.city && coach.state ? `${coach.city}, ${coach.state}` : coach.city || coach.state || 'N/A'}
                           {coach.school_classification && (
-                            <div className="text-xs badge badge-secondary mt-1">{coach.school_classification}</div>
+                            <Chip className="text-xs mt-1" color="secondary">{coach.school_classification}</Chip>
                           )}
                         </div>
                       </td>
                       <td>
-                        <div className="badge badge-outline">{coach.relationship_type}</div>
+                        <Chip variant="bordered">{coach.relationship_type}</Chip>
                       </td>
                       <td>
                         <div className="flex items-center">
@@ -395,18 +393,12 @@ export default function HighSchoolCoaches() {
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <button
-                            className="btn btn-sm btn-outline"
-                            onClick={() => handleEditCoach(coach)}
-                          >
+                          <Button onClick={() => handleEditCoach(coach)} size="sm" variant="bordered">
                             <Edit className="h-3 w-3" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline btn-error"
-                            onClick={() => handleDelete(coach)}
-                          >
+                          </Button>
+                          <Button onClick={() => handleDelete(coach)} color="danger" size="sm" variant="bordered">
                             <Trash2 className="h-3 w-3" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -422,13 +414,10 @@ export default function HighSchoolCoaches() {
                 <p className="text-foreground/70 mb-4">
                   Add your first high school coach contact to start building recruiting relationships.
                 </p>
-                <button
-                  onClick={handleCreateCoach}
-                  className="btn btn-primary"
-                >
+                <Button onClick={handleCreateCoach} color="primary">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Coach
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -674,27 +663,13 @@ export default function HighSchoolCoaches() {
             </form>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="button"
-              onClick={() => {
-                setShowCreateModal(false);
-                setShowEditModal(false);
-                setSelectedCoach(null);
-                resetForm();
-              }}
-              className="btn btn-outline"
-            >
+            <Button type="button" onClick={() => { setShowCreateModal(false); setShowEditModal(false); setSelectedCoach(null); resetForm(); }} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              form="high-school-coach-form"
-              disabled={createCoachMutation.isLoading || updateCoachMutation.isLoading}
-              className="btn btn-primary"
-            >
+            </Button>
+            <Button type="submit" form="high-school-coach-form" disabled={createCoachMutation.isLoading || updateCoachMutation.isLoading} color="primary">
               {createCoachMutation.isLoading || updateCoachMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   {showEditModal ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
@@ -703,7 +678,7 @@ export default function HighSchoolCoaches() {
                   {showEditModal ? 'Update Coach' : 'Create Coach'}
                 </>
               )}
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
       </div>

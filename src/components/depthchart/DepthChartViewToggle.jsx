@@ -1,3 +1,5 @@
+import { Button, ButtonGroup } from '@heroui/react';
+import React, { useState, useEffect } from 'react';
 /**
  * Depth Chart View Toggle Component
  *
@@ -19,36 +21,40 @@ export default function DepthChartViewToggle({
 }) {
   return (
     <div className="flex justify-center">
-      <div className="btn-group">
-        <button
-          className={`btn btn-sm ${chartViewMode === 'list' ? 'btn-active' : 'btn-outline'}`}
+      <ButtonGroup variant="bordered" size="sm">
+        <Button
+          color={chartViewMode === 'list' ? 'primary' : 'default'}
+          variant={chartViewMode === 'list' ? 'solid' : 'bordered'}
           onClick={() => onViewModeChange('list')}
         >
           <Layers className="h-4 w-4 mr-2" />
           List View
-        </button>
-        <button
-          className={`btn btn-sm ${chartViewMode === 'enhanced' ? 'btn-active' : 'btn-outline'}`}
+        </Button>
+        <Button
+          color={chartViewMode === 'enhanced' ? 'primary' : 'default'}
+          variant={chartViewMode === 'enhanced' ? 'solid' : 'bordered'}
           onClick={() => onViewModeChange('enhanced')}
         >
           <Users className="h-4 w-4 mr-2" />
           Pro View
-        </button>
-        <button
-          className={`btn btn-sm ${chartViewMode === 'sheet' ? 'btn-active' : 'btn-outline'}`}
+        </Button>
+        <Button
+          color={chartViewMode === 'sheet' ? 'primary' : 'default'}
+          variant={chartViewMode === 'sheet' ? 'solid' : 'bordered'}
           onClick={() => onViewModeChange('sheet')}
         >
           <Layers className="h-4 w-4 mr-2" />
           Sheet View
-        </button>
-        <button
-          className={`btn btn-sm ${chartViewMode === 'sheetv2' ? 'btn-active' : 'btn-outline'}`}
+        </Button>
+        <Button
+          color={chartViewMode === 'sheetv2' ? 'primary' : 'default'}
+          variant={chartViewMode === 'sheetv2' ? 'solid' : 'bordered'}
           onClick={() => onViewModeChange('sheetv2')}
         >
           <Layers className="h-4 w-4 mr-2" />
           Sheet View V2
-        </button>
-      </div>
+        </Button>
+      </ButtonGroup>
     </div>
   );
 }

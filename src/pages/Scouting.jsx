@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScoutingReports } from '../hooks/useReports';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const Scouting = () => {
   const [page, setPage] = useState(1);
@@ -35,7 +36,7 @@ const Scouting = () => {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -152,14 +153,14 @@ const Scouting = () => {
                             </div>
                           )}
                           {report.overall_present && (
-                            <div className="badge badge-sm badge-primary">
+                            <Chip color="primary" size="sm">
                               P: {report.overall_present}
-                            </div>
+                            </Chip>
                           )}
                           {report.overall_future && (
-                            <div className="badge badge-sm badge-secondary">
+                            <Chip color="secondary" size="sm">
                               F: {report.overall_future}
-                            </div>
+                            </Chip>
                           )}
                           {!report.overall_grade && !report.overall_present && (
                             <span className="text-foreground/50">-</span>
@@ -181,18 +182,12 @@ const Scouting = () => {
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <Link
-                            to={`/scouting/${report.id}`}
-                            className="btn btn-sm btn-outline"
-                          >
+                          <Button to={`/scouting/${report.id}`} size="sm" variant="bordered" as={Link}>
                             View
-                          </Link>
-                          <Link
-                            to={`/scouting/${report.id}/edit`}
-                            className="btn btn-sm btn-primary"
-                          >
+                          </Button>
+                          <Button to={`/scouting/${report.id}/edit`} color="primary" size="sm" as={Link}>
                             Edit
-                          </Link>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -205,13 +200,11 @@ const Scouting = () => {
             {pagination.pages > 1 && (
               <div className="flex justify-center mt-6">
                 <div className="join">
-                  <button
-                    className="join-item btn"
+                  <Button className="join-item"
                     disabled={pagination.page === 1}
-                    onClick={() => handlePageChange(pagination.page - 1)}
-                  >
+                    onClick={() => handlePageChange(pagination.page - 1)}>
                     &laquo;
-                  </button>
+                  </Button>
                   {Array.from(
                     { length: Math.min(5, pagination.pages) },
                     (_, i) => {
@@ -227,13 +220,11 @@ const Scouting = () => {
                       );
                     }
                   )}
-                  <button
-                    className="join-item btn"
+                  <Button className="join-item"
                     disabled={pagination.page === pagination.pages}
-                    onClick={() => handlePageChange(pagination.page + 1)}
-                  >
+                    onClick={() => handlePageChange(pagination.page + 1)}>
                     &raquo;
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -249,7 +240,7 @@ const Scouting = () => {
 
         {/* Add Report Button */}
         <div className="mt-8 text-center">
-          <Link to="/scouting/create" className="btn btn-primary">
+          <Button to="/scouting/create" color="primary" as={Link}>
             <svg
               className="w-5 h-5 mr-2"
               fill="none"
@@ -264,7 +255,7 @@ const Scouting = () => {
               />
             </svg>
             Create New Report
-          </Link>
+          </Button>
         </div>
       </div>
     </div>

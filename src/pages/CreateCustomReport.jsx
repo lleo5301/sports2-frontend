@@ -17,6 +17,7 @@ import {
   Settings,
   Filter
 } from 'lucide-react';
+import { Spinner, Checkbox, Button } from '@heroui/react';
 
 const CreateCustomReport = () => {
   const navigate = useNavigate();
@@ -180,13 +181,10 @@ const CreateCustomReport = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/reports')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Create Custom Report
@@ -244,24 +242,19 @@ const CreateCustomReport = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {dataSources.map((source) => (
                     <label key={source.id} className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        checked={reportData.data_sources.includes(source.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setReportData(prev => ({
-                              ...prev,
-                              data_sources: [...prev.data_sources, source.id]
-                            }));
-                          } else {
-                            setReportData(prev => ({
-                              ...prev,
-                              data_sources: prev.data_sources.filter(id => id !== source.id)
-                            }));
-                          }
-                        }}
-                      />
+                      <Checkbox isSelected={reportData.data_sources.includes(source.id)} onValueChange={(val) => {
+                        if (val) {
+                          setReportData(prev => ({
+                            ...prev,
+                            data_sources: [...prev.data_sources, source.id]
+                          }));
+                        } else {
+                          setReportData(prev => ({
+                            ...prev,
+                            data_sources: prev.data_sources.filter(id => id !== source.id)
+                          }));
+                        }
+                      }} color="primary" />
                       <div>
                         <div className="font-medium">{source.name}</div>
                         <div className="text-sm text-foreground/70">{source.description}</div>
@@ -281,14 +274,10 @@ const CreateCustomReport = () => {
                   <BarChart3 className="w-5 h-5" />
                   Report Sections
                 </h2>
-                <button
-                  type="button"
-                  onClick={addSection}
-                  className="btn btn-primary btn-sm"
-                >
+                <Button type="button" onClick={addSection} color="primary" size="sm">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Section
-                </button>
+                </Button>
               </div>
             </div>
             <div className="card-body">
@@ -304,13 +293,9 @@ const CreateCustomReport = () => {
                       <div className="card-body">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="font-semibold">Section {index + 1}</h3>
-                          <button
-                            type="button"
-                            onClick={() => removeSection(section.id)}
-                            className="btn btn-ghost btn-sm text-error"
-                          >
+                          <Button type="button" onClick={() => removeSection(section.id)} className="text-error" size="sm" variant="light">
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -466,15 +451,10 @@ const CreateCustomReport = () => {
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => generatePreviewMutation.mutate()}
-              className="btn btn-outline"
-              disabled={generatePreviewMutation.isLoading}
-            >
+            <Button type="button" onClick={() => generatePreviewMutation.mutate()} disabled={generatePreviewMutation.isLoading} variant="bordered">
               {generatePreviewMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Generating...
                 </>
               ) : (
@@ -483,22 +463,14 @@ const CreateCustomReport = () => {
                   Preview
                 </>
               )}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/reports')}
-              className="btn btn-ghost"
-            >
+            </Button>
+            <Button type="button" onClick={() => navigate('/reports')} variant="light">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={createReportMutation.isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={createReportMutation.isLoading} color="primary">
               {createReportMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Creating...
                 </>
               ) : (
@@ -507,7 +479,7 @@ const CreateCustomReport = () => {
                   Create Report
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
 
@@ -574,19 +546,13 @@ const CreateCustomReport = () => {
             </div>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              onClick={handleDownloadPDF}
-              className="btn btn-primary"
-            >
+            <Button onClick={handleDownloadPDF} color="primary">
               <Download className="w-4 h-4 mr-2" />
               Download PDF
-            </button>
-            <button
-              onClick={() => setShowPreview(false)}
-              className="btn btn-outline"
-            >
+            </Button>
+            <Button onClick={() => setShowPreview(false)} variant="bordered">
               Close
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
       </div>

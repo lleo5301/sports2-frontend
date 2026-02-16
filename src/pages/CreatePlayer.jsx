@@ -6,6 +6,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { Upload, X } from 'lucide-react';
 import api from '../services/api';
+import { Spinner, Button } from '@heroui/react';
 
 const positions = [
   'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'
@@ -321,14 +322,10 @@ export default function CreatePlayer() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="label-text">Photo Preview</span>
-                      <button
-                        type="button"
-                        onClick={removePhoto}
-                        className="btn btn-sm btn-outline btn-error"
-                      >
+                      <Button type="button" onClick={removePhoto} color="danger" size="sm" variant="bordered">
                         <X className="h-4 w-4 mr-1" />
                   Remove
-                      </button>
+                      </Button>
                     </div>
                     <img
                       className="w-full max-w-xs h-48 object-cover rounded-lg border"
@@ -498,7 +495,7 @@ export default function CreatePlayer() {
                 >
                   {isLoading ? (
                     <>
-                      <span className="loading loading-spinner loading-sm"></span>
+                      <Spinner size="sm" />
                 Creating Player...
                     </>
                   ) : (

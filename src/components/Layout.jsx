@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { Button } from '@heroui/react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useBranding } from '../contexts/BrandingContext';
@@ -146,9 +147,9 @@ const Layout = ({ children }) => {
       <div className="drawer-content flex flex-col">
         {/* Mobile menu toggle - only visible on mobile */}
         <div className="lg:hidden p-4 border-b border-divider">
-          <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
+          <Button as="label" htmlFor="my-drawer" isIconOnly variant="light">
             <Menu className="w-6 h-6" />
-          </label>
+          </Button>
         </div>
 
         {/* Page content */}

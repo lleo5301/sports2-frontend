@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 /**
  * Depth Chart Position Card Component
  *
@@ -41,17 +42,10 @@ export default function DepthChartPositionCard({
             </span>
           </div>
           {canAssignPlayers && (
-            <button
-              onClick={() => onAddPlayer(position)}
-              className="btn btn-ghost btn-sm text-brand hover:bg-brand/10"
-              disabled={
-                position.max_players &&
-                position.DepthChartPlayers?.length >= position.max_players
-              }
-            >
+            <Button onClick={() => onAddPlayer(position)} className="text-brand hover:bg-brand/10" disabled={ position.max_players && position.DepthChartPlayers?.length >= position.max_players } size="sm" variant="light">
               <UserPlus className="h-4 w-4 mr-1" />
               Add
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -77,13 +71,10 @@ export default function DepthChartPositionCard({
               No players assigned
             </p>
             {canAssignPlayers && (
-              <button
-                onClick={() => onAddPlayer(position)}
-                className="btn btn-outline btn-sm mt-4 border-ui-border hover:bg-content2/50"
-              >
+              <Button onClick={() => onAddPlayer(position)} className="mt-4 border-ui-border hover:bg-content2/50" size="sm" variant="bordered">
                 <UserPlus className="h-4 w-4 mr-1 text-brand" />
                 Assign Player
-              </button>
+              </Button>
             )}
           </div>
         )}

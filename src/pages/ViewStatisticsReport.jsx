@@ -15,6 +15,7 @@ import {
   Printer,
   PieChart
 } from 'lucide-react';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const ViewStatisticsReport = () => {
   const { id } = useParams();
@@ -32,7 +33,7 @@ const ViewStatisticsReport = () => {
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -48,13 +49,10 @@ const ViewStatisticsReport = () => {
             <p className="text-foreground/70 mb-6">
               The statistics report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-primary"
-            >
+            <Button onClick={() => navigate('/reports')} color="primary">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -81,36 +79,24 @@ const ViewStatisticsReport = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/reports')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
 
             <div className="flex space-x-2">
-              <button
-                onClick={handleDownloadPDF}
-                className="btn btn-outline btn-sm"
-              >
+              <Button onClick={handleDownloadPDF} size="sm" variant="bordered">
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button onClick={() => window.print()} size="sm" variant="bordered">
                 <Printer className="w-4 h-4 mr-2" />
                 Print
-              </button>
-              <button
-                onClick={() => navigate(`/reports/${id}/edit-content`)}
-                className="btn btn-primary btn-sm"
-              >
+              </Button>
+              <Button onClick={() => navigate(`/reports/${id}/edit-content`)} color="primary" size="sm">
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Report
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -143,7 +129,7 @@ const ViewStatisticsReport = () => {
 
             <div className="text-right">
               <div className="text-sm text-foreground/60">Report Type</div>
-              <div className="badge badge-secondary badge-lg">Statistics Report</div>
+              <Chip color="secondary" size="lg">Statistics Report</Chip>
             </div>
           </div>
         </div>
@@ -263,7 +249,7 @@ const ViewStatisticsReport = () => {
                         Compared to previous reporting period
                       </p>
                       <div className="mt-2">
-                        <div className="badge badge-info">Trend Analysis Available</div>
+                        <Chip color="primary">Trend Analysis Available</Chip>
                       </div>
                     </div>
                   )}
@@ -274,7 +260,7 @@ const ViewStatisticsReport = () => {
                         Compared to league averages
                       </p>
                       <div className="mt-2">
-                        <div className="badge badge-success">Benchmarking Available</div>
+                        <Chip color="success">Benchmarking Available</Chip>
                       </div>
                     </div>
                   )}
@@ -315,9 +301,9 @@ const ViewStatisticsReport = () => {
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {report.data_sources.map((source, index) => (
-                    <div key={index} className="badge badge-outline badge-lg">
+                    <Chip key={index} size="lg" variant="bordered">
                       {source.charAt(0).toUpperCase() + source.slice(1)}
-                    </div>
+                    </Chip>
                   ))}
                 </div>
               </div>
@@ -332,23 +318,13 @@ const ViewStatisticsReport = () => {
               Last updated: {new Date(report.updated_at).toLocaleString()}
             </div>
             <div className="flex space-x-2">
-              <button
-                onClick={() => navigator.share?.({
-                  title: report.title,
-                  text: report.description,
-                  url: window.location.href
-                })}
-                className="btn btn-ghost btn-sm"
-              >
+              <Button onClick={() => navigator.share?.({ title: report.title, text: report.description, url: window.location.href })} size="sm" variant="light">
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
-              </button>
-              <Link
-                to="/reports"
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button to="/reports" size="sm" variant="bordered" as={Link}>
                 View All Reports
-              </Link>
+              </Button>
             </div>
           </div>
         </div>

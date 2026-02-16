@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Plus, Search, Filter, Phone, Mail, School, UserCheck, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import coachService from '../services/coaches';
+import { Spinner, Checkbox, Chip, Button } from '@heroui/react';
 
 const Coaches = () => {
   const queryClient = useQueryClient();
@@ -219,12 +220,9 @@ const Coaches = () => {
       <div className="p-6">
         <div className="text-center py-12">
           <p className="text-red-600">Error loading coaches: {error.message}</p>
-          <button
-            onClick={() => refetch()}
-            className="btn btn-primary mt-4"
-          >
+          <Button onClick={() => refetch()} className="mt-4" color="primary">
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -245,23 +243,17 @@ const Coaches = () => {
         </div>
         <div className="flex gap-2">
           {selectedIds.length > 0 && (
-            <button
-              className="btn btn-error"
-              onClick={() => setShowDeleteConfirm(true)}
-            >
+            <Button onClick={() => setShowDeleteConfirm(true)} color="danger">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
               Delete Selected ({selectedIds.length})
-            </button>
+            </Button>
           )}
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
-          >
+          <Button onClick={() => setShowCreateModal(true)} color="primary">
             <Plus className="w-4 h-4 mr-2" />
             Add Coach
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -358,7 +350,7 @@ const Coaches = () => {
         <div className="card-body">
           {isLoading ? (
             <div className="text-center py-12">
-              <span className="loading loading-spinner loading-lg"></span>
+              <Spinner size="lg" />
               <p className="mt-2">Loading coaches...</p>
             </div>
           ) : coaches.length === 0 ? (
@@ -371,13 +363,10 @@ const Coaches = () => {
                   : 'Get started by adding your first coach contact.'
                 }
               </p>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn btn-primary"
-              >
+              <Button onClick={() => setShowCreateModal(true)} color="primary">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Coach
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -386,13 +375,7 @@ const Coaches = () => {
                   <tr>
                     <th>
                       <label>
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-sm"
-                          checked={isAllSelected}
-                          onChange={handleSelectAll}
-                          disabled={coaches.length === 0}
-                        />
+                        <Checkbox isSelected={isAllSelected} onChange={handleSelectAll} color="primary" size="sm" isDisabled={coaches.length === 0} />
                       </label>
                     </th>
                     <th>Name</th>
@@ -408,12 +391,7 @@ const Coaches = () => {
                     <tr key={coach.id}>
                       <td>
                         <label>
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-sm"
-                            checked={selectedIds.includes(coach.id)}
-                            onChange={() => handleSelectOne(coach.id)}
-                          />
+                          <Checkbox isSelected={selectedIds.includes(coach.id)} onChange={() => handleSelectOne(coach.id)} color="primary" size="sm" />
                         </label>
                       </td>
                       <td>
@@ -427,9 +405,9 @@ const Coaches = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="badge badge-outline">
+                        <Chip variant="bordered">
                           {coach.position}
-                        </div>
+                        </Chip>
                       </td>
                       <td>
                         <div className="space-y-1">
@@ -457,20 +435,12 @@ const Coaches = () => {
                       </td>
                       <td>
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEdit(coach)}
-                            className="btn btn-sm btn-ghost"
-                            title="Edit Coach"
-                          >
+                          <Button onClick={() => handleEdit(coach)} title="Edit Coach" size="sm" variant="light">
                             <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(coach)}
-                            className="btn btn-sm btn-ghost text-red-600"
-                            title="Delete Coach"
-                          >
+                          </Button>
+                          <Button onClick={() => handleDelete(coach)} className="text-red-600" title="Delete Coach" size="sm" variant="light">
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -637,29 +607,22 @@ const Coaches = () => {
               </div>
 
               <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn"
+                <Button type="button"
                   onClick={() => {
                     setShowCreateModal(false);
                     setShowEditModal(false);
                     setSelectedCoach(null);
                     resetForm();
-                  }}
-                >
+                  }}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={createCoachMutation.isPending || updateCoachMutation.isPending}
-                >
+                </Button>
+                <Button type="submit" disabled={createCoachMutation.isPending || updateCoachMutation.isPending} color="primary">
                   {createCoachMutation.isPending || updateCoachMutation.isPending ? (
-                    <span className="loading loading-spinner loading-sm"></span>
+                    <Spinner size="sm" />
                   ) : (
                     selectedCoach ? 'Update Coach' : 'Add Coach'
                   )}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -675,27 +638,19 @@ const Coaches = () => {
               Are you sure you want to delete {selectedIds.length} coach{selectedIds.length !== 1 ? 'es' : ''}? This action cannot be undone.
             </p>
             <div className="modal-action">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="btn btn-outline"
-                disabled={bulkDeleteMutation.isPending}
-              >
+              <Button onClick={() => setShowDeleteConfirm(false)} disabled={bulkDeleteMutation.isPending} variant="bordered">
                 Cancel
-              </button>
-              <button
-                onClick={() => bulkDeleteMutation.mutate()}
-                className="btn btn-error"
-                disabled={bulkDeleteMutation.isPending}
-              >
+              </Button>
+              <Button onClick={() => bulkDeleteMutation.mutate()} disabled={bulkDeleteMutation.isPending} color="danger">
                 {bulkDeleteMutation.isPending ? (
                   <>
-                    <div className="loading loading-spinner loading-sm"></div>
+                    <Spinner size="sm" />
                     Deleting...
                   </>
                 ) : (
                   <>Delete {selectedIds.length} Coach{selectedIds.length !== 1 ? 'es' : ''}</>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

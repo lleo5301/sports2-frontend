@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -418,30 +419,22 @@ const PrestoSportsConfig = () => {
             </div>
 
             <div className="flex gap-2 mt-4">
-              <button
-                className="btn btn-outline"
-                onClick={handleTestConnection}
-                disabled={testMutation.isPending || !username || !password}
-              >
+              <Button onClick={handleTestConnection} disabled={testMutation.isPending || !username || !password} variant="bordered">
                 {testMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Link2 className="w-4 h-4" />
                 )}
                 Test Connection
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleConfigure}
-                disabled={configureMutation.isPending || !username || !password}
-              >
+              </Button>
+              <Button onClick={handleConfigure} disabled={configureMutation.isPending || !username || !password} color="primary">
                 {configureMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <CheckCircle className="w-4 h-4" />
                 )}
                 Connect
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -503,18 +496,14 @@ const PrestoSportsConfig = () => {
             {(!prestoTeamId || !prestoSeasonId ||
               selectedTeamId !== prestoTeamId || selectedSeasonId !== prestoSeasonId) && (
               <div className="mt-4">
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={handleUpdateSettings}
-                  disabled={updateSettingsMutation.isPending || !selectedTeamId}
-                >
+                <Button onClick={handleUpdateSettings} disabled={updateSettingsMutation.isPending || !selectedTeamId} color="primary" size="sm">
                   {updateSettingsMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <CheckCircle className="w-4 h-4" />
                   )}
                   Save Settings
-                </button>
+                </Button>
               </div>
             )}
 
@@ -538,57 +527,41 @@ const PrestoSportsConfig = () => {
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <button
-                className="btn btn-outline"
-                onClick={() => syncRosterMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncRosterMutation.mutate()} disabled={isSyncing} variant="bordered">
                 {syncRosterMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Users className="w-4 h-4" />
                 )}
                 Sync Roster
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-outline"
-                onClick={() => syncScheduleMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncScheduleMutation.mutate()} disabled={isSyncing} variant="bordered">
                 {syncScheduleMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Calendar className="w-4 h-4" />
                 )}
                 Sync Schedule
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-outline"
-                onClick={() => syncStatsMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncStatsMutation.mutate()} disabled={isSyncing} variant="bordered">
                 {syncStatsMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <BarChart3 className="w-4 h-4" />
                 )}
                 Sync Stats
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-primary"
-                onClick={() => syncAllMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncAllMutation.mutate()} disabled={isSyncing} color="primary">
                 {syncAllMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Download className="w-4 h-4" />
                 )}
                 Sync All
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -604,70 +577,50 @@ const PrestoSportsConfig = () => {
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => syncPlayerDetailsMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncPlayerDetailsMutation.mutate()} disabled={isSyncing} size="sm" variant="bordered">
                 {syncPlayerDetailsMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <UserCircle className="w-4 h-4" />
                 )}
                 Player Details
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => syncPlayerPhotosMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncPlayerPhotosMutation.mutate()} disabled={isSyncing} size="sm" variant="bordered">
                 {syncPlayerPhotosMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Image className="w-4 h-4" />
                 )}
                 Player Photos
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => syncPlayerVideosMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncPlayerVideosMutation.mutate()} disabled={isSyncing} size="sm" variant="bordered">
                 {syncPlayerVideosMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Video className="w-4 h-4" />
                 )}
                 Player Videos
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => syncHistoricalStatsMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncHistoricalStatsMutation.mutate()} disabled={isSyncing} size="sm" variant="bordered">
                 {syncHistoricalStatsMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <History className="w-4 h-4" />
                 )}
                 Historical Stats
-              </button>
+              </Button>
 
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => syncPressReleasesMutation.mutate()}
-                disabled={isSyncing}
-              >
+              <Button onClick={() => syncPressReleasesMutation.mutate()} disabled={isSyncing} size="sm" variant="bordered">
                 {syncPressReleasesMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Newspaper className="w-4 h-4" />
                 )}
                 Press Releases
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -687,13 +640,9 @@ const PrestoSportsConfig = () => {
                   Sync real-time stats for games in progress.
                 </p>
               </div>
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => refetchLiveGames()}
-                disabled={liveGamesLoading}
-              >
+              <Button onClick={() => refetchLiveGames()} disabled={liveGamesLoading} size="sm" variant="light">
                 <RefreshCw className={`w-4 h-4 ${liveGamesLoading ? 'animate-spin' : ''}`} />
-              </button>
+              </Button>
             </div>
 
             {liveGamesLoading ? (
@@ -726,18 +675,14 @@ const PrestoSportsConfig = () => {
                         </p>
                       )}
                     </div>
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => syncLiveStatsMutation.mutate(game.id)}
-                      disabled={syncLiveStatsMutation.isPending}
-                    >
+                    <Button onClick={() => syncLiveStatsMutation.mutate(game.id)} disabled={syncLiveStatsMutation.isPending} color="primary" size="sm">
                       {syncLiveStatsMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <Play className="w-4 h-4" />
                       )}
                       Sync
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -760,18 +705,14 @@ const PrestoSportsConfig = () => {
             <p className="text-sm text-foreground/70 mb-4">
               Disconnect from PrestoSports. This will remove your saved credentials.
             </p>
-            <button
-              className="btn btn-error btn-outline w-fit"
-              onClick={handleDisconnect}
-              disabled={disconnectMutation.isPending}
-            >
+            <Button className="w-fit" onClick={handleDisconnect} disabled={disconnectMutation.isPending} color="danger" variant="bordered">
               {disconnectMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Unlink className="w-4 h-4" />
               )}
               Disconnect PrestoSports
-            </button>
+            </Button>
           </div>
         </div>
       )}

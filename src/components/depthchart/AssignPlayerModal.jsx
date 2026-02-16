@@ -1,3 +1,4 @@
+import { Chip, Button } from '@heroui/react';
 /**
  * Assign Player Modal Component
  *
@@ -163,7 +164,7 @@ export default function AssignPlayerModal({
                           {player.first_name} {player.last_name}
                         </h5>
                         <div className="flex items-center gap-2">
-                          <span className="badge badge-primary">{player.position}</span>
+                          <Chip color="primary">{player.position}</Chip>
                           <span className="text-sm font-bold text-blue-600">
                             Score: {player.score}
                           </span>
@@ -186,34 +187,34 @@ export default function AssignPlayerModal({
                       <div className="mb-3">
                         <div className="flex flex-wrap gap-1">
                           {player.batting_avg && (
-                            <span className="badge badge-outline badge-sm">
+                            <Chip size="sm" variant="bordered">
                               AVG: {player.batting_avg}
-                            </span>
+                            </Chip>
                           )}
                           {player.home_runs && (
-                            <span className="badge badge-outline badge-sm">
+                            <Chip size="sm" variant="bordered">
                               HR: {player.home_runs}
-                            </span>
+                            </Chip>
                           )}
                           {player.rbi && (
-                            <span className="badge badge-outline badge-sm">
+                            <Chip size="sm" variant="bordered">
                               RBI: {player.rbi}
-                            </span>
+                            </Chip>
                           )}
                           {player.stolen_bases && (
-                            <span className="badge badge-outline badge-sm">
+                            <Chip size="sm" variant="bordered">
                               SB: {player.stolen_bases}
-                            </span>
+                            </Chip>
                           )}
                           {player.era && (
-                            <span className="badge badge-outline badge-sm">
+                            <Chip size="sm" variant="bordered">
                               ERA: {player.era}
-                            </span>
+                            </Chip>
                           )}
                           {player.strikeouts && (
-                            <span className="badge badge-outline badge-sm">
+                            <Chip size="sm" variant="bordered">
                               K: {player.strikeouts}
-                            </span>
+                            </Chip>
                           )}
                         </div>
                       </div>
@@ -242,16 +243,10 @@ export default function AssignPlayerModal({
                             </span>
                           )}
                         </div>
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAssignPlayer(player.id);
-                          }}
-                        >
+                        <Button onClick={(e) => { e.stopPropagation(); handleAssignPlayer(player.id); }} color="primary" size="sm">
                           <UserPlus className="h-3 w-3 mr-1" />
                           Assign
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -291,7 +286,7 @@ export default function AssignPlayerModal({
                           <h5 className="font-bold text-lg">
                             {player.first_name} {player.last_name}
                           </h5>
-                          <span className="badge badge-outline">{player.position}</span>
+                          <Chip variant="bordered">{player.position}</Chip>
                         </div>
 
                         <div className="text-sm text-gray-600 mb-3">
@@ -311,12 +306,9 @@ export default function AssignPlayerModal({
                           <div className="mb-3">
                             <div className="flex flex-wrap gap-1">
                               {stats.map((stat, statIndex) => (
-                                <span
-                                  key={statIndex}
-                                  className="badge badge-outline badge-sm"
-                                >
+                                <Chip key={statIndex} size="sm" variant="bordered">
                                   {stat}
-                                </span>
+                                </Chip>
                               ))}
                             </div>
                           </div>
@@ -338,16 +330,10 @@ export default function AssignPlayerModal({
                                 <Star className="h-3 w-3" />
                               </span>
                             )}
-                            <button
-                              className="btn btn-outline btn-sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAssignPlayer(player.id);
-                              }}
-                            >
+                            <Button onClick={(e) => { e.stopPropagation(); handleAssignPlayer(player.id); }} size="sm" variant="bordered">
                               <UserPlus className="h-3 w-3 mr-1" />
                               Assign
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -368,12 +354,10 @@ export default function AssignPlayerModal({
         </div>
       </AccessibleModal.Content>
       <AccessibleModal.Footer>
-        <button
-          className="btn"
-          onClick={handleClose}
-        >
+        <Button
+          onClick={handleClose}>
           Cancel
-        </button>
+        </Button>
       </AccessibleModal.Footer>
     </AccessibleModal>
   );

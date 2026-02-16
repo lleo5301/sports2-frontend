@@ -1,3 +1,4 @@
+import { Chip, Button } from '@heroui/react';
 /**
  * Depth Chart Selector Component
  *
@@ -42,33 +43,22 @@ export default function DepthChartSelector({
         <h2 className="text-lg font-semibold">Select Depth Chart</h2>
         <div className="flex gap-2">
           {canEdit && selectedDepthChart && (
-            <button
-              onClick={onEdit}
-              className="btn btn-outline btn-sm"
-            >
+            <Button onClick={onEdit} size="sm" variant="bordered">
               <Edit className="h-4 w-4 mr-1" />
               Edit
-            </button>
+            </Button>
           )}
           {canDelete && selectedDepthChart && (
-            <button
-              onClick={() => onDelete(selectedDepthChart)}
-              className="btn btn-outline btn-sm btn-error"
-              disabled={isDeleting}
-            >
+            <Button onClick={() => onDelete(selectedDepthChart)} disabled={isDeleting} color="danger" size="sm" variant="bordered">
               <Trash2 className="h-4 w-4 mr-1" />
               Delete
-            </button>
+            </Button>
           )}
           {canCreate && selectedDepthChart && (
-            <button
-              onClick={() => onDuplicate(selectedDepthChart)}
-              className="btn btn-outline btn-sm"
-              disabled={isDuplicating}
-            >
+            <Button onClick={() => onDuplicate(selectedDepthChart)} disabled={isDuplicating} size="sm" variant="bordered">
               <Copy className="h-4 w-4 mr-1" />
               Duplicate
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -89,10 +79,10 @@ export default function DepthChartSelector({
                 <h3 className="font-semibold">{chart.name}</h3>
                 <div className="flex items-center gap-1">
                   {chart.is_default && (
-                    <span className="badge badge-primary badge-sm">Default</span>
+                    <Chip color="primary" size="sm">Default</Chip>
                   )}
                   {!chart.is_active && (
-                    <span className="badge badge-ghost badge-sm">Archived</span>
+                    <Chip size="sm" variant="flat">Archived</Chip>
                   )}
                 </div>
               </div>

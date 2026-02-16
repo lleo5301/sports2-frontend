@@ -6,6 +6,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { UserPlus, Save, ArrowLeft } from 'lucide-react';
 import { prospectsService } from '../services/prospects';
+import { Spinner, Button } from '@heroui/react';
 
 const positions = [
   'P',
@@ -103,12 +104,9 @@ export default function CreateProspect() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="btn btn-ghost btn-sm btn-circle"
-        >
+        <Button onClick={() => navigate(-1)} className="rounded-full" size="sm" variant="light" isIconOnly>
           <ArrowLeft className="w-5 h-5" />
-        </button>
+        </Button>
         <div>
           <h1 className="text-3xl font-bold">Add New Prospect</h1>
           <p className="text-gray-500">
@@ -412,25 +410,17 @@ export default function CreateProspect() {
         </div>
 
         <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="btn btn-ghost"
-          >
+          <Button type="button" onClick={() => navigate(-1)} variant="light">
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn btn-primary"
-          >
+          </Button>
+          <Button type="submit" disabled={isLoading} color="primary">
             {isLoading ? (
-              <span className="loading loading-spinner"></span>
+              <Spinner size="md" />
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
             Save Prospect
-          </button>
+          </Button>
         </div>
       </form>
     </div>

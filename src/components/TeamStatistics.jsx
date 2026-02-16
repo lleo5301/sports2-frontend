@@ -17,6 +17,7 @@ import {
 import { teamsService } from '../services/teams';
 import { schedulesService } from '../services/schedules';
 import { gamesService } from '../services/games';
+import { Spinner, Tabs, Tab } from '@heroui/react';
 
 const TeamStatistics = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -115,7 +116,7 @@ const TeamStatistics = () => {
   ) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="loading loading-spinner loading-lg"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -123,26 +124,24 @@ const TeamStatistics = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-end items-center">
-        <div className="tabs tabs-boxed bg-content2/30 p-1 border border-ui-border">
-          <button
-            className={`tab tab-sm ${activeTab === 'overview' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            className={`tab tab-sm ${activeTab === 'performance' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('performance')}
-          >
-            Performance
-          </button>
-          <button
-            className={`tab tab-sm ${activeTab === 'roster' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('roster')}
-          >
-            Roster
-          </button>
-        </div>
+        <Tabs
+          selectedKey={activeTab}
+          onSelectionChange={setActiveTab}
+          variant="bordered"
+          size="sm"
+          classNames={{
+            base: 'bg-content2/30 p-1 border border-ui-border rounded-xl',
+            tabList: 'gap-2',
+            cursor: 'w-full bg-primary',
+            tab: 'max-w-fit px-4 h-8',
+            tabContent:
+              'group-data-[selected=true]:text-primary-foreground font-medium'
+          }}
+        >
+          <Tab key="overview" title="Overview" />
+          <Tab key="performance" title="Performance" />
+          <Tab key="roster" title="Roster" />
+        </Tabs>
       </div>
 
       {/* Overview Tab */}

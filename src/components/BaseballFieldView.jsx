@@ -1,3 +1,4 @@
+import { Chip } from '@heroui/react';
 import { useState } from 'react';
 import { Users, Target, Shield, Zap, Heart } from 'lucide-react';
 
@@ -259,9 +260,9 @@ const BaseballFieldView = ({ positions, assignedPlayers, onPositionClick, select
                     </span>
                   </div>
                   {players.length > 0 && (
-                    <span className="badge badge-sm badge-primary">
+                    <Chip color="primary" size="sm">
                       {players.length}
-                    </span>
+                    </Chip>
                   )}
                 </div>
                 <div className="text-xs text-gray-600 mb-2">

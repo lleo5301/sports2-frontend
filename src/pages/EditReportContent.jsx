@@ -11,6 +11,7 @@ import {
   Table,
   Type
 } from 'lucide-react';
+import { Spinner, Button } from '@heroui/react';
 
 const EditReportContent = () => {
   const navigate = useNavigate();
@@ -131,7 +132,7 @@ const EditReportContent = () => {
       <div className="p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center items-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -143,13 +144,10 @@ const EditReportContent = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => navigate(`/reports`)}
-            className="btn btn-ghost btn-sm mb-4"
-          >
+          <Button onClick={() => navigate(`/reports`)} className="mb-4" size="sm" variant="light">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Reports
-          </button>
+          </Button>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Edit Report Content
           </h1>
@@ -215,13 +213,9 @@ const EditReportContent = () => {
                                   </td>
                                 ))}
                                 <td>
-                                  <button
-                                    type="button"
-                                    className="btn btn-ghost btn-sm text-error"
-                                    onClick={() => removeTableRow(sectionIndex, rowIndex)}
-                                  >
+                                  <Button type="button" className="text-error" onClick={() => removeTableRow(sectionIndex, rowIndex)} size="sm" variant="light">
                                     <Trash2 className="w-4 h-4" />
-                                  </button>
+                                  </Button>
                                 </td>
                               </tr>
                             ))}
@@ -230,14 +224,10 @@ const EditReportContent = () => {
                       </div>
 
                       <div className="mt-4">
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => addTableRow(sectionIndex)}
-                        >
+                        <Button type="button" onClick={() => addTableRow(sectionIndex)} size="sm" variant="bordered">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Row
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : null}
@@ -248,21 +238,13 @@ const EditReportContent = () => {
 
           {/* Actions */}
           <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => navigate(`/reports`)}
-            >
+            <Button type="button" onClick={() => navigate(`/reports`)} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={updateReportMutation.isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={updateReportMutation.isLoading} color="primary">
               {updateReportMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                  <Spinner size="sm" className="mr-2" />
                   Saving...
                 </>
               ) : (
@@ -271,7 +253,7 @@ const EditReportContent = () => {
                   Save Content
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

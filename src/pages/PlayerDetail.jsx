@@ -5,6 +5,7 @@ import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, 
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import AccessibleModal from '../components/ui/AccessibleModal';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 export default function PlayerDetail() {
   const { id } = useParams();
@@ -38,7 +39,7 @@ export default function PlayerDetail() {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -56,9 +57,9 @@ export default function PlayerDetail() {
             <span>Player not found or error loading player details.</span>
           </div>
           <div className="mt-4">
-            <Link to="/players" className="btn btn-primary">
+            <Button to="/players" color="primary" as={Link}>
               Back to Players
-            </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -75,10 +76,10 @@ export default function PlayerDetail() {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div className="flex items-center space-x-4">
-            <Link to="/players" className="btn btn-outline">
+            <Button to="/players" variant="bordered" as={Link}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Players
-            </Link>
+            </Button>
             {/* Player Photo */}
             {playerData.photo_url ? (
               <div className="avatar">
@@ -126,20 +127,14 @@ export default function PlayerDetail() {
             </div>
           </div>
           <div className="flex space-x-2">
-            <Link
-              to={`/players/${id}/edit`}
-              className="btn btn-primary"
-            >
+            <Button to={`/players/${id}/edit`} color="primary" as={Link}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Player
-            </Link>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="btn btn-outline btn-error"
-            >
+            </Button>
+            <Button onClick={() => setShowDeleteConfirm(true)} color="danger" variant="bordered">
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Player
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -402,13 +397,10 @@ export default function PlayerDetail() {
                   <p className="text-sm text-foreground/70 mb-4">
                     Enter game performance statistics and data for this player
                   </p>
-                  <Link
-                    to={`/performance/entry?player=${id}`}
-                    className="btn btn-primary btn-sm"
-                  >
+                  <Button to={`/performance/entry?player=${id}`} color="primary" size="sm" as={Link}>
                     <Plus className="w-4 h-4 mr-2" />
                     Add Performance Data
-                  </Link>
+                  </Button>
                 </div>
               </div>
 
@@ -422,13 +414,10 @@ export default function PlayerDetail() {
                   <p className="text-sm text-foreground/70 mb-4">
                     Create detailed scouting evaluation with grades and observations
                   </p>
-                  <Link
-                    to={`/scouting/create?player=${id}`}
-                    className="btn btn-secondary btn-sm"
-                  >
+                  <Button to={`/scouting/create?player=${id}`} color="secondary" size="sm" as={Link}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Report
-                  </Link>
+                  </Button>
                 </div>
               </div>
 
@@ -442,13 +431,10 @@ export default function PlayerDetail() {
                   <p className="text-sm text-foreground/70 mb-4">
                     Generate statistical analysis and comparison reports
                   </p>
-                  <Link
-                    to={`/reports/create-statistics?player=${id}`}
-                    className="btn btn-accent btn-sm"
-                  >
+                  <Button to={`/reports/create-statistics?player=${id}`} className="-accent" size="sm" as={Link}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Report
-                  </Link>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -456,20 +442,14 @@ export default function PlayerDetail() {
             {/* Quick Actions */}
             <div className="divider">Quick Actions</div>
             <div className="flex flex-wrap gap-2">
-              <Link
-                to={`/reports/create-custom?player=${id}`}
-                className="btn btn-outline btn-sm"
-              >
+              <Button to={`/reports/create-custom?player=${id}`} size="sm" variant="bordered" as={Link}>
                 <FileText className="w-4 h-4 mr-2" />
                 Custom Report
-              </Link>
-              <Link
-                to={`/reports?player=${id}`}
-                className="btn btn-ghost btn-sm"
-              >
+              </Button>
+              <Button to={`/reports?player=${id}`} size="sm" variant="light" as={Link}>
                 <FileText className="w-4 h-4 mr-2" />
                 View All Reports
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -508,9 +488,9 @@ export default function PlayerDetail() {
                         </p>
                       </div>
                       {report.overall_grade && (
-                        <div className="badge badge-primary">
+                        <Chip color="primary">
                           Grade: {report.overall_grade}
-                        </div>
+                        </Chip>
                       )}
                     </div>
                     {report.notes && (
@@ -540,19 +520,12 @@ export default function PlayerDetail() {
             </p>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              onClick={() => setShowDeleteConfirm(false)}
-              className="btn btn-outline"
-            >
+            <Button onClick={() => setShowDeleteConfirm(false)} variant="bordered">
               Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              className="btn btn-error"
-              disabled={deletePlayerMutation.isLoading}
-            >
+            </Button>
+            <Button onClick={handleDelete} disabled={deletePlayerMutation.isLoading} color="danger">
               {deletePlayerMutation.isLoading ? 'Deleting...' : 'Delete Player'}
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
       </div>

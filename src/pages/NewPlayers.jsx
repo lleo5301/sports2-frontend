@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { UserPlus, Plus, Search, Filter, AlertTriangle } from 'lucide-react';
 
 const NewPlayers = () => {
@@ -23,10 +24,10 @@ const NewPlayers = () => {
             </p>
           </div>
         </div>
-        <button className="btn btn-primary">
+        <Button color="primary">
           <Plus className="w-4 h-4 mr-2" />
           Add New Player
-        </button>
+        </Button>
       </div>
 
       {/* Search and Filters */}
@@ -51,10 +52,10 @@ const NewPlayers = () => {
                 <option>Infield</option>
                 <option>Outfield</option>
               </select>
-              <button className="btn btn-outline">
+              <Button variant="bordered">
                 <Filter className="w-4 h-4 mr-2" />
                 Filters
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -71,10 +72,10 @@ const NewPlayers = () => {
             <p className="text-gray-500 mb-4">
               Start by adding newly recruited players to track their progress
             </p>
-            <button className="btn btn-primary">
+            <Button color="primary">
               <Plus className="w-4 h-4 mr-2" />
               Add First New Player
-            </button>
+            </Button>
           </div>
         </div>
       </div>

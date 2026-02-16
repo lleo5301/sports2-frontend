@@ -23,6 +23,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import 'react-day-picker/dist/style.css';
+import { Spinner, Checkbox, Button } from '@heroui/react';
 
 const CreateScoutingReport = () => {
   const navigate = useNavigate();
@@ -226,13 +227,10 @@ const CreateScoutingReport = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => navigate('/scouting')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/scouting')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Scouting
-            </button>
+            </Button>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {isEditMode ? 'Edit Scouting Report' : 'Create New Scouting Report'}
@@ -911,24 +909,12 @@ const CreateScoutingReport = () => {
               <div className="flex gap-6">
                 <label className="label cursor-pointer">
                   <span className="label-text mr-4">Draft Report</span>
-                  <input
-                    type="checkbox"
-                    name="is_draft"
-                    checked={formData.is_draft}
-                    onChange={handleInputChange}
-                    className="checkbox"
-                  />
+                  <Checkbox isSelected={formData.is_draft} onChange={handleInputChange} color="primary" />
                 </label>
 
                 <label className="label cursor-pointer">
                   <span className="label-text mr-4">Public Report</span>
-                  <input
-                    type="checkbox"
-                    name="is_public"
-                    checked={formData.is_public}
-                    onChange={handleInputChange}
-                    className="checkbox"
-                  />
+                  <Checkbox isSelected={formData.is_public} onChange={handleInputChange} color="primary" />
                 </label>
               </div>
             </div>
@@ -936,21 +922,13 @@ const CreateScoutingReport = () => {
 
           {/* Submit Buttons */}
           <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate('/scouting')}
-              className="btn btn-outline"
-            >
+            <Button type="button" onClick={() => navigate('/scouting')} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={createReportMutation.isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={createReportMutation.isLoading} color="primary">
               {createReportMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Creating...
                 </>
               ) : (
@@ -959,7 +937,7 @@ const CreateScoutingReport = () => {
                   {isEditMode ? 'Update Report' : 'Create Report'}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

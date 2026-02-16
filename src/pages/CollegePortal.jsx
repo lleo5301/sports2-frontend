@@ -1,3 +1,4 @@
+import { Chip, Button } from '@heroui/react';
 import { ArrowRightLeft, Building2, Search, Filter, TrendingUp, AlertTriangle } from 'lucide-react';
 
 const CollegePortal = () => {
@@ -23,9 +24,9 @@ const CollegePortal = () => {
             </p>
           </div>
         </div>
-        <button className="btn btn-primary">
+        <Button color="primary">
           Add Transfer
-        </button>
+        </Button>
       </div>
 
       {/* Quick Stats */}
@@ -96,10 +97,10 @@ const CollegePortal = () => {
                 <option>NAIA</option>
                 <option>Junior College</option>
               </select>
-              <button className="btn btn-outline">
+              <Button variant="bordered">
                 <Filter className="w-4 h-4 mr-2" />
                 More Filters
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -122,7 +123,7 @@ const CollegePortal = () => {
                       <p className="text-sm text-gray-600">Position • Previous School</p>
                     </div>
                   </div>
-                  <span className="badge badge-primary">New</span>
+                  <Chip color="primary">New</Chip>
                 </div>
               ))}
             </div>
@@ -145,7 +146,7 @@ const CollegePortal = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="badge badge-success">Available</span>
+                    <Chip color="success">Available</Chip>
                   </div>
                 </div>
               ))}
@@ -166,12 +167,12 @@ const CollegePortal = () => {
               Track college players, transfer portal activity, and recruitment opportunities
             </p>
             <div className="flex gap-2 justify-center">
-              <button className="btn btn-primary">
+              <Button color="primary">
                 Monitor Transfer Portal
-              </button>
-              <button className="btn btn-outline">
+              </Button>
+              <Button variant="bordered">
                 Import College Data
-              </button>
+              </Button>
             </div>
           </div>
         </div>

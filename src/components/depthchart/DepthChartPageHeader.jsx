@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 /**
  * Depth Chart Page Header Component
  *
@@ -36,23 +37,16 @@ export default function DepthChartPageHeader({
       </div>
       <div className="flex gap-2">
         {canCreate && (
-          <button
-            onClick={onCreateClick}
-            className="btn btn-primary"
-            disabled={isCreating}
-          >
+          <Button onClick={onCreateClick} disabled={isCreating} color="primary">
             <Plus className="h-4 w-4 mr-2" />
             New Depth Chart
-          </button>
+          </Button>
         )}
         {canEdit && selectedDepthChart && (
-          <button
-            onClick={onEditClick}
-            className="btn btn-outline"
-          >
+          <Button onClick={onEditClick} variant="bordered">
             <Edit className="h-4 w-4 mr-2" />
             Edit
-          </button>
+          </Button>
         )}
       </div>
     </div>

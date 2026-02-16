@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
@@ -136,14 +137,10 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Position Configuration</h3>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="btn btn-primary btn-sm"
-          disabled={addPositionMutation.isLoading}
-        >
+        <Button onClick={() => setShowAddModal(true)} disabled={addPositionMutation.isLoading} color="primary" size="sm">
           <Plus className="h-4 w-4 mr-1" />
           Add Position
-        </button>
+        </Button>
       </div>
 
       {/* Positions List */}
@@ -169,19 +166,12 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
                       />
                     </div>
                     <div className="flex gap-1">
-                      <button
-                        onClick={handleUpdatePosition}
-                        className="btn btn-sm btn-success"
-                        disabled={updatePositionMutation.isLoading}
-                      >
+                      <Button onClick={handleUpdatePosition} disabled={updatePositionMutation.isLoading} color="success" size="sm">
                         <Save className="h-3 w-3" />
-                      </button>
-                      <button
-                        onClick={cancelEditing}
-                        className="btn btn-sm btn-ghost"
-                      >
+                      </Button>
+                      <Button onClick={cancelEditing} size="sm" variant="light">
                         <X className="h-3 w-3" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                   <input
@@ -254,21 +244,12 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <button
-                        onClick={() => startEditing(position)}
-                        className="btn btn-sm btn-ghost"
-                        title="Edit Position"
-                      >
+                      <Button onClick={() => startEditing(position)} title="Edit Position" size="sm" variant="light">
                         <Edit className="h-3 w-3" />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePosition(position.id)}
-                        className="btn btn-sm btn-ghost text-red-600 hover:text-red-700"
-                        title="Delete Position"
-                        disabled={deletePositionMutation.isLoading}
-                      >
+                      </Button>
+                      <Button onClick={() => handleDeletePosition(position.id)} className="text-red-600 hover:text-red-700" title="Delete Position" disabled={deletePositionMutation.isLoading} size="sm" variant="light">
                         <Trash2 className="h-3 w-3" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -410,19 +391,13 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
           </div>
         </AccessibleModal.Content>
         <AccessibleModal.Footer>
-          <button
-            className="btn"
-            onClick={() => setShowAddModal(false)}
-          >
+          <Button
+            onClick={() => setShowAddModal(false)}>
             Cancel
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleAddPosition}
-            disabled={!newPosition.position_code || !newPosition.position_name || addPositionMutation.isLoading}
-          >
+          </Button>
+          <Button onClick={handleAddPosition} disabled={!newPosition.position_code || !newPosition.position_name || addPositionMutation.isLoading} color="primary">
             {addPositionMutation.isLoading ? 'Adding...' : 'Add Position'}
-          </button>
+          </Button>
         </AccessibleModal.Footer>
       </AccessibleModal>
     </div>

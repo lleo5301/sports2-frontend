@@ -18,6 +18,7 @@ import {
   X,
   Save
 } from 'lucide-react';
+import { Spinner, Checkbox, Chip, Button } from '@heroui/react';
 
 const vendorTypes = [
   'Equipment',
@@ -250,7 +251,7 @@ export default function Vendors() {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -273,21 +274,15 @@ export default function Vendors() {
             </div>
             <div className="flex gap-2">
               {selectedIds.length > 0 && (
-                <button
-                  className="btn btn-error"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
+                <Button onClick={() => setShowDeleteConfirm(true)} color="danger">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Selected ({selectedIds.length})
-                </button>
+                </Button>
               )}
-              <button
-                onClick={handleCreateVendor}
-                className="btn btn-primary"
-              >
+              <Button onClick={handleCreateVendor} color="primary">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Vendor
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -353,13 +348,7 @@ export default function Vendors() {
                   <tr>
                     <th>
                       <label>
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-sm"
-                          checked={isAllSelected}
-                          onChange={handleSelectAll}
-                          disabled={vendors.length === 0}
-                        />
+                        <Checkbox isSelected={isAllSelected} onChange={handleSelectAll} color="primary" size="sm" isDisabled={vendors.length === 0} />
                       </label>
                     </th>
                     <th>Company</th>
@@ -376,12 +365,7 @@ export default function Vendors() {
                     <tr key={vendor.id}>
                       <td>
                         <label>
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-sm"
-                            checked={selectedIds.includes(vendor.id)}
-                            onChange={() => handleSelectOne(vendor.id)}
-                          />
+                          <Checkbox isSelected={selectedIds.includes(vendor.id)} onChange={() => handleSelectOne(vendor.id)} color="primary" size="sm" />
                         </label>
                       </td>
                       <td>
@@ -409,7 +393,7 @@ export default function Vendors() {
                         </div>
                       </td>
                       <td>
-                        <div className="badge badge-outline">{vendor.vendor_type}</div>
+                        <Chip variant="bordered">{vendor.vendor_type}</Chip>
                       </td>
                       <td>
                         {vendor.city && vendor.state ? `${vendor.city}, ${vendor.state}` : vendor.city || vendor.state || 'N/A'}
@@ -433,18 +417,12 @@ export default function Vendors() {
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <button
-                            className="btn btn-sm btn-outline"
-                            onClick={() => handleEditVendor(vendor)}
-                          >
+                          <Button onClick={() => handleEditVendor(vendor)} size="sm" variant="bordered">
                             <Edit className="h-3 w-3" />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline btn-error"
-                            onClick={() => handleDelete(vendor)}
-                          >
+                          </Button>
+                          <Button onClick={() => handleDelete(vendor)} color="danger" size="sm" variant="bordered">
                             <Trash2 className="h-3 w-3" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -460,13 +438,10 @@ export default function Vendors() {
                 <p className="text-foreground/70 mb-4">
                   Add your first vendor to start managing vendor relationships.
                 </p>
-                <button
-                  onClick={handleCreateVendor}
-                  className="btn btn-primary"
-                >
+                <Button onClick={handleCreateVendor} color="primary">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Vendor
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -692,26 +667,13 @@ export default function Vendors() {
                 </div>
 
                 <div className="modal-action">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreateModal(false);
-                      setShowEditModal(false);
-                      setSelectedVendor(null);
-                      resetForm();
-                    }}
-                    className="btn btn-outline"
-                  >
+                  <Button type="button" onClick={() => { setShowCreateModal(false); setShowEditModal(false); setSelectedVendor(null); resetForm(); }} variant="bordered">
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createVendorMutation.isLoading || updateVendorMutation.isLoading}
-                    className="btn btn-primary"
-                  >
+                  </Button>
+                  <Button type="submit" disabled={createVendorMutation.isLoading || updateVendorMutation.isLoading} color="primary">
                     {createVendorMutation.isLoading || updateVendorMutation.isLoading ? (
                       <>
-                        <div className="loading loading-spinner loading-sm"></div>
+                        <Spinner size="sm" />
                         {showEditModal ? 'Updating...' : 'Creating...'}
                       </>
                     ) : (
@@ -720,7 +682,7 @@ export default function Vendors() {
                         {showEditModal ? 'Update Vendor' : 'Create Vendor'}
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -736,27 +698,19 @@ export default function Vendors() {
                 Are you sure you want to delete {selectedIds.length} vendor{selectedIds.length !== 1 ? 's' : ''}? This action cannot be undone.
               </p>
               <div className="modal-action">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="btn btn-outline"
-                  disabled={bulkDeleteMutation.isPending}
-                >
+                <Button onClick={() => setShowDeleteConfirm(false)} disabled={bulkDeleteMutation.isPending} variant="bordered">
                   Cancel
-                </button>
-                <button
-                  onClick={() => bulkDeleteMutation.mutate()}
-                  className="btn btn-error"
-                  disabled={bulkDeleteMutation.isPending}
-                >
+                </Button>
+                <Button onClick={() => bulkDeleteMutation.mutate()} disabled={bulkDeleteMutation.isPending} color="danger">
                   {bulkDeleteMutation.isPending ? (
                     <>
-                      <div className="loading loading-spinner loading-sm"></div>
+                      <Spinner size="sm" />
                       Deleting...
                     </>
                   ) : (
                     <>Delete {selectedIds.length} Vendor{selectedIds.length !== 1 ? 's' : ''}</>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

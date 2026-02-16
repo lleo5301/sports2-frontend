@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 /**
  * Permissions Request Modal Component
  *
@@ -47,12 +48,10 @@ export default function PermissionsRequestModal({
         </div>
       </AccessibleModal.Content>
       <AccessibleModal.Footer>
-        <button
-          className="btn"
-          onClick={onClose}
-        >
+        <Button
+          onClick={onClose}>
           Close
-        </button>
+        </Button>
       </AccessibleModal.Footer>
     </AccessibleModal>
   );

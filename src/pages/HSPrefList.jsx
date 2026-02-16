@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { GraduationCap, MapPin, Calendar, Award, AlertTriangle } from 'lucide-react';
 
 const HSPrefList = () => {
@@ -23,9 +24,9 @@ const HSPrefList = () => {
             </p>
           </div>
         </div>
-        <button className="btn btn-primary">
+        <Button color="primary">
           Update HS Rankings
-        </button>
+        </Button>
       </div>
 
       {/* Filter Bar */}
@@ -126,12 +127,12 @@ const HSPrefList = () => {
               High school player rankings and detailed scouting reports will be displayed here
             </p>
             <div className="flex gap-2 justify-center">
-              <button className="btn btn-primary">
+              <Button color="primary">
                 Import HS Players
-              </button>
-              <button className="btn btn-outline">
+              </Button>
+              <Button variant="bordered">
                 View Scouting Reports
-              </button>
+              </Button>
             </div>
           </div>
         </div>

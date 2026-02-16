@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -76,18 +77,12 @@ const Teams = () => {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <button
-                      onClick={() => navigate(`/teams/${myTeam.id}`)}
-                      className="btn btn-sm btn-primary"
-                    >
+                    <Button onClick={() => navigate(`/teams/${myTeam.id}`)} color="primary" size="sm">
                       View Details
-                    </button>
-                    <button
-                      onClick={() => navigate(`/teams/${myTeam.id}`)}
-                      className="btn btn-sm btn-outline"
-                    >
+                    </Button>
+                    <Button onClick={() => navigate(`/teams/${myTeam.id}`)} size="sm" variant="bordered">
                       Edit Team
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -122,19 +117,13 @@ const Teams = () => {
                     </div>
                   </div>
                   <div className="card-actions justify-end mt-4">
-                    <button
-                      onClick={() => navigate(`/teams/${team.id}`)}
-                      className="btn btn-sm btn-outline"
-                    >
+                    <Button onClick={() => navigate(`/teams/${team.id}`)} size="sm" variant="bordered">
                       View
-                    </button>
+                    </Button>
                     {myTeam?.id === team.id && (
-                      <button
-                        onClick={() => navigate(`/teams/${team.id}`)}
-                        className="btn btn-sm btn-primary"
-                      >
+                      <Button onClick={() => navigate(`/teams/${team.id}`)} color="primary" size="sm">
                         Edit
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -145,15 +134,12 @@ const Teams = () => {
 
         {/* Add Team Button */}
         <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate('/teams/create')}
-            className="btn btn-primary"
-          >
+          <Button onClick={() => navigate('/teams/create')} color="primary">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Add New Team
-          </button>
+          </Button>
         </div>
       </div>
     </div>

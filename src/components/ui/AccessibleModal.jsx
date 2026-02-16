@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import useModalAccessibility from '../../hooks/useModalAccessibility';
 
 /**
@@ -92,14 +93,9 @@ const ModalHeader = ({ title, onClose, className = '', children }) => {
       )}
       {children}
       {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          aria-label="Close modal"
-        >
+        <Button type="button" onClick={onClose} className="absolute right-2 top-2 rounded-full" aria-label="Close modal" size="sm" variant="light" isIconOnly>
           ✕
-        </button>
+        </Button>
       )}
     </div>
   );

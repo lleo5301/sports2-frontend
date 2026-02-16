@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { Plus, User, Search, X, Users } from 'lucide-react';
 import api from '../services/api';
+import { Spinner, Checkbox, Chip, Button } from '@heroui/react';
 
 const MultiPlayerSelector = ({
   selectedPlayerIds = [],
@@ -170,16 +171,12 @@ const MultiPlayerSelector = ({
             <div className="text-sm font-medium mb-2">Selected Players:</div>
             <div className="flex flex-wrap gap-2">
               {selectedPlayers.map(player => (
-                <div key={player.id} className="badge badge-primary gap-2">
+                <Chip key={player.id} className="gap-2" color="primary">
                   {player.first_name} {player.last_name}
-                  <button
-                    type="button"
-                    onClick={() => handlePlayerToggle(player.id)}
-                    className="btn btn-ghost btn-xs"
-                  >
+                  <Button type="button" onClick={() => handlePlayerToggle(player.id)} size="sm" variant="light">
                     <X className="w-3 h-3" />
-                  </button>
-                </div>
+                  </Button>
+                </Chip>
               ))}
             </div>
           </div>
@@ -193,12 +190,7 @@ const MultiPlayerSelector = ({
                 {filteredPlayers.map(player => (
                   <label key={player.id} className="cursor-pointer">
                     <div className="flex items-center space-x-3 p-2 rounded hover:bg-content1">
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-primary"
-                        checked={selectedPlayerIds.includes(player.id.toString())}
-                        onChange={() => handlePlayerToggle(player.id)}
-                      />
+                      <Checkbox isSelected={selectedPlayerIds.includes(player.id.toString())} onChange={() => handlePlayerToggle(player.id)} color="primary" />
                       <div className="flex-1">
                         <div className="font-medium">
                           {player.first_name} {player.last_name}
@@ -216,29 +208,10 @@ const MultiPlayerSelector = ({
                   <div className="col-span-2 p-4 text-center text-foreground/70">
                     <div className="mb-2">No players found matching &quot;{searchTerm}&quot;</div>
                     {allowCreate && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const names = searchTerm.trim().split(' ');
-                          if (names.length >= 2) {
-                            setNewPlayerData(prev => ({
-                              ...prev,
-                              first_name: names[0],
-                              last_name: names.slice(1).join(' ')
-                            }));
-                          } else if (names.length === 1) {
-                            setNewPlayerData(prev => ({
-                              ...prev,
-                              first_name: names[0]
-                            }));
-                          }
-                          setShowCreateForm(true);
-                        }}
-                        className="btn btn-sm btn-primary"
-                      >
+                      <Button type="button" onClick={() => { const names = searchTerm.trim().split(' '); if (names.length >= 2) { setNewPlayerData(prev => ({ ...prev, first_name: names[0], last_name: names.slice(1).join(' ') })); } else if (names.length === 1) { setNewPlayerData(prev => ({ ...prev, first_name: names[0] })); } setShowCreateForm(true); }} color="primary" size="sm">
                         <Plus className="w-4 h-4 mr-1" />
                         Create &quot;{searchTerm}&quot;
-                      </button>
+                      </Button>
                     )}
                   </div>
                 )}
@@ -248,14 +221,10 @@ const MultiPlayerSelector = ({
             {/* Create New Player Button */}
             {allowCreate && (
               <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(true)}
-                  className="btn btn-outline btn-sm"
-                >
+                <Button type="button" onClick={() => setShowCreateForm(true)} size="sm" variant="bordered">
                   <Plus className="w-4 h-4 mr-2" />
                   Create New Player
-                </button>
+                </Button>
               </div>
             )}
           </>
@@ -264,23 +233,9 @@ const MultiPlayerSelector = ({
           <div className="border rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Create New Player</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setNewPlayerData({
-                    first_name: '',
-                    last_name: '',
-                    position: 'P',
-                    school_type: 'HS',
-                    school: '',
-                    graduation_year: new Date().getFullYear() + 1
-                  });
-                }}
-                className="btn btn-ghost btn-sm"
-              >
+              <Button type="button" onClick={() => { setShowCreateForm(false); setNewPlayerData({ first_name: '', last_name: '', position: 'P', school_type: 'HS', school: '', graduation_year: new Date().getFullYear() + 1 }); }} size="sm" variant="light">
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleCreatePlayer} className="space-y-4">
@@ -386,21 +341,13 @@ const MultiPlayerSelector = ({
               </div>
 
               <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(false)}
-                  className="btn btn-ghost btn-sm"
-                >
+                <Button type="button" onClick={() => setShowCreateForm(false)} size="sm" variant="light">
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-sm"
-                  disabled={createPlayerMutation.isLoading}
-                >
+                </Button>
+                <Button type="submit" disabled={createPlayerMutation.isLoading} color="primary" size="sm">
                   {createPlayerMutation.isLoading ? (
                     <>
-                      <div className="loading loading-spinner loading-sm mr-2"></div>
+                      <Spinner size="sm" className="mr-2" />
                       Creating...
                     </>
                   ) : (
@@ -409,7 +356,7 @@ const MultiPlayerSelector = ({
                       Create Player
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

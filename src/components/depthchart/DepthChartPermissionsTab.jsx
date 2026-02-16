@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 /**
  * Depth Chart Permissions Tab Component
  *
@@ -74,13 +75,10 @@ export default function DepthChartPermissionsTab({ permissions, onRequestPermiss
           <p className="text-sm text-gray-600 mb-4">
             Contact your team administrator to request additional permissions for depth chart management.
           </p>
-          <button
-            onClick={onRequestPermissions}
-            className="btn btn-outline btn-sm"
-          >
+          <Button onClick={onRequestPermissions} size="sm" variant="bordered">
             <Shield className="h-4 w-4 mr-2" />
             Request Permissions
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -19,6 +19,15 @@ import {
   ChevronRight,
   MoreVertical
 } from 'lucide-react';
+import {
+  Spinner,
+  Button,
+  Tabs,
+  Tab,
+  Checkbox,
+  Chip,
+  Switch
+} from '@heroui/react';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -192,7 +201,7 @@ const Players = () => {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -215,21 +224,25 @@ const Players = () => {
             </div>
             <div className="flex items-center gap-3">
               {selectedIds.length > 0 && (
-                <button
-                  className="btn btn-error btn-sm h-11 px-6 rounded-xl shadow-lg shadow-error/20"
+                <Button
+                  className="h-11 px-6 rounded-xl shadow-lg shadow-error/20"
                   onClick={() => setShowDeleteConfirm(true)}
+                  color="danger"
+                  size="sm"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete ({selectedIds.length})
-                </button>
+                </Button>
               )}
-              <button
-                className="btn btn-primary btn-sm h-11 px-6 rounded-xl shadow-lg shadow-primary/20"
+              <Button
+                className="h-11 px-6 rounded-xl shadow-lg shadow-primary/20"
                 onClick={() => navigate('/players/create')}
+                color="primary"
+                size="sm"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add Player
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -349,44 +362,48 @@ const Players = () => {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10 transition-all ${filters.position || filters.status || filters.school_type ? 'border-primary text-primary' : ''}`}
+                <Button
+                  className={` h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10 transition-all ${filters.position || filters.status || filters.school_type ? 'border-primary text-primary' : ''}`}
                   onClick={() => {
                     /* Toggle filters panel if we had one */
                   }}
+                  size="sm"
                 >
                   <Filter className="w-4 h-4 mr-2" />
                   Filters
-                </button>
+                </Button>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <div className="join bg-background rounded-xl border border-ui-border overflow-hidden">
-                <button
-                  className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === 'compact' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
+                <Button
+                  className={`join-item h-11 px-4 border-0 hover:bg-primary/10 ${density === 'compact' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
                   onClick={() => setDensity('compact')}
                   title="Compact View"
+                  size="sm"
                 >
                   <Minimize2 className="w-4 h-4" />
-                </button>
-                <button
-                  className={`join-item btn btn-sm h-11 px-4 border-0 hover:bg-primary/10 ${density === 'normal' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
+                </Button>
+                <Button
+                  className={`join-item h-11 px-4 border-0 hover:bg-primary/10 ${density === 'normal' ? 'bg-primary/20 text-primary' : 'bg-transparent'}`}
                   onClick={() => setDensity('normal')}
                   title="Normal View"
+                  size="sm"
                 >
                   <Maximize2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
 
               <div className="relative">
-                <button
-                  className={`btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10 ${showColumnSettings ? 'text-primary' : ''}`}
+                <Button
+                  className={` h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10 ${showColumnSettings ? 'text-primary' : ''}`}
                   onClick={() => setShowColumnSettings(!showColumnSettings)}
+                  size="sm"
                 >
                   <Columns className="w-4 h-4 mr-2" />
                   Columns
-                </button>
+                </Button>
 
                 {showColumnSettings && (
                   <div className="absolute right-0 mt-2 w-56 bg-content1 border border-ui-border rounded-2xl shadow-2xl z-50 p-4">
@@ -401,11 +418,7 @@ const Players = () => {
                             className="flex items-center justify-between cursor-pointer hover:bg-content2/50 p-2 rounded-lg transition-colors"
                           >
                             <span className="text-sm">{col}</span>
-                            <input
-                              type="checkbox"
-                              className="toggle toggle-primary toggle-sm"
-                              defaultChecked
-                            />
+                            <Switch size="sm" color="primary" defaultSelected />
                           </label>
                         )
                       )}
@@ -414,9 +427,12 @@ const Players = () => {
                 )}
               </div>
 
-              <button className="btn btn-sm h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10">
+              <Button
+                className="h-11 px-4 rounded-xl border-ui-border bg-background hover:bg-primary/10"
+                size="sm"
+              >
                 <Settings2 className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -428,12 +444,12 @@ const Players = () => {
               <thead>
                 <tr>
                   <th className="w-12 text-center">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm checkbox-primary rounded-md"
-                      checked={isAllSelected}
+                    <Checkbox
+                      isSelected={isAllSelected}
                       onChange={handleSelectAll}
-                      disabled={players.length === 0}
+                      color="primary"
+                      size="sm"
+                      isDisabled={players.length === 0}
                     />
                   </th>
                   <th>Name</th>
@@ -449,11 +465,11 @@ const Players = () => {
                   players.map((player) => (
                     <tr key={player.id} className="group">
                       <td className="text-center">
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-sm checkbox-primary rounded-md"
-                          checked={selectedIds.includes(player.id)}
+                        <Checkbox
+                          isSelected={selectedIds.includes(player.id)}
                           onChange={() => handleSelectOne(player.id)}
+                          color="primary"
+                          size="sm"
                         />
                       </td>
                       <td className="font-bold text-ui-primary">
@@ -473,9 +489,12 @@ const Players = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="badge badge-outline border-ui-border text-[10px] font-bold uppercase tracking-wider h-6">
+                        <Chip
+                          className="border-ui-border text-[10px] font-bold uppercase tracking-wider h-6"
+                          variant="bordered"
+                        >
                           {player.position}
-                        </div>
+                        </Chip>
                       </td>
                       <td className="text-ui-secondary">{player.school}</td>
                       <td className="text-ui-secondary text-xs">
@@ -498,29 +517,38 @@ const Players = () => {
                       </td>
                       <td>
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            className="btn btn-square btn-ghost btn-sm text-info hover:bg-info/10"
+                          <Button
+                            className="text-info hover:bg-info/10"
                             onClick={() => navigate(`/players/${player.id}`)}
                             title="View Profile"
+                            size="sm"
+                            variant="light"
+                            isIconOnly
                           >
                             <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary/10"
+                          </Button>
+                          <Button
+                            className="text-primary hover:bg-primary/10"
                             onClick={() =>
                               navigate(`/players/${player.id}/edit`)
                             }
                             title="Edit Player"
+                            size="sm"
+                            variant="light"
+                            isIconOnly
                           >
                             <Edit3 className="w-4 h-4" />
-                          </button>
+                          </Button>
                           <div className="dropdown dropdown-end">
-                            <label
+                            <Button
+                              as="label"
+                              variant="light"
+                              size="sm"
+                              isIconOnly
                               tabIndex={0}
-                              className="btn btn-square btn-ghost btn-sm"
                             >
                               <MoreVertical className="w-4 h-4" />
-                            </label>
+                            </Button>
                             <ul
                               tabIndex={0}
                               className="dropdown-content z-[1] menu p-2 shadow-2xl bg-content1 rounded-xl border border-ui-border w-44"
@@ -580,35 +608,38 @@ const Players = () => {
 
             {pagination.pages > 1 && (
               <div className="join bg-content1/30 rounded-xl border border-ui-border">
-                <button
-                  className="join-item btn btn-sm h-10 px-4 border-0 hover:bg-primary/10"
+                <Button
+                  className="join-item h-10 px-4 border-0 hover:bg-primary/10"
                   disabled={pagination.page === 1}
                   onClick={() => handlePageChange(pagination.page - 1)}
+                  size="sm"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                </button>
+                </Button>
                 {Array.from(
                   { length: Math.min(5, pagination.pages) },
                   (_, i) => {
                     const pageNum = i + 1;
                     return (
-                      <button
+                      <Button
                         key={pageNum}
-                        className={`join-item btn btn-sm h-10 px-4 border-0 ${pagination.page === pageNum ? 'bg-primary text-primary-content shadow-lg shadow-primary/30' : 'bg-transparent hover:bg-primary/10'}`}
+                        className={`join-item h-10 px-4 border-0 ${pagination.page === pageNum ? 'bg-primary text-primary-content shadow-lg shadow-primary/30' : 'bg-transparent hover:bg-primary/10'}`}
                         onClick={() => handlePageChange(pageNum)}
+                        size="sm"
                       >
                         {pageNum}
-                      </button>
+                      </Button>
                     );
                   }
                 )}
-                <button
-                  className="join-item btn btn-sm h-10 px-4 border-0 hover:bg-primary/10"
+                <Button
+                  className="join-item h-10 px-4 border-0 hover:bg-primary/10"
                   disabled={pagination.page === pagination.pages}
                   onClick={() => handlePageChange(pagination.page + 1)}
+                  size="sm"
                 >
                   <ChevronRight className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -627,9 +658,7 @@ const Players = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="font-medium">Position:</span>
-                  <span className="badge badge-outline">
-                    {selectedPlayer.position}
-                  </span>
+                  <Chip variant="bordered">{selectedPlayer.position}</Chip>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">School:</span>
@@ -677,9 +706,7 @@ const Players = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">School Type:</span>
-                  <span className="badge badge-outline">
-                    {selectedPlayer.school_type}
-                  </span>
+                  <Chip variant="bordered">{selectedPlayer.school_type}</Chip>
                 </div>
               </div>
             </div>
@@ -692,9 +719,7 @@ const Players = () => {
                   <div className="text-2xl font-bold text-primary">
                     {selectedPlayer.batting_avg || 'N/A'}
                   </div>
-                  <div className="text-sm text-foreground/70">
-                    Batting Avg
-                  </div>
+                  <div className="text-sm text-foreground/70">Batting Avg</div>
                 </div>
                 <div className="text-center p-3 bg-content1 rounded-lg">
                   <div className="text-2xl font-bold text-secondary">
@@ -712,9 +737,7 @@ const Players = () => {
                   <div className="text-2xl font-bold text-info">
                     {selectedPlayer.stolen_bases || '0'}
                   </div>
-                  <div className="text-sm text-foreground/70">
-                    Stolen Bases
-                  </div>
+                  <div className="text-sm text-foreground/70">Stolen Bases</div>
                 </div>
               </div>
             </div>
@@ -724,7 +747,7 @@ const Players = () => {
               <h4 className="font-semibold mb-3">Scouting Reports</h4>
               {reportsLoading ? (
                 <div className="flex justify-center py-4">
-                  <div className="loading loading-spinner loading-md"></div>
+                  <Spinner size="md" />
                 </div>
               ) : selectedPlayerReports.length > 0 ? (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -753,12 +776,13 @@ const Players = () => {
                         {getToolGrades(report)
                           .slice(0, 2)
                           .map((grade, index) => (
-                            <div
+                            <Chip
                               key={index}
-                              className="text-sm badge badge-outline mb-1"
+                              className="text-sm mb-1"
+                              variant="bordered"
                             >
                               {grade}
-                            </div>
+                            </Chip>
                           ))}
                         {getToolGrades(report).length > 2 && (
                           <div className="text-xs text-foreground/50">
@@ -777,9 +801,9 @@ const Players = () => {
             </div>
 
             <div className="modal-action">
-              <button
-                className="btn btn-info"
+              <Button
                 onClick={() => navigate(`/players/${selectedPlayer.id}`)}
+                color="primary"
               >
                 <svg
                   className="w-4 h-4 mr-2"
@@ -801,10 +825,10 @@ const Players = () => {
                   />
                 </svg>
                 View Full Profile
-              </button>
-              <button
-                className="btn btn-primary"
+              </Button>
+              <Button
                 onClick={() => navigate(`/players/${selectedPlayer.id}/edit`)}
+                color="primary"
               >
                 <svg
                   className="w-4 h-4 mr-2"
@@ -820,13 +844,13 @@ const Players = () => {
                   />
                 </svg>
                 Edit Player
-              </button>
-              <button
-                className="btn btn-outline"
+              </Button>
+              <Button
                 onClick={() => setSelectedPlayer(null)}
+                variant="bordered"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1064,12 +1088,12 @@ const Players = () => {
             </div>
 
             <div className="modal-action">
-              <button
-                className="btn btn-outline"
+              <Button
                 onClick={() => setSelectedReport(null)}
+                variant="bordered"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1086,21 +1110,21 @@ const Players = () => {
               undone.
             </p>
             <div className="modal-action">
-              <button
+              <Button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="btn btn-outline"
                 disabled={bulkDeleteMutation.isLoading}
+                variant="bordered"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => bulkDeleteMutation.mutate()}
-                className="btn btn-error"
                 disabled={bulkDeleteMutation.isLoading}
+                color="danger"
               >
                 {bulkDeleteMutation.isLoading ? (
                   <>
-                    <div className="loading loading-spinner loading-sm"></div>
+                    <Spinner size="sm" />
                     Deleting...
                   </>
                 ) : (
@@ -1109,7 +1133,7 @@ const Players = () => {
                     {selectedIds.length !== 1 ? 's' : ''}
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

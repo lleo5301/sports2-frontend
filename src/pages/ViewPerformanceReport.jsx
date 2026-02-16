@@ -14,6 +14,7 @@ import {
   Share2,
   Printer
 } from 'lucide-react';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const ViewPerformanceReport = () => {
   const { id } = useParams();
@@ -31,7 +32,7 @@ const ViewPerformanceReport = () => {
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -47,13 +48,10 @@ const ViewPerformanceReport = () => {
             <p className="text-foreground/70 mb-6">
               The performance report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-primary"
-            >
+            <Button onClick={() => navigate('/reports')} color="primary">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -80,36 +78,24 @@ const ViewPerformanceReport = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/reports')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
 
             <div className="flex space-x-2">
-              <button
-                onClick={handleDownloadPDF}
-                className="btn btn-outline btn-sm"
-              >
+              <Button onClick={handleDownloadPDF} size="sm" variant="bordered">
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button onClick={() => window.print()} size="sm" variant="bordered">
                 <Printer className="w-4 h-4 mr-2" />
                 Print
-              </button>
-              <button
-                onClick={() => navigate(`/reports/${id}/edit-content`)}
-                className="btn btn-primary btn-sm"
-              >
+              </Button>
+              <Button onClick={() => navigate(`/reports/${id}/edit-content`)} color="primary" size="sm">
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Report
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -142,7 +128,7 @@ const ViewPerformanceReport = () => {
 
             <div className="text-right">
               <div className="text-sm text-foreground/60">Report Type</div>
-              <div className="badge badge-primary badge-lg">Performance Report</div>
+              <Chip color="primary" size="lg">Performance Report</Chip>
             </div>
           </div>
         </div>
@@ -257,9 +243,9 @@ const ViewPerformanceReport = () => {
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {report.data_sources.map((source, index) => (
-                    <div key={index} className="badge badge-outline badge-lg">
+                    <Chip key={index} size="lg" variant="bordered">
                       {source.charAt(0).toUpperCase() + source.slice(1)}
-                    </div>
+                    </Chip>
                   ))}
                 </div>
               </div>
@@ -274,23 +260,13 @@ const ViewPerformanceReport = () => {
               Last updated: {new Date(report.updated_at).toLocaleString()}
             </div>
             <div className="flex space-x-2">
-              <button
-                onClick={() => navigator.share?.({
-                  title: report.title,
-                  text: report.description,
-                  url: window.location.href
-                })}
-                className="btn btn-ghost btn-sm"
-              >
+              <Button onClick={() => navigator.share?.({ title: report.title, text: report.description, url: window.location.href })} size="sm" variant="light">
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
-              </button>
-              <Link
-                to="/reports"
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button to="/reports" size="sm" variant="bordered" as={Link}>
                 View All Reports
-              </Link>
+              </Button>
             </div>
           </div>
         </div>

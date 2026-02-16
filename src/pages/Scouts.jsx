@@ -4,6 +4,7 @@ import { Target, Plus, Search, Filter, Phone, Mail, Building2, UserCheck, Edit, 
 import toast from 'react-hot-toast';
 import scoutService from '../services/scouts';
 import AccessibleModal from '../components/ui/AccessibleModal';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const Scouts = () => {
   const queryClient = useQueryClient();
@@ -180,12 +181,9 @@ const Scouts = () => {
       <div className="p-6">
         <div className="text-center py-12">
           <p className="text-red-600">Error loading scouts: {error.message}</p>
-          <button
-            onClick={() => refetch()}
-            className="btn btn-primary mt-4"
-          >
+          <Button onClick={() => refetch()} className="mt-4" color="primary">
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -204,13 +202,10 @@ const Scouts = () => {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn btn-primary"
-        >
+        <Button onClick={() => setShowCreateModal(true)} color="primary">
           <Plus className="w-4 h-4 mr-2" />
           Add Scout
-        </button>
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -306,7 +301,7 @@ const Scouts = () => {
         <div className="card-body">
           {isLoading ? (
             <div className="text-center py-12">
-              <span className="loading loading-spinner loading-lg"></span>
+              <Spinner size="lg" />
               <p className="mt-2">Loading scouts...</p>
             </div>
           ) : scouts.length === 0 ? (
@@ -319,13 +314,10 @@ const Scouts = () => {
                   : 'Get started by adding your first scout contact.'
                 }
               </p>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn btn-primary"
-              >
+              <Button onClick={() => setShowCreateModal(true)} color="primary">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Scout
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -355,9 +347,9 @@ const Scouts = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="badge badge-outline">
+                        <Chip variant="bordered">
                           {scout.position}
-                        </div>
+                        </Chip>
                       </td>
                       <td>
                         <div className="space-y-1">
@@ -401,20 +393,12 @@ const Scouts = () => {
                       </td>
                       <td>
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEdit(scout)}
-                            className="btn btn-sm btn-ghost"
-                            title="Edit Scout"
-                          >
+                          <Button onClick={() => handleEdit(scout)} title="Edit Scout" size="sm" variant="light">
                             <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(scout)}
-                            className="btn btn-sm btn-ghost text-red-600"
-                            title="Delete Scout"
-                          >
+                          </Button>
+                          <Button onClick={() => handleDelete(scout)} className="text-red-600" title="Delete Scout" size="sm" variant="light">
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -626,30 +610,22 @@ const Scouts = () => {
           </form>
         </AccessibleModal.Content>
         <AccessibleModal.Footer>
-          <button
-            type="button"
-            className="btn"
+          <Button type="button"
             onClick={() => {
               setShowCreateModal(false);
               setShowEditModal(false);
               setSelectedScout(null);
               resetForm();
-            }}
-          >
+            }}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            form="scout-form"
-            className="btn btn-primary"
-            disabled={createScoutMutation.isPending || updateScoutMutation.isPending}
-          >
+          </Button>
+          <Button type="submit" form="scout-form" disabled={createScoutMutation.isPending || updateScoutMutation.isPending} color="primary">
             {createScoutMutation.isPending || updateScoutMutation.isPending ? (
-              <span className="loading loading-spinner loading-sm"></span>
+              <Spinner size="sm" />
             ) : (
               selectedScout ? 'Update Scout' : 'Add Scout'
             )}
-          </button>
+          </Button>
         </AccessibleModal.Footer>
       </AccessibleModal>
     </div>

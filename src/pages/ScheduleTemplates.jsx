@@ -20,6 +20,7 @@ import scheduleEventsService from '../services/scheduleEvents';
 import { teamsService } from '../services/teams';
 import toast from 'react-hot-toast';
 import AccessibleModal from '../components/ui/AccessibleModal';
+import { Spinner, Button } from '@heroui/react';
 
 // Base template data with all schedule types
 const getBaseTemplate = () => ({
@@ -414,7 +415,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -435,12 +436,9 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 {templatesError.response?.data?.error || templatesError.message || 'Unable to connect to the server'}
               </div>
             </div>
-            <button
-              onClick={() => window.location.reload()}
-              className="btn btn-sm btn-outline"
-            >
+            <Button onClick={() => window.location.reload()} size="sm" variant="bordered">
               Retry
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -462,20 +460,14 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
               </p>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={handleCreateBaseTemplate}
-                className="btn btn-primary"
-              >
+              <Button onClick={handleCreateBaseTemplate} color="primary">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Base Template
-              </button>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn btn-outline"
-              >
+              </Button>
+              <Button onClick={() => setShowCreateModal(true)} variant="bordered">
                 <FileText className="h-4 w-4 mr-2" />
               New Template
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -494,9 +486,9 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                     )}
                   </div>
                   <div className="dropdown dropdown-end">
-                    <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
+                    <Button tabIndex={0} role="button"  as="div" variant="light" size="sm">
                       ⋮
-                    </div>
+                    </Button>
                     <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-background rounded-box w-52 z-50">
                       <li>
                         <button onClick={() => handleLoadTemplate(template)}>
@@ -577,13 +569,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   <div className="text-xs text-foreground/50">
                     Created by {template.Creator?.first_name} {template.Creator?.last_name}
                   </div>
-                  <button
-                    onClick={() => handleLoadTemplate(template)}
-                    className="btn btn-primary btn-sm"
-                  >
+                  <Button onClick={() => handleLoadTemplate(template)} color="primary" size="sm">
                     <Calendar className="h-3 w-3 mr-1" />
                     Use Template
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -597,13 +586,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
             <p className="text-foreground/70 mb-4">
               Create your first schedule template to get started with reusable schedules.
             </p>
-            <button
-              onClick={handleCreateBaseTemplate}
-              className="btn btn-primary"
-            >
+            <Button onClick={handleCreateBaseTemplate} color="primary">
               <Plus className="h-4 w-4 mr-2" />
               Create Base Template
-            </button>
+            </Button>
           </div>
         )}
 
@@ -683,27 +669,13 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
             </form>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="button"
-              onClick={() => {
-                setShowCreateModal(false);
-                setShowEditModal(false);
-                setSelectedTemplate(null);
-                resetForm();
-              }}
-              className="btn btn-outline"
-            >
+            <Button type="button" onClick={() => { setShowCreateModal(false); setShowEditModal(false); setSelectedTemplate(null); resetForm(); }} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              form="template-form"
-              disabled={createTemplateMutation.isLoading || updateTemplateMutation.isLoading}
-              className="btn btn-primary"
-            >
+            </Button>
+            <Button type="submit" form="template-form" disabled={createTemplateMutation.isLoading || updateTemplateMutation.isLoading} color="primary">
               {createTemplateMutation.isLoading || updateTemplateMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   {showEditModal ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
@@ -712,7 +684,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   {showEditModal ? 'Update Template' : 'Create Template'}
                 </>
               )}
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
 
@@ -764,25 +736,13 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
             </form>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="button"
-              onClick={() => {
-                setShowDuplicateModal(false);
-                setSelectedTemplate(null);
-              }}
-              className="btn btn-outline"
-            >
+            <Button type="button" onClick={() => { setShowDuplicateModal(false); setSelectedTemplate(null); }} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              form="duplicate-form"
-              disabled={duplicateTemplateMutation.isLoading}
-              className="btn btn-primary"
-            >
+            </Button>
+            <Button type="submit" form="duplicate-form" disabled={duplicateTemplateMutation.isLoading} color="primary">
               {duplicateTemplateMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Duplicating...
                 </>
               ) : (
@@ -791,7 +751,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   Duplicate Template
                 </>
               )}
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
 
@@ -831,9 +791,9 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                             {event.event_type} • {event.EventDates?.length || 0} dates
                           </p>
                         </div>
-                        <button className="btn btn-sm btn-ghost">
+                        <Button size="sm" variant="light">
                           <Edit className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -962,34 +922,16 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                           />
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={handleSubmitNewLocation}
-                            disabled={createLocationMutation.isLoading}
-                            className="btn btn-sm btn-primary"
-                          >
+                          <Button type="button" onClick={handleSubmitNewLocation} disabled={createLocationMutation.isLoading} color="primary" size="sm">
                             {createLocationMutation.isLoading ? (
-                              <div className="loading loading-spinner loading-sm"></div>
+                              <Spinner size="sm" />
                             ) : (
                               'Add Location'
                             )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowNewLocationForm(false);
-                              setNewLocationForm({
-                                name: '',
-                                location_type: 'field',
-                                address: '',
-                                city: '',
-                                state: ''
-                              });
-                            }}
-                            className="btn btn-sm btn-outline"
-                          >
+                          </Button>
+                          <Button type="button" onClick={() => { setShowNewLocationForm(false); setNewLocationForm({ name: '', location_type: 'field', address: '', city: '', state: '' }); }} size="sm" variant="bordered">
                               Cancel
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -1025,14 +967,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="label-text font-medium">Event Dates *</label>
-                      <button
-                        type="button"
-                        onClick={handleAddEventDate}
-                        className="btn btn-xs btn-outline"
-                      >
+                      <Button type="button" onClick={handleAddEventDate} size="sm" variant="bordered">
                         <Plus className="h-3 w-3 mr-1" />
                           Add Date
-                      </button>
+                      </Button>
                     </div>
                     <div className="space-y-2">
                       {eventForm.event_dates.map((dateEntry, index) => (
@@ -1052,13 +990,9 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                             onChange={(e) => handleEventDateChange(index, 'notes', e.target.value)}
                           />
                           {eventForm.event_dates.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveEventDate(index)}
-                              className="btn btn-sm btn-outline btn-error"
-                            >
+                            <Button type="button" onClick={() => handleRemoveEventDate(index)} color="danger" size="sm" variant="bordered">
                               <X className="h-4 w-4" />
-                            </button>
+                            </Button>
                           )}
                         </div>
                       ))}
@@ -1077,14 +1011,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={createEventMutation.isLoading}
-                    className="btn btn-primary w-full"
-                  >
+                  <Button type="submit" disabled={createEventMutation.isLoading} className="w-full" color="primary">
                     {createEventMutation.isLoading ? (
                       <>
-                        <div className="loading loading-spinner loading-sm mr-2"></div>
+                        <Spinner size="sm" className="mr-2" />
                           Creating Event...
                       </>
                     ) : (
@@ -1093,24 +1023,15 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                           Create Event
                       </>
                     )}
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="button"
-              onClick={() => {
-                setShowEventModal(false);
-                setSelectedTemplate(null);
-                resetEventForm();
-                setShowNewLocationForm(false);
-              }}
-              className="btn btn-outline"
-            >
+            <Button type="button" onClick={() => { setShowEventModal(false); setSelectedTemplate(null); resetEventForm(); setShowNewLocationForm(false); }} variant="bordered">
               Close
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
       </div>

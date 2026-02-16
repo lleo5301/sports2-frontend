@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getProfile } from '../services/auth';
+import { Spinner } from '@heroui/react';
 
 /**
  * @description OAuth callback page that handles the redirect from OAuth providers (Google, Apple).
@@ -45,7 +46,7 @@ const OAuthCallback = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <div className="loading loading-spinner loading-lg mb-4"></div>
+        <Spinner size="lg" className="mb-4" />
         <h2 className="text-xl font-semibold mb-2">Completing Sign In</h2>
         <p className="text-foreground/70">Please wait while we complete your authentication...</p>
       </div>

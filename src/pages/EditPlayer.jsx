@@ -6,6 +6,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Upload, X, Play } from 'lucide-react';
 import api from '../services/api';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const positions = [
   'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'
@@ -199,7 +200,7 @@ export default function EditPlayer() {
     return (
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-center h-64">
-          <div className="loading loading-spinner loading-lg"></div>
+          <Spinner size="lg" />
         </div>
       </div>
     );
@@ -211,9 +212,9 @@ export default function EditPlayer() {
         <div className="alert alert-error">
           <span>Player not found</span>
         </div>
-        <Link to="/players" className="btn btn-primary">
+        <Button to="/players" color="primary" as={Link}>
           Back to Players
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -223,10 +224,10 @@ export default function EditPlayer() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link to={`/players/${id}`} className="btn btn-outline">
+          <Button to={`/players/${id}`} variant="bordered" as={Link}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Player
-          </Link>
+          </Button>
           <div>
             <h1 className="text-2xl font-bold">Edit Player</h1>
             <p className="text-foreground/70">
@@ -408,7 +409,7 @@ export default function EditPlayer() {
                     Your browser does not support the video tag.
                   </video>
                   <div className="absolute top-2 right-2">
-                    <div className="badge badge-info">Current</div>
+                    <Chip color="primary">Current</Chip>
                   </div>
                 </div>
               </div>
@@ -430,14 +431,10 @@ export default function EditPlayer() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="label-text">New Video Preview</span>
-                  <button
-                    type="button"
-                    onClick={removeVideo}
-                    className="btn btn-sm btn-outline btn-error"
-                  >
+                  <Button type="button" onClick={removeVideo} color="danger" size="sm" variant="bordered">
                     <X className="h-4 w-4 mr-1" />
                     Remove
-                  </button>
+                  </Button>
                 </div>
                 <video
                   controls
@@ -802,17 +799,13 @@ export default function EditPlayer() {
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-4">
-          <Link to={`/players/${id}`} className="btn btn-outline">
+          <Button to={`/players/${id}`} variant="bordered" as={Link}>
             Cancel
-          </Link>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isLoading}
-          >
+          </Button>
+          <Button type="submit" disabled={isLoading} color="primary">
             {isLoading ? (
               <>
-                <span className="loading loading-spinner loading-sm"></span>
+                <Spinner size="sm" />
                 Updating Player...
               </>
             ) : (
@@ -821,7 +814,7 @@ export default function EditPlayer() {
                 Update Player
               </>
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

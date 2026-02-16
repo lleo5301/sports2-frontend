@@ -1,86 +1,232 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Settings,
   Save,
-  Palette,
-  Building,
-  MapPin,
-  Users,
+  Trash2,
+  Plus,
   Shield,
-  Award,
+  Users,
+  Settings,
+  Palette,
+  Link2,
+  Bell,
+  Activity,
+  UserPlus,
+  Search,
+  Check,
+  X,
+  CreditCard,
+  Crown,
+  Lock,
   Eye,
   EyeOff,
-  Upload,
-  Trash2,
-  CheckCircle,
   AlertCircle,
-  UserPlus,
-  UserMinus,
-  Lock,
-  Unlock,
   Clock,
-  Calendar,
-  Plus,
-  Edit,
-  X,
-  Image as ImageIcon,
-  Link2,
-  Search,
   Mail,
-  Phone,
+  Smartphone,
+  Globe,
+  Camera,
+  RotateCcw,
+  Zap,
+  ChevronRight,
+  Monitor,
+  CheckCircle,
+  Edit,
   Key,
+  Phone,
   Copy,
-  RefreshCw
+  RefreshCw,
+  Image as ImageIcon
 } from 'lucide-react';
-import api from '../services/api';
-import { adminUsersService, USER_ROLES } from '../services/adminUsers';
+import { teamsService } from '../services/teams';
+import { playersService } from '../services/players';
+import { adminUsersService } from '../services/adminUsers';
 import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
+import {
+  Button,
+  Input,
+  Switch,
+  Card,
+  CardHeader,
+  CardBody,
+  Divider,
+  Select,
+  SelectItem,
+  Tabs,
+  Tab,
+  Spinner,
+  Chip
+} from '@heroui/react';
+import api from '../services/api';
+import { USER_ROLES } from '../services/adminUsers';
 import { useBranding } from '../contexts/BrandingContext';
 import LogoUpload from '../components/LogoUpload';
 import AccessibleModal from '../components/ui/AccessibleModal';
 import PrestoSportsConfig from '../components/integrations/PrestoSportsConfig';
-import toast from 'react-hot-toast';
 
 const divisions = [
   { value: 'D1', label: 'Division I', color: 'bg-red-100 text-red-800' },
   { value: 'D2', label: 'Division II', color: 'bg-blue-100 text-blue-800' },
   { value: 'D3', label: 'Division III', color: 'bg-green-100 text-green-800' },
   { value: 'NAIA', label: 'NAIA', color: 'bg-purple-100 text-purple-800' },
-  { value: 'JUCO', label: 'Junior College', color: 'bg-orange-100 text-orange-800' }
+  {
+    value: 'JUCO',
+    label: 'Junior College',
+    color: 'bg-orange-100 text-orange-800'
+  }
 ];
 
 const states = [
-  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY'
 ];
 
 const permissionTypes = [
-  { value: 'depth_chart_view', label: 'View Depth Charts', description: 'Can view depth charts and player assignments' },
-  { value: 'depth_chart_create', label: 'Create Depth Charts', description: 'Can create new depth charts' },
-  { value: 'depth_chart_edit', label: 'Edit Depth Charts', description: 'Can edit existing depth charts' },
-  { value: 'depth_chart_delete', label: 'Delete Depth Charts', description: 'Can delete depth charts' },
-  { value: 'depth_chart_manage_positions', label: 'Manage Positions', description: 'Can configure position settings' },
-  { value: 'player_assign', label: 'Assign Players', description: 'Can assign players to positions' },
-  { value: 'player_unassign', label: 'Unassign Players', description: 'Can remove players from positions' },
-  { value: 'schedule_view', label: 'View Schedule', description: 'Can view team schedule' },
-  { value: 'schedule_create', label: 'Create Schedule', description: 'Can create new schedule items' },
-  { value: 'schedule_edit', label: 'Edit Schedule', description: 'Can edit schedule items' },
-  { value: 'schedule_delete', label: 'Delete Schedule', description: 'Can delete schedule items' },
-  { value: 'reports_view', label: 'View Reports', description: 'Can view reports and analytics' },
-  { value: 'reports_create', label: 'Create Reports', description: 'Can create new reports' },
-  { value: 'reports_edit', label: 'Edit Reports', description: 'Can edit existing reports' },
-  { value: 'reports_delete', label: 'Delete Reports', description: 'Can delete reports' },
-  { value: 'team_settings', label: 'Team Settings', description: 'Can modify team settings' },
-  { value: 'user_management', label: 'User Management', description: 'Can manage user accounts and permissions' }
+  {
+    value: 'depth_chart_view',
+    label: 'View Depth Charts',
+    description: 'Can view depth charts and player assignments'
+  },
+  {
+    value: 'depth_chart_create',
+    label: 'Create Depth Charts',
+    description: 'Can create new depth charts'
+  },
+  {
+    value: 'depth_chart_edit',
+    label: 'Edit Depth Charts',
+    description: 'Can edit existing depth charts'
+  },
+  {
+    value: 'depth_chart_delete',
+    label: 'Delete Depth Charts',
+    description: 'Can delete depth charts'
+  },
+  {
+    value: 'depth_chart_manage_positions',
+    label: 'Manage Positions',
+    description: 'Can configure position settings'
+  },
+  {
+    value: 'player_assign',
+    label: 'Assign Players',
+    description: 'Can assign players to positions'
+  },
+  {
+    value: 'player_unassign',
+    label: 'Unassign Players',
+    description: 'Can remove players from positions'
+  },
+  {
+    value: 'schedule_view',
+    label: 'View Schedule',
+    description: 'Can view team schedule'
+  },
+  {
+    value: 'schedule_create',
+    label: 'Create Schedule',
+    description: 'Can create new schedule items'
+  },
+  {
+    value: 'schedule_edit',
+    label: 'Edit Schedule',
+    description: 'Can edit schedule items'
+  },
+  {
+    value: 'schedule_delete',
+    label: 'Delete Schedule',
+    description: 'Can delete schedule items'
+  },
+  {
+    value: 'reports_view',
+    label: 'View Reports',
+    description: 'Can view reports and analytics'
+  },
+  {
+    value: 'reports_create',
+    label: 'Create Reports',
+    description: 'Can create new reports'
+  },
+  {
+    value: 'reports_edit',
+    label: 'Edit Reports',
+    description: 'Can edit existing reports'
+  },
+  {
+    value: 'reports_delete',
+    label: 'Delete Reports',
+    description: 'Can delete reports'
+  },
+  {
+    value: 'team_settings',
+    label: 'Team Settings',
+    description: 'Can modify team settings'
+  },
+  {
+    value: 'user_management',
+    label: 'User Management',
+    description: 'Can manage user accounts and permissions'
+  }
 ];
 
 export default function TeamSettings() {
   const { user, canModifyBranding } = useAuth();
-  const { logoUrl, primaryColor, secondaryColor, refreshBranding, updateBranding } = useBranding();
+  const {
+    logoUrl,
+    primaryColor,
+    secondaryColor,
+    refreshBranding,
+    updateBranding
+  } = useBranding();
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
   const [showAddPermissionModal, setShowAddPermissionModal] = useState(false);
@@ -114,7 +260,12 @@ export default function TeamSettings() {
   const queryClient = useQueryClient();
 
   // Fetch team data
-  const { data: teamData, isLoading, error, refetch } = useQuery({
+  const {
+    data: teamData,
+    isLoading,
+    error,
+    refetch
+  } = useQuery({
     queryKey: ['team-settings', user?.team_id],
     queryFn: () => api.get(`/teams/${user.team_id}`),
     staleTime: 300000, // 5 minutes
@@ -138,11 +289,12 @@ export default function TeamSettings() {
   // Fetch admin users list (for super_admin only)
   const { data: adminUsersData, isLoading: isLoadingAdminUsers } = useQuery({
     queryKey: ['admin-users', userSearch, userRoleFilter],
-    queryFn: () => adminUsersService.getUsers({
-      search: userSearch || undefined,
-      role: userRoleFilter || undefined,
-      limit: 50
-    }),
+    queryFn: () =>
+      adminUsersService.getUsers({
+        search: userSearch || undefined,
+        role: userRoleFilter || undefined,
+        limit: 50
+      }),
     enabled: user?.role === 'super_admin',
     staleTime: 60000
   });
@@ -151,7 +303,9 @@ export default function TeamSettings() {
   const updateTeam = useMutation({
     mutationFn: (data) => api.put(`/teams/${user.team_id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-settings', user?.team_id] });
+      queryClient.invalidateQueries({
+        queryKey: ['team-settings', user?.team_id]
+      });
       toast.success('Team settings updated successfully');
     },
     onError: () => {
@@ -191,26 +345,32 @@ export default function TeamSettings() {
 
   // Update permission mutation
   const updatePermission = useMutation({
-    mutationFn: ({ permissionId, data }) => api.put(`/teams/permissions/${permissionId}`, data),
+    mutationFn: ({ permissionId, data }) =>
+      api.put(`/teams/permissions/${permissionId}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
       setEditingPermission(null);
       toast.success('Permission updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update permission');
+      toast.error(
+        error.response?.data?.message || 'Failed to update permission'
+      );
     }
   });
 
   // Delete permission mutation
   const deletePermission = useMutation({
-    mutationFn: (permissionId) => api.delete(`/teams/permissions/${permissionId}`),
+    mutationFn: (permissionId) =>
+      api.delete(`/teams/permissions/${permissionId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
       toast.success('Permission removed successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to remove permission');
+      toast.error(
+        error.response?.data?.message || 'Failed to remove permission'
+      );
     }
   });
 
@@ -233,7 +393,14 @@ export default function TeamSettings() {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['team-users'] });
       setShowAddUserModal(false);
-      setNewUser({ email: '', password: '', first_name: '', last_name: '', role: 'viewer', phone: '' });
+      setNewUser({
+        email: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        role: 'viewer',
+        phone: ''
+      });
       toast.success('User created successfully');
     },
     onError: (error) => {
@@ -243,7 +410,8 @@ export default function TeamSettings() {
 
   // Update user mutation
   const updateUserMutation = useMutation({
-    mutationFn: ({ userId, data }) => adminUsersService.updateUser(userId, data),
+    mutationFn: ({ userId, data }) =>
+      adminUsersService.updateUser(userId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['team-users'] });
@@ -356,7 +524,11 @@ export default function TeamSettings() {
   };
 
   const handleDeleteUser = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (
+      window.confirm(
+        'Are you sure you want to delete this user? This action cannot be undone.'
+      )
+    ) {
       deleteUserMutation.mutate(userId);
     }
   };
@@ -374,10 +546,12 @@ export default function TeamSettings() {
   const team = teamData?.data;
   // Handle API response format - may be array or { users: [...] }
   const usersData = teamUsers?.data;
-  const users = Array.isArray(usersData) ? usersData : (usersData?.users || []);
+  const users = Array.isArray(usersData) ? usersData : usersData?.users || [];
   // Handle API response format - may be array or { permissions: [...] }
   const permissionsData = userPermissions?.data;
-  const permissions = Array.isArray(permissionsData) ? permissionsData : (permissionsData?.permissions || []);
+  const permissions = Array.isArray(permissionsData)
+    ? permissionsData
+    : permissionsData?.permissions || [];
 
   // Admin users data
   const adminUsers = adminUsersData?.data?.users || adminUsersData?.data || [];
@@ -396,50 +570,70 @@ export default function TeamSettings() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="tabs tabs-boxed">
-          <button
-            className={`tab ${activeTab === 'general' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('general')}
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            General
-          </button>
+        <Tabs
+          selectedKey={activeTab}
+          onSelectionChange={setActiveTab}
+          variant="underlined"
+          classNames={{
+            tabList:
+              'gap-6 w-full relative rounded-none p-0 border-b border-divider',
+            cursor: 'w-full bg-primary',
+            tab: 'max-w-fit px-0 h-12',
+            tabContent: 'group-data-[selected=true]:text-primary font-medium'
+          }}
+        >
+          <Tab
+            key="general"
+            title={
+              <div className="flex items-center space-x-2">
+                <Settings className="h-4 w-4" />
+                <span>General</span>
+              </div>
+            }
+          />
           {canModifyBranding && (
-            <button
-              className={`tab ${activeTab === 'branding' ? 'tab-active' : ''}`}
-              onClick={() => setActiveTab('branding')}
-            >
-              <Palette className="h-4 w-4 mr-2" />
-              Branding
-            </button>
+            <Tab
+              key="branding"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Palette className="h-4 w-4" />
+                  <span>Branding</span>
+                </div>
+              }
+            />
           )}
           {isSuperAdmin && (
-            <button
-              className={`tab ${activeTab === 'users' ? 'tab-active' : ''}`}
-              onClick={() => setActiveTab('users')}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Users
-            </button>
+            <Tab
+              key="users"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Users className="h-4 w-4" />
+                  <span>Users</span>
+                </div>
+              }
+            />
           )}
-          <button
-            className={`tab ${activeTab === 'permissions' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('permissions')}
-          >
-            <Shield className="h-4 w-4 mr-2" />
-            Permissions
-          </button>
+          <Tab
+            key="permissions"
+            title={
+              <div className="flex items-center space-x-2">
+                <Shield className="h-4 w-4" />
+                <span>Permissions</span>
+              </div>
+            }
+          />
           {canModifyBranding && (
-            <button
-              className={`tab ${activeTab === 'integrations' ? 'tab-active' : ''}`}
-              onClick={() => setActiveTab('integrations')}
-            >
-              <Link2 className="h-4 w-4 mr-2" />
-              Integrations
-            </button>
+            <Tab
+              key="integrations"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Link2 className="h-4 w-4" />
+                  <span>Integrations</span>
+                </div>
+              }
+            />
           )}
-        </div>
+        </Tabs>
 
         {/* General Settings */}
         {activeTab === 'general' && (
@@ -448,7 +642,9 @@ export default function TeamSettings() {
             <div className="card">
               <div className="card-header">
                 <h2 className="card-title">Team Information</h2>
-                <p className="card-description">Update your team&apos;s basic information</p>
+                <p className="card-description">
+                  Update your team&apos;s basic information
+                </p>
               </div>
               <div className="card-content">
                 <form onSubmit={handleTeamUpdate} className="space-y-4">
@@ -494,10 +690,17 @@ export default function TeamSettings() {
                       <label className="label">
                         <span className="label-text">Division</span>
                       </label>
-                      <select name="division" className="select select-bordered w-full">
+                      <select
+                        name="division"
+                        className="select select-bordered w-full"
+                      >
                         <option value="">Select Division</option>
-                        {divisions.map(division => (
-                          <option key={division.value} value={division.value} selected={team?.division === division.value}>
+                        {divisions.map((division) => (
+                          <option
+                            key={division.value}
+                            value={division.value}
+                            selected={team?.division === division.value}
+                          >
                             {division.label}
                           </option>
                         ))}
@@ -507,10 +710,17 @@ export default function TeamSettings() {
                       <label className="label">
                         <span className="label-text">State</span>
                       </label>
-                      <select name="state" className="select select-bordered w-full">
+                      <select
+                        name="state"
+                        className="select select-bordered w-full"
+                      >
                         <option value="">Select State</option>
-                        {states.map(state => (
-                          <option key={state} value={state} selected={team?.state === state}>
+                        {states.map((state) => (
+                          <option
+                            key={state}
+                            value={state}
+                            selected={team?.state === state}
+                          >
                             {state}
                           </option>
                         ))}
@@ -556,14 +766,14 @@ export default function TeamSettings() {
                   </div>
 
                   <div className="flex justify-end">
-                    <button
+                    <Button
                       type="submit"
-                      className="btn btn-primary"
                       disabled={updateTeam.isLoading}
+                      color="primary"
                     >
                       {updateTeam.isLoading ? (
                         <>
-                          <div className="loading loading-spinner loading-sm"></div>
+                          <Spinner size="sm" />
                           Saving...
                         </>
                       ) : (
@@ -572,7 +782,7 @@ export default function TeamSettings() {
                           Save Changes
                         </>
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -602,7 +812,11 @@ export default function TeamSettings() {
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -633,14 +847,14 @@ export default function TeamSettings() {
                   </div>
 
                   <div className="flex justify-end">
-                    <button
+                    <Button
                       type="submit"
-                      className="btn btn-primary"
                       disabled={updatePassword.isLoading}
+                      color="primary"
                     >
                       {updatePassword.isLoading ? (
                         <>
-                          <div className="loading loading-spinner loading-sm"></div>
+                          <Spinner size="sm" />
                           Updating...
                         </>
                       ) : (
@@ -649,7 +863,7 @@ export default function TeamSettings() {
                           Update Password
                         </>
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -695,20 +909,32 @@ export default function TeamSettings() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="label">
-                        <span className="label-text font-medium">Primary Color</span>
+                        <span className="label-text font-medium">
+                          Primary Color
+                        </span>
                       </label>
                       <div className="flex items-center gap-4">
                         <input
                           type="color"
                           value={brandingColors.primary_color}
-                          onChange={(e) => setBrandingColors(prev => ({ ...prev, primary_color: e.target.value }))}
+                          onChange={(e) =>
+                            setBrandingColors((prev) => ({
+                              ...prev,
+                              primary_color: e.target.value
+                            }))
+                          }
                           className="w-16 h-16 rounded-lg cursor-pointer border-2 border-divider"
                         />
                         <div className="flex-1">
                           <input
                             type="text"
                             value={brandingColors.primary_color}
-                            onChange={(e) => setBrandingColors(prev => ({ ...prev, primary_color: e.target.value }))}
+                            onChange={(e) =>
+                              setBrandingColors((prev) => ({
+                                ...prev,
+                                primary_color: e.target.value
+                              }))
+                            }
                             className="input input-bordered w-full font-mono"
                             pattern="^#[0-9A-Fa-f]{6}$"
                             placeholder="#3B82F6"
@@ -722,20 +948,32 @@ export default function TeamSettings() {
 
                     <div>
                       <label className="label">
-                        <span className="label-text font-medium">Secondary Color</span>
+                        <span className="label-text font-medium">
+                          Secondary Color
+                        </span>
                       </label>
                       <div className="flex items-center gap-4">
                         <input
                           type="color"
                           value={brandingColors.secondary_color}
-                          onChange={(e) => setBrandingColors(prev => ({ ...prev, secondary_color: e.target.value }))}
+                          onChange={(e) =>
+                            setBrandingColors((prev) => ({
+                              ...prev,
+                              secondary_color: e.target.value
+                            }))
+                          }
                           className="w-16 h-16 rounded-lg cursor-pointer border-2 border-divider"
                         />
                         <div className="flex-1">
                           <input
                             type="text"
                             value={brandingColors.secondary_color}
-                            onChange={(e) => setBrandingColors(prev => ({ ...prev, secondary_color: e.target.value }))}
+                            onChange={(e) =>
+                              setBrandingColors((prev) => ({
+                                ...prev,
+                                secondary_color: e.target.value
+                              }))
+                            }
                             className="input input-bordered w-full font-mono"
                             pattern="^#[0-9A-Fa-f]{6}$"
                             placeholder="#EF4444"
@@ -752,23 +990,32 @@ export default function TeamSettings() {
                   <div className="bg-content1 p-4 rounded-lg">
                     <h4 className="font-medium mb-3">Preview</h4>
                     <div className="flex flex-wrap gap-3">
-                      <button
+                      <Button
                         type="button"
-                        className="btn"
-                        style={{ backgroundColor: brandingColors.primary_color, borderColor: brandingColors.primary_color, color: 'white' }}
+                        style={{
+                          backgroundColor: brandingColors.primary_color,
+                          borderColor: brandingColors.primary_color,
+                          color: 'white'
+                        }}
                       >
                         Primary Button
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className="btn"
-                        style={{ backgroundColor: brandingColors.secondary_color, borderColor: brandingColors.secondary_color, color: 'white' }}
+                        style={{
+                          backgroundColor: brandingColors.secondary_color,
+                          borderColor: brandingColors.secondary_color,
+                          color: 'white'
+                        }}
                       >
                         Secondary Button
-                      </button>
+                      </Button>
                       <div
                         className="px-4 py-2 rounded-lg font-medium"
-                        style={{ backgroundColor: brandingColors.primary_color + '20', color: brandingColors.primary_color }}
+                        style={{
+                          backgroundColor: brandingColors.primary_color + '20',
+                          color: brandingColors.primary_color
+                        }}
                       >
                         Badge Style
                       </div>
@@ -776,14 +1023,14 @@ export default function TeamSettings() {
                   </div>
 
                   <div className="flex justify-end">
-                    <button
+                    <Button
                       type="submit"
-                      className="btn btn-primary"
                       disabled={updateBrandingMutation.isLoading}
+                      color="primary"
                     >
                       {updateBrandingMutation.isLoading ? (
                         <>
-                          <div className="loading loading-spinner loading-sm"></div>
+                          <Spinner size="sm" />
                           Saving...
                         </>
                       ) : (
@@ -792,7 +1039,7 @@ export default function TeamSettings() {
                           Save Colors
                         </>
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -806,14 +1053,17 @@ export default function TeamSettings() {
             <div className="card">
               <div className="card-header">
                 <h2 className="card-title">User Permissions</h2>
-                <p className="card-description">Manage access permissions for team members</p>
-                <button
+                <p className="card-description">
+                  Manage access permissions for team members
+                </p>
+                <Button
                   onClick={() => setShowAddPermissionModal(true)}
-                  className="btn btn-primary btn-sm"
+                  color="primary"
+                  size="sm"
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add Permission
-                </button>
+                </Button>
               </div>
               <div className="card-content">
                 <div className="overflow-x-auto">
@@ -829,9 +1079,15 @@ export default function TeamSettings() {
                     </thead>
                     <tbody>
                       {permissions.map((permission) => {
-                        const user = users.find(u => u.id === permission.user_id);
-                        const permissionType = permissionTypes.find(p => p.value === permission.permission_type);
-                        const isExpired = permission.expires_at && new Date() > new Date(permission.expires_at);
+                        const user = users.find(
+                          (u) => u.id === permission.user_id
+                        );
+                        const permissionType = permissionTypes.find(
+                          (p) => p.value === permission.permission_type
+                        );
+                        const isExpired =
+                          permission.expires_at &&
+                          new Date() > new Date(permission.expires_at);
 
                         return (
                           <tr key={permission.id}>
@@ -840,74 +1096,100 @@ export default function TeamSettings() {
                                 <div className="avatar placeholder">
                                   <div className="bg-neutral text-neutral-content rounded-full w-8">
                                     <span className="text-xs">
-                                      {user ? `${user.first_name[0]}${user.last_name[0]}` : '??'}
+                                      {user
+                                        ? `${user.first_name[0]}${user.last_name[0]}`
+                                        : '??'}
                                     </span>
                                   </div>
                                 </div>
                                 <div>
                                   <div className="font-bold">
-                                    {user ? `${user.first_name} ${user.last_name}` : 'Unknown User'}
+                                    {user
+                                      ? `${user.first_name} ${user.last_name}`
+                                      : 'Unknown User'}
                                   </div>
-                                  <div className="text-sm opacity-50">{user?.email}</div>
+                                  <div className="text-sm opacity-50">
+                                    {user?.email}
+                                  </div>
                                 </div>
                               </div>
                             </td>
                             <td>
                               <div>
-                                <div className="font-medium">{permissionType?.label || permission.permission_type}</div>
-                                <div className="text-sm text-gray-500">{permissionType?.description}</div>
+                                <div className="font-medium">
+                                  {permissionType?.label ||
+                                    permission.permission_type}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {permissionType?.description}
+                                </div>
                               </div>
                             </td>
                             <td>
                               <div className="flex items-center gap-2">
                                 {permission.is_granted ? (
-                                  <span className="badge badge-success gap-1">
+                                  <Chip className="gap-1" color="success">
                                     <CheckCircle className="h-3 w-3" />
                                     Granted
-                                  </span>
+                                  </Chip>
                                 ) : (
-                                  <span className="badge badge-error gap-1">
+                                  <Chip className="gap-1" color="danger">
                                     <X className="h-3 w-3" />
                                     Denied
-                                  </span>
+                                  </Chip>
                                 )}
                                 {isExpired && (
-                                  <span className="badge badge-warning gap-1">
+                                  <Chip className="gap-1" color="warning">
                                     <Clock className="h-3 w-3" />
                                     Expired
-                                  </span>
+                                  </Chip>
                                 )}
                               </div>
                             </td>
                             <td>
                               {permission.expires_at ? (
                                 <div className="text-sm">
-                                  <div>{new Date(permission.expires_at).toLocaleDateString()}</div>
+                                  <div>
+                                    {new Date(
+                                      permission.expires_at
+                                    ).toLocaleDateString()}
+                                  </div>
                                   <div className="text-gray-500">
-                                    {new Date(permission.expires_at).toLocaleTimeString()}
+                                    {new Date(
+                                      permission.expires_at
+                                    ).toLocaleTimeString()}
                                   </div>
                                 </div>
                               ) : (
-                                <span className="text-sm text-gray-500">Never</span>
+                                <span className="text-sm text-gray-500">
+                                  Never
+                                </span>
                               )}
                             </td>
                             <td>
                               <div className="flex gap-1">
-                                <button
-                                  onClick={() => setEditingPermission(permission)}
-                                  className="btn btn-ghost btn-xs"
+                                <Button
+                                  onClick={() =>
+                                    setEditingPermission(permission)
+                                  }
                                   title="Edit Permission"
+                                  size="sm"
+                                  variant="light"
                                 >
                                   <Edit className="h-3 w-3" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeletePermission(permission.id)}
-                                  className="btn btn-ghost btn-xs text-red-600"
+                                </Button>
+                                <Button
+                                  onClick={() =>
+                                    handleDeletePermission(permission.id)
+                                  }
+                                  className="text-red-600"
                                   title="Remove Permission"
                                   disabled={deletePermission.isLoading}
+                                  size="sm"
+                                  variant="light"
                                 >
                                   <Trash2 className="h-3 w-3" />
-                                </button>
+                                </Button>
                               </div>
                             </td>
                           </tr>
@@ -921,13 +1203,15 @@ export default function TeamSettings() {
                   <div className="text-center py-8">
                     <Shield className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">No permissions configured</p>
-                    <button
+                    <Button
                       onClick={() => setShowAddPermissionModal(true)}
-                      className="btn btn-outline btn-sm mt-2"
+                      className="mt-2"
+                      size="sm"
+                      variant="bordered"
                     >
                       <UserPlus className="h-4 w-4 mr-2" />
                       Add First Permission
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -942,15 +1226,17 @@ export default function TeamSettings() {
               <div className="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h2 className="card-title">Team Users</h2>
-                  <p className="card-description">Manage user accounts for your team</p>
+                  <p className="card-description">
+                    Manage user accounts for your team
+                  </p>
                 </div>
-                <button
+                <Button
                   onClick={() => setShowAddUserModal(true)}
-                  className="btn btn-primary"
+                  color="primary"
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add User
-                </button>
+                </Button>
               </div>
               <div className="card-content">
                 {/* Search and Filter */}
@@ -971,8 +1257,10 @@ export default function TeamSettings() {
                     onChange={(e) => setUserRoleFilter(e.target.value)}
                   >
                     <option value="">All Roles</option>
-                    {USER_ROLES.map(role => (
-                      <option key={role.value} value={role.value}>{role.label}</option>
+                    {USER_ROLES.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -980,7 +1268,7 @@ export default function TeamSettings() {
                 {/* Users Table */}
                 {isLoadingAdminUsers ? (
                   <div className="flex justify-center py-8">
-                    <span className="loading loading-spinner loading-lg"></span>
+                    <Spinner size="lg" />
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -1002,12 +1290,15 @@ export default function TeamSettings() {
                                 <div className="avatar placeholder">
                                   <div className="bg-neutral text-neutral-content rounded-full w-10">
                                     <span>
-                                      {u.first_name?.[0]}{u.last_name?.[0]}
+                                      {u.first_name?.[0]}
+                                      {u.last_name?.[0]}
                                     </span>
                                   </div>
                                 </div>
                                 <div>
-                                  <div className="font-bold">{u.first_name} {u.last_name}</div>
+                                  <div className="font-bold">
+                                    {u.first_name} {u.last_name}
+                                  </div>
                                   <div className="text-sm opacity-50 flex items-center gap-1">
                                     <Mail className="h-3 w-3" />
                                     {u.email}
@@ -1022,65 +1313,77 @@ export default function TeamSettings() {
                               </div>
                             </td>
                             <td>
-                              <span className={`badge ${
-                                u.role === 'super_admin' ? 'badge-error' :
-                                  u.role === 'head_coach' ? 'badge-primary' :
-                                    u.role === 'assistant_coach' ? 'badge-secondary' :
-                                      'badge-ghost'
-                              }`}>
-                                {USER_ROLES.find(r => r.value === u.role)?.label || u.role}
+                              <span
+                                className={`badge ${
+                                  u.role === 'super_admin'
+                                    ? 'badge-error'
+                                    : u.role === 'head_coach'
+                                      ? 'badge-primary'
+                                      : u.role === 'assistant_coach'
+                                        ? 'badge-secondary'
+                                        : 'badge-ghost'
+                                }`}
+                              >
+                                {USER_ROLES.find((r) => r.value === u.role)
+                                  ?.label || u.role}
                               </span>
                             </td>
                             <td>
                               {u.is_active !== false ? (
-                                <span className="badge badge-success gap-1">
+                                <Chip className="gap-1" color="success">
                                   <CheckCircle className="h-3 w-3" />
                                   Active
-                                </span>
+                                </Chip>
                               ) : (
-                                <span className="badge badge-warning gap-1">
+                                <Chip className="gap-1" color="warning">
                                   <AlertCircle className="h-3 w-3" />
                                   Inactive
-                                </span>
+                                </Chip>
                               )}
                             </td>
                             <td>
                               <div className="text-sm">
-                                {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+                                {u.created_at
+                                  ? new Date(u.created_at).toLocaleDateString()
+                                  : 'N/A'}
                               </div>
                             </td>
                             <td>
                               <div className="flex gap-1">
-                                <button
+                                <Button
                                   onClick={() => {
                                     setEditingUser(u);
                                     setShowEditUserModal(true);
                                   }}
-                                  className="btn btn-ghost btn-xs"
                                   title="Edit User"
+                                  size="sm"
+                                  variant="light"
                                 >
                                   <Edit className="h-3 w-3" />
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                   onClick={() => {
                                     setEditingUser(u);
                                     setResetPasswordResult(null);
                                     setShowResetPasswordModal(true);
                                   }}
-                                  className="btn btn-ghost btn-xs"
                                   title="Reset Password"
+                                  size="sm"
+                                  variant="light"
                                 >
                                   <Key className="h-3 w-3" />
-                                </button>
+                                </Button>
                                 {u.id !== user?.id && (
-                                  <button
+                                  <Button
                                     onClick={() => handleDeleteUser(u.id)}
-                                    className="btn btn-ghost btn-xs text-error"
+                                    className="text-error"
                                     title="Delete User"
                                     disabled={deleteUserMutation.isLoading}
+                                    size="sm"
+                                    variant="light"
                                   >
                                     <Trash2 className="h-3 w-3" />
-                                  </button>
+                                  </Button>
                                 )}
                               </div>
                             </td>
@@ -1095,13 +1398,15 @@ export default function TeamSettings() {
                   <div className="text-center py-8">
                     <Users className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">No users found</p>
-                    <button
+                    <Button
                       onClick={() => setShowAddUserModal(true)}
-                      className="btn btn-outline btn-sm mt-2"
+                      className="mt-2"
+                      size="sm"
+                      variant="bordered"
                     >
                       <UserPlus className="h-4 w-4 mr-2" />
                       Add First User
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -1119,7 +1424,8 @@ export default function TeamSettings() {
                   External Integrations
                 </h2>
                 <p className="card-description">
-                  Connect to external services to sync schedules, rosters, and statistics
+                  Connect to external services to sync schedules, rosters, and
+                  statistics
                 </p>
               </div>
               <div className="card-content">
@@ -1150,7 +1456,12 @@ export default function TeamSettings() {
               <select
                 className="select select-bordered w-full"
                 value={newPermission.user_id}
-                onChange={(e) => setNewPermission(prev => ({ ...prev, user_id: e.target.value }))}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    user_id: e.target.value
+                  }))
+                }
               >
                 <option value="">Select a user...</option>
                 {users.map((user) => (
@@ -1168,7 +1479,12 @@ export default function TeamSettings() {
               <select
                 className="select select-bordered w-full"
                 value={newPermission.permission_type}
-                onChange={(e) => setNewPermission(prev => ({ ...prev, permission_type: e.target.value }))}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    permission_type: e.target.value
+                  }))
+                }
               >
                 <option value="">Select permission...</option>
                 {permissionTypes.map((permission) => (
@@ -1187,7 +1503,12 @@ export default function TeamSettings() {
                 type="datetime-local"
                 className="input input-bordered w-full"
                 value={newPermission.expires_at}
-                onChange={(e) => setNewPermission(prev => ({ ...prev, expires_at: e.target.value }))}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    expires_at: e.target.value
+                  }))
+                }
               />
               <div className="text-xs text-gray-500 mt-1">
                 Leave empty for permanent permission
@@ -1201,7 +1522,12 @@ export default function TeamSettings() {
               <textarea
                 className="textarea textarea-bordered w-full"
                 value={newPermission.notes}
-                onChange={(e) => setNewPermission(prev => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    notes: e.target.value
+                  }))
+                }
                 placeholder="Optional notes about this permission"
                 rows={3}
               />
@@ -1209,19 +1535,20 @@ export default function TeamSettings() {
           </div>
         </AccessibleModal.Content>
         <AccessibleModal.Footer>
-          <button
-            className="btn"
-            onClick={() => setShowAddPermissionModal(false)}
-          >
+          <Button onClick={() => setShowAddPermissionModal(false)}>
             Cancel
-          </button>
-          <button
-            className="btn btn-primary"
+          </Button>
+          <Button
             onClick={handleAddPermission}
-            disabled={!newPermission.user_id || !newPermission.permission_type || addPermission.isLoading}
+            disabled={
+              !newPermission.user_id ||
+              !newPermission.permission_type ||
+              addPermission.isLoading
+            }
+            color="primary"
           >
             {addPermission.isLoading ? 'Adding...' : 'Add Permission'}
-          </button>
+          </Button>
         </AccessibleModal.Footer>
       </AccessibleModal>
 
@@ -1247,7 +1574,10 @@ export default function TeamSettings() {
                   <input
                     type="text"
                     className="input input-bordered w-full"
-                    value={users.find(u => u.id === editingPermission.user_id)?.email || 'Unknown User'}
+                    value={
+                      users.find((u) => u.id === editingPermission.user_id)
+                        ?.email || 'Unknown User'
+                    }
                     disabled
                   />
                 </div>
@@ -1259,7 +1589,11 @@ export default function TeamSettings() {
                   <input
                     type="text"
                     className="input input-bordered w-full"
-                    value={permissionTypes.find(p => p.value === editingPermission.permission_type)?.label || editingPermission.permission_type}
+                    value={
+                      permissionTypes.find(
+                        (p) => p.value === editingPermission.permission_type
+                      )?.label || editingPermission.permission_type
+                    }
                     disabled
                   />
                 </div>
@@ -1271,7 +1605,12 @@ export default function TeamSettings() {
                   <select
                     className="select select-bordered w-full"
                     value={editingPermission.is_granted ? 'true' : 'false'}
-                    onChange={(e) => setEditingPermission(prev => ({ ...prev, is_granted: e.target.value === 'true' }))}
+                    onChange={(e) =>
+                      setEditingPermission((prev) => ({
+                        ...prev,
+                        is_granted: e.target.value === 'true'
+                      }))
+                    }
                   >
                     <option value="true">Granted</option>
                     <option value="false">Denied</option>
@@ -1285,8 +1624,17 @@ export default function TeamSettings() {
                   <input
                     type="datetime-local"
                     className="input input-bordered w-full"
-                    value={editingPermission.expires_at ? editingPermission.expires_at.slice(0, 16) : ''}
-                    onChange={(e) => setEditingPermission(prev => ({ ...prev, expires_at: e.target.value }))}
+                    value={
+                      editingPermission.expires_at
+                        ? editingPermission.expires_at.slice(0, 16)
+                        : ''
+                    }
+                    onChange={(e) =>
+                      setEditingPermission((prev) => ({
+                        ...prev,
+                        expires_at: e.target.value
+                      }))
+                    }
                   />
                 </div>
 
@@ -1297,7 +1645,12 @@ export default function TeamSettings() {
                   <textarea
                     className="textarea textarea-bordered w-full"
                     value={editingPermission.notes || ''}
-                    onChange={(e) => setEditingPermission(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setEditingPermission((prev) => ({
+                        ...prev,
+                        notes: e.target.value
+                      }))
+                    }
                     placeholder="Optional notes about this permission"
                     rows={3}
                   />
@@ -1305,19 +1658,16 @@ export default function TeamSettings() {
               </div>
             </AccessibleModal.Content>
             <AccessibleModal.Footer>
-              <button
-                className="btn"
-                onClick={() => setEditingPermission(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
+              <Button onClick={() => setEditingPermission(null)}>Cancel</Button>
+              <Button
                 onClick={handleUpdatePermission}
                 disabled={updatePermission.isLoading}
+                color="primary"
               >
-                {updatePermission.isLoading ? 'Updating...' : 'Update Permission'}
-              </button>
+                {updatePermission.isLoading
+                  ? 'Updating...'
+                  : 'Update Permission'}
+              </Button>
             </AccessibleModal.Footer>
           </>
         )}
@@ -1345,7 +1695,12 @@ export default function TeamSettings() {
                   type="text"
                   className="input input-bordered w-full"
                   value={newUser.first_name}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, first_name: e.target.value }))}
+                  onChange={(e) =>
+                    setNewUser((prev) => ({
+                      ...prev,
+                      first_name: e.target.value
+                    }))
+                  }
                   placeholder="John"
                 />
               </div>
@@ -1357,7 +1712,12 @@ export default function TeamSettings() {
                   type="text"
                   className="input input-bordered w-full"
                   value={newUser.last_name}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, last_name: e.target.value }))}
+                  onChange={(e) =>
+                    setNewUser((prev) => ({
+                      ...prev,
+                      last_name: e.target.value
+                    }))
+                  }
                   placeholder="Doe"
                 />
               </div>
@@ -1373,7 +1733,9 @@ export default function TeamSettings() {
                   type="email"
                   className="input input-bordered w-full pl-10"
                   value={newUser.email}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setNewUser((prev) => ({ ...prev, email: e.target.value }))
+                  }
                   placeholder="john.doe@example.com"
                 />
               </div>
@@ -1389,7 +1751,12 @@ export default function TeamSettings() {
                   type={showPassword ? 'text' : 'password'}
                   className="input input-bordered w-full pl-10 pr-10"
                   value={newUser.password}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) =>
+                    setNewUser((prev) => ({
+                      ...prev,
+                      password: e.target.value
+                    }))
+                  }
                   placeholder="Enter password"
                 />
                 <button
@@ -1397,11 +1764,16 @@ export default function TeamSettings() {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                Minimum 8 characters with at least one uppercase, lowercase, and number
+                Minimum 8 characters with at least one uppercase, lowercase, and
+                number
               </div>
             </div>
 
@@ -1412,9 +1784,11 @@ export default function TeamSettings() {
               <select
                 className="select select-bordered w-full"
                 value={newUser.role}
-                onChange={(e) => setNewUser(prev => ({ ...prev, role: e.target.value }))}
+                onChange={(e) =>
+                  setNewUser((prev) => ({ ...prev, role: e.target.value }))
+                }
               >
-                {USER_ROLES.map(role => (
+                {USER_ROLES.map((role) => (
                   <option key={role.value} value={role.value}>
                     {role.label} - {role.description}
                   </option>
@@ -1432,7 +1806,9 @@ export default function TeamSettings() {
                   type="tel"
                   className="input input-bordered w-full pl-10"
                   value={newUser.phone}
-                  onChange={(e) => setNewUser(prev => ({ ...prev, phone: e.target.value }))}
+                  onChange={(e) =>
+                    setNewUser((prev) => ({ ...prev, phone: e.target.value }))
+                  }
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -1440,20 +1816,21 @@ export default function TeamSettings() {
           </div>
         </AccessibleModal.Content>
         <AccessibleModal.Footer>
-          <button
-            className="btn"
-            onClick={() => setShowAddUserModal(false)}
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary"
+          <Button onClick={() => setShowAddUserModal(false)}>Cancel</Button>
+          <Button
             onClick={handleCreateUser}
-            disabled={!newUser.email || !newUser.password || !newUser.first_name || !newUser.last_name || createUserMutation.isLoading}
+            disabled={
+              !newUser.email ||
+              !newUser.password ||
+              !newUser.first_name ||
+              !newUser.last_name ||
+              createUserMutation.isLoading
+            }
+            color="primary"
           >
             {createUserMutation.isLoading ? (
               <>
-                <span className="loading loading-spinner loading-sm"></span>
+                <Spinner size="sm" />
                 Creating...
               </>
             ) : (
@@ -1462,7 +1839,7 @@ export default function TeamSettings() {
                 Create User
               </>
             )}
-          </button>
+          </Button>
         </AccessibleModal.Footer>
       </AccessibleModal>
 
@@ -1496,7 +1873,12 @@ export default function TeamSettings() {
                       type="text"
                       className="input input-bordered w-full"
                       value={editingUser.first_name || ''}
-                      onChange={(e) => setEditingUser(prev => ({ ...prev, first_name: e.target.value }))}
+                      onChange={(e) =>
+                        setEditingUser((prev) => ({
+                          ...prev,
+                          first_name: e.target.value
+                        }))
+                      }
                     />
                   </div>
                   <div>
@@ -1507,7 +1889,12 @@ export default function TeamSettings() {
                       type="text"
                       className="input input-bordered w-full"
                       value={editingUser.last_name || ''}
-                      onChange={(e) => setEditingUser(prev => ({ ...prev, last_name: e.target.value }))}
+                      onChange={(e) =>
+                        setEditingUser((prev) => ({
+                          ...prev,
+                          last_name: e.target.value
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -1522,7 +1909,12 @@ export default function TeamSettings() {
                       type="email"
                       className="input input-bordered w-full pl-10"
                       value={editingUser.email || ''}
-                      onChange={(e) => setEditingUser(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) =>
+                        setEditingUser((prev) => ({
+                          ...prev,
+                          email: e.target.value
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -1534,10 +1926,15 @@ export default function TeamSettings() {
                   <select
                     className="select select-bordered w-full"
                     value={editingUser.role || 'viewer'}
-                    onChange={(e) => setEditingUser(prev => ({ ...prev, role: e.target.value }))}
+                    onChange={(e) =>
+                      setEditingUser((prev) => ({
+                        ...prev,
+                        role: e.target.value
+                      }))
+                    }
                     disabled={editingUser.id === user?.id}
                   >
-                    {USER_ROLES.map(role => (
+                    {USER_ROLES.map((role) => (
                       <option key={role.value} value={role.value}>
                         {role.label}
                       </option>
@@ -1560,19 +1957,25 @@ export default function TeamSettings() {
                       type="tel"
                       className="input input-bordered w-full pl-10"
                       value={editingUser.phone || ''}
-                      onChange={(e) => setEditingUser(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) =>
+                        setEditingUser((prev) => ({
+                          ...prev,
+                          phone: e.target.value
+                        }))
+                      }
                     />
                   </div>
                 </div>
 
                 <div className="form-control">
                   <label className="label cursor-pointer justify-start gap-4">
-                    <input
-                      type="checkbox"
-                      className="toggle toggle-primary"
-                      checked={editingUser.is_active !== false}
-                      onChange={(e) => setEditingUser(prev => ({ ...prev, is_active: e.target.checked }))}
-                      disabled={editingUser.id === user?.id}
+                    <Switch
+                      isSelected={editingUser.is_active !== false}
+                      onValueChange={(val) =>
+                        setEditingUser((prev) => ({ ...prev, is_active: val }))
+                      }
+                      color="primary"
+                      isDisabled={editingUser.id === user?.id}
                     />
                     <span className="label-text">
                       {editingUser.is_active !== false ? 'Active' : 'Inactive'}
@@ -1587,23 +1990,27 @@ export default function TeamSettings() {
               </div>
             </AccessibleModal.Content>
             <AccessibleModal.Footer>
-              <button
-                className="btn"
+              <Button
                 onClick={() => {
                   setShowEditUserModal(false);
                   setEditingUser(null);
                 }}
               >
                 Cancel
-              </button>
-              <button
-                className="btn btn-primary"
+              </Button>
+              <Button
                 onClick={handleUpdateUser}
-                disabled={!editingUser.email || !editingUser.first_name || !editingUser.last_name || updateUserMutation.isLoading}
+                disabled={
+                  !editingUser.email ||
+                  !editingUser.first_name ||
+                  !editingUser.last_name ||
+                  updateUserMutation.isLoading
+                }
+                color="primary"
               >
                 {updateUserMutation.isLoading ? (
                   <>
-                    <span className="loading loading-spinner loading-sm"></span>
+                    <Spinner size="sm" />
                     Saving...
                   </>
                 ) : (
@@ -1612,7 +2019,7 @@ export default function TeamSettings() {
                     Save Changes
                   </>
                 )}
-              </button>
+              </Button>
             </AccessibleModal.Footer>
           </>
         )}
@@ -1644,11 +2051,14 @@ export default function TeamSettings() {
                 <div className="avatar placeholder mb-4">
                   <div className="bg-neutral text-neutral-content rounded-full w-16">
                     <span className="text-xl">
-                      {editingUser.first_name?.[0]}{editingUser.last_name?.[0]}
+                      {editingUser.first_name?.[0]}
+                      {editingUser.last_name?.[0]}
                     </span>
                   </div>
                 </div>
-                <h3 className="font-semibold">{editingUser.first_name} {editingUser.last_name}</h3>
+                <h3 className="font-semibold">
+                  {editingUser.first_name} {editingUser.last_name}
+                </h3>
                 <p className="text-sm text-gray-500">{editingUser.email}</p>
               </div>
 
@@ -1656,7 +2066,8 @@ export default function TeamSettings() {
                 <div className="alert">
                   <AlertCircle className="h-4 w-4" />
                   <span>
-                    This will generate a new temporary password for this user. They will need to log in with the new password.
+                    This will generate a new temporary password for this user.
+                    They will need to log in with the new password.
                   </span>
                 </div>
               ) : (
@@ -1668,24 +2079,36 @@ export default function TeamSettings() {
 
                   <div>
                     <label className="label">
-                      <span className="label-text font-medium">New Temporary Password</span>
+                      <span className="label-text font-medium">
+                        New Temporary Password
+                      </span>
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         className="input input-bordered w-full font-mono"
-                        value={resetPasswordResult.temporary_password || resetPasswordResult.password || '********'}
+                        value={
+                          resetPasswordResult.temporary_password ||
+                          resetPasswordResult.password ||
+                          '********'
+                        }
                         readOnly
                       />
-                      <button
-                        className="btn btn-outline"
-                        onClick={() => copyToClipboard(resetPasswordResult.temporary_password || resetPasswordResult.password)}
+                      <Button
+                        onClick={() =>
+                          copyToClipboard(
+                            resetPasswordResult.temporary_password ||
+                              resetPasswordResult.password
+                          )
+                        }
+                        variant="bordered"
                       >
                         <Copy className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                     <div className="text-xs text-warning mt-2">
-                      Make sure to copy and share this password securely. It won&apos;t be shown again.
+                      Make sure to copy and share this password securely. It
+                      won&apos;t be shown again.
                     </div>
                   </div>
                 </div>
@@ -1694,8 +2117,7 @@ export default function TeamSettings() {
           )}
         </AccessibleModal.Content>
         <AccessibleModal.Footer>
-          <button
-            className="btn"
+          <Button
             onClick={() => {
               setShowResetPasswordModal(false);
               setEditingUser(null);
@@ -1703,16 +2125,16 @@ export default function TeamSettings() {
             }}
           >
             {resetPasswordResult ? 'Close' : 'Cancel'}
-          </button>
+          </Button>
           {!resetPasswordResult && editingUser && (
-            <button
-              className="btn btn-warning"
+            <Button
               onClick={() => handleResetPassword(editingUser.id)}
               disabled={resetPasswordMutation.isLoading}
+              color="warning"
             >
               {resetPasswordMutation.isLoading ? (
                 <>
-                  <span className="loading loading-spinner loading-sm"></span>
+                  <Spinner size="sm" />
                   Resetting...
                 </>
               ) : (
@@ -1721,7 +2143,7 @@ export default function TeamSettings() {
                   Reset Password
                 </>
               )}
-            </button>
+            </Button>
           )}
         </AccessibleModal.Footer>
       </AccessibleModal>

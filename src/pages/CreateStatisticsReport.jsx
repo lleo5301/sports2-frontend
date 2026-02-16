@@ -17,6 +17,7 @@ import {
   Filter,
   Users
 } from 'lucide-react';
+import { Spinner, Checkbox, Button } from '@heroui/react';
 
 const CreateStatisticsReport = () => {
   const navigate = useNavigate();
@@ -227,13 +228,10 @@ const CreateStatisticsReport = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => navigate('/reports')}
-            className="btn btn-ghost btn-sm mb-4"
-          >
+          <Button onClick={() => navigate('/reports')} className="mb-4" size="sm" variant="light">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Reports
-          </button>
+          </Button>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {isEditMode ? 'Edit Statistics Report' : 'Create Statistics Report'}
           </h1>
@@ -407,12 +405,7 @@ const CreateStatisticsReport = () => {
                 {Object.entries(reportData.statistics).map(([statistic, enabled]) => (
                   <label key={statistic} className="cursor-pointer">
                     <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-content1">
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-primary"
-                        checked={enabled}
-                        onChange={() => handleStatisticToggle(statistic)}
-                      />
+                      <Checkbox isSelected={enabled} onChange={() => handleStatisticToggle(statistic)} color="primary" />
                       <span className="font-medium capitalize">
                         {statistic.replace('_', ' ')}
                       </span>
@@ -435,12 +428,7 @@ const CreateStatisticsReport = () => {
                 {Object.entries(reportData.comparisons).map(([comparison, enabled]) => (
                   <label key={comparison} className="cursor-pointer">
                     <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-content1">
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-secondary"
-                        checked={enabled}
-                        onChange={() => handleComparisonToggle(comparison)}
-                      />
+                      <Checkbox isSelected={enabled} onChange={() => handleComparisonToggle(comparison)} color="secondary" />
                       <span className="font-medium capitalize">
                         {comparison.replace('_', ' ')}
                       </span>
@@ -489,21 +477,13 @@ const CreateStatisticsReport = () => {
 
           {/* Actions */}
           <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => navigate('/reports')}
-            >
+            <Button type="button" onClick={() => navigate('/reports')} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={createReportMutation.isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={createReportMutation.isLoading} color="primary">
               {createReportMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                  <Spinner size="sm" className="mr-2" />
                   Creating...
                 </>
               ) : (
@@ -512,7 +492,7 @@ const CreateStatisticsReport = () => {
                   {isEditMode ? 'Update Report' : 'Create Report'}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

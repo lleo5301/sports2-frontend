@@ -6,6 +6,7 @@
  */
 
 import AccessibleModal from '../ui/AccessibleModal';
+import { Checkbox, Button } from '@heroui/react';
 
 /**
  * CreateDepthChartModal - Modal for creating a new depth chart
@@ -92,30 +93,19 @@ export default function CreateDepthChartModal({
           <div className="form-control">
             <label className="label cursor-pointer">
               <span className="label-text">Set as default depth chart</span>
-              <input
-                type="checkbox"
-                className="checkbox"
-                checked={formData.is_default}
-                onChange={(e) => handleFieldChange('is_default', e.target.checked)}
-              />
+              <Checkbox isSelected={formData.is_default} onValueChange={(val) => handleFieldChange('is_default', val)} color="primary" />
             </label>
           </div>
         </div>
       </AccessibleModal.Content>
       <AccessibleModal.Footer>
-        <button
-          className="btn"
-          onClick={onClose}
-        >
+        <Button
+          onClick={onClose}>
           Cancel
-        </button>
-        <button
-          className="btn btn-primary"
-          onClick={onSubmit}
-          disabled={!formData.name || isLoading}
-        >
+        </Button>
+        <Button onClick={onSubmit} disabled={!formData.name || isLoading} color="primary">
           {isLoading ? 'Creating...' : 'Create'}
-        </button>
+        </Button>
       </AccessibleModal.Footer>
     </AccessibleModal>
   );

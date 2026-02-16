@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { prospectsService } from '../services/prospects';
 import toast from 'react-hot-toast';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 export default function ProspectDetail() {
   const { id } = useParams();
@@ -51,7 +52,7 @@ export default function ProspectDetail() {
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-64">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <Spinner size="lg" color="primary" />
       </div>
     );
 
@@ -82,9 +83,9 @@ export default function ProspectDetail() {
                   <h1 className="text-3xl font-bold">
                     {prospect.first_name} {prospect.last_name}
                   </h1>
-                  <span className="badge badge-primary badge-outline uppercase text-[10px] font-bold tracking-widest">
+                  <Chip className="uppercase text-[10px] font-bold tracking-widest" color="primary" variant="bordered">
                     {prospect.status}
-                  </span>
+                  </Chip>
                 </div>
                 <p className="text-xl text-primary font-medium mt-1">
                   {prospect.primary_position} &bull; {prospect.school_type}
@@ -102,23 +103,12 @@ export default function ProspectDetail() {
               </div>
 
               <div className="flex gap-2">
-                <button
-                  onClick={() => navigate(`/prospects/${id}/edit`)}
-                  className="btn btn-outline btn-sm"
-                >
+                <Button onClick={() => navigate(`/prospects/${id}/edit`)} size="sm" variant="bordered">
                   Edit Profile
-                </button>
-                <button
-                  onClick={() => {
-                    if (
-                      confirm('Are you sure you want to delete this prospect?')
-                    )
-                      deleteMutation.mutate();
-                  }}
-                  className="btn btn-error btn-outline btn-sm btn-square"
-                >
+                </Button>
+                <Button onClick={() => { if ( confirm('Are you sure you want to delete this prospect?') ) deleteMutation.mutate(); }} color="danger" size="sm" variant="bordered" isIconOnly>
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -251,14 +241,9 @@ export default function ProspectDetail() {
                     </div>
                     {prospect.external_profile_url && (
                       <div className="pt-2">
-                        <a
-                          href={prospect.external_profile_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-outline btn-block btn-sm gap-2"
-                        >
+                        <Button href={prospect.external_profile_url} target="_blank" rel="noopener noreferrer" className="gap-2" size="sm" variant="bordered" fullWidth as="a">
                           External Profile <ExternalLink className="w-4 h-4" />
-                        </a>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -271,20 +256,10 @@ export default function ProspectDetail() {
             <div className="space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold">Scouting History</h3>
-                <button
-                  onClick={() =>
-                    navigate('/scouting/create', {
-                      state: {
-                        prospect_id: id,
-                        prospect_name: `${prospect.first_name} ${prospect.last_name}`
-                      }
-                    })
-                  }
-                  className="btn btn-primary btn-sm"
-                >
+                <Button onClick={() => navigate('/scouting/create', { state: { prospect_id: id, prospect_name: `${prospect.first_name} ${prospect.last_name}` } }) } color="primary" size="sm">
                   <Plus className="w-4 h-4 mr-2" />
                   New Report
-                </button>
+                </Button>
               </div>
 
               {reports.length === 0 ? (
@@ -307,9 +282,9 @@ export default function ProspectDetail() {
                                 report.report_date
                               ).toLocaleDateString()}
                             </h4>
-                            <span className="badge badge-sm badge-ghost uppercase">
+                            <Chip className="uppercase" size="sm" variant="flat">
                               {report.event_type}
-                            </span>
+                            </Chip>
                           </div>
                           <p className="text-sm opacity-60">
                             by {report.Creator?.first_name}{' '}
@@ -342,12 +317,9 @@ export default function ProspectDetail() {
                         </p>
                       )}
                       <div className="card-actions justify-end mt-4">
-                        <Link
-                          to={`/scouting/${report.id}`}
-                          className="btn btn-ghost btn-xs gap-1"
-                        >
+                        <Button to={`/scouting/${report.id}`} className="gap-1" size="sm" variant="light" as={Link}>
                           View Full Report <ChevronRight className="w-4 h-4" />
-                        </Link>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -360,10 +332,10 @@ export default function ProspectDetail() {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold">Media Library</h3>
-                <button className="btn btn-outline btn-sm">
+                <Button size="sm" variant="bordered">
                   <Plus className="w-4 h-4 mr-2" />
                   Upload Media
-                </button>
+                </Button>
               </div>
 
               {prospect.media?.length === 0 ? (
@@ -378,14 +350,9 @@ export default function ProspectDetail() {
                       <div className="aspect-video bg-black flex items-center justify-center relative">
                         <Video className="w-12 h-12 text-white/20" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                          <a
-                            href={prospect.video_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-primary btn-circle"
-                          >
+                          <Button href={prospect.video_url} target="_blank" rel="noopener noreferrer" className="rounded-full" color="primary" isIconOnly as="a">
                             <ExternalLink className="w-5 h-5" />
-                          </a>
+                          </Button>
                         </div>
                       </div>
                       <div className="p-3">

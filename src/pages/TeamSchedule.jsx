@@ -22,6 +22,7 @@ import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 // Note: teamsService removed - coaches can only create schedules for their own team
 import 'react-day-picker/dist/style.css';
+import { Spinner, Button } from '@heroui/react';
 
 const scheduleTypes = [
   {
@@ -346,20 +347,14 @@ export default function TeamSchedule() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => navigate('/schedule-templates')}
-              className="btn btn-outline"
-            >
+            <Button onClick={() => navigate('/schedule-templates')} variant="bordered">
               <FileText className="h-4 w-4 mr-2" />
               Templates
-            </button>
-            <button
-              onClick={() => window.open('/api/schedules/export-pdf', '_blank')}
-              className="btn btn-outline"
-            >
+            </Button>
+            <Button onClick={() => window.open('/api/schedules/export-pdf', '_blank')} variant="bordered">
               <FileText className="h-4 w-4 mr-2" />
               Export PDF
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -369,13 +364,10 @@ export default function TeamSchedule() {
             <h2 className="text-lg font-semibold text-foreground">
               Schedule Information
             </h2>
-            <button
-              onClick={() => navigate('/schedule-templates')}
-              className="btn btn-outline btn-sm"
-            >
+            <Button onClick={() => navigate('/schedule-templates')} size="sm" variant="bordered">
               <FileText className="h-4 w-4 mr-2" />
               Load Template
-            </button>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -534,13 +526,10 @@ export default function TeamSchedule() {
               <h3 className="text-md font-semibold text-foreground">
                 Schedule Sections
               </h3>
-              <button
-                onClick={() => setShowAddSection(true)}
-                className="btn btn-primary btn-sm"
-              >
+              <Button onClick={() => setShowAddSection(true)} color="primary" size="sm">
                 <Plus className="h-4 w-4 mr-1" />
                 Add Section
-              </button>
+              </Button>
             </div>
 
             {/* Add Section Modal */}
@@ -599,18 +588,12 @@ export default function TeamSchedule() {
                 </div>
 
                 <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    onClick={() => setShowAddSection(false)}
-                    className="btn btn-secondary btn-sm"
-                  >
+                  <Button onClick={() => setShowAddSection(false)} color="secondary" size="sm">
                     Cancel
-                  </button>
-                  <button
-                    onClick={addSection}
-                    className="btn btn-primary btn-sm"
-                  >
+                  </Button>
+                  <Button onClick={addSection} color="primary" size="sm">
                     Add Section
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -634,22 +617,13 @@ export default function TeamSchedule() {
                         </h4>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedSectionId(section.id);
-                            setShowAddActivity(true);
-                          }}
-                          className="btn btn-outline btn-sm"
-                        >
+                        <Button onClick={() => { setSelectedSectionId(section.id); setShowAddActivity(true); }} size="sm" variant="bordered">
                           <Plus className="h-3 w-3 mr-1" />
                           Add Activity
-                        </button>
-                        <button
-                          onClick={() => removeSection(section.id)}
-                          className="btn btn-ghost btn-sm text-red-600"
-                        >
+                        </Button>
+                        <Button onClick={() => removeSection(section.id)} className="text-red-600" size="sm" variant="light">
                           <Trash2 className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -688,14 +662,9 @@ export default function TeamSchedule() {
                                     {activity.notes}
                                   </td>
                                   <td className="text-right">
-                                    <button
-                                      onClick={() =>
-                                        removeActivity(section.id, activity.id)
-                                      }
-                                      className="btn btn-ghost btn-sm text-error opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
+                                    <Button onClick={() => removeActivity(section.id, activity.id) } className="text-error opacity-0 group-hover:opacity-100 transition-opacity" size="sm" variant="light">
                                       <Trash2 className="h-3 w-3" />
-                                    </button>
+                                    </Button>
                                   </td>
                                 </tr>
                               ))}
@@ -726,14 +695,10 @@ export default function TeamSchedule() {
 
           {/* Save Button */}
           <div className="flex justify-end mt-6">
-            <button
-              onClick={handleSaveSchedule}
-              disabled={saveScheduleMutation.isLoading}
-              className="btn btn-primary"
-            >
+            <Button onClick={handleSaveSchedule} disabled={saveScheduleMutation.isLoading} color="primary">
               {saveScheduleMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Saving...
                 </>
               ) : (
@@ -742,7 +707,7 @@ export default function TeamSchedule() {
                   Save Schedule
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -863,18 +828,12 @@ export default function TeamSchedule() {
               </div>
 
               <div className="flex justify-end gap-2 mt-6">
-                <button
-                  onClick={() => setShowAddActivity(false)}
-                  className="btn btn-secondary"
-                >
+                <Button onClick={() => setShowAddActivity(false)} color="secondary">
                   Cancel
-                </button>
-                <button
-                  onClick={() => addActivity(selectedSectionId)}
-                  className="btn btn-primary"
-                >
+                </Button>
+                <Button onClick={() => addActivity(selectedSectionId)} color="primary">
                   Add Activity
-                </button>
+                </Button>
               </div>
             </div>
           </div>

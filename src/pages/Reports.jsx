@@ -1,3 +1,4 @@
+import { Chip, Button } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
@@ -86,10 +87,10 @@ const Reports = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="dropdown dropdown-bottom">
-            <div tabIndex={0} role="button" className="btn btn-primary">
+            <Button tabIndex={0} role="button"  as="div" color="primary">
               <Users className="w-5 h-5 mr-2" />
               Performance Report
-            </div>
+            </Button>
             <ul
               tabIndex={0}
               className="dropdown-content menu bg-background rounded-box z-[1] w-64 p-2 shadow"
@@ -124,27 +125,19 @@ const Reports = () => {
               </li>
             </ul>
           </div>
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate('/reports/create-statistics')}
-          >
+          <Button onClick={() => navigate('/reports/create-statistics')} color="secondary">
             <BarChart3 className="w-5 h-5 mr-2" />
             Statistics Report
-          </button>
-          <button
-            className="btn btn-accent"
-            onClick={() => navigate('/scouting/create')}
-          >
+          </Button>
+          <Button className="-accent"
+            onClick={() => navigate('/scouting/create')}>
             <Target className="w-5 h-5 mr-2" />
             Scouting Report
-          </button>
-          <button
-            className="btn btn-outline"
-            onClick={() => navigate('/reports/create-custom')}
-          >
+          </Button>
+          <Button onClick={() => navigate('/reports/create-custom')} variant="bordered">
             <Plus className="w-5 h-5 mr-2" />
             Custom Report
-          </button>
+          </Button>
         </div>
 
         {/* Reports List */}
@@ -165,9 +158,9 @@ const Reports = () => {
                 <tr key={report.id} className="group">
                   <td className="font-bold text-ui-primary">{report.title}</td>
                   <td>
-                    <div className="badge badge-outline border-ui-border text-[10px] font-bold uppercase tracking-wider h-6">
+                    <Chip className="border-ui-border text-[10px] font-bold uppercase tracking-wider h-6" variant="bordered">
                       {report.type}
-                    </div>
+                    </Chip>
                   </td>
                   <td className="text-ui-secondary">{report.date}</td>
                   <td className="text-ui-secondary">{report.author}</td>
@@ -186,40 +179,17 @@ const Reports = () => {
                   </td>
                   <td>
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        className="btn btn-square btn-ghost btn-sm text-info hover:bg-info/10"
-                        onClick={() => {
-                          const reportType = report.type
-                            .toLowerCase()
-                            .replace(' ', '-');
-                          if (
-                            reportType === 'performance' ||
-                            reportType === 'player-performance'
-                          ) {
-                            navigate(`/reports/${report.id}/performance`);
-                          } else if (
-                            reportType === 'statistics' ||
-                            reportType === 'team-statistics'
-                          ) {
-                            navigate(`/reports/${report.id}/statistics`);
-                          } else if (reportType === 'scouting') {
-                            navigate(`/scouting/${report.id}`);
-                          } else {
-                            navigate(`/reports/${report.id}/view`);
-                          }
-                        }}
-                        title="View Report"
-                      >
+                      <Button className="text-info hover:bg-info/10" onClick={() => { const reportType = report.type .toLowerCase() .replace(' ', '-'); if ( reportType === 'performance' || reportType === 'player-performance' ) { navigate(`/reports/${report.id}/performance`); } else if ( reportType === 'statistics' || reportType === 'team-statistics' ) { navigate(`/reports/${report.id}/statistics`); } else if (reportType === 'scouting') { navigate(`/scouting/${report.id}`); } else { navigate(`/reports/${report.id}/view`); } }} title="View Report" size="sm" variant="light" isIconOnly>
                         <Eye className="w-4 h-4" />
-                      </button>
+                      </Button>
                       {report.type.toLowerCase() === 'custom' ? (
                         <div className="dropdown dropdown-end">
-                          <label
+                          <Button
                             tabIndex={0}
-                            className="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary/10"
-                          >
+                            className="text-primary hover:bg-primary/10"
+                            variant="light" size="sm">
                             <Edit className="w-4 h-4" />
-                          </label>
+                          </Button>
                           <ul
                             tabIndex={0}
                             className="dropdown-content z-[1] menu p-2 shadow-2xl bg-content1 rounded-xl border border-ui-border w-52"
@@ -249,15 +219,9 @@ const Reports = () => {
                           </ul>
                         </div>
                       ) : (
-                        <button
-                          className="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary/10"
-                          onClick={() =>
-                            navigate(`/reports/${report.id}/edit-content`)
-                          }
-                          title="Edit Report"
-                        >
+                        <Button className="text-primary hover:bg-primary/10" onClick={() => navigate(`/reports/${report.id}/edit-content`) } title="Edit Report" size="sm" variant="light" isIconOnly>
                           <Edit className="w-4 h-4" />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>

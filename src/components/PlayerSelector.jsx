@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { Plus, User, Search, X } from 'lucide-react';
 import api from '../services/api';
+import { Spinner, Button } from '@heroui/react';
 
 const PlayerSelector = ({
   selectedPlayerId,
@@ -127,13 +128,9 @@ const PlayerSelector = ({
                   </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => onPlayerSelect('')}
-                className="btn btn-ghost btn-sm"
-              >
+              <Button type="button" onClick={() => onPlayerSelect('')} size="sm" variant="light">
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           )}
 
@@ -168,29 +165,10 @@ const PlayerSelector = ({
                 <div className="p-4 text-center text-foreground/70">
                   <div className="mb-2">No players found matching &quot;{searchTerm}&quot;</div>
                   {allowCreate && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const names = searchTerm.trim().split(' ');
-                        if (names.length >= 2) {
-                          setNewPlayerData(prev => ({
-                            ...prev,
-                            first_name: names[0],
-                            last_name: names.slice(1).join(' ')
-                          }));
-                        } else if (names.length === 1) {
-                          setNewPlayerData(prev => ({
-                            ...prev,
-                            first_name: names[0]
-                          }));
-                        }
-                        setShowCreateForm(true);
-                      }}
-                      className="btn btn-sm btn-primary"
-                    >
+                    <Button type="button" onClick={() => { const names = searchTerm.trim().split(' '); if (names.length >= 2) { setNewPlayerData(prev => ({ ...prev, first_name: names[0], last_name: names.slice(1).join(' ') })); } else if (names.length === 1) { setNewPlayerData(prev => ({ ...prev, first_name: names[0] })); } setShowCreateForm(true); }} color="primary" size="sm">
                       <Plus className="w-4 h-4 mr-1" />
                       Create &quot;{searchTerm}&quot;
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
@@ -199,14 +177,10 @@ const PlayerSelector = ({
 
           {/* Create New Player Button */}
           {allowCreate && !searchTerm && !selectedPlayer && (
-            <button
-              type="button"
-              onClick={() => setShowCreateForm(true)}
-              className="btn btn-outline btn-sm w-full"
-            >
+            <Button type="button" onClick={() => setShowCreateForm(true)} className="w-full" size="sm" variant="bordered">
               <Plus className="w-4 h-4 mr-2" />
               Create New Player
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -215,23 +189,9 @@ const PlayerSelector = ({
           <div className="card-body p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Create New Player</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setNewPlayerData({
-                    first_name: '',
-                    last_name: '',
-                    position: 'P',
-                    school_type: 'HS',
-                    school: '',
-                    graduation_year: new Date().getFullYear() + 1
-                  });
-                }}
-                className="btn btn-ghost btn-sm"
-              >
+              <Button type="button" onClick={() => { setShowCreateForm(false); setNewPlayerData({ first_name: '', last_name: '', position: 'P', school_type: 'HS', school: '', graduation_year: new Date().getFullYear() + 1 }); }} size="sm" variant="light">
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleCreatePlayer} className="space-y-4">
@@ -337,21 +297,13 @@ const PlayerSelector = ({
               </div>
 
               <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(false)}
-                  className="btn btn-ghost btn-sm"
-                >
+                <Button type="button" onClick={() => setShowCreateForm(false)} size="sm" variant="light">
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-sm"
-                  disabled={createPlayerMutation.isLoading}
-                >
+                </Button>
+                <Button type="submit" disabled={createPlayerMutation.isLoading} color="primary" size="sm">
                   {createPlayerMutation.isLoading ? (
                     <>
-                      <div className="loading loading-spinner loading-sm mr-2"></div>
+                      <Spinner size="sm" className="mr-2" />
                       Creating...
                     </>
                   ) : (
@@ -360,7 +312,7 @@ const PlayerSelector = ({
                       Create Player
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

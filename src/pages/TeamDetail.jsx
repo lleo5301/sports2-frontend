@@ -15,6 +15,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { GenericPageSkeleton } from '../components/skeletons';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const TeamDetail = () => {
   const { id } = useParams();
@@ -109,13 +110,10 @@ const TeamDetail = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => navigate('/teams')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/teams')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Teams
-            </button>
+            </Button>
           </div>
           <div className="flex items-center justify-between">
             <div>
@@ -127,13 +125,10 @@ const TeamDetail = () => {
               </p>
             </div>
             {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="btn btn-primary"
-              >
+              <Button onClick={() => setIsEditing(true)} color="primary">
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Team
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -311,21 +306,13 @@ const TeamDetail = () => {
 
             {/* Submit Buttons */}
             <div className="flex justify-end gap-4">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="btn btn-outline"
-              >
+              <Button type="button" onClick={handleCancel} variant="bordered">
                 Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={updateTeamMutation.isLoading}
-              >
+              </Button>
+              <Button type="submit" disabled={updateTeamMutation.isLoading} color="primary">
                 {updateTeamMutation.isLoading ? (
                   <>
-                    <div className="loading loading-spinner loading-sm"></div>
+                    <Spinner size="sm" />
                     Saving...
                   </>
                 ) : (
@@ -334,7 +321,7 @@ const TeamDetail = () => {
                     Save Changes
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
         ) : (
@@ -446,7 +433,7 @@ const TeamDetail = () => {
                             </td>
                             <td>{user.email}</td>
                             <td>
-                              <span className="badge badge-outline">{user.role}</span>
+                              <Chip variant="bordered">{user.role}</Chip>
                             </td>
                             <td>{new Date(user.created_at).toLocaleDateString()}</td>
                           </tr>
@@ -465,18 +452,18 @@ const TeamDetail = () => {
               </div>
               <div className="card-body">
                 <div className="flex flex-wrap gap-4">
-                  <button className="btn btn-outline">
+                  <Button variant="bordered">
                     <Users className="w-4 h-4 mr-2" />
                     Manage Members
-                  </button>
-                  <button className="btn btn-outline">
+                  </Button>
+                  <Button variant="bordered">
                     <Calendar className="w-4 h-4 mr-2" />
                     View Schedule
-                  </button>
-                  <button className="btn btn-outline">
+                  </Button>
+                  <Button variant="bordered">
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Team Stats
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

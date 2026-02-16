@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { Star, TrendingUp, Trophy, Users, AlertTriangle } from 'lucide-react';
 
 const OverallPrefList = () => {
@@ -23,9 +24,9 @@ const OverallPrefList = () => {
             </p>
           </div>
         </div>
-        <button className="btn btn-primary">
+        <Button color="primary">
           Update Rankings
-        </button>
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -95,9 +96,9 @@ const OverallPrefList = () => {
             <p className="text-gray-500 mb-4">
               The overall preference rankings will be displayed here with detailed player evaluations
             </p>
-            <button className="btn btn-primary">
+            <Button color="primary">
               Import Player Data
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { Printer, Download, FileText } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import toast from 'react-hot-toast';
@@ -202,20 +203,14 @@ export default function DepthChartSheetView({ depthChart }) {
       <div className="flex justify-between items-center mb-4 print:hidden">
         <h2 className="text-2xl font-bold text-foreground">Depth Chart - Sheet View</h2>
         <div className="flex gap-2">
-          <button
-            onClick={handlePrint}
-            className="btn btn-outline btn-sm"
-          >
+          <Button onClick={handlePrint} size="sm" variant="bordered">
             <Printer className="h-4 w-4 mr-2" />
             Print
-          </button>
-          <button
-            onClick={handleExportImage}
-            className="btn btn-outline btn-sm"
-          >
+          </Button>
+          <Button onClick={handleExportImage} size="sm" variant="bordered">
             <Download className="h-4 w-4 mr-2" />
             Export Image
-          </button>
+          </Button>
         </div>
       </div>
 

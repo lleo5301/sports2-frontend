@@ -11,6 +11,7 @@ import {
   Shield
 } from 'lucide-react';
 import { gamesService } from '../services/games';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const GameDetail = () => {
   const { id } = useParams();
@@ -50,7 +51,7 @@ const GameDetail = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <span className="loading loading-spinner loading-lg"></span>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -61,10 +62,10 @@ const GameDetail = () => {
         <div className="alert alert-error">
           <span>Failed to load game statistics: {error.message}</span>
         </div>
-        <Link to="/games" className="btn btn-ghost mt-4">
+        <Button to="/games" className="mt-4" variant="light" as={Link}>
           <ArrowLeft className="w-4 h-4" />
           Back to Games
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -91,10 +92,10 @@ const GameDetail = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Back button */}
-      <Link to="/games" className="btn btn-ghost btn-sm gap-2">
+      <Button to="/games" className="gap-2" size="sm" variant="light" as={Link}>
         <ArrowLeft className="w-4 h-4" />
         Back to Games
-      </Link>
+      </Button>
 
       {/* Game Header Card */}
       <div className="card bg-content1">
@@ -169,7 +170,7 @@ const GameDetail = () => {
             <h2 className="card-title text-lg flex items-center gap-2">
               <Target className="w-5 h-5 text-primary" />
               Batting
-              <span className="badge badge-ghost badge-sm">{batting.length} players</span>
+              <Chip size="sm" variant="flat">{batting.length} players</Chip>
             </h2>
 
             <div className="overflow-x-auto mt-2">
@@ -250,7 +251,7 @@ const GameDetail = () => {
             <h2 className="card-title text-lg flex items-center gap-2">
               <Trophy className="w-5 h-5 text-secondary" />
               Pitching
-              <span className="badge badge-ghost badge-sm">{pitching.length} players</span>
+              <Chip size="sm" variant="flat">{pitching.length} players</Chip>
             </h2>
 
             <div className="overflow-x-auto mt-2">
@@ -302,10 +303,10 @@ const GameDetail = () => {
                             {p.decision}
                           </span>
                         )}
-                        {p.win && <span className="badge badge-success badge-sm">W</span>}
-                        {p.loss && <span className="badge badge-error badge-sm">L</span>}
-                        {p.save && <span className="badge badge-info badge-sm">SV</span>}
-                        {p.hold && <span className="badge badge-warning badge-sm">H</span>}
+                        {p.win && <Chip color="success" size="sm">W</Chip>}
+                        {p.loss && <Chip color="danger" size="sm">L</Chip>}
+                        {p.save && <Chip color="primary" size="sm">SV</Chip>}
+                        {p.hold && <Chip color="warning" size="sm">H</Chip>}
                       </td>
                     </tr>
                   ))}
@@ -338,7 +339,7 @@ const GameDetail = () => {
             <h2 className="card-title text-lg flex items-center gap-2">
               <Shield className="w-5 h-5 text-accent" />
               Fielding
-              <span className="badge badge-ghost badge-sm">{fielding.length} players</span>
+              <Chip size="sm" variant="flat">{fielding.length} players</Chip>
             </h2>
 
             <div className="overflow-x-auto mt-2">

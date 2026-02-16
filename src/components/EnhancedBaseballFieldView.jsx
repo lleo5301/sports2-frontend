@@ -1,3 +1,4 @@
+import { Chip } from '@heroui/react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { select } from 'd3-selection';
 
@@ -468,9 +469,9 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
                     </span>
                   </div>
                   {players.length > 0 && (
-                    <span className="badge badge-sm badge-primary">
+                    <Chip color="primary" size="sm">
                       {players.length}
-                    </span>
+                    </Chip>
                   )}
                 </div>
                 <div className="text-xs text-gray-600 mb-2">

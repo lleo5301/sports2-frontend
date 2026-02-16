@@ -14,6 +14,7 @@ import {
   Calendar,
   TrendingUp
 } from 'lucide-react';
+import { Spinner, Button } from '@heroui/react';
 
 const CreatePlayerPerformanceEntry = () => {
   const navigate = useNavigate();
@@ -160,13 +161,10 @@ const CreatePlayerPerformanceEntry = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => navigate('/players')}
-            className="btn btn-ghost btn-sm mb-4"
-          >
+          <Button onClick={() => navigate('/players')} className="mb-4" size="sm" variant="light">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Players
-          </button>
+          </Button>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {isEditMode ? 'Edit Performance Data' : 'Add Performance Data'}
           </h1>
@@ -621,21 +619,13 @@ const CreatePlayerPerformanceEntry = () => {
 
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => navigate('/players')}
-            >
+            <Button type="button" onClick={() => navigate('/players')} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={savePerformanceMutation.isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={savePerformanceMutation.isLoading} color="primary">
               {savePerformanceMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm mr-2"></div>
+                  <Spinner size="sm" className="mr-2" />
                   Saving...
                 </>
               ) : (
@@ -644,7 +634,7 @@ const CreatePlayerPerformanceEntry = () => {
                   {isEditMode ? 'Update Performance Data' : 'Save Performance Data'}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

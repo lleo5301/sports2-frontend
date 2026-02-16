@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 
 const Profile = () => {
   return (
@@ -41,7 +42,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="card-actions justify-center mt-4">
-                  <button className="btn btn-primary btn-sm">Edit Photo</button>
+                  <Button color="primary" size="sm">Edit Photo</Button>
                 </div>
               </div>
             </div>
@@ -106,8 +107,8 @@ Experienced baseball scout with over 10 years in collegiate recruiting. Speciali
                 </div>
 
                 <div className="flex justify-end space-x-2">
-                  <button className="btn btn-outline">Cancel</button>
-                  <button className="btn btn-primary">Save Changes</button>
+                  <Button variant="bordered">Cancel</Button>
+                  <Button color="primary">Save Changes</Button>
                 </div>
               </div>
             </div>

@@ -16,6 +16,7 @@ import {
   Printer,
   Settings
 } from 'lucide-react';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const ViewCustomReport = () => {
   const { id } = useParams();
@@ -51,7 +52,7 @@ const ViewCustomReport = () => {
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -67,13 +68,10 @@ const ViewCustomReport = () => {
             <p className="text-foreground/70 mb-6">
               The custom report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-primary"
-            >
+            <Button onClick={() => navigate('/reports')} color="primary">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -106,34 +104,25 @@ const ViewCustomReport = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => navigate('/reports')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/reports')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
-            </button>
+            </Button>
 
             <div className="flex space-x-2">
-              <button
-                onClick={handleDownloadPDF}
-                className="btn btn-outline btn-sm"
-              >
+              <Button onClick={handleDownloadPDF} size="sm" variant="bordered">
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button onClick={() => window.print()} size="sm" variant="bordered">
                 <Printer className="w-4 h-4 mr-2" />
                 Print
-              </button>
+              </Button>
               <div className="dropdown dropdown-end">
-                <button tabIndex={0} className="btn btn-primary btn-sm">
+                <Button tabIndex={0} color="primary" size="sm">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Report
-                </button>
+                </Button>
                 <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-background rounded-box w-52">
                   <li>
                     <a onClick={() => navigate(`/reports/${id}/edit-content`)}>
@@ -181,7 +170,7 @@ const ViewCustomReport = () => {
 
             <div className="text-right">
               <div className="text-sm text-foreground/60">Report Type</div>
-              <div className="badge badge-accent badge-lg">Custom Report</div>
+              <Chip color="secondary" size="lg">Custom Report</Chip>
             </div>
           </div>
         </div>
@@ -251,13 +240,10 @@ const ViewCustomReport = () => {
                 <p className="text-foreground/60">
                   This custom report doesn&apos;t have any sections configured yet.
                 </p>
-                <Link
-                  to={`/reports/${id}/edit`}
-                  className="btn btn-primary mt-4"
-                >
+                <Button to={`/reports/${id}/edit`} className="mt-4" color="primary" as={Link}>
                   <Edit className="w-4 h-4 mr-2" />
                   Add Sections
-                </Link>
+                </Button>
               </div>
             </div>
           )}
@@ -274,9 +260,9 @@ const ViewCustomReport = () => {
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {report.data_sources.map((source, index) => (
-                      <div key={index} className="badge badge-outline badge-lg">
+                      <Chip key={index} size="lg" variant="bordered">
                         {source.charAt(0).toUpperCase() + source.slice(1)}
-                      </div>
+                      </Chip>
                     ))}
                   </div>
                 </div>
@@ -321,7 +307,7 @@ const ViewCustomReport = () => {
                     This report is configured to run automatically based on the specified schedule.
                   </p>
                   <div className="mt-2">
-                    <div className="badge badge-info">Scheduled Report</div>
+                    <Chip color="primary">Scheduled Report</Chip>
                   </div>
                 </div>
               </div>
@@ -336,29 +322,16 @@ const ViewCustomReport = () => {
               Last updated: {new Date(report.updated_at).toLocaleString()}
             </div>
             <div className="flex space-x-2">
-              <button
-                onClick={() => navigator.share?.({
-                  title: report.title,
-                  text: report.description,
-                  url: window.location.href
-                })}
-                className="btn btn-ghost btn-sm"
-              >
+              <Button onClick={() => navigator.share?.({ title: report.title, text: report.description, url: window.location.href })} size="sm" variant="light">
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
-              </button>
-              <Link
-                to="/reports/create-custom"
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button to="/reports/create-custom" size="sm" variant="bordered" as={Link}>
                 Create Similar
-              </Link>
-              <Link
-                to="/reports"
-                className="btn btn-outline btn-sm"
-              >
+              </Button>
+              <Button to="/reports" size="sm" variant="bordered" as={Link}>
                 View All Reports
-              </Link>
+              </Button>
             </div>
           </div>
         </div>

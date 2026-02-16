@@ -17,6 +17,7 @@ import {
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { useDebounce } from '../hooks/useDebounce';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF'];
 const schoolTypes = ['HS', 'COLL'];
@@ -171,10 +172,10 @@ export default function RecruitingBoard() {
             </p>
           </div>
         </div>
-        <Link to="/prospects/create" className="btn btn-primary">
+        <Button to="/prospects/create" color="primary" as={Link}>
           <Plus className="w-4 h-4 mr-2" />
           Add Recruit
-        </Link>
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -277,13 +278,10 @@ export default function RecruitingBoard() {
               </div>
             </div>
 
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="btn btn-outline"
-            >
+            <Button onClick={() => setShowFilters(!showFilters)} variant="bordered">
               <Filter className="w-4 h-4 mr-2" />
               Filters
-            </button>
+            </Button>
           </div>
 
           {showFilters && (
@@ -328,17 +326,9 @@ export default function RecruitingBoard() {
                   </select>
                 </div>
                 <div className="flex items-end">
-                  <button
-                    onClick={() =>
-                      setFilters({
-                        search: '',
-                        page: 1
-                      })
-                    }
-                    className="btn btn-secondary w-full"
-                  >
+                  <Button onClick={() => setFilters({ search: '', page: 1 }) } className="w-full" color="secondary">
                     Clear Filters
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -351,7 +341,7 @@ export default function RecruitingBoard() {
         <div className="card bg-background shadow-sm">
           <div className="card-body">
             <div className="text-center py-12">
-              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <Spinner size="lg" color="primary" />
               <p className="mt-4 text-gray-600">Loading recruits...</p>
             </div>
           </div>
@@ -379,9 +369,9 @@ export default function RecruitingBoard() {
                 Error Loading Recruits
               </h3>
               <p className="text-gray-600 mb-4">Please try again</p>
-              <button onClick={() => refetch()} className="btn btn-primary">
+              <Button onClick={() => refetch()} color="primary">
                 Retry
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -405,10 +395,10 @@ export default function RecruitingBoard() {
                 Object.keys(filters).every(
                   (key) => key === 'search' || key === 'page'
                 ) && (
-                <Link to="/prospects/create" className="btn btn-primary">
+                <Button to="/prospects/create" color="primary" as={Link}>
                   <Plus className="w-4 h-4 mr-2" />
                     Add Recruit
-                </Link>
+                </Button>
               )}
             </div>
           </div>
@@ -445,28 +435,13 @@ export default function RecruitingBoard() {
                           </p>
                         </div>
                         <div className="flex gap-1">
-                          <Link
-                            to={`/prospects/${recruit.id}`}
-                            className="btn btn-ghost btn-sm btn-circle"
-                            title="View Details"
-                          >
+                          <Button to={`/prospects/${recruit.id}`} className="rounded-full" title="View Details" size="sm" variant="light" isIconOnly as={Link}>
                             <Eye className="w-4 h-4" />
-                          </Link>
+                          </Button>
                           {!preference && (
-                            <button
-                              onClick={() => {
-                                addToPreferenceList.mutate({
-                                  prospect_id: recruit.id,
-                                  list_type: selectedListType,
-                                  priority: 999,
-                                  interest_level: 'Unknown'
-                                });
-                              }}
-                              className="btn btn-ghost btn-sm btn-circle text-yellow-600 hover:bg-yellow-100"
-                              title="Add to Preference List"
-                            >
+                            <Button onClick={() => { addToPreferenceList.mutate({ prospect_id: recruit.id, list_type: selectedListType, priority: 999, interest_level: 'Unknown' }); }} className="text-yellow-600 hover:bg-yellow-100 rounded-full" title="Add to Preference List" size="sm" variant="light" isIconOnly>
                               <Bookmark className="w-4 h-4" />
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -570,16 +545,16 @@ export default function RecruitingBoard() {
 
                           <div className="flex flex-wrap gap-2">
                             {preference.visit_scheduled && (
-                              <div className="badge badge-success badge-sm">
+                              <Chip color="success" size="sm">
                                 <Calendar className="w-3 h-3 mr-1" />
                                 Visit Scheduled
-                              </div>
+                              </Chip>
                             )}
                             {preference.scholarship_offered && (
-                              <div className="badge badge-info badge-sm">
+                              <Chip color="primary" size="sm">
                                 <Award className="w-3 h-3 mr-1" />
                                 Scholarship Offered
-                              </div>
+                              </Chip>
                             )}
                           </div>
 
@@ -592,20 +567,10 @@ export default function RecruitingBoard() {
                         </div>
                       ) : (
                         <div className="card-actions">
-                          <button
-                            onClick={() => {
-                              addToPreferenceList.mutate({
-                                prospect_id: recruit.id,
-                                list_type: selectedListType,
-                                priority: 999,
-                                interest_level: 'Unknown'
-                              });
-                            }}
-                            className="btn btn-outline btn-sm w-full"
-                          >
+                          <Button onClick={() => { addToPreferenceList.mutate({ prospect_id: recruit.id, list_type: selectedListType, priority: 999, interest_level: 'Unknown' }); }} className="w-full" size="sm" variant="bordered">
                             <Bookmark className="w-3 h-3 mr-1" />
                             Add to List
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -618,13 +583,9 @@ export default function RecruitingBoard() {
           {pagination.pages > 1 && (
             <div className="flex justify-center mt-8">
               <div className="join">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="join-item btn btn-outline"
-                >
+                <Button onClick={() => handlePageChange(pagination.page - 1)} disabled={pagination.page === 1} className="join-item" variant="bordered">
                   Previous
-                </button>
+                </Button>
 
                 {Array.from(
                   { length: Math.min(5, pagination.pages) },
@@ -646,13 +607,9 @@ export default function RecruitingBoard() {
                   }
                 )}
 
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.pages}
-                  className="join-item btn btn-outline"
-                >
+                <Button onClick={() => handlePageChange(pagination.page + 1)} disabled={pagination.page === pagination.pages} className="join-item" variant="bordered">
                   Next
-                </button>
+                </Button>
               </div>
             </div>
           )}

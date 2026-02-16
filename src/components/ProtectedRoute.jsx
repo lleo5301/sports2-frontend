@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Spinner } from '@heroui/react';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -8,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="loading loading-spinner loading-lg"></div>
+        <Spinner size="lg" />
       </div>
     );
   }

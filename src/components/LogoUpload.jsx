@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { Spinner, Button } from '@heroui/react';
 
 export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = false }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -147,15 +148,10 @@ export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = fa
           <div className="flex-1">
             <p className="text-sm text-foreground/70">Current logo</p>
             {!disabled && (
-              <button
-                type="button"
-                onClick={handleRemoveLogo}
-                disabled={isUploading}
-                className="btn btn-error btn-sm mt-2"
-              >
+              <Button type="button" onClick={handleRemoveLogo} disabled={isUploading} className="mt-2" color="danger" size="sm">
                 <X className="w-4 h-4 mr-1" />
                 Remove
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -185,7 +181,7 @@ export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = fa
 
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <Spinner size="lg" color="primary" />
             <p className="text-sm text-foreground/70">Uploading...</p>
           </div>
         ) : (

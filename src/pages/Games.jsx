@@ -12,6 +12,7 @@ import {
   Filter
 } from 'lucide-react';
 import { gamesService } from '../services/games';
+import { Spinner, Chip, Button } from '@heroui/react';
 
 const Games = () => {
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
@@ -187,7 +188,7 @@ const Games = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <span className="loading loading-spinner loading-lg"></span>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -220,13 +221,9 @@ const Games = () => {
             </select>
           )}
 
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => refetch()}
-            disabled={isRefetching}
-          >
+          <Button onClick={() => refetch()} disabled={isRefetching} size="sm" variant="light">
             <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -267,7 +264,7 @@ const Games = () => {
           <h2 className="card-title text-lg flex items-center gap-2">
             <Calendar className="w-5 h-5 text-info" />
             Upcoming Games
-            <span className="badge badge-info badge-sm">{upcomingGames.length}</span>
+            <Chip color="primary" size="sm">{upcomingGames.length}</Chip>
           </h2>
 
           {upcomingGames.length > 0 ? (
@@ -279,10 +276,7 @@ const Games = () => {
               </div>
 
               {upcomingGames.length > 5 && (
-                <button
-                  className="btn btn-ghost btn-sm mt-4 self-center"
-                  onClick={() => setShowAllUpcoming(!showAllUpcoming)}
-                >
+                <Button className="mt-4 self-center" onClick={() => setShowAllUpcoming(!showAllUpcoming)} size="sm" variant="light">
                   {showAllUpcoming ? (
                     <>
                       <ChevronUp className="w-4 h-4" />
@@ -294,7 +288,7 @@ const Games = () => {
                       Show All ({upcomingGames.length - 5} more)
                     </>
                   )}
-                </button>
+                </Button>
               )}
             </>
           ) : (
@@ -314,7 +308,7 @@ const Games = () => {
             <h2 className="card-title text-lg flex items-center gap-2">
               <Trophy className="w-5 h-5 text-success" />
               Past Games
-              <span className="badge badge-ghost badge-sm">{pastGames.length}</span>
+              <Chip size="sm" variant="flat">{pastGames.length}</Chip>
             </h2>
             {pastGames.length > 0 && (
               <span className="text-xs text-foreground/50">Click a game to view stats</span>
@@ -330,10 +324,7 @@ const Games = () => {
               </div>
 
               {pastGames.length > 10 && (
-                <button
-                  className="btn btn-ghost btn-sm mt-4 self-center"
-                  onClick={() => setShowAllPast(!showAllPast)}
-                >
+                <Button className="mt-4 self-center" onClick={() => setShowAllPast(!showAllPast)} size="sm" variant="light">
                   {showAllPast ? (
                     <>
                       <ChevronUp className="w-4 h-4" />
@@ -345,7 +336,7 @@ const Games = () => {
                       Show All ({pastGames.length - 10} more)
                     </>
                   )}
-                </button>
+                </Button>
               )}
             </>
           ) : (

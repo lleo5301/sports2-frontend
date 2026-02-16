@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -185,13 +186,10 @@ export default function PreferenceLists() {
             Manage your preference lists for recruiting and player evaluation.
           </p>
         </div>
-        <Link
-          to="/recruiting"
-          className="btn btn-primary"
-        >
+        <Button to="/recruiting" color="primary" as={Link}>
           <Plus className="h-4 w-4 mr-2" />
           Add Players
-        </Link>
+        </Button>
       </div>
 
       {/* List Type Tabs */}
@@ -250,13 +248,10 @@ export default function PreferenceLists() {
           </div>
 
           {/* Filter Toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="btn btn-outline flex items-center"
-          >
+          <Button onClick={() => setShowFilters(!showFilters)} className="flex items-center" variant="bordered">
             <Filter className="h-4 w-4 mr-2" />
             Filters
-          </button>
+          </Button>
         </div>
 
         {/* Filter Options */}
@@ -289,16 +284,9 @@ export default function PreferenceLists() {
                 </select>
               </div>
               <div className="flex items-end">
-                <button
-                  onClick={() => setFilters({
-                    search: '',
-                    status: 'active',
-                    page: 1
-                  })}
-                  className="btn btn-secondary w-full"
-                >
+                <Button onClick={() => setFilters({ search: '', status: 'active', page: 1 })} className="w-full" color="secondary">
                   Clear Filters
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -330,9 +318,9 @@ export default function PreferenceLists() {
         <div className="card p-8">
           <div className="text-center">
             <p className="text-red-600">Error loading preference lists. Please try again.</p>
-            <button onClick={() => refetch()} className="btn btn-primary mt-2">
+            <Button onClick={() => refetch()} className="mt-2" color="primary">
               Retry
-            </button>
+            </Button>
           </div>
         </div>
       ) : preferenceLists.length === 0 ? (
@@ -347,10 +335,10 @@ export default function PreferenceLists() {
             </p>
             {!filters.search && !filters.interest_level && filters.status === 'active' && (
               <div className="mt-6">
-                <Link to="/recruiting" className="btn btn-primary">
+                <Button to="/recruiting" color="primary" as={Link}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Players
-                </Link>
+                </Button>
               </div>
             )}
           </div>
@@ -480,13 +468,9 @@ export default function PreferenceLists() {
           {pagination.pages > 1 && (
             <div className="flex justify-center mt-8">
               <nav className="flex items-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="btn btn-outline btn-sm disabled:opacity-50"
-                >
+                <Button onClick={() => handlePageChange(pagination.page - 1)} disabled={pagination.page === 1} className="disabled:opacity-50" size="sm" variant="bordered">
                   Previous
-                </button>
+                </Button>
 
                 {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
                   const page = i + 1;
@@ -503,13 +487,9 @@ export default function PreferenceLists() {
                   );
                 })}
 
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.pages}
-                  className="btn btn-outline btn-sm disabled:opacity-50"
-                >
+                <Button onClick={() => handlePageChange(pagination.page + 1)} disabled={pagination.page === pagination.pages} className="disabled:opacity-50" size="sm" variant="bordered">
                   Next
-                </button>
+                </Button>
               </nav>
             </div>
           )}

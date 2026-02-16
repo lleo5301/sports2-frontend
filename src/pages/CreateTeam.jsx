@@ -11,6 +11,7 @@ import {
   Palette,
   Users
 } from 'lucide-react';
+import { Spinner, Button } from '@heroui/react';
 
 const CreateTeam = () => {
   const navigate = useNavigate();
@@ -73,13 +74,10 @@ const CreateTeam = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => navigate('/teams')}
-              className="btn btn-ghost btn-sm"
-            >
+            <Button onClick={() => navigate('/teams')} size="sm" variant="light">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Teams
-            </button>
+            </Button>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Create New Team
@@ -268,21 +266,13 @@ const CreateTeam = () => {
 
           {/* Submit Buttons */}
           <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate('/teams')}
-              className="btn btn-outline"
-            >
+            <Button type="button" onClick={() => navigate('/teams')} variant="bordered">
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={createTeamMutation.isLoading}
-            >
+            </Button>
+            <Button type="submit" disabled={createTeamMutation.isLoading} color="primary">
               {createTeamMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Creating...
                 </>
               ) : (
@@ -291,7 +281,7 @@ const CreateTeam = () => {
                   Create Team
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

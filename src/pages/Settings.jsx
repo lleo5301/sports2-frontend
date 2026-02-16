@@ -34,6 +34,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
+import { Spinner, Switch, Checkbox, Button } from '@heroui/react';
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -235,7 +236,7 @@ const Settings = () => {
       <div className="p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" />
           </div>
         </div>
       </div>
@@ -345,46 +346,25 @@ const Settings = () => {
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Show notifications</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.general.showNotifications}
-                        onChange={(e) =>
-                          updateGeneralMutation.mutate({
-                            showNotifications: e.target.checked
-                          })
-                        }
-                      />
+                      <Switch isSelected={settings.general.showNotifications} onValueChange={(val) => updateGeneralMutation.mutate({
+                        showNotifications: val
+                      })} color="primary" />
                     </label>
                   </div>
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Auto-refresh data</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.general.autoRefresh}
-                        onChange={(e) =>
-                          updateGeneralMutation.mutate({
-                            autoRefresh: e.target.checked
-                          })
-                        }
-                      />
+                      <Switch isSelected={settings.general.autoRefresh} onValueChange={(val) => updateGeneralMutation.mutate({
+                        autoRefresh: val
+                      })} color="primary" />
                     </label>
                   </div>
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Compact view</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.general.compactView}
-                        onChange={(e) =>
-                          updateGeneralMutation.mutate({
-                            compactView: e.target.checked
-                          })
-                        }
-                      />
+                      <Switch isSelected={settings.general.compactView} onValueChange={(val) => updateGeneralMutation.mutate({
+                        compactView: val
+                      })} color="primary" />
                     </label>
                   </div>
                 </div>
@@ -409,10 +389,10 @@ const Settings = () => {
                         Download your data as CSV or JSON
                       </p>
                     </div>
-                    <button className="btn btn-outline">
+                    <Button variant="bordered">
                       <Download className="w-4 h-4 mr-2" />
                       Export
-                    </button>
+                    </Button>
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
@@ -421,7 +401,7 @@ const Settings = () => {
                         Clear cached data to free up space
                       </p>
                     </div>
-                    <button className="btn btn-outline">Clear</button>
+                    <Button variant="bordered">Clear</Button>
                   </div>
                 </div>
               </div>
@@ -575,13 +555,10 @@ const Settings = () => {
                       </div>
                     </div>
                     <div>
-                      <button
-                        className="btn btn-outline"
-                        onClick={() => setShowProfilePictureModal(true)}
-                      >
+                      <Button onClick={() => setShowProfilePictureModal(true)} variant="bordered">
                         <Upload className="w-4 h-4 mr-2" />
                         Upload New Picture
-                      </button>
+                      </Button>
                       <p className="text-sm text-foreground/70 mt-2">
                         Recommended: Square image, 200x200 pixels or larger
                       </p>
@@ -609,13 +586,10 @@ const Settings = () => {
                         Permanently delete your account and all data
                       </p>
                     </div>
-                    <button
-                      className="btn btn-error btn-outline"
-                      onClick={() => setShowDeleteModal(true)}
-                    >
+                    <Button onClick={() => setShowDeleteModal(true)} color="danger" variant="bordered">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Account
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -642,19 +616,12 @@ const Settings = () => {
                       <span className="label-text">
                         Enable email notifications
                       </span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.notifications.email.enabled}
-                        onChange={(e) =>
-                          updateNotificationsMutation.mutate({
-                            email: {
-                              ...settings.notifications.email,
-                              enabled: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.notifications.email.enabled} onValueChange={(val) => updateNotificationsMutation.mutate({
+                        email: {
+                          ...settings.notifications.email,
+                          enabled: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
 
@@ -690,22 +657,15 @@ const Settings = () => {
                             <span className="label-text capitalize">
                               {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                             </span>
-                            <input
-                              type="checkbox"
-                              className="checkbox checkbox-primary"
-                              checked={value}
-                              onChange={(e) =>
-                                updateNotificationsMutation.mutate({
-                                  email: {
-                                    ...settings.notifications.email,
-                                    types: {
-                                      ...settings.notifications.email.types,
-                                      [key]: e.target.checked
-                                    }
-                                  }
-                                })
+                            <Checkbox isSelected={value} onValueChange={(val) => updateNotificationsMutation.mutate({
+                              email: {
+                                ...settings.notifications.email,
+                                types: {
+                                  ...settings.notifications.email.types,
+                                  [key]: val
+                                }
                               }
-                            />
+                            })} color="primary" />
                           </label>
                         </div>
                       )
@@ -731,19 +691,12 @@ const Settings = () => {
                       <span className="label-text">
                         Enable push notifications
                       </span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.notifications.push.enabled}
-                        onChange={(e) =>
-                          updateNotificationsMutation.mutate({
-                            push: {
-                              ...settings.notifications.push,
-                              enabled: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.notifications.push.enabled} onValueChange={(val) => updateNotificationsMutation.mutate({
+                        push: {
+                          ...settings.notifications.push,
+                          enabled: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
 
@@ -756,22 +709,15 @@ const Settings = () => {
                             <span className="label-text capitalize">
                               {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                             </span>
-                            <input
-                              type="checkbox"
-                              className="checkbox checkbox-primary"
-                              checked={value}
-                              onChange={(e) =>
-                                updateNotificationsMutation.mutate({
-                                  push: {
-                                    ...settings.notifications.push,
-                                    types: {
-                                      ...settings.notifications.push.types,
-                                      [key]: e.target.checked
-                                    }
-                                  }
-                                })
+                            <Checkbox isSelected={value} onValueChange={(val) => updateNotificationsMutation.mutate({
+                              push: {
+                                ...settings.notifications.push,
+                                types: {
+                                  ...settings.notifications.push.types,
+                                  [key]: val
+                                }
                               }
-                            />
+                            })} color="primary" />
                           </label>
                         </div>
                       )
@@ -797,19 +743,12 @@ const Settings = () => {
                       <span className="label-text">
                         Enable in-app notifications
                       </span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.notifications.inApp.enabled}
-                        onChange={(e) =>
-                          updateNotificationsMutation.mutate({
-                            inApp: {
-                              ...settings.notifications.inApp,
-                              enabled: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.notifications.inApp.enabled} onValueChange={(val) => updateNotificationsMutation.mutate({
+                        inApp: {
+                          ...settings.notifications.inApp,
+                          enabled: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
 
@@ -818,19 +757,12 @@ const Settings = () => {
                       <span className="label-text">
                         Play notification sounds
                       </span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.notifications.inApp.sound}
-                        onChange={(e) =>
-                          updateNotificationsMutation.mutate({
-                            inApp: {
-                              ...settings.notifications.inApp,
-                              sound: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.notifications.inApp.sound} onValueChange={(val) => updateNotificationsMutation.mutate({
+                        inApp: {
+                          ...settings.notifications.inApp,
+                          sound: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
 
@@ -843,22 +775,15 @@ const Settings = () => {
                             <span className="label-text capitalize">
                               {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
                             </span>
-                            <input
-                              type="checkbox"
-                              className="checkbox checkbox-primary"
-                              checked={value}
-                              onChange={(e) =>
-                                updateNotificationsMutation.mutate({
-                                  inApp: {
-                                    ...settings.notifications.inApp,
-                                    types: {
-                                      ...settings.notifications.inApp.types,
-                                      [key]: e.target.checked
-                                    }
-                                  }
-                                })
+                            <Checkbox isSelected={value} onValueChange={(val) => updateNotificationsMutation.mutate({
+                              inApp: {
+                                ...settings.notifications.inApp,
+                                types: {
+                                  ...settings.notifications.inApp.types,
+                                  [key]: val
+                                }
                               }
-                            />
+                            })} color="primary" />
                           </label>
                         </div>
                       )
@@ -884,13 +809,10 @@ const Settings = () => {
                   </p>
                 </div>
                 <div className="card-body">
-                  <button
-                    className="btn btn-outline"
-                    onClick={() => setShowPasswordModal(true)}
-                  >
+                  <Button onClick={() => setShowPasswordModal(true)} variant="bordered">
                     <Key className="w-4 h-4 mr-2" />
                     Change Password
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -963,16 +885,9 @@ const Settings = () => {
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Login notifications</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.security.loginNotifications}
-                        onChange={(e) =>
-                          updateSecurityMutation.mutate({
-                            loginNotifications: e.target.checked
-                          })
-                        }
-                      />
+                      <Switch isSelected={settings.security.loginNotifications} onValueChange={(val) => updateSecurityMutation.mutate({
+                        loginNotifications: val
+                      })} color="primary" />
                     </label>
                   </div>
 
@@ -983,9 +898,9 @@ const Settings = () => {
                         Manage your current login sessions
                       </p>
                     </div>
-                    <button className="btn btn-outline btn-sm">
+                    <Button size="sm" variant="bordered">
                       View Sessions
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -1027,57 +942,36 @@ const Settings = () => {
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Show email address</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.privacy.showEmail}
-                        onChange={(e) =>
-                          updateSecurityMutation.mutate({
-                            privacy: {
-                              ...settings.privacy,
-                              showEmail: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.privacy.showEmail} onValueChange={(val) => updateSecurityMutation.mutate({
+                        privacy: {
+                          ...settings.privacy,
+                          showEmail: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
 
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Show phone number</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.privacy.showPhone}
-                        onChange={(e) =>
-                          updateSecurityMutation.mutate({
-                            privacy: {
-                              ...settings.privacy,
-                              showPhone: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.privacy.showPhone} onValueChange={(val) => updateSecurityMutation.mutate({
+                        privacy: {
+                          ...settings.privacy,
+                          showPhone: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
 
                   <div className="form-control">
                     <label className="label cursor-pointer">
                       <span className="label-text">Allow data sharing</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        checked={settings.privacy.allowDataSharing}
-                        onChange={(e) =>
-                          updateSecurityMutation.mutate({
-                            privacy: {
-                              ...settings.privacy,
-                              allowDataSharing: e.target.checked
-                            }
-                          })
+                      <Switch isSelected={settings.privacy.allowDataSharing} onValueChange={(val) => updateSecurityMutation.mutate({
+                        privacy: {
+                          ...settings.privacy,
+                          allowDataSharing: val
                         }
-                      />
+                      })} color="primary" />
                     </label>
                   </div>
                 </div>
@@ -1161,28 +1055,19 @@ const Settings = () => {
             </form>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="submit"
-              form="password-form"
-              className="btn btn-primary"
-              disabled={changePasswordMutation.isLoading}
-            >
+            <Button type="submit" form="password-form" disabled={changePasswordMutation.isLoading} color="primary">
               {changePasswordMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Changing...
                 </>
               ) : (
                 'Change Password'
               )}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => setShowPasswordModal(false)}
-            >
+            </Button>
+            <Button type="button" onClick={() => setShowPasswordModal(false)} variant="bordered">
               Cancel
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
 
@@ -1222,28 +1107,19 @@ const Settings = () => {
             </form>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="submit"
-              form="profile-picture-form"
-              className="btn btn-primary"
-              disabled={uploadProfilePictureMutation.isLoading || !selectedFile}
-            >
+            <Button type="submit" form="profile-picture-form" disabled={uploadProfilePictureMutation.isLoading || !selectedFile} color="primary">
               {uploadProfilePictureMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Uploading...
                 </>
               ) : (
                 'Upload Picture'
               )}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => setShowProfilePictureModal(false)}
-            >
+            </Button>
+            <Button type="button" onClick={() => setShowProfilePictureModal(false)} variant="bordered">
               Cancel
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
 
@@ -1288,18 +1164,10 @@ const Settings = () => {
             </form>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
-            <button
-              type="submit"
-              form="delete-account-form"
-              className="btn btn-error"
-              disabled={
-                deleteAccountMutation.isLoading ||
-                deleteConfirmation !== 'DELETE'
-              }
-            >
+            <Button type="submit" form="delete-account-form" disabled={ deleteAccountMutation.isLoading || deleteConfirmation !== 'DELETE' } color="danger">
               {deleteAccountMutation.isLoading ? (
                 <>
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Spinner size="sm" />
                   Deleting...
                 </>
               ) : (
@@ -1308,14 +1176,10 @@ const Settings = () => {
                   Delete Account
                 </>
               )}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => setShowDeleteModal(false)}
-            >
+            </Button>
+            <Button type="button" onClick={() => setShowDeleteModal(false)} variant="bordered">
               Cancel
-            </button>
+            </Button>
           </AccessibleModal.Footer>
         </AccessibleModal>
       </div>
