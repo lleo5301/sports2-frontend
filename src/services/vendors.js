@@ -21,7 +21,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Vendor management service object containing all vendor-related API methods
@@ -77,8 +77,8 @@ const vendorService = {
       return acc;
     }, {});
 
-    const response = await api.get('/vendors', { params: filteredParams })
-    return response.data
+    const response = await api.get('/vendors', { params: filteredParams });
+    return response.data;
   },
 
   /**
@@ -110,8 +110,8 @@ const vendorService = {
    * console.log('Category:', vendor.category);
    */
   getVendor: async (id) => {
-    const response = await api.get(`/vendors/${id}`)
-    return response.data
+    const response = await api.get(`/vendors/${id}`);
+    return response.data;
   },
 
   /**
@@ -162,8 +162,8 @@ const vendorService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/vendors', filteredData)
-    return response.data
+    const response = await api.post('/vendors', filteredData);
+    return response.data;
   },
 
   /**
@@ -213,8 +213,8 @@ const vendorService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/vendors/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/vendors/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -235,15 +235,15 @@ const vendorService = {
    * console.log(result.message); // "Vendor deleted successfully"
    */
   deleteVendor: async (id) => {
-    const response = await api.delete(`/vendors/${id}`)
-    return response.data
+    const response = await api.delete(`/vendors/${id}`);
+    return response.data;
   },
 
   // Bulk delete vendors
   bulkDeleteVendors: async (ids) => {
-    const response = await api.post('/vendors/bulk-delete', { ids })
-    return response.data
+    const response = await api.post('/vendors/bulk-delete', { ids });
+    return response.data;
   }
-}
+};
 
-export default vendorService
+export default vendorService;

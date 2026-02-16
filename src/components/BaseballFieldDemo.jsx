@@ -1,4 +1,3 @@
-import React from 'react';
 import EnhancedBaseballFieldView from './EnhancedBaseballFieldView';
 
 const BaseballFieldDemo = () => {
@@ -141,7 +140,6 @@ const BaseballFieldDemo = () => {
   ];
 
   const handlePositionClick = (positionCode) => {
-    console.log(`Clicked position: ${positionCode}`);
     // In a real app, this would open the player assignment modal
   };
 
@@ -152,7 +150,7 @@ const BaseballFieldDemo = () => {
           Enhanced Baseball Field Demo
         </h2>
         <p className="text-gray-600">
-          This enhanced field view shows players positioned on their corresponding field positions, 
+          This enhanced field view shows players positioned on their corresponding field positions,
           similar to professional depth chart visualizations. Click on any position to interact.
         </p>
       </div>
@@ -173,7 +171,7 @@ const BaseballFieldDemo = () => {
           <li>• Interactive hover effects and click handlers</li>
           <li>• Responsive design that scales to different screen sizes</li>
           <li>• Professional-grade field visualization using D3.js</li>
-          <li>• Empty positions clearly marked as "OPEN"</li>
+          <li>• Empty positions clearly marked as &quot;OPEN&quot;</li>
           <li>• Color-coded positions with legend</li>
         </ul>
       </div>

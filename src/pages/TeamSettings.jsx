@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Settings,
   Save,
@@ -32,15 +32,15 @@ import {
   Key,
   Copy,
   RefreshCw
-} from 'lucide-react'
-import api from '../services/api'
-import { adminUsersService, USER_ROLES } from '../services/adminUsers'
-import { useAuth } from '../contexts/AuthContext'
-import { useBranding } from '../contexts/BrandingContext'
-import LogoUpload from '../components/LogoUpload'
-import AccessibleModal from '../components/ui/AccessibleModal'
-import PrestoSportsConfig from '../components/integrations/PrestoSportsConfig'
-import toast from 'react-hot-toast'
+} from 'lucide-react';
+import api from '../services/api';
+import { adminUsersService, USER_ROLES } from '../services/adminUsers';
+import { useAuth } from '../contexts/AuthContext';
+import { useBranding } from '../contexts/BrandingContext';
+import LogoUpload from '../components/LogoUpload';
+import AccessibleModal from '../components/ui/AccessibleModal';
+import PrestoSportsConfig from '../components/integrations/PrestoSportsConfig';
+import toast from 'react-hot-toast';
 
 const divisions = [
   { value: 'D1', label: 'Division I', color: 'bg-red-100 text-red-800' },
@@ -48,7 +48,7 @@ const divisions = [
   { value: 'D3', label: 'Division III', color: 'bg-green-100 text-green-800' },
   { value: 'NAIA', label: 'NAIA', color: 'bg-purple-100 text-purple-800' },
   { value: 'JUCO', label: 'Junior College', color: 'bg-orange-100 text-orange-800' }
-]
+];
 
 const states = [
   'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
@@ -56,7 +56,7 @@ const states = [
   'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
   'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
   'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
-]
+];
 
 const permissionTypes = [
   { value: 'depth_chart_view', label: 'View Depth Charts', description: 'Can view depth charts and player assignments' },
@@ -76,33 +76,33 @@ const permissionTypes = [
   { value: 'reports_delete', label: 'Delete Reports', description: 'Can delete reports' },
   { value: 'team_settings', label: 'Team Settings', description: 'Can modify team settings' },
   { value: 'user_management', label: 'User Management', description: 'Can manage user accounts and permissions' }
-]
+];
 
 export default function TeamSettings() {
   const { user, canModifyBranding } = useAuth();
   const { logoUrl, primaryColor, secondaryColor, refreshBranding, updateBranding } = useBranding();
-  const [showPassword, setShowPassword] = useState(false)
-  const [activeTab, setActiveTab] = useState('general')
-  const [showAddPermissionModal, setShowAddPermissionModal] = useState(false)
-  const [editingPermission, setEditingPermission] = useState(null)
+  const [showPassword, setShowPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
+  const [showAddPermissionModal, setShowAddPermissionModal] = useState(false);
+  const [editingPermission, setEditingPermission] = useState(null);
   const [brandingColors, setBrandingColors] = useState({
     primary_color: primaryColor || '#3B82F6',
     secondary_color: secondaryColor || '#EF4444'
-  })
+  });
   const [newPermission, setNewPermission] = useState({
     user_id: '',
     permission_type: '',
     expires_at: '',
     notes: ''
-  })
+  });
   // User management state
-  const [showAddUserModal, setShowAddUserModal] = useState(false)
-  const [showEditUserModal, setShowEditUserModal] = useState(false)
-  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false)
-  const [editingUser, setEditingUser] = useState(null)
-  const [resetPasswordResult, setResetPasswordResult] = useState(null)
-  const [userSearch, setUserSearch] = useState('')
-  const [userRoleFilter, setUserRoleFilter] = useState('')
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [resetPasswordResult, setResetPasswordResult] = useState(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('');
   const [newUser, setNewUser] = useState({
     email: '',
     password: '',
@@ -110,8 +110,8 @@ export default function TeamSettings() {
     last_name: '',
     role: 'viewer',
     phone: ''
-  })
-  const queryClient = useQueryClient()
+  });
+  const queryClient = useQueryClient();
 
   // Fetch team data
   const { data: teamData, isLoading, error, refetch } = useQuery({
@@ -119,21 +119,21 @@ export default function TeamSettings() {
     queryFn: () => api.get(`/teams/${user.team_id}`),
     staleTime: 300000, // 5 minutes
     enabled: !!user?.team_id
-  })
+  });
 
   // Fetch team users
   const { data: teamUsers } = useQuery({
     queryKey: ['team-users'],
     queryFn: () => api.get('/teams/users'),
     staleTime: 300000
-  })
+  });
 
   // Fetch user permissions
   const { data: userPermissions } = useQuery({
     queryKey: ['user-permissions'],
     queryFn: () => api.get('/teams/permissions'),
     staleTime: 300000
-  })
+  });
 
   // Fetch admin users list (for super_admin only)
   const { data: adminUsersData, isLoading: isLoadingAdminUsers } = useQuery({
@@ -145,145 +145,145 @@ export default function TeamSettings() {
     }),
     enabled: user?.role === 'super_admin',
     staleTime: 60000
-  })
+  });
 
   // Update team settings mutation
   const updateTeam = useMutation({
     mutationFn: (data) => api.put(`/teams/${user.team_id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-settings', user?.team_id] })
-      toast.success('Team settings updated successfully')
+      queryClient.invalidateQueries({ queryKey: ['team-settings', user?.team_id] });
+      toast.success('Team settings updated successfully');
     },
     onError: () => {
-      toast.error('Failed to update team settings')
+      toast.error('Failed to update team settings');
     }
-  })
+  });
 
   // Update user password mutation
   const updatePassword = useMutation({
     mutationFn: (data) => api.put('/auth/password', data),
     onSuccess: () => {
-      toast.success('Password updated successfully')
+      toast.success('Password updated successfully');
     },
     onError: () => {
-      toast.error('Failed to update password')
+      toast.error('Failed to update password');
     }
-  })
+  });
 
   // Add permission mutation
   const addPermission = useMutation({
     mutationFn: (data) => api.post('/teams/permissions', data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
-      setShowAddPermissionModal(false)
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
+      setShowAddPermissionModal(false);
       setNewPermission({
         user_id: '',
         permission_type: '',
         expires_at: '',
         notes: ''
-      })
-      toast.success('Permission added successfully')
+      });
+      toast.success('Permission added successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to add permission')
+      toast.error(error.response?.data?.message || 'Failed to add permission');
     }
-  })
+  });
 
   // Update permission mutation
   const updatePermission = useMutation({
     mutationFn: ({ permissionId, data }) => api.put(`/teams/permissions/${permissionId}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
-      setEditingPermission(null)
-      toast.success('Permission updated successfully')
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
+      setEditingPermission(null);
+      toast.success('Permission updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update permission')
+      toast.error(error.response?.data?.message || 'Failed to update permission');
     }
-  })
+  });
 
   // Delete permission mutation
   const deletePermission = useMutation({
     mutationFn: (permissionId) => api.delete(`/teams/permissions/${permissionId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
-      toast.success('Permission removed successfully')
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
+      toast.success('Permission removed successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to remove permission')
+      toast.error(error.response?.data?.message || 'Failed to remove permission');
     }
-  })
+  });
 
   // Update branding mutation
   const updateBrandingMutation = useMutation({
     mutationFn: (data) => api.put('/teams/branding', data),
     onSuccess: () => {
-      refreshBranding()
-      toast.success('Branding updated successfully')
+      refreshBranding();
+      toast.success('Branding updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update branding')
+      toast.error(error.response?.data?.message || 'Failed to update branding');
     }
-  })
+  });
 
   // Create user mutation
   const createUserMutation = useMutation({
     mutationFn: adminUsersService.createUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
-      queryClient.invalidateQueries({ queryKey: ['team-users'] })
-      setShowAddUserModal(false)
-      setNewUser({ email: '', password: '', first_name: '', last_name: '', role: 'viewer', phone: '' })
-      toast.success('User created successfully')
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['team-users'] });
+      setShowAddUserModal(false);
+      setNewUser({ email: '', password: '', first_name: '', last_name: '', role: 'viewer', phone: '' });
+      toast.success('User created successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create user')
+      toast.error(error.response?.data?.message || 'Failed to create user');
     }
-  })
+  });
 
   // Update user mutation
   const updateUserMutation = useMutation({
     mutationFn: ({ userId, data }) => adminUsersService.updateUser(userId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
-      queryClient.invalidateQueries({ queryKey: ['team-users'] })
-      setShowEditUserModal(false)
-      setEditingUser(null)
-      toast.success('User updated successfully')
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['team-users'] });
+      setShowEditUserModal(false);
+      setEditingUser(null);
+      toast.success('User updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update user')
+      toast.error(error.response?.data?.message || 'Failed to update user');
     }
-  })
+  });
 
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: adminUsersService.deleteUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
-      queryClient.invalidateQueries({ queryKey: ['team-users'] })
-      toast.success('User deleted successfully')
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['team-users'] });
+      toast.success('User deleted successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete user')
+      toast.error(error.response?.data?.message || 'Failed to delete user');
     }
-  })
+  });
 
   // Reset password mutation
   const resetPasswordMutation = useMutation({
     mutationFn: (userId) => adminUsersService.resetPassword(userId),
     onSuccess: (data) => {
-      setResetPasswordResult(data)
-      toast.success('Password reset successfully')
+      setResetPasswordResult(data);
+      toast.success('Password reset successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to reset password')
+      toast.error(error.response?.data?.message || 'Failed to reset password');
     }
-  })
+  });
 
   const handleTeamUpdate = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
+    e.preventDefault();
+    const formData = new FormData(e.target);
     const data = {
       name: formData.get('name'),
       program_name: formData.get('program_name'),
@@ -293,51 +293,51 @@ export default function TeamSettings() {
       state: formData.get('state'),
       primary_color: formData.get('primary_color'),
       secondary_color: formData.get('secondary_color')
-    }
-    updateTeam.mutate(data)
-  }
+    };
+    updateTeam.mutate(data);
+  };
 
   const handlePasswordUpdate = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
+    e.preventDefault();
+    const formData = new FormData(e.target);
     const data = {
       current_password: formData.get('current_password'),
       new_password: formData.get('new_password'),
       confirm_password: formData.get('confirm_password')
-    }
-    updatePassword.mutate(data)
-  }
+    };
+    updatePassword.mutate(data);
+  };
 
   const handleAddPermission = () => {
-    addPermission.mutate(newPermission)
-  }
+    addPermission.mutate(newPermission);
+  };
 
   const handleUpdatePermission = () => {
     updatePermission.mutate({
       permissionId: editingPermission.id,
       data: editingPermission
-    })
-  }
+    });
+  };
 
   const handleDeletePermission = (permissionId) => {
     if (window.confirm('Are you sure you want to remove this permission?')) {
-      deletePermission.mutate(permissionId)
+      deletePermission.mutate(permissionId);
     }
-  }
+  };
 
   const handleBrandingUpdate = (e) => {
-    e.preventDefault()
-    updateBrandingMutation.mutate(brandingColors)
-  }
+    e.preventDefault();
+    updateBrandingMutation.mutate(brandingColors);
+  };
 
   const handleLogoChange = (newLogoUrl) => {
-    updateBranding({ logoUrl: newLogoUrl })
-    refreshBranding()
-  }
+    updateBranding({ logoUrl: newLogoUrl });
+    refreshBranding();
+  };
 
   const handleCreateUser = () => {
-    createUserMutation.mutate(newUser)
-  }
+    createUserMutation.mutate(newUser);
+  };
 
   const handleUpdateUser = () => {
     if (editingUser) {
@@ -351,37 +351,37 @@ export default function TeamSettings() {
           phone: editingUser.phone,
           is_active: editingUser.is_active
         }
-      })
+      });
     }
-  }
+  };
 
   const handleDeleteUser = (userId) => {
     if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      deleteUserMutation.mutate(userId)
+      deleteUserMutation.mutate(userId);
     }
-  }
+  };
 
   const handleResetPassword = (userId) => {
-    setResetPasswordResult(null)
-    resetPasswordMutation.mutate(userId)
-  }
+    setResetPasswordResult(null);
+    resetPasswordMutation.mutate(userId);
+  };
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-    toast.success('Copied to clipboard')
-  }
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  };
 
-  const team = teamData?.data
+  const team = teamData?.data;
   // Handle API response format - may be array or { users: [...] }
-  const usersData = teamUsers?.data
-  const users = Array.isArray(usersData) ? usersData : (usersData?.users || [])
+  const usersData = teamUsers?.data;
+  const users = Array.isArray(usersData) ? usersData : (usersData?.users || []);
   // Handle API response format - may be array or { permissions: [...] }
-  const permissionsData = userPermissions?.data
-  const permissions = Array.isArray(permissionsData) ? permissionsData : (permissionsData?.permissions || [])
+  const permissionsData = userPermissions?.data;
+  const permissions = Array.isArray(permissionsData) ? permissionsData : (permissionsData?.permissions || []);
 
   // Admin users data
-  const adminUsers = adminUsersData?.data?.users || adminUsersData?.data || []
-  const isSuperAdmin = user?.role === 'super_admin'
+  const adminUsers = adminUsersData?.data?.users || adminUsersData?.data || [];
+  const isSuperAdmin = user?.role === 'super_admin';
 
   return (
     <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -448,7 +448,7 @@ export default function TeamSettings() {
             <div className="card">
               <div className="card-header">
                 <h2 className="card-title">Team Information</h2>
-                <p className="card-description">Update your team's basic information</p>
+                <p className="card-description">Update your team&apos;s basic information</p>
               </div>
               <div className="card-content">
                 <form onSubmit={handleTeamUpdate} className="space-y-4">
@@ -829,10 +829,10 @@ export default function TeamSettings() {
                     </thead>
                     <tbody>
                       {permissions.map((permission) => {
-                        const user = users.find(u => u.id === permission.user_id)
-                        const permissionType = permissionTypes.find(p => p.value === permission.permission_type)
-                        const isExpired = permission.expires_at && new Date() > new Date(permission.expires_at)
-                        
+                        const user = users.find(u => u.id === permission.user_id);
+                        const permissionType = permissionTypes.find(p => p.value === permission.permission_type);
+                        const isExpired = permission.expires_at && new Date() > new Date(permission.expires_at);
+
                         return (
                           <tr key={permission.id}>
                             <td>
@@ -911,7 +911,7 @@ export default function TeamSettings() {
                               </div>
                             </td>
                           </tr>
-                        )
+                        );
                       })}
                     </tbody>
                   </table>
@@ -1024,9 +1024,9 @@ export default function TeamSettings() {
                             <td>
                               <span className={`badge ${
                                 u.role === 'super_admin' ? 'badge-error' :
-                                u.role === 'head_coach' ? 'badge-primary' :
-                                u.role === 'assistant_coach' ? 'badge-secondary' :
-                                'badge-ghost'
+                                  u.role === 'head_coach' ? 'badge-primary' :
+                                    u.role === 'assistant_coach' ? 'badge-secondary' :
+                                      'badge-ghost'
                               }`}>
                                 {USER_ROLES.find(r => r.value === u.role)?.label || u.role}
                               </span>
@@ -1053,8 +1053,8 @@ export default function TeamSettings() {
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => {
-                                    setEditingUser(u)
-                                    setShowEditUserModal(true)
+                                    setEditingUser(u);
+                                    setShowEditUserModal(true);
                                   }}
                                   className="btn btn-ghost btn-xs"
                                   title="Edit User"
@@ -1063,9 +1063,9 @@ export default function TeamSettings() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setEditingUser(u)
-                                    setResetPasswordResult(null)
-                                    setShowResetPasswordModal(true)
+                                    setEditingUser(u);
+                                    setResetPasswordResult(null);
+                                    setShowResetPasswordModal(true);
                                   }}
                                   className="btn btn-ghost btn-xs"
                                   title="Reset Password"
@@ -1470,8 +1470,8 @@ export default function TeamSettings() {
       <AccessibleModal
         isOpen={showEditUserModal}
         onClose={() => {
-          setShowEditUserModal(false)
-          setEditingUser(null)
+          setShowEditUserModal(false);
+          setEditingUser(null);
         }}
         title="Edit User"
         size="md"
@@ -1481,8 +1481,8 @@ export default function TeamSettings() {
             <AccessibleModal.Header
               title="Edit User"
               onClose={() => {
-                setShowEditUserModal(false)
-                setEditingUser(null)
+                setShowEditUserModal(false);
+                setEditingUser(null);
               }}
             />
             <AccessibleModal.Content>
@@ -1590,8 +1590,8 @@ export default function TeamSettings() {
               <button
                 className="btn"
                 onClick={() => {
-                  setShowEditUserModal(false)
-                  setEditingUser(null)
+                  setShowEditUserModal(false);
+                  setEditingUser(null);
                 }}
               >
                 Cancel
@@ -1622,9 +1622,9 @@ export default function TeamSettings() {
       <AccessibleModal
         isOpen={showResetPasswordModal}
         onClose={() => {
-          setShowResetPasswordModal(false)
-          setEditingUser(null)
-          setResetPasswordResult(null)
+          setShowResetPasswordModal(false);
+          setEditingUser(null);
+          setResetPasswordResult(null);
         }}
         title="Reset Password"
         size="sm"
@@ -1632,9 +1632,9 @@ export default function TeamSettings() {
         <AccessibleModal.Header
           title="Reset Password"
           onClose={() => {
-            setShowResetPasswordModal(false)
-            setEditingUser(null)
-            setResetPasswordResult(null)
+            setShowResetPasswordModal(false);
+            setEditingUser(null);
+            setResetPasswordResult(null);
           }}
         />
         <AccessibleModal.Content>
@@ -1685,7 +1685,7 @@ export default function TeamSettings() {
                       </button>
                     </div>
                     <div className="text-xs text-warning mt-2">
-                      Make sure to copy and share this password securely. It won't be shown again.
+                      Make sure to copy and share this password securely. It won&apos;t be shown again.
                     </div>
                   </div>
                 </div>
@@ -1697,9 +1697,9 @@ export default function TeamSettings() {
           <button
             className="btn"
             onClick={() => {
-              setShowResetPasswordModal(false)
-              setEditingUser(null)
-              setResetPasswordResult(null)
+              setShowResetPasswordModal(false);
+              setEditingUser(null);
+              setResetPasswordResult(null);
             }}
           >
             {resetPasswordResult ? 'Close' : 'Cancel'}
@@ -1726,5 +1726,5 @@ export default function TeamSettings() {
         </AccessibleModal.Footer>
       </AccessibleModal>
     </div>
-  )
+  );
 }

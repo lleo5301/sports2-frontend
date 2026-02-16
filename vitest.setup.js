@@ -11,7 +11,7 @@ if (!window.matchMedia) {
     removeListener: () => {},
     addEventListener: () => {},
     removeEventListener: () => {},
-    dispatchEvent: () => false,
+    dispatchEvent: () => false
   });
 }
 
@@ -22,7 +22,7 @@ const localStorageMock = (() => {
     getItem: (key) => store[key] || null,
     setItem: (key, value) => { store[key] = String(value); },
     removeItem: (key) => { delete store[key]; },
-    clear: () => { store = {}; },
+    clear: () => { store = {}; }
   };
 })();
 
@@ -34,4 +34,3 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 afterEach(() => {
   cleanup();
 });
-

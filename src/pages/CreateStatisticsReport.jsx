@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
 import MultiPlayerSelector from '../components/MultiPlayerSelector';
-import { 
-  ArrowLeft, 
-  Save, 
-  Plus, 
+import {
+  ArrowLeft,
+  Save,
+  Plus,
   BarChart3,
   TrendingUp,
   Target,
@@ -66,13 +66,13 @@ const CreateStatisticsReport = () => {
     staleTime: 300000 // 5 minutes
   });
 
-  const players = playersData.data || [];
+  const players = useMemo(() => playersData.data || [], [playersData.data]);
 
   // Fetch existing report data for edit mode
   const { data: existingReportData, isLoading: isLoadingReport } = useQuery({
     queryKey: ['report', editReportId],
     queryFn: () => reportsService.getReport(editReportId),
-    enabled: isEditMode,
+    enabled: isEditMode
   });
 
   // Pre-select player and set default title if coming from player page
@@ -131,10 +131,10 @@ const CreateStatisticsReport = () => {
           {
             title: data.scope === 'player' ? 'Player Statistics' : 'Team Statistics',
             type: 'table',
-            data: data.scope === 'player' 
+            data: data.scope === 'player'
               ? data.players.map(playerId => {
-                  const player = players.find(p => p.id === parseInt(playerId));
-                  return player ? [
+                const player = players.find(p => p.id === parseInt(playerId));
+                return player ? [
                     `${player.first_name} ${player.last_name}`,
                     player.position,
                     player.batting_avg || 'N/A',
@@ -142,10 +142,10 @@ const CreateStatisticsReport = () => {
                     player.rbi || 'N/A',
                     player.era || 'N/A',
                     player.wins || 'N/A'
-                  ] : [];
-                }).filter(row => row.length > 0)
+                ] : [];
+              }).filter(row => row.length > 0)
               : [['Team Total', 'All', '0.250', '45', '120', '3.50', '25']], // Sample team data
-            headers: data.scope === 'player' 
+            headers: data.scope === 'player'
               ? ['Player', 'Position', 'AVG', 'HR', 'RBI', 'ERA', 'Wins']
               : ['Category', 'Position', 'AVG', 'HR', 'RBI', 'ERA', 'Wins']
           },
@@ -163,7 +163,7 @@ const CreateStatisticsReport = () => {
         filters: data.filters,
         schedule: null
       };
-      
+
       if (isEditMode) {
         return await reportsService.updateReport(editReportId, reportPayload);
       } else {
@@ -250,7 +250,7 @@ const CreateStatisticsReport = () => {
                 <BarChart3 className="w-5 h-5 mr-2" />
                 Report Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -265,7 +265,7 @@ const CreateStatisticsReport = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">Report Scope</span>
@@ -273,8 +273,8 @@ const CreateStatisticsReport = () => {
                   <select
                     className="select select-bordered"
                     value={reportData.scope}
-                    onChange={(e) => setReportData(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setReportData(prev => ({
+                      ...prev,
                       scope: e.target.value,
                       players: e.target.value === 'team' ? [] : prev.players
                     }))}
@@ -300,7 +300,7 @@ const CreateStatisticsReport = () => {
                     }))}
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">End Date</span>
@@ -354,7 +354,7 @@ const CreateStatisticsReport = () => {
                     <Filter className="w-5 h-5 mr-2" />
                     Additional Filters
                   </h2>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="form-control">
                       <label className="label">
@@ -371,7 +371,7 @@ const CreateStatisticsReport = () => {
                         }))}
                       />
                     </div>
-                    
+
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text">Home/Away Filter</span>
@@ -402,7 +402,7 @@ const CreateStatisticsReport = () => {
                 <TrendingUp className="w-5 h-5 mr-2" />
                 Statistics Categories
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(reportData.statistics).map(([statistic, enabled]) => (
                   <label key={statistic} className="cursor-pointer">
@@ -430,7 +430,7 @@ const CreateStatisticsReport = () => {
                 <Target className="w-5 h-5 mr-2" />
                 Comparative Analysis
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Object.entries(reportData.comparisons).map(([comparison, enabled]) => (
                   <label key={comparison} className="cursor-pointer">
@@ -458,7 +458,7 @@ const CreateStatisticsReport = () => {
                 <Award className="w-5 h-5 mr-2" />
                 Analysis & Insights
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">
@@ -471,7 +471,7 @@ const CreateStatisticsReport = () => {
                     onChange={(e) => setReportData(prev => ({ ...prev, analysis: e.target.value }))}
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">Recommendations</span>

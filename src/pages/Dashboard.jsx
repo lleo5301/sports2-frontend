@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
@@ -17,20 +16,20 @@ const Dashboard = () => {
   // Fetch players
   const { data: playersResponse, isLoading: playersLoading, error: playersError } = useQuery({
     queryKey: ['players', { limit: 5 }],
-    queryFn: () => playersService.getPlayers({ limit: 5 }),
+    queryFn: () => playersService.getPlayers({ limit: 5 })
   });
 
   // Fetch scouting reports
   const { data: reportsResponse, isLoading: reportsLoading, error: reportsError } = useQuery({
     queryKey: ['scouting-reports', { limit: 5 }],
-    queryFn: () => reportsService.getScoutingReports({ limit: 5 }),
+    queryFn: () => reportsService.getScoutingReports({ limit: 5 })
   });
 
   // Fetch user's team if they have a team_id
   const { data: teamResponse, isLoading: teamLoading, error: teamError } = useQuery({
     queryKey: ['team', user?.team_id],
     queryFn: () => teamsService.getTeam(user.team_id),
-    enabled: !!user?.team_id,
+    enabled: !!user?.team_id
   });
 
   // Calculate stats
@@ -85,7 +84,7 @@ const Dashboard = () => {
             Dashboard
           </h1>
           <p className="text-base-content/60 text-lg">
-            Welcome back! Here's an overview of your team's data.
+            Welcome back! Here&apos;s an overview of your team&apos;s data.
           </p>
         </div>
 

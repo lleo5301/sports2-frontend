@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
@@ -22,7 +21,7 @@ const Reports = () => {
     queryKey: ['reports'],
     queryFn: reportsService.getAllReports,
     onError: (error) => {
-      console.error('Error fetching reports:', error);
+      // console.error('Error fetching reports:', error);
     }
   });
 
@@ -30,9 +29,8 @@ const Reports = () => {
     { id: 1, title: 'Monthly Player Performance', type: 'Performance', date: '2024-01-15', author: 'John Doe', status: 'Published' },
     { id: 2, title: 'Team Statistics Summary', type: 'Statistics', date: '2024-01-14', author: 'Jane Smith', status: 'Draft' },
     { id: 3, title: 'Scouting Analysis Q4', type: 'Scouting', date: '2024-01-13', author: 'Mike Johnson', status: 'Published' },
-    { id: 4, title: 'Recruitment Pipeline', type: 'Recruitment', date: '2024-01-12', author: 'John Doe', status: 'In Review' },
+    { id: 4, title: 'Recruitment Pipeline', type: 'Recruitment', date: '2024-01-12', author: 'John Doe', status: 'In Review' }
   ];
-
 
   if (isLoading) {
     return (
@@ -87,21 +85,21 @@ const Reports = () => {
               </li>
             </ul>
           </div>
-          <button 
+          <button
             className="btn btn-secondary"
             onClick={() => navigate('/reports/create-statistics')}
           >
             <BarChart3 className="w-5 h-5 mr-2" />
             Statistics Report
           </button>
-          <button 
+          <button
             className="btn btn-accent"
             onClick={() => navigate('/scouting/create')}
           >
             <Target className="w-5 h-5 mr-2" />
             Scouting Report
           </button>
-          <button 
+          <button
             className="btn btn-outline"
             onClick={() => navigate('/reports/create-custom')}
           >
@@ -109,7 +107,6 @@ const Reports = () => {
             Custom Report
           </button>
         </div>
-
 
         {/* Reports List */}
         <div className="card">
@@ -138,15 +135,15 @@ const Reports = () => {
                       <td>
                         <div className={`badge ${
                           report.status === 'Published' ? 'badge-success' :
-                          report.status === 'Draft' ? 'badge-neutral' :
-                          'badge-warning'
+                            report.status === 'Draft' ? 'badge-neutral' :
+                              'badge-warning'
                         }`}>
                           {report.status}
                         </div>
                       </td>
                       <td>
                         <div className="flex space-x-2">
-                          <button 
+                          <button
                             className="btn btn-sm btn-outline"
                             onClick={() => {
                               const reportType = report.type.toLowerCase().replace(' ', '-');
@@ -186,7 +183,7 @@ const Reports = () => {
                               </ul>
                             </div>
                           ) : (
-                            <button 
+                            <button
                               className="btn btn-sm btn-primary"
                               onClick={() => navigate(`/reports/${report.id}/edit-content`)}
                             >
@@ -209,4 +206,4 @@ const Reports = () => {
   );
 };
 
-export default Reports; 
+export default Reports;

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamsService } from '../services/teams';
 import { toast } from 'react-hot-toast';
-import { 
-  ArrowLeft, 
-  Save, 
-  Building2, 
-  MapPin, 
+import {
+  ArrowLeft,
+  Save,
+  Building2,
+  MapPin,
   Palette,
   Users
 } from 'lucide-react';
@@ -49,7 +49,7 @@ const CreateTeam = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name) {
       toast.error('Please enter a team name');
       return;
@@ -299,4 +299,4 @@ const CreateTeam = () => {
   );
 };
 
-export default CreateTeam; 
+export default CreateTeam;

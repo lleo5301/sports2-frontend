@@ -17,9 +17,9 @@ async function stubAuth(page) {
           first_name: 'Coach',
           last_name: 'Smith',
           role: 'head_coach',
-          team_id: 1,
-        },
-      }),
+          team_id: 1
+        }
+      })
     });
   });
 }
@@ -35,12 +35,12 @@ async function stubDashboard(page) {
       school: 'Test High',
       status: i % 2 === 0 ? 'active' : 'inactive',
       city: 'Austin',
-      state: 'TX',
+      state: 'TX'
     }));
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, data, pagination: { total: 42, pages: 3 } }),
+      body: JSON.stringify({ success: true, data, pagination: { total: 42, pages: 3 } })
     });
   });
 
@@ -50,12 +50,12 @@ async function stubDashboard(page) {
       id: i + 101,
       overall_grade: ['40', '45', '50', '55', '60'][i],
       created_at: '2025-01-10T10:00:00Z',
-      Player: { first_name: `R${i + 1}`, last_name: 'Sample' },
+      Player: { first_name: `R${i + 1}`, last_name: 'Sample' }
     }));
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, data, pagination: { total: 12, pages: 3 } }),
+      body: JSON.stringify({ success: true, data, pagination: { total: 12, pages: 3 } })
     });
   });
 
@@ -64,7 +64,7 @@ async function stubDashboard(page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, data: { id: 1, name: 'Example U' } }),
+      body: JSON.stringify({ success: true, data: { id: 1, name: 'Example U' } })
     });
   });
 
@@ -73,7 +73,7 @@ async function stubDashboard(page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, activePlayers: 21 }),
+      body: JSON.stringify({ success: true, activePlayers: 21 })
     });
   });
   await page.route('**/api/schedules/stats', async (route) => {
@@ -82,13 +82,13 @@ async function stubDashboard(page) {
   await page.route('**/api/teams/upcoming-schedules**', async (route) => {
     const data = [
       { id: 1, title: 'Practice', date: '2025-02-01', time: '14:00:00', type: 'Practice', location: 'Field A' },
-      { id: 2, title: 'Game vs Rivals', date: '2025-02-03', time: '18:30:00', type: 'Game', location: 'Stadium' },
+      { id: 2, title: 'Game vs Rivals', date: '2025-02-03', time: '18:30:00', type: 'Game', location: 'Stadium' }
     ];
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) });
   });
   await page.route('**/api/teams/recent-schedules**', async (route) => {
     const data = [
-      { id: 3, title: 'Scrimmage', date: '2025-01-28', type: 'Scrimmage', location: 'Field B' },
+      { id: 3, title: 'Scrimmage', date: '2025-01-28', type: 'Scrimmage', location: 'Field B' }
     ];
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) });
   });
@@ -101,7 +101,7 @@ async function stubDashboard(page) {
       team_score: 3 + i % 4,
       opponent_score: 2 + (i + 1) % 4,
       result: ['W', 'L', 'W', 'L'][i % 4],
-      notes: 'Good effort',
+      notes: 'Good effort'
     }));
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) });
   });
@@ -109,7 +109,7 @@ async function stubDashboard(page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, winRate: 0.64, wins: 18, losses: 10, ties: 1, gamesPlayed: 29, era: 3.42, battingAvg: 0.281 }),
+      body: JSON.stringify({ success: true, winRate: 0.64, wins: 18, losses: 10, ties: 1, gamesPlayed: 29, era: 3.42, battingAvg: 0.281 })
     });
   });
 }
@@ -131,9 +131,7 @@ test.describe('Visual - Dashboard', () => {
       fullPage: true,
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.03,
+      maxDiffPixelRatio: 0.03
     });
   });
 });
-
-

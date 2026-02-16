@@ -1,24 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { select } from 'd3-selection';
+
+// Helper functions defined outside component to avoid dependency issues
+const getAssignmentPlayer = (assignment) => assignment?.Player || assignment?.player || null;
+const getAssignmentPlayerName = (assignment) => {
+  const p = getAssignmentPlayer(assignment);
+  if (!p) return '';
+  return `${p.first_name || ''} ${p.last_name || ''}`.trim();
+};
+const getAssignmentJerseyNumber = (assignment) => {
+  const p = getAssignmentPlayer(assignment);
+  return p?.jersey_number;
+};
 
 const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick, selectedPosition }) => {
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 1000, height: 750 });
 
-  // Helper functions
-  const getAssignmentPlayer = (assignment) => assignment?.Player || assignment?.player || null;
-  const getAssignmentPlayerName = (assignment) => {
-    const p = getAssignmentPlayer(assignment);
-    if (!p) return '';
-    return `${p.first_name || ''} ${p.last_name || ''}`.trim();
-  };
-  const getAssignmentJerseyNumber = (assignment) => {
-    const p = getAssignmentPlayer(assignment);
-    return p?.jersey_number;
-  };
-
   // Calculate realistic position coordinates based on the current outline geometry
-  const getPositionCoords = (width, height) => {
+  const getPositionCoords = useCallback((width, height) => {
     const centerX = width / 2;
     const bottomY = height * 0.99;
     const R = Math.min(width, height) * 0.95; // match outline radius
@@ -123,13 +123,13 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         color: '#84CC16'
       }
     };
-  };
+  }, []);
 
-  const getAssignedPlayers = (positionCode) => {
-    return assignedPlayers.filter(assignment => 
+  const getAssignedPlayers = useCallback((positionCode) => {
+    return assignedPlayers.filter(assignment =>
       assignment.position_code === positionCode
     ).sort((a, b) => a.depth_order - b.depth_order);
-  };
+  }, [assignedPlayers]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -152,48 +152,48 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
     if (!svgRef.current) return;
 
     const svg = select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous render
+    svg.selectAll('*').remove(); // Clear previous render
 
     const { width, height } = dimensions;
-    
+
     // Get position coordinates based on current dimensions
     const positionCoords = getPositionCoords(width, height);
 
     // Create field background
-    const defs = svg.append("defs");
-    
-    // Gradients for field
-    const outfieldGradient = defs.append("radialGradient")
-      .attr("id", "outfieldGradient")
-      .attr("cx", "50%")
-      .attr("cy", "80%")
-      .attr("r", "60%");
-    
-    outfieldGradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#4ADE80")
-      .attr("stop-opacity", 1);
-    
-    outfieldGradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#15803D")
-      .attr("stop-opacity", 1);
+    const defs = svg.append('defs');
 
-    const infieldGradient = defs.append("radialGradient")
-      .attr("id", "infieldGradient")
-      .attr("cx", "50%")
-      .attr("cy", "90%")
-      .attr("r", "40%");
-    
-    infieldGradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#F59E0B")
-      .attr("stop-opacity", 1);
-    
-    infieldGradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#D97706")
-      .attr("stop-opacity", 1);
+    // Gradients for field
+    const outfieldGradient = defs.append('radialGradient')
+      .attr('id', 'outfieldGradient')
+      .attr('cx', '50%')
+      .attr('cy', '80%')
+      .attr('r', '60%');
+
+    outfieldGradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#4ADE80')
+      .attr('stop-opacity', 1);
+
+    outfieldGradient.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#15803D')
+      .attr('stop-opacity', 1);
+
+    const infieldGradient = defs.append('radialGradient')
+      .attr('id', 'infieldGradient')
+      .attr('cx', '50%')
+      .attr('cy', '90%')
+      .attr('r', '40%');
+
+    infieldGradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#F59E0B')
+      .attr('stop-opacity', 1);
+
+    infieldGradient.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#D97706')
+      .attr('stop-opacity', 1);
 
     // Calculate field dimensions
     const centerX = width / 2;
@@ -291,12 +291,12 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
       const players = getAssignedPlayers(positionCode);
       const playerX = coords.x;
       const playerY = coords.y;
-      
+
       // Create position group
-      const positionGroup = svg.append("g")
-        .attr("class", "position-group")
-        .style("cursor", "pointer")
-        .on("click", () => onPositionClick && onPositionClick(positionCode));
+      const positionGroup = svg.append('g')
+        .attr('class', 'position-group')
+        .style('cursor', 'pointer')
+        .on('click', () => onPositionClick && onPositionClick(positionCode));
 
       if (players.length > 0) {
         const primaryPlayer = players[0]; // Show first string player
@@ -304,123 +304,122 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
 
         // Player background circle
         // Background with smaller radius to reduce overlap
-        positionGroup.append("circle")
-          .attr("cx", playerX)
-          .attr("cy", playerY)
-          .attr("r", 28)
-          .attr("fill", "rgba(255, 255, 255, 0.95)")
-          .attr("stroke", coords.color)
-          .attr("stroke-width", 2)
-          .attr("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))")
-          .style("transition", "all 200ms ease-out");
+        positionGroup.append('circle')
+          .attr('cx', playerX)
+          .attr('cy', playerY)
+          .attr('r', 28)
+          .attr('fill', 'rgba(255, 255, 255, 0.95)')
+          .attr('stroke', coords.color)
+          .attr('stroke-width', 2)
+          .attr('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))')
+          .style('transition', 'all 200ms ease-out');
 
         // Removed initials/inner icon — only show the full name for the position
 
         // Player name
         const displayName = playerName; // always display full name
-        
-        positionGroup.append("text")
-          .attr("x", playerX)
-          .attr("y", playerY + 14)
-          .attr("text-anchor", "middle")
-          .attr("font-size", "11px")
-          .attr("font-weight", "bold")
-          .attr("fill", "#1F2937")
+
+        positionGroup.append('text')
+          .attr('x', playerX)
+          .attr('y', playerY + 14)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '11px')
+          .attr('font-weight', 'bold')
+          .attr('fill', '#1F2937')
           .text(displayName);
 
         // No jersey number or position code text — keep the UI minimal per request
 
         // Depth indicator (if multiple players)
         if (players.length > 1) {
-          positionGroup.append("circle")
-            .attr("cx", playerX + 25)
-            .attr("cy", playerY + 16)
-            .attr("r", 7)
-            .attr("fill", "#EF4444")
-            .attr("stroke", "white")
-            .attr("stroke-width", 1);
-          
-          positionGroup.append("text")
-            .attr("x", playerX + 25)
-            .attr("y", playerY + 20)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "8px")
-            .attr("font-weight", "bold")
-            .attr("fill", "white")
+          positionGroup.append('circle')
+            .attr('cx', playerX + 25)
+            .attr('cy', playerY + 16)
+            .attr('r', 7)
+            .attr('fill', '#EF4444')
+            .attr('stroke', 'white')
+            .attr('stroke-width', 1);
+
+          positionGroup.append('text')
+            .attr('x', playerX + 25)
+            .attr('y', playerY + 20)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '8px')
+            .attr('font-weight', 'bold')
+            .attr('fill', 'white')
             .text(players.length);
         }
 
         // Hover effect
         positionGroup
-          .on("mouseenter", function() {
-            select(this).select("circle")
-              .attr("r", 32)
-              .attr("stroke-width", 4);
+          .on('mouseenter', function() {
+            select(this).select('circle')
+              .attr('r', 32)
+              .attr('stroke-width', 4);
           })
-          .on("mouseleave", function() {
-            select(this).select("circle")
-              .attr("r", 28)
-              .attr("stroke-width", 2);
+          .on('mouseleave', function() {
+            select(this).select('circle')
+              .attr('r', 28)
+              .attr('stroke-width', 2);
           });
 
       } else {
         // Empty position
-        positionGroup.append("circle")
-          .attr("cx", playerX)
-          .attr("cy", playerY)
-          .attr("r", 22)
-          .attr("fill", "rgba(255, 255, 255, 0.8)")
-          .attr("stroke", "#9CA3AF")
-          .attr("stroke-width", 2)
-          .attr("stroke-dasharray", "5,5")
-          .style("transition", "all 200ms ease-out");
+        positionGroup.append('circle')
+          .attr('cx', playerX)
+          .attr('cy', playerY)
+          .attr('r', 22)
+          .attr('fill', 'rgba(255, 255, 255, 0.8)')
+          .attr('stroke', '#9CA3AF')
+          .attr('stroke-width', 2)
+          .attr('stroke-dasharray', '5,5')
+          .style('transition', 'all 200ms ease-out');
 
-        positionGroup.append("text")
-          .attr("x", playerX)
-          .attr("y", playerY - 5)
-          .attr("text-anchor", "middle")
-          .attr("font-size", "14px")
-          .attr("font-weight", "bold")
-          .attr("fill", "#6B7280")
+        positionGroup.append('text')
+          .attr('x', playerX)
+          .attr('y', playerY - 5)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '14px')
+          .attr('font-weight', 'bold')
+          .attr('fill', '#6B7280')
           .text(positionCode);
 
-        positionGroup.append("text")
-          .attr("x", playerX)
-          .attr("y", playerY + 8)
-          .attr("text-anchor", "middle")
-          .attr("font-size", "9px")
-          .attr("fill", "#9CA3AF")
-          .text("OPEN");
+        positionGroup.append('text')
+          .attr('x', playerX)
+          .attr('y', playerY + 8)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '9px')
+          .attr('fill', '#9CA3AF')
+          .text('OPEN');
 
         // Hover effect for empty positions
         positionGroup
-          .on("mouseenter", function() {
-            select(this).select("circle")
-              .attr("r", 26)
-              .attr("stroke-width", 3);
+          .on('mouseenter', function() {
+            select(this).select('circle')
+              .attr('r', 26)
+              .attr('stroke-width', 3);
           })
-          .on("mouseleave", function() {
-            select(this).select("circle")
-              .attr("r", 22)
-              .attr("stroke-width", 2);
+          .on('mouseleave', function() {
+            select(this).select('circle')
+              .attr('r', 22)
+              .attr('stroke-width', 2);
           });
       }
 
       // Selection highlight
       if (selectedPosition === positionCode) {
-        positionGroup.append("circle")
-          .attr("cx", playerX)
-          .attr("cy", playerY)
-          .attr("r", 45)
-          .attr("fill", "none")
-          .attr("stroke", "#3B82F6")
-          .attr("stroke-width", 3)
-          .attr("stroke-dasharray", "8,4")
-          .style("pointer-events", "none");
+        positionGroup.append('circle')
+          .attr('cx', playerX)
+          .attr('cy', playerY)
+          .attr('r', 45)
+          .attr('fill', 'none')
+          .attr('stroke', '#3B82F6')
+          .attr('stroke-width', 3)
+          .attr('stroke-dasharray', '8,4')
+          .style('pointer-events', 'none');
       }
     });
-
-  }, [dimensions, assignedPlayers, selectedPosition, onPositionClick]);
+  }, [dimensions, getPositionCoords, getAssignedPlayers, selectedPosition, onPositionClick]);
 
   return (
     <div className="w-full" data-testid="enhanced-baseball-field">
@@ -428,7 +427,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         <h3 className="text-xl font-bold mb-6 text-center text-gray-800">
           Enhanced Baseball Field View
         </h3>
-        
+
         <div className="flex justify-center">
           <svg
             ref={svgRef}
@@ -447,7 +446,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
         <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
           {Object.entries(getPositionCoords(dimensions.width, dimensions.height)).map(([positionCode, coords]) => {
             const players = getAssignedPlayers(positionCode);
-            
+
             return (
               <div
                 key={positionCode}
@@ -460,7 +459,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div 
+                    <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: coords.color }}
                     />
@@ -480,7 +479,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
                 {players.length > 0 && (
                   <div className="text-xs font-medium text-blue-600">
                     {getAssignmentPlayerName(players[0])}
-                    {getAssignmentJerseyNumber(players[0]) && 
+                    {getAssignmentJerseyNumber(players[0]) &&
                       ` #${getAssignmentJerseyNumber(players[0])}`
                     }
                   </div>
@@ -506,7 +505,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
             <div className="stat bg-white p-3 rounded-lg border border-gray-200">
               <div className="stat-title text-xs text-gray-600">Filled Positions</div>
               <div className="stat-value text-xl font-bold text-green-600">
-                {Object.keys(getPositionCoords(dimensions.width, dimensions.height)).filter(pos => 
+                {Object.keys(getPositionCoords(dimensions.width, dimensions.height)).filter(pos =>
                   getAssignedPlayers(pos).length > 0
                 ).length}
               </div>
@@ -520,7 +519,7 @@ const EnhancedBaseballFieldView = ({ positions, assignedPlayers, onPositionClick
             <div className="stat bg-white p-3 rounded-lg border border-gray-200">
               <div className="stat-title text-xs text-gray-600">Coverage</div>
               <div className="stat-value text-xl font-bold text-purple-600">
-                {Math.round((Object.keys(getPositionCoords(dimensions.width, dimensions.height)).filter(pos => 
+                {Math.round((Object.keys(getPositionCoords(dimensions.width, dimensions.height)).filter(pos =>
                   getAssignedPlayers(pos).length > 0
                 ).length / Object.keys(getPositionCoords(dimensions.width, dimensions.height)).length) * 100)}%
               </div>

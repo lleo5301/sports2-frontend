@@ -1,5 +1,4 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -19,7 +18,7 @@ import CreateTeam from './pages/CreateTeam';
 import ScoutingReport from './pages/ScoutingReport';
 import CreatePlayer from './pages/CreatePlayer';
 import EditPlayer from './pages/EditPlayer';
-import ScoutingReports from './pages/ScoutingReports';
+
 import CreateScoutingReport from './pages/CreateScoutingReport';
 import CreateCustomReport from './pages/CreateCustomReport';
 import CreatePerformanceReport from './pages/CreatePerformanceReport';
@@ -56,7 +55,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/oauth-callback" element={<OAuthCallback />} />
-        
+
         {/* Protected routes */}
         <Route path="/" element={
           <ProtectedRoute>
@@ -344,4 +343,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

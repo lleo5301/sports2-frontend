@@ -1,5 +1,5 @@
-import Skeleton from './Skeleton'
-import SkeletonText from './SkeletonText'
+import Skeleton from './Skeleton';
+import SkeletonText from './SkeletonText';
 
 export default function SkeletonCard({
   size = 'sm',
@@ -19,9 +19,9 @@ export default function SkeletonCard({
     wide: 'bento-wide',
     tall: 'bento-tall',
     full: 'bento-full'
-  }
+  };
 
-  const sizeClass = sizeClasses[size] || sizeClasses.sm
+  const sizeClass = sizeClasses[size] || sizeClasses.sm;
 
   return (
     <div className={`card bento-item ${sizeClass} ${className}`}>
@@ -70,5 +70,5 @@ export default function SkeletonCard({
         </div>
       )}
     </div>
-  )
+  );
 }

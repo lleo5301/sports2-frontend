@@ -1,4 +1,3 @@
-import React from 'react';
 import { Star, TrendingUp, Trophy, Users, AlertTriangle } from 'lucide-react';
 
 const OverallPrefList = () => {

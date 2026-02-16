@@ -1,136 +1,134 @@
-import { useState, useRef, useCallback } from 'react'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
-import api from '../services/api'
-import toast from 'react-hot-toast'
+import { useState, useRef, useCallback } from 'react';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import api from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = false }) {
-  const [isDragging, setIsDragging] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState(null)
-  const fileInputRef = useRef(null)
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Logo URL is served via nginx proxy at /uploads/
   // No need to prepend API URL since nginx proxies /uploads/ to backend
-  const displayLogoUrl = previewUrl || currentLogoUrl || null
+  const displayLogoUrl = previewUrl || currentLogoUrl || null;
 
   const handleDragEnter = useCallback((e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!disabled) setIsDragging(true)
-  }, [disabled])
+    e.preventDefault();
+    e.stopPropagation();
+    if (!disabled) setIsDragging(true);
+  }, [disabled]);
 
   const handleDragLeave = useCallback((e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }, [])
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
 
   const handleDragOver = useCallback((e) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }, [])
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
 
-  const validateFile = (file) => {
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp']
-    const maxSize = 5 * 1024 * 1024 // 5MB
+  const validateFile = useCallback((file) => {
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!validTypes.includes(file.type)) {
-      toast.error('Please upload a PNG, JPG, SVG, or WebP image')
-      return false
+      toast.error('Please upload a PNG, JPG, SVG, or WebP image');
+      return false;
     }
 
     if (file.size > maxSize) {
-      toast.error('Image must be less than 5MB')
-      return false
+      toast.error('Image must be less than 5MB');
+      return false;
     }
 
-    return true
-  }
+    return true;
+  }, []);
 
-  const uploadFile = async (file) => {
-    if (!validateFile(file)) return
+  const uploadFile = useCallback(async (file) => {
+    if (!validateFile(file)) return;
 
     // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => setPreviewUrl(e.target.result)
-    reader.readAsDataURL(file)
+    const reader = new FileReader();
+    reader.onload = (e) => setPreviewUrl(e.target.result);
+    reader.readAsDataURL(file);
 
-    setIsUploading(true)
+    setIsUploading(true);
     try {
-      const formData = new FormData()
-      formData.append('logo', file)
+      const formData = new FormData();
+      formData.append('logo', file);
 
       const response = await api.post('/teams/logo', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      })
+      });
 
       if (response.data.success) {
-        toast.success('Logo uploaded successfully')
+        toast.success('Logo uploaded successfully');
         if (onLogoChange) {
-          onLogoChange(response.data.data.logo_url)
+          onLogoChange(response.data.data.logo_url);
         }
-        setPreviewUrl(null) // Clear preview, use actual URL
+        setPreviewUrl(null); // Clear preview, use actual URL
       }
     } catch (error) {
-      console.error('Error uploading logo:', error)
-      const message = error.response?.data?.message || error.response?.data?.error || 'Failed to upload logo'
-      toast.error(message)
-      setPreviewUrl(null) // Clear preview on error
+      const message = error.response?.data?.message || error.response?.data?.error || 'Failed to upload logo';
+      toast.error(message);
+      setPreviewUrl(null); // Clear preview on error
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  }, [validateFile, onLogoChange]);
 
   const handleDrop = useCallback((e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-    if (disabled) return
+    if (disabled) return;
 
-    const files = e.dataTransfer?.files
+    const files = e.dataTransfer?.files;
     if (files && files.length > 0) {
-      uploadFile(files[0])
+      uploadFile(files[0]);
     }
-  }, [disabled])
+  }, [disabled, uploadFile]);
 
   const handleFileSelect = (e) => {
-    const files = e.target.files
+    const files = e.target.files;
     if (files && files.length > 0) {
-      uploadFile(files[0])
+      uploadFile(files[0]);
     }
     // Reset input so same file can be selected again
-    e.target.value = ''
-  }
+    e.target.value = '';
+  };
 
   const handleRemoveLogo = async () => {
-    if (disabled) return
+    if (disabled) return;
 
-    setIsUploading(true)
+    setIsUploading(true);
     try {
-      const response = await api.delete('/teams/logo')
+      const response = await api.delete('/teams/logo');
       if (response.data.success) {
-        toast.success('Logo removed')
-        setPreviewUrl(null)
+        toast.success('Logo removed');
+        setPreviewUrl(null);
         if (onLogoChange) {
-          onLogoChange(null)
+          onLogoChange(null);
         }
       }
     } catch (error) {
-      console.error('Error removing logo:', error)
-      toast.error('Failed to remove logo')
+      toast.error('Failed to remove logo');
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const handleClick = () => {
     if (!disabled && fileInputRef.current) {
-      fileInputRef.current.click()
+      fileInputRef.current.click();
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -214,5 +212,5 @@ export default function LogoUpload({ currentLogoUrl, onLogoChange, disabled = fa
         )}
       </div>
     </div>
-  )
+  );
 }

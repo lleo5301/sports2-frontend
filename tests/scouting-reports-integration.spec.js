@@ -7,7 +7,7 @@ test.describe('Scouting Reports Integration Tests', () => {
     await page.addInitScript(() => {
       localStorage.setItem('token', 'mock-jwt-token');
     });
-    
+
     // Mock auth endpoints
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -30,7 +30,7 @@ test.describe('Scouting Reports Integration Tests', () => {
     // Enhanced player mock with more realistic data
     await page.route('**/api/players**', async route => {
       const url = new URL(route.request().url());
-      
+
       const players = [
         {
           id: 1,
@@ -120,7 +120,7 @@ test.describe('Scouting Reports Integration Tests', () => {
 
     // Step 7: Wait for reports to load and verify they appear
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     // Verify multiple reports are shown
     await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
     await expect(page.getByText('Report Date: 2/20/2024')).toBeVisible();
@@ -210,7 +210,7 @@ test.describe('Scouting Reports Integration Tests', () => {
 
     // Wait for reports and click on pitcher report
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const reportItem = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await reportItem.click();
 
@@ -239,7 +239,7 @@ test.describe('Scouting Reports Integration Tests', () => {
 
   test('multiple reports navigation and comparison', async ({ page }) => {
     await page.goto('/players');
-    
+
     // Open John Doe who has multiple reports
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
@@ -269,12 +269,12 @@ test.describe('Scouting Reports Integration Tests', () => {
     // Close and open second report
     await page.getByRole('button', { name: 'Close' }).last().click();
     await expect(page.getByText('Scouting Report - John Doe')).not.toBeVisible();
-    
+
     await secondReport.click();
     await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
     await expect(page.getByText('Report Date: 2/20/2024')).toBeVisible();
     await expect(page.locator('.text-lg.font-bold.text-primary').filter({ hasText: 'B' })).toBeVisible();
-    
+
     // Verify different notes/assessments
     await expect(page.getByText('Good fundamentals but needs consistency.')).toBeVisible();
     await expect(page.getByText('Shows potential but needs more plate discipline.')).toBeVisible();
@@ -282,7 +282,7 @@ test.describe('Scouting Reports Integration Tests', () => {
 
   test('error handling and recovery during report viewing', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
@@ -306,16 +306,16 @@ test.describe('Scouting Reports Integration Tests', () => {
 
     // Report modal should not open
     await expect(page.getByText('Scouting Report - John Doe')).not.toBeVisible();
-    
+
     // Player modal should still be functional
     await expect(page.getByText('John Doe').first()).toBeVisible();
-    
+
     // Should be able to try second report (remove the error mock)
     await page.unroute('**/api/reports/scouting/1');
-    
+
     const secondReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').nth(1);
     await secondReport.click();
-    
+
     // Second report should open successfully
     await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
     await expect(page.getByText('Report Date: 2/20/2024')).toBeVisible();
@@ -324,7 +324,7 @@ test.describe('Scouting Reports Integration Tests', () => {
   test('responsive design and mobile interaction', async ({ page }) => {
     // Test on mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     await page.goto('/players');
     await expect(page.getByRole('heading', { name: /players/i })).toBeVisible();
 
@@ -335,11 +335,11 @@ test.describe('Scouting Reports Integration Tests', () => {
     // Modal should be properly sized for mobile
     const modal = page.locator('.modal.modal-open .modal-box');
     await expect(modal).toBeVisible();
-    
+
     // Scouting reports section should be visible and scrollable
     await expect(page.getByRole('heading', { name: 'Scouting Reports' })).toBeVisible();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const reportsContainer = page.locator('.space-y-2.max-h-40.overflow-y-auto');
     await expect(reportsContainer).toBeVisible();
 
@@ -349,15 +349,15 @@ test.describe('Scouting Reports Integration Tests', () => {
 
     // Report detail modal should be responsive
     await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
-    
+
     // Content should be scrollable on mobile
     const reportModal = page.locator('.modal.modal-open .modal-box.max-w-4xl');
     await expect(reportModal).toBeVisible();
-    
+
     // Tool grades should stack properly on mobile (grid-cols-1)
     const gradesGrid = page.locator('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
     await expect(gradesGrid).toBeVisible();
-    
+
     // Close functionality should work on mobile
     await page.getByRole('button', { name: 'Close' }).last().click();
     await expect(page.getByText('Scouting Report - John Doe')).not.toBeVisible();

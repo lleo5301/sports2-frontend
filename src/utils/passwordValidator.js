@@ -17,7 +17,7 @@ export const PASSWORD_MIN_LENGTH = 8;
 export const UPPERCASE_REGEX = /[A-Z]/;
 export const LOWERCASE_REGEX = /[a-z]/;
 export const DIGIT_REGEX = /[0-9]/;
-export const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
+export const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
 
 /**
  * Check if password meets minimum length requirement

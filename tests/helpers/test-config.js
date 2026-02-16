@@ -15,14 +15,14 @@ export const TestCategories = {
 
 /**
  * Determine which test categories should run based on app state
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  * @returns {Promise<{runCategories: string[], skipReason?: string}>}
  */
 export async function determineTestCategories(page) {
   try {
     // Check if app has compilation errors
     const hasCompilationError = await page.locator('text=Html Webpack Plugin').isVisible({ timeout: 3000 });
-    
+
     if (hasCompilationError) {
       return {
         runCategories: [TestCategories.BASIC],
@@ -44,17 +44,17 @@ export async function determineTestCategories(page) {
 
     // Check if forms are working
     const formsWork = await page.locator('form').isVisible({ timeout: 3000 });
-    
+
     const categories = [TestCategories.BASIC];
     if (formsWork) {
       categories.push(TestCategories.FORM, TestCategories.API);
     }
-    
+
     // Always try visual tests if app loads
     categories.push(TestCategories.VISUAL, TestCategories.RESPONSIVE);
 
     return { runCategories: categories };
-    
+
   } catch (error) {
     return {
       runCategories: [TestCategories.BASIC],
@@ -72,7 +72,7 @@ export async function determineTestCategories(page) {
 export function conditionalTest(category, testFn, fallbackTest = null) {
   return async ({ page }, testInfo) => {
     const { runCategories, skipReason } = await determineTestCategories(page);
-    
+
     if (!runCategories.includes(category)) {
       if (fallbackTest) {
         console.log(`⚠️  Running fallback test: ${fallbackTest}`);
@@ -85,7 +85,7 @@ export function conditionalTest(category, testFn, fallbackTest = null) {
         return;
       }
     }
-    
+
     return await testFn({ page }, testInfo);
   };
 }
@@ -96,29 +96,29 @@ export function conditionalTest(category, testFn, fallbackTest = null) {
  * @param {object} options - Options
  */
 export function resilientTest(testFn, options = {}) {
-  const { 
-    maxRetries = 2, 
+  const {
+    maxRetries = 2,
     fallbackOnError = true,
-    category = TestCategories.BASIC 
+    category = TestCategories.BASIC
   } = options;
-  
+
   return async ({ page }, testInfo) => {
     // Check if we should run this category
     const { runCategories, skipReason } = await determineTestCategories(page);
-    
+
     if (!runCategories.includes(category)) {
       testInfo.skip(true, skipReason || `Skipping ${category} tests`);
       return;
     }
 
     let lastError;
-    
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         return await testFn({ page }, testInfo);
       } catch (error) {
         lastError = error;
-        
+
         if (attempt < maxRetries) {
           console.log(`⚠️  Test attempt ${attempt + 1} failed, retrying...`);
           // Wait a bit before retry
@@ -127,7 +127,7 @@ export function resilientTest(testFn, options = {}) {
         }
       }
     }
-    
+
     // All retries failed
     if (fallbackOnError) {
       console.log(`⚠️  All retries failed, running fallback test`);

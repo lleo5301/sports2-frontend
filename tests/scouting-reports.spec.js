@@ -8,7 +8,7 @@ test.describe('Scouting Reports in Player Management', () => {
     await page.addInitScript(() => {
       localStorage.setItem('token', 'mock-jwt-token');
     });
-    
+
     // Mock auth endpoints
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -36,7 +36,7 @@ test.describe('Scouting Reports in Player Management', () => {
       const school_type = url.searchParams.get('school_type') || '';
       const status = url.searchParams.get('status') || 'active';
       const page_num = url.searchParams.get('page') || '1';
-      
+
       let players = [
         {
           id: 1,
@@ -103,7 +103,7 @@ test.describe('Scouting Reports in Player Management', () => {
 
       // Apply filters (same logic as in players-management.spec.js)
       if (search) {
-        players = players.filter(p => 
+        players = players.filter(p =>
           p.first_name.toLowerCase().includes(search.toLowerCase()) ||
           p.last_name.toLowerCase().includes(search.toLowerCase()) ||
           p.school.toLowerCase().includes(search.toLowerCase()) ||
@@ -209,7 +209,7 @@ test.describe('Scouting Reports in Player Management', () => {
 
     // Wait for report detail modal to open
     await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
-    
+
     // Check report header information
     await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
     await expect(page.getByText('Game Date: 3/14/2024')).toBeVisible();
@@ -222,7 +222,7 @@ test.describe('Scouting Reports in Player Management', () => {
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -244,7 +244,7 @@ test.describe('Scouting Reports in Player Management', () => {
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -274,7 +274,7 @@ test.describe('Scouting Reports in Player Management', () => {
     const mikeRow = page.locator('table.table tbody tr').filter({ hasText: 'Mike Johnson' });
     await mikeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     // Click on Mike's report (should be the pitcher report)
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
@@ -293,7 +293,7 @@ test.describe('Scouting Reports in Player Management', () => {
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -329,15 +329,15 @@ test.describe('Scouting Reports in Player Management', () => {
     await page.route('**/api/reports/scouting**', async route => {
       // Add a small delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const url = new URL(route.request().url());
       const playerId = url.searchParams.get('player_id');
-      
+
       let reports = [...mockScoutingReports];
       if (playerId) {
         reports = reports.filter(report => report.player_id.toString() === playerId);
       }
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -361,7 +361,7 @@ test.describe('Scouting Reports in Player Management', () => {
 
     // Wait for loading to complete
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     // Verify reports are loaded
     await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
   });
@@ -415,7 +415,7 @@ test.describe('Scouting Reports in Player Management', () => {
 
     // Report detail modal should not open due to error
     await expect(page.getByText('Scouting Report - John Doe')).not.toBeVisible();
-    
+
     // Player modal should still be open
     await expect(page.getByText('John Doe').first()).toBeVisible();
   });
@@ -431,7 +431,7 @@ test.describe('Scouting Reports in Player Management', () => {
 
     // Check scouting reports section is visible on mobile
     await expect(page.getByRole('heading', { name: 'Scouting Reports' })).toBeVisible();
-    
+
     // Reports should be scrollable on mobile
     const reportsContainer = page.locator('.space-y-2.max-h-40.overflow-y-auto');
     await expect(reportsContainer).toBeVisible();
@@ -442,7 +442,7 @@ test.describe('Scouting Reports in Player Management', () => {
 
     // Check that modal is responsive
     await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
-    
+
     // Tool grades should stack properly on mobile
     const gradesGrid = page.locator('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
     await expect(gradesGrid).toBeVisible();
@@ -456,11 +456,11 @@ test.describe('Scouting Reports in Player Management', () => {
 
     // Check that first report shows grade summary
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
-    
+
     // Should show first 2 grades
     await expect(firstReport.getByText('Overall: A-')).toBeVisible();
     await expect(firstReport.getByText('Hitting: C')).toBeVisible();
-    
+
     // Should show "more grades" indicator since pitcher has more than 2 grades
     await expect(firstReport.getByText(/\+\d+ more grades/)).toBeVisible();
   });

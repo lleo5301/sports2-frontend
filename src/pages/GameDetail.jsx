@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -111,8 +110,8 @@ const GameDetail = () => {
                 {gameStatus && (
                   <span className={`badge badge-sm ${
                     gameStatus === 'completed' ? 'badge-success' :
-                    gameStatus === 'in_progress' ? 'badge-warning' :
-                    'badge-info'
+                      gameStatus === 'in_progress' ? 'badge-warning' :
+                        'badge-info'
                   }`}>
                     {gameStatus === 'in_progress' ? 'LIVE' : gameStatus}
                   </span>
@@ -154,7 +153,7 @@ const GameDetail = () => {
                 {game.result && (
                   <div className={`text-lg font-semibold mt-1 ${getResultClass(game.result)}`}>
                     {game.result === 'W' || game.result === 'Win' ? 'WIN' :
-                     game.result === 'L' || game.result === 'Loss' ? 'LOSS' : 'TIE'}
+                      game.result === 'L' || game.result === 'Loss' ? 'LOSS' : 'TIE'}
                   </div>
                 )}
               </div>
@@ -295,10 +294,10 @@ const GameDetail = () => {
                         {p.decision && (
                           <span className={`badge badge-sm ${
                             p.decision === 'W' ? 'badge-success' :
-                            p.decision === 'L' ? 'badge-error' :
-                            p.decision === 'SV' || p.decision === 'S' ? 'badge-info' :
-                            p.decision === 'H' ? 'badge-warning' :
-                            'badge-ghost'
+                              p.decision === 'L' ? 'badge-error' :
+                                p.decision === 'SV' || p.decision === 'S' ? 'badge-info' :
+                                  p.decision === 'H' ? 'badge-warning' :
+                                    'badge-ghost'
                           }`}>
                             {p.decision}
                           </span>
@@ -371,8 +370,8 @@ const GameDetail = () => {
                       <td className="text-center">{f.e ?? f.errors ?? 0}</td>
                       <td className="text-center font-medium">
                         {f.fpct !== undefined ? (typeof f.fpct === 'number' ? f.fpct.toFixed(3) : f.fpct) :
-                         f.fielding_percentage !== undefined ? (typeof f.fielding_percentage === 'number' ? f.fielding_percentage.toFixed(3) : f.fielding_percentage) :
-                         '1.000'}
+                          f.fielding_percentage !== undefined ? (typeof f.fielding_percentage === 'number' ? f.fielding_percentage.toFixed(3) : f.fielding_percentage) :
+                            '1.000'}
                       </td>
                     </tr>
                   ))}
@@ -400,7 +399,7 @@ const GameDetail = () => {
           <div className="card-body text-center py-12">
             <Users className="w-12 h-12 mx-auto mb-3 text-base-content/30" />
             <p className="font-medium text-base-content/70">No player statistics available for this game</p>
-            <p className="text-sm text-base-content/50">Stats will appear here once they've been recorded</p>
+            <p className="text-sm text-base-content/50">Stats will appear here once they&apos;ve been recorded</p>
           </div>
         </div>
       )}

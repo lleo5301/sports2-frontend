@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import toast from 'react-hot-toast'
-import { ArrowLeft, Upload, X, Play } from 'lucide-react'
-import api from '../services/api'
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import toast from 'react-hot-toast';
+import { ArrowLeft, Upload, X, Play } from 'lucide-react';
+import api from '../services/api';
 
 const positions = [
   'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'
-]
-const schoolTypes = ['HS', 'COLL']
+];
+const schoolTypes = ['HS', 'COLL'];
 
 const playerSchema = z.object({
   first_name: z.string().min(1, 'First name is required').max(50),
@@ -38,18 +38,18 @@ const playerSchema = z.object({
   has_medical_issues: z.boolean().optional(),
   injury_details: z.string().max(500).optional().or(z.literal('')),
   has_comparison: z.boolean().optional(),
-  comparison_player: z.string().max(100).optional().or(z.literal('')),
-})
+  comparison_player: z.string().max(100).optional().or(z.literal(''))
+});
 
 export default function EditPlayer() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingPlayer, setIsLoadingPlayer] = useState(true)
-  const [player, setPlayer] = useState(null)
-  const [videoFile, setVideoFile] = useState(null)
-  const [videoPreview, setVideoPreview] = useState(null)
-  const [currentVideo, setCurrentVideo] = useState(null)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPlayer, setIsLoadingPlayer] = useState(true);
+  const [player, setPlayer] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [currentVideo, setCurrentVideo] = useState(null);
 
   const {
     register,
@@ -66,20 +66,20 @@ export default function EditPlayer() {
       has_medical_issues: false,
       has_comparison: false
     }
-  })
+  });
 
-  const hasMedical = watch('has_medical_issues')
-  const hasComparison = watch('has_comparison')
+  const hasMedical = watch('has_medical_issues');
+  const hasComparison = watch('has_comparison');
 
   // Fetch player data
   useEffect(() => {
     const fetchPlayer = async () => {
       try {
-        const response = await api.get(`/players/byId/${id}`)
-        const playerData = response.data.data
-        setPlayer(playerData)
-        setCurrentVideo(playerData.video_url)
-        
+        const response = await api.get(`/players/byId/${id}`);
+        const playerData = response.data.data;
+        setPlayer(playerData);
+        setCurrentVideo(playerData.video_url);
+
         // Reset form with player data
         const formData = {
           first_name: playerData.first_name || '',
@@ -108,92 +108,92 @@ export default function EditPlayer() {
           injury_details: playerData.injury_details || '',
           has_comparison: playerData.has_comparison || false,
           comparison_player: playerData.comparison_player || ''
-        }
-        reset(formData)
+        };
+        reset(formData);
       } catch (error) {
-        console.error('Error fetching player:', error)
-        toast.error('Failed to load player data')
-        navigate('/players')
+        // Error fetching player
+        toast.error('Failed to load player data');
+        navigate('/players');
       } finally {
-        setIsLoadingPlayer(false)
+        setIsLoadingPlayer(false);
       }
-    }
+    };
 
     if (id) {
-      fetchPlayer()
+      fetchPlayer();
     }
-  }, [id, reset, navigate])
+  }, [id, reset, navigate]);
 
   const handleVideoChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
       // Validate file type
-      const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/ogg']
+      const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/ogg'];
       if (!validTypes.includes(file.type)) {
-        toast.error('Please select a valid video file (MP4, MOV, AVI, WebM, OGV)')
-        return
+        toast.error('Please select a valid video file (MP4, MOV, AVI, WebM, OGV)');
+        return;
       }
 
       // Validate file size (100MB max)
       if (file.size > 100 * 1024 * 1024) {
-        toast.error('Video file must be less than 100MB')
-        return
+        toast.error('Video file must be less than 100MB');
+        return;
       }
 
-      setVideoFile(file)
-      
+      setVideoFile(file);
+
       // Create preview URL
-      const previewUrl = URL.createObjectURL(file)
-      setVideoPreview(previewUrl)
+      const previewUrl = URL.createObjectURL(file);
+      setVideoPreview(previewUrl);
     }
-  }
+  };
 
   const removeVideo = () => {
-    setVideoFile(null)
+    setVideoFile(null);
     if (videoPreview) {
-      URL.revokeObjectURL(videoPreview)
-      setVideoPreview(null)
+      URL.revokeObjectURL(videoPreview);
+      setVideoPreview(null);
     }
     // Reset file input
-    const fileInput = document.getElementById('video-upload')
+    const fileInput = document.getElementById('video-upload');
     if (fileInput) {
-      fileInput.value = ''
+      fileInput.value = '';
     }
-  }
+  };
 
   const onSubmit = async (data) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // Create FormData for multipart upload
-      const formData = new FormData()
-      
+      const formData = new FormData();
+
       // Clean up NaN/empty values and append to FormData
       Object.entries(data).forEach(([key, value]) => {
         if (value !== '' && !(typeof value === 'number' && isNaN(value))) {
-          formData.append(key, value)
+          formData.append(key, value);
         }
-      })
+      });
 
       // Add video file if selected
       if (videoFile) {
-        formData.append('video', videoFile)
+        formData.append('video', videoFile);
       }
 
       await api.put(`/players/byId/${id}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
-      toast.success('Player updated successfully!')
-      navigate(`/players/${id}`)
+      toast.success('Player updated successfully!');
+      navigate(`/players/${id}`);
     } catch (error) {
-      const msg = error.response?.data?.error || 'Failed to update player'
-      toast.error(msg)
+      const msg = error.response?.data?.error || 'Failed to update player';
+      toast.error(msg);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (isLoadingPlayer) {
     return (
@@ -202,7 +202,7 @@ export default function EditPlayer() {
           <div className="loading loading-spinner loading-lg"></div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!player) {
@@ -215,7 +215,7 @@ export default function EditPlayer() {
           Back to Players
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -241,16 +241,16 @@ export default function EditPlayer() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Basic Information</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">First Name *</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className={`input input-bordered ${errors.first_name ? 'input-error' : ''}`}
-                  {...register('first_name')} 
+                  {...register('first_name')}
                 />
                 {errors.first_name && (
                   <label className="label">
@@ -263,10 +263,10 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Last Name *</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className={`input input-bordered ${errors.last_name ? 'input-error' : ''}`}
-                  {...register('last_name')} 
+                  {...register('last_name')}
                 />
                 {errors.last_name && (
                   <label className="label">
@@ -279,7 +279,7 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">School Type *</span>
                 </label>
-                <select 
+                <select
                   className={`select select-bordered ${errors.school_type ? 'select-error' : ''}`}
                   {...register('school_type')}
                 >
@@ -298,7 +298,7 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Position *</span>
                 </label>
-                <select 
+                <select
                   className={`select select-bordered ${errors.position ? 'select-error' : ''}`}
                   {...register('position')}
                 >
@@ -317,11 +317,11 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Height</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g., 6'2&quot;"
                   className={`input input-bordered ${errors.height ? 'input-error' : ''}`}
-                  {...register('height')} 
+                  {...register('height')}
                 />
                 {errors.height && (
                   <label className="label">
@@ -334,12 +334,12 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Weight (lbs)</span>
                 </label>
-                <input 
-                  type="number" 
-                  min="100" 
+                <input
+                  type="number"
+                  min="100"
                   max="300"
                   className={`input input-bordered ${errors.weight ? 'input-error' : ''}`}
-                  {...register('weight')} 
+                  {...register('weight')}
                 />
                 {errors.weight && (
                   <label className="label">
@@ -352,10 +352,10 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Birth Date</span>
                 </label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className={`input input-bordered ${errors.birth_date ? 'input-error' : ''}`}
-                  {...register('birth_date')} 
+                  {...register('birth_date')}
                 />
                 {errors.birth_date && (
                   <label className="label">
@@ -368,12 +368,12 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Graduation Year</span>
                 </label>
-                <input 
-                  type="number" 
-                  min="2020" 
+                <input
+                  type="number"
+                  min="2020"
                   max="2030"
                   className={`input input-bordered ${errors.graduation_year ? 'input-error' : ''}`}
-                  {...register('graduation_year')} 
+                  {...register('graduation_year')}
                 />
                 {errors.graduation_year && (
                   <label className="label">
@@ -390,9 +390,9 @@ export default function EditPlayer() {
           <div className="card-body">
             <h2 className="card-title">Player Video</h2>
             <p className="text-sm text-base-content/70">
-              Upload a video showcasing the player's skills (Max 100MB, MP4/MOV/AVI/WebM/OGV)
+               Upload a video showcasing the player&apos;s skills (Max 100MB, MP4/MOV/AVI/WebM/OGV)
             </p>
-            
+
             {/* Current Video */}
             {currentVideo && !videoPreview && (
               <div className="space-y-2">
@@ -400,8 +400,8 @@ export default function EditPlayer() {
                   <span className="label-text">Current Video</span>
                 </label>
                 <div className="relative">
-                  <video 
-                    controls 
+                  <video
+                    controls
                     className="w-full max-w-md h-48 bg-black rounded-lg"
                     src={`${api.defaults.baseURL}${currentVideo}`}
                   >
@@ -439,8 +439,8 @@ export default function EditPlayer() {
                     Remove
                   </button>
                 </div>
-                <video 
-                  controls 
+                <video
+                  controls
                   className="w-full max-w-md h-48 bg-black rounded-lg"
                   src={videoPreview}
                 >
@@ -458,16 +458,16 @@ export default function EditPlayer() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Contact Information</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control md:col-span-2">
                 <label className="label">
                   <span className="label-text">School</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className={`input input-bordered ${errors.school ? 'input-error' : ''}`}
-                  {...register('school')} 
+                  {...register('school')}
                 />
                 {errors.school && (
                   <label className="label">
@@ -480,10 +480,10 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">City</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className={`input input-bordered ${errors.city ? 'input-error' : ''}`}
-                  {...register('city')} 
+                  {...register('city')}
                 />
                 {errors.city && (
                   <label className="label">
@@ -496,12 +496,12 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">State</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="CA"
                   maxLength="2"
                   className={`input input-bordered ${errors.state ? 'input-error' : ''}`}
-                  {...register('state')} 
+                  {...register('state')}
                 />
                 {errors.state && (
                   <label className="label">
@@ -514,10 +514,10 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Phone</span>
                 </label>
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   className={`input input-bordered ${errors.phone ? 'input-error' : ''}`}
-                  {...register('phone')} 
+                  {...register('phone')}
                 />
                 {errors.phone && (
                   <label className="label">
@@ -530,10 +530,10 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Email</span>
                 </label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
-                  {...register('email')} 
+                  {...register('email')}
                 />
                 {errors.email && (
                   <label className="label">
@@ -551,19 +551,19 @@ export default function EditPlayer() {
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Batting Statistics</h2>
-              
+
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Batting Average</span>
                   </label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     step="0.001"
-                    min="0" 
+                    min="0"
                     max="1"
                     className={`input input-bordered ${errors.batting_avg ? 'input-error' : ''}`}
-                    {...register('batting_avg')} 
+                    {...register('batting_avg')}
                   />
                   {errors.batting_avg && (
                     <label className="label">
@@ -577,11 +577,11 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">Home Runs</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       min="0"
                       className={`input input-bordered ${errors.home_runs ? 'input-error' : ''}`}
-                      {...register('home_runs')} 
+                      {...register('home_runs')}
                     />
                     {errors.home_runs && (
                       <label className="label">
@@ -594,11 +594,11 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">RBI</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       min="0"
                       className={`input input-bordered ${errors.rbi ? 'input-error' : ''}`}
-                      {...register('rbi')} 
+                      {...register('rbi')}
                     />
                     {errors.rbi && (
                       <label className="label">
@@ -611,11 +611,11 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">Stolen Bases</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       min="0"
                       className={`input input-bordered ${errors.stolen_bases ? 'input-error' : ''}`}
-                      {...register('stolen_bases')} 
+                      {...register('stolen_bases')}
                     />
                     {errors.stolen_bases && (
                       <label className="label">
@@ -632,18 +632,18 @@ export default function EditPlayer() {
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Pitching Statistics</h2>
-              
+
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">ERA</span>
                   </label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     step="0.01"
                     min="0"
                     className={`input input-bordered ${errors.era ? 'input-error' : ''}`}
-                    {...register('era')} 
+                    {...register('era')}
                   />
                   {errors.era && (
                     <label className="label">
@@ -657,11 +657,11 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">Wins</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       min="0"
                       className={`input input-bordered ${errors.wins ? 'input-error' : ''}`}
-                      {...register('wins')} 
+                      {...register('wins')}
                     />
                     {errors.wins && (
                       <label className="label">
@@ -674,11 +674,11 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">Losses</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       min="0"
                       className={`input input-bordered ${errors.losses ? 'input-error' : ''}`}
-                      {...register('losses')} 
+                      {...register('losses')}
                     />
                     {errors.losses && (
                       <label className="label">
@@ -691,11 +691,11 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">Strikeouts</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       min="0"
                       className={`input input-bordered ${errors.strikeouts ? 'input-error' : ''}`}
-                      {...register('strikeouts')} 
+                      {...register('strikeouts')}
                     />
                     {errors.strikeouts && (
                       <label className="label">
@@ -708,12 +708,12 @@ export default function EditPlayer() {
                     <label className="label">
                       <span className="label-text">Innings Pitched</span>
                     </label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       step="0.1"
                       min="0"
                       className={`input input-bordered ${errors.innings_pitched ? 'input-error' : ''}`}
-                      {...register('innings_pitched')} 
+                      {...register('innings_pitched')}
                     />
                     {errors.innings_pitched && (
                       <label className="label">
@@ -731,11 +731,11 @@ export default function EditPlayer() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Medical Information</h2>
-            
+
             <div className="form-control">
               <label className="cursor-pointer label justify-start">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="checkbox checkbox-primary mr-3"
                   {...register('has_medical_issues')}
                 />
@@ -748,7 +748,7 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Injury Details</span>
                 </label>
-                <textarea 
+                <textarea
                   className={`textarea textarea-bordered h-24 ${errors.injury_details ? 'textarea-error' : ''}`}
                   placeholder="Describe any medical issues or injury history..."
                   {...register('injury_details')}
@@ -767,11 +767,11 @@ export default function EditPlayer() {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Player Comparison</h2>
-            
+
             <div className="form-control">
               <label className="cursor-pointer label justify-start">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="checkbox checkbox-primary mr-3"
                   {...register('has_comparison')}
                 />
@@ -784,8 +784,8 @@ export default function EditPlayer() {
                 <label className="label">
                   <span className="label-text">Player Comparison</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g., Derek Jeter"
                   className={`input input-bordered ${errors.comparison_player ? 'input-error' : ''}`}
                   {...register('comparison_player')}
@@ -805,8 +805,8 @@ export default function EditPlayer() {
           <Link to={`/players/${id}`} className="btn btn-outline">
             Cancel
           </Link>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn btn-primary"
             disabled={isLoading}
           >
@@ -825,5 +825,5 @@ export default function EditPlayer() {
         </div>
       </form>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService, pdfUtils } from '../services/reports';
@@ -116,7 +116,7 @@ const CreateCustomReport = () => {
       chart_type: 'bar',
       content: ''
     };
-    
+
     setReportData(prev => ({
       ...prev,
       sections: [...prev.sections, newSection]
@@ -126,7 +126,7 @@ const CreateCustomReport = () => {
   const updateSection = (sectionId, updates) => {
     setReportData(prev => ({
       ...prev,
-      sections: prev.sections.map(section => 
+      sections: prev.sections.map(section =>
         section.id === sectionId ? { ...section, ...updates } : section
       )
     }));
@@ -141,7 +141,7 @@ const CreateCustomReport = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!reportData.title) {
       toast.error('Please enter a report title');
       return;
@@ -295,7 +295,7 @@ const CreateCustomReport = () => {
               {reportData.sections.length === 0 ? (
                 <div className="text-center py-8 text-base-content/70">
                   <BarChart3 className="w-12 h-12 mx-auto mb-4" />
-                  <p>No sections added yet. Click "Add Section" to get started.</p>
+                  <p>No sections added yet. Click &quot;Add Section&quot; to get started.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -398,7 +398,7 @@ const CreateCustomReport = () => {
                             <input
                               type="text"
                               value={section.columns.join(', ')}
-                              onChange={(e) => updateSection(section.id, { 
+                              onChange={(e) => updateSection(section.id, {
                                 columns: e.target.value.split(',').map(col => col.trim()).filter(col => col)
                               })}
                               placeholder="e.g., Name, Position, AVG, HR"
@@ -594,4 +594,4 @@ const CreateCustomReport = () => {
   );
 };
 
-export default CreateCustomReport; 
+export default CreateCustomReport;

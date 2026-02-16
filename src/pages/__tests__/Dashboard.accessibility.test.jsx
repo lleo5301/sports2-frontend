@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -13,27 +12,27 @@ import * as authService from '../../services/auth';
 // Mock services
 vi.mock('../../services/players', () => ({
   playersService: {
-    getPlayers: vi.fn(),
-  },
+    getPlayers: vi.fn()
+  }
 }));
 
 vi.mock('../../services/teams', () => ({
   teamsService: {
-    getTeam: vi.fn(),
-  },
+    getTeam: vi.fn()
+  }
 }));
 
 vi.mock('../../services/reports', () => ({
   reportsService: {
-    getScoutingReports: vi.fn(),
-  },
+    getScoutingReports: vi.fn()
+  }
 }));
 
 vi.mock('react-hot-toast', () => ({
   default: {
     success: vi.fn(),
-    error: vi.fn(),
-  },
+    error: vi.fn()
+  }
 }));
 
 // Mock API module for branding and team stats
@@ -42,13 +41,13 @@ vi.mock('../../services/api', () => ({
     get: vi.fn(() => Promise.resolve({ data: {} })),
     post: vi.fn(() => Promise.resolve({ data: {} })),
     put: vi.fn(() => Promise.resolve({ data: {} })),
-    delete: vi.fn(() => Promise.resolve({ data: {} })),
-  },
+    delete: vi.fn(() => Promise.resolve({ data: {} }))
+  }
 }));
 
 // Mock TeamStatistics component to avoid complex team stats queries
 vi.mock('../../components/TeamStatistics', () => ({
-  default: () => <div data-testid="team-statistics">Team Statistics</div>,
+  default: () => <div data-testid="team-statistics">Team Statistics</div>
 }));
 
 const mockNavigate = vi.fn();
@@ -56,7 +55,7 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => mockNavigate,
+    useNavigate: () => mockNavigate
   };
 });
 
@@ -64,9 +63,9 @@ const createTestQueryClient = () =>
   new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false,
-      },
-    },
+        retry: false
+      }
+    }
   });
 
 const TestWrapper = ({ children }) => {
@@ -92,7 +91,7 @@ describe('Dashboard - Keyboard Accessibility', () => {
       last_name: 'Doe',
       position: 'SS',
       school: 'State University',
-      status: 'active',
+      status: 'active'
     },
     {
       id: 2,
@@ -100,8 +99,8 @@ describe('Dashboard - Keyboard Accessibility', () => {
       last_name: 'Smith',
       position: 'CF',
       school: 'Tech College',
-      status: 'active',
-    },
+      status: 'active'
+    }
   ];
 
   const mockReports = [
@@ -112,8 +111,8 @@ describe('Dashboard - Keyboard Accessibility', () => {
       Player: {
         id: 1,
         first_name: 'John',
-        last_name: 'Doe',
-      },
+        last_name: 'Doe'
+      }
     },
     {
       id: 2,
@@ -122,9 +121,9 @@ describe('Dashboard - Keyboard Accessibility', () => {
       Player: {
         id: 2,
         first_name: 'Jane',
-        last_name: 'Smith',
-      },
-    },
+        last_name: 'Smith'
+      }
+    }
   ];
 
   beforeEach(async () => {
@@ -134,7 +133,7 @@ describe('Dashboard - Keyboard Accessibility', () => {
     vi.spyOn(authService, 'getProfile').mockResolvedValue({
       id: 1,
       role: 'coach',
-      team_id: 1,
+      team_id: 1
     });
 
     const { playersService } = await import('../../services/players');
@@ -143,17 +142,17 @@ describe('Dashboard - Keyboard Accessibility', () => {
 
     playersService.getPlayers.mockResolvedValue({
       data: mockPlayers,
-      pagination: { total: 2, page: 1, limit: 5, pages: 1 },
+      pagination: { total: 2, page: 1, limit: 5, pages: 1 }
     });
 
     teamsService.getTeam.mockResolvedValue({
       id: 1,
-      name: 'Test Team',
+      name: 'Test Team'
     });
 
     reportsService.getScoutingReports.mockResolvedValue({
       data: mockReports,
-      pagination: { total: 2, page: 1, limit: 5, pages: 1 },
+      pagination: { total: 2, page: 1, limit: 5, pages: 1 }
     });
   });
 
@@ -432,7 +431,7 @@ describe('Dashboard - Keyboard Accessibility', () => {
       const { playersService } = await import('../../services/players');
       playersService.getPlayers.mockResolvedValue({
         data: [],
-        pagination: { total: 0, page: 1, limit: 5, pages: 0 },
+        pagination: { total: 0, page: 1, limit: 5, pages: 0 }
       });
 
       render(
@@ -454,7 +453,7 @@ describe('Dashboard - Keyboard Accessibility', () => {
       const { reportsService } = await import('../../services/reports');
       reportsService.getScoutingReports.mockResolvedValue({
         data: [],
-        pagination: { total: 0, page: 1, limit: 5, pages: 0 },
+        pagination: { total: 0, page: 1, limit: 5, pages: 0 }
       });
 
       render(

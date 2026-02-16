@@ -7,7 +7,7 @@ test.describe('Performance Tests - Scouting Reports', () => {
     await page.addInitScript(() => {
       localStorage.setItem('token', 'mock-jwt-token');
     });
-    
+
     // Mock auth endpoints
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -72,16 +72,16 @@ test.describe('Performance Tests - Scouting Reports', () => {
 
     // Measure time to open player modal
     const startTime = Date.now();
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
     // Wait for modal to be fully loaded
     await expect(page.locator('.modal.modal-open')).toBeVisible();
     await expect(page.getByText('John Doe').first()).toBeVisible();
-    
+
     const modalOpenTime = Date.now() - startTime;
-    
+
     // Modal should open within 1 second
     expect(modalOpenTime).toBeLessThan(1000);
     console.log(`Player modal opened in ${modalOpenTime}ms`);
@@ -89,20 +89,20 @@ test.describe('Performance Tests - Scouting Reports', () => {
 
   test('scouting reports load within performance budget', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.modal.modal-open')).toBeVisible();
 
     // Measure time for reports to load
     const startTime = Date.now();
-    
+
     // Wait for loading to complete
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
     await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
-    
+
     const reportsLoadTime = Date.now() - startTime;
-    
+
     // Reports should load within 2 seconds
     expect(reportsLoadTime).toBeLessThan(2000);
     console.log(`Scouting reports loaded in ${reportsLoadTime}ms`);
@@ -110,14 +110,14 @@ test.describe('Performance Tests - Scouting Reports', () => {
 
   test('report detail modal opens within performance budget', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
 
     // Measure time to open report detail modal
     const startTime = Date.now();
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -125,9 +125,9 @@ test.describe('Performance Tests - Scouting Reports', () => {
     await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
     await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Hitting Assessment' })).toBeVisible();
-    
+
     const reportModalOpenTime = Date.now() - startTime;
-    
+
     // Report modal should open within 1 second
     expect(reportModalOpenTime).toBeLessThan(1000);
     console.log(`Report detail modal opened in ${reportModalOpenTime}ms`);
@@ -135,31 +135,31 @@ test.describe('Performance Tests - Scouting Reports', () => {
 
   test('memory usage remains stable with multiple report operations', async ({ page }) => {
     await page.goto('/players');
-    
+
     // Open and close player modal multiple times
     for (let i = 0; i < 5; i++) {
       const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
       await johnDoeRow.getByText('View').click();
-      
+
       await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
       await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
-      
+
       // Open and close report detail modal
       const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
       await firstReport.click();
       await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
-      
+
       await page.getByRole('button', { name: 'Close' }).last().click();
       await expect(page.getByText('Scouting Report - John Doe')).not.toBeVisible();
-      
+
       // Close player modal
       await page.getByRole('button', { name: 'Close' }).click();
       await expect(page.locator('.modal.modal-open')).not.toBeVisible();
-      
+
       // Small delay between iterations
       await page.waitForTimeout(100);
     }
-    
+
     // Test should complete without memory leaks or performance degradation
     expect(true).toBe(true);
   });
@@ -169,7 +169,7 @@ test.describe('Performance Tests - Scouting Reports', () => {
     await page.route('**/api/reports/scouting**', async route => {
       const url = new URL(route.request().url());
       const playerId = url.searchParams.get('player_id');
-      
+
       if (playerId === '1') {
         // Generate 20 reports
         const reports = Array.from({ length: 20 }, (_, i) => ({
@@ -229,21 +229,21 @@ test.describe('Performance Tests - Scouting Reports', () => {
     });
 
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
     // Measure render time for many reports
     const startTime = Date.now();
-    
+
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     // Wait for all reports to be visible
     const reports = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300');
     await expect(reports).toHaveCount(20);
-    
+
     const renderTime = Date.now() - startTime;
-    
+
     // Should render 20 reports within 3 seconds
     expect(renderTime).toBeLessThan(3000);
     console.log(`20 reports rendered in ${renderTime}ms`);
@@ -251,26 +251,26 @@ test.describe('Performance Tests - Scouting Reports', () => {
     // Verify scrolling is smooth (no lag)
     const reportsContainer = page.locator('.space-y-2.max-h-40.overflow-y-auto');
     await reportsContainer.hover();
-    
+
     // Scroll down and up to test performance
     await page.mouse.wheel(0, 200);
     await page.waitForTimeout(100);
     await page.mouse.wheel(0, -200);
-    
+
     // Test should complete without hanging
     expect(true).toBe(true);
   });
 
   test('report modal content renders efficiently', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
 
     // Measure time to render full report content
     const startTime = Date.now();
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -280,9 +280,9 @@ test.describe('Performance Tests - Scouting Reports', () => {
     await expect(page.getByRole('heading', { name: 'Fielding Assessment' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Speed Assessment' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Overall Assessment' })).toBeVisible();
-    
+
     const contentRenderTime = Date.now() - startTime;
-    
+
     // Full report content should render within 1.5 seconds
     expect(contentRenderTime).toBeLessThan(1500);
     console.log(`Report content rendered in ${contentRenderTime}ms`);
@@ -290,49 +290,49 @@ test.describe('Performance Tests - Scouting Reports', () => {
 
   test('multiple modal operations maintain performance', async ({ page }) => {
     await page.goto('/players');
-    
+
     // Test rapid opening and closing of modals
     const operations = [];
-    
+
     for (let i = 0; i < 10; i++) {
       const operationStart = Date.now();
-      
+
       // Open player modal
       const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
       await johnDoeRow.getByText('View').click();
       await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-      
+
       // Open report modal
       const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
       await firstReport.click();
       await expect(page.getByText('Scouting Report - John Doe')).toBeVisible();
-      
+
       // Close report modal
       await page.getByRole('button', { name: 'Close' }).last().click();
       await expect(page.getByText('Scouting Report - John Doe')).not.toBeVisible();
-      
+
       // Close player modal
       await page.getByRole('button', { name: 'Close' }).click();
       await expect(page.locator('.modal.modal-open')).not.toBeVisible();
-      
+
       const operationTime = Date.now() - operationStart;
       operations.push(operationTime);
     }
-    
+
     // Each operation should complete within 3 seconds
     operations.forEach((time, index) => {
       expect(time).toBeLessThan(3000);
     });
-    
+
     // Performance shouldn't degrade significantly over multiple operations
     const firstHalf = operations.slice(0, 5);
     const secondHalf = operations.slice(5);
     const firstHalfAvg = firstHalf.reduce((a, b) => a + b) / firstHalf.length;
     const secondHalfAvg = secondHalf.reduce((a, b) => a + b) / secondHalf.length;
-    
+
     // Second half should not be more than 50% slower than first half
     expect(secondHalfAvg).toBeLessThan(firstHalfAvg * 1.5);
-    
+
     console.log(`Average operation time - First half: ${firstHalfAvg}ms, Second half: ${secondHalfAvg}ms`);
   });
 });

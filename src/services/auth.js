@@ -16,7 +16,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Authenticates a user with email and password credentials
@@ -45,11 +45,11 @@ import api from './api'
  * console.log('Logged in as:', result.user.name);
  */
 export const login = async (credentials) => {
-  const response = await api.post('/auth/login', credentials)
+  const response = await api.post('/auth/login', credentials);
   // Backend now returns: { success: true, data: { user profile } }
   // JWT token is set as httpOnly cookie, not in response body
-  return response.data.data
-}
+  return response.data.data;
+};
 
 /**
  * Registers a new user account
@@ -82,11 +82,11 @@ export const login = async (credentials) => {
  * localStorage.setItem('token', result.token);
  */
 export const register = async (userData) => {
-  const response = await api.post('/auth/register', userData)
+  const response = await api.post('/auth/register', userData);
   // Backend now returns: { success: true, data: { user profile } }
   // JWT token is set as httpOnly cookie, not in response body
-  return response.data.data
-}
+  return response.data.data;
+};
 
 /**
  * Fetches the currently authenticated user's profile information
@@ -111,9 +111,9 @@ export const register = async (userData) => {
  * console.log('Member since:', new Date(profile.createdAt).toLocaleDateString());
  */
 export const getProfile = async () => {
-  const response = await api.get('/auth/me')
-  return response.data.data
-}
+  const response = await api.get('/auth/me');
+  return response.data.data;
+};
 
 /**
  * Updates the authenticated user's profile information
@@ -144,9 +144,9 @@ export const getProfile = async () => {
  * console.log('Profile updated:', updatedProfile.name);
  */
 export const updateProfile = async (profileData) => {
-  const response = await api.put('/auth/me', profileData)
-  return response.data.data
-}
+  const response = await api.put('/auth/me', profileData);
+  return response.data.data;
+};
 
 /**
  * Changes the authenticated user's password
@@ -170,9 +170,9 @@ export const updateProfile = async (profileData) => {
  * console.log(result.message); // "Password changed successfully"
  */
 export const changePassword = async (passwordData) => {
-  const response = await api.put('/auth/change-password', passwordData)
-  return response.data
-}
+  const response = await api.put('/auth/change-password', passwordData);
+  return response.data;
+};
 
 /**
  * Logs out the current user by revoking the session on the backend and clearing local storage
@@ -196,17 +196,17 @@ export const changePassword = async (passwordData) => {
 export const logout = async () => {
   try {
     // Call backend logout endpoint to blacklist the token
-    await api.post('/auth/logout')
+    await api.post('/auth/logout');
   } catch (error) {
     // Even if the backend call fails, we still clear local storage
     // This ensures the user can always logout from the frontend
   } finally {
     // Clear the token from local storage
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
   }
-}
+};
 
 export const revokeAllSessions = async (keepCurrent = false) => {
-  const response = await api.post('/auth/revoke-all-sessions', { keepCurrent })
-  return response.data
-} 
+  const response = await api.post('/auth/revoke-all-sessions', { keepCurrent });
+  return response.data;
+};

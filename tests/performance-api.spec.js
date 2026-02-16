@@ -11,7 +11,7 @@ test.describe('Performance API Integration', () => {
         password: 'password'
       }
     });
-    
+
     if (loginResponse.ok()) {
       const loginData = await loginResponse.json();
       authToken = loginData.data.token;
@@ -20,7 +20,7 @@ test.describe('Performance API Integration', () => {
 
   test('should fetch performance data from API', async ({ request }) => {
     test.skip(!authToken, 'Authentication required');
-    
+
     const response = await request.get('http://localhost:5000/api/players/performance', {
       headers: {
         'Authorization': `Bearer ${authToken}`
@@ -29,7 +29,7 @@ test.describe('Performance API Integration', () => {
 
     expect(response.ok()).toBeTruthy();
     const data = await response.json();
-    
+
     expect(data.success).toBe(true);
     expect(data.data).toBeInstanceOf(Array);
     expect(data.summary).toBeDefined();
@@ -40,7 +40,7 @@ test.describe('Performance API Integration', () => {
 
   test('should filter performance data by position', async ({ request }) => {
     test.skip(!authToken, 'Authentication required');
-    
+
     const response = await request.get('http://localhost:5000/api/players/performance?position=P', {
       headers: {
         'Authorization': `Bearer ${authToken}`
@@ -49,7 +49,7 @@ test.describe('Performance API Integration', () => {
 
     expect(response.ok()).toBeTruthy();
     const data = await response.json();
-    
+
     expect(data.success).toBe(true);
     // All returned players should be pitchers
     data.data.forEach(player => {
@@ -59,7 +59,7 @@ test.describe('Performance API Integration', () => {
 
   test('should sort performance data correctly', async ({ request }) => {
     test.skip(!authToken, 'Authentication required');
-    
+
     const response = await request.get('http://localhost:5000/api/players/performance?sort_by=home_runs&order=DESC', {
       headers: {
         'Authorization': `Bearer ${authToken}`
@@ -68,7 +68,7 @@ test.describe('Performance API Integration', () => {
 
     expect(response.ok()).toBeTruthy();
     const data = await response.json();
-    
+
     expect(data.success).toBe(true);
     if (data.data.length > 1) {
       // Verify home runs are in descending order
@@ -80,7 +80,7 @@ test.describe('Performance API Integration', () => {
 
   test('should include calculated statistics', async ({ request }) => {
     test.skip(!authToken, 'Authentication required');
-    
+
     const response = await request.get('http://localhost:5000/api/players/performance', {
       headers: {
         'Authorization': `Bearer ${authToken}`
@@ -89,7 +89,7 @@ test.describe('Performance API Integration', () => {
 
     expect(response.ok()).toBeTruthy();
     const data = await response.json();
-    
+
     expect(data.success).toBe(true);
     if (data.data.length > 0) {
       const player = data.data[0];
@@ -103,7 +103,7 @@ test.describe('Performance API Integration', () => {
 
   test('should handle invalid filters gracefully', async ({ request }) => {
     test.skip(!authToken, 'Authentication required');
-    
+
     const response = await request.get('http://localhost:5000/api/players/performance?position=INVALID', {
       headers: {
         'Authorization': `Bearer ${authToken}`

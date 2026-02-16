@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import {
   Bookmark,
   Star,
@@ -17,48 +17,48 @@ import {
   Search,
   ArrowUp,
   ArrowDown
-} from 'lucide-react'
-import api from '../services/api'
-import toast from 'react-hot-toast'
-import { useDebounce } from '../hooks/useDebounce'
+} from 'lucide-react';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import { useDebounce } from '../hooks/useDebounce';
 
 const listTypes = [
-  { 
-    id: 'new_players', 
-    name: 'New Players', 
+  {
+    id: 'new_players',
+    name: 'New Players',
     description: 'Recently added players to evaluate',
     icon: Users,
     color: 'text-blue-600'
   },
-  { 
-    id: 'overall_pref_list', 
-    name: 'Overall Preference List', 
+  {
+    id: 'overall_pref_list',
+    name: 'Overall Preference List',
     description: 'Top priority recruits across all positions',
     icon: Star,
     color: 'text-yellow-600'
   },
-  { 
-    id: 'hs_pref_list', 
-    name: 'HS Preference List', 
+  {
+    id: 'hs_pref_list',
+    name: 'HS Preference List',
     description: 'High school recruits only',
     icon: GraduationCap,
     color: 'text-green-600'
   },
-  { 
-    id: 'college_transfers', 
-    name: 'College Transfers', 
+  {
+    id: 'college_transfers',
+    name: 'College Transfers',
     description: 'Transfer portal candidates',
     icon: TrendingUp,
     color: 'text-purple-600'
   }
-]
+];
 
 const interestLevels = [
   { value: 'High', label: 'High Interest', color: 'bg-green-100 text-green-800' },
   { value: 'Medium', label: 'Medium Interest', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'Low', label: 'Low Interest', color: 'bg-red-100 text-red-800' },
   { value: 'Unknown', label: 'Unknown', color: 'bg-gray-100 text-gray-800' }
-]
+];
 
 const statuses = [
   { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800' },
@@ -66,27 +66,27 @@ const statuses = [
   { value: 'signed', label: 'Signed', color: 'bg-purple-100 text-purple-800' },
   { value: 'lost', label: 'Lost', color: 'bg-red-100 text-red-800' },
   { value: 'inactive', label: 'Inactive', color: 'bg-gray-100 text-gray-800' }
-]
+];
 
 export default function PreferenceLists() {
-  const [selectedListType, setSelectedListType] = useState('overall_pref_list')
+  const [selectedListType, setSelectedListType] = useState('overall_pref_list');
   const [filters, setFilters] = useState({
     search: '',
     interest_level: '',
     status: 'active',
     page: 1
-  })
-  const [showFilters, setShowFilters] = useState(false)
-  const queryClient = useQueryClient()
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  const queryClient = useQueryClient();
 
   // Debounce the search input to avoid excessive API calls
-  const debouncedSearch = useDebounce(filters.search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300);
 
   // Create filters object with debounced search for API calls
   const queryFilters = {
     ...filters,
     search: debouncedSearch
-  }
+  };
 
   // Fetch preference lists
   const { data: preferenceListsData, isLoading, error, refetch } = useQuery({
@@ -96,84 +96,84 @@ export default function PreferenceLists() {
         Object.entries({ ...queryFilters, list_type: selectedListType }).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
-      )
-      return api.get('/recruits/preference-lists', { params: cleanParams })
+      );
+      return api.get('/recruits/preference-lists', { params: cleanParams });
     },
     placeholderData: (previousData) => previousData,
     staleTime: 30000
-  })
+  });
 
   // Update preference list mutation
   const updatePreferenceList = useMutation({
     mutationFn: ({ id, data }) => api.put(`/recruits/preference-lists/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
-      toast.success('Preference list updated')
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] });
+      toast.success('Preference list updated');
     },
     onError: () => {
-      toast.error('Failed to update preference list')
+      toast.error('Failed to update preference list');
     }
-  })
+  });
 
   // Delete from preference list mutation
   const deleteFromPreferenceList = useMutation({
     mutationFn: (id) => api.delete(`/recruits/preference-lists/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
-      toast.success('Removed from preference list')
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] });
+      toast.success('Removed from preference list');
     },
     onError: () => {
-      toast.error('Failed to remove from preference list')
+      toast.error('Failed to remove from preference list');
     }
-  })
+  });
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => {
-      const newFilters = { ...prev, page: 1 }
-      
+      const newFilters = { ...prev, page: 1 };
+
       if (value && value !== '') {
-        newFilters[key] = value
+        newFilters[key] = value;
       } else {
-        delete newFilters[key]
+        delete newFilters[key];
       }
-      
-      return newFilters
-    })
-  }
+
+      return newFilters;
+    });
+  };
 
   const handlePageChange = (page) => {
-    setFilters(prev => ({ ...prev, page }))
-  }
+    setFilters(prev => ({ ...prev, page }));
+  };
 
   const handleUpdateInterestLevel = (preferenceId, interestLevel) => {
     updatePreferenceList.mutate({
       id: preferenceId,
       data: { interest_level: interestLevel }
-    })
-  }
+    });
+  };
 
   const handleUpdateStatus = (preferenceId, status) => {
     updatePreferenceList.mutate({
       id: preferenceId,
       data: { status: status }
-    })
-  }
+    });
+  };
 
   const handleUpdatePriority = (preferenceId, newPriority) => {
     updatePreferenceList.mutate({
       id: preferenceId,
       data: { priority: newPriority }
-    })
-  }
+    });
+  };
 
   const handleDeleteFromList = (preferenceId) => {
-    if (!confirm('Are you sure you want to remove this player from the preference list?')) return
-    deleteFromPreferenceList.mutate(preferenceId)
-  }
+    if (!confirm('Are you sure you want to remove this player from the preference list?')) return;
+    deleteFromPreferenceList.mutate(preferenceId);
+  };
 
-  const preferenceLists = preferenceListsData?.data || []
-  const pagination = preferenceListsData?.pagination || {}
-  const currentListType = listTypes.find(lt => lt.id === selectedListType)
+  const preferenceLists = preferenceListsData?.data || [];
+  const pagination = preferenceListsData?.pagination || {};
+  const currentListType = listTypes.find(lt => lt.id === selectedListType);
 
   return (
     <div className="space-y-6">
@@ -198,17 +198,17 @@ export default function PreferenceLists() {
       <div className="card p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {listTypes.map((listType) => {
-            const Icon = listType.icon
-            const isActive = selectedListType === listType.id
-            const count = preferenceLists.filter(p => p.list_type === listType.id).length
-            
+            const Icon = listType.icon;
+            const isActive = selectedListType === listType.id;
+            const count = preferenceLists.filter(p => p.list_type === listType.id).length;
+
             return (
               <button
                 key={listType.id}
                 onClick={() => setSelectedListType(listType.id)}
                 className={`p-4 rounded-lg border-2 transition-all ${
-                  isActive 
-                    ? 'border-primary-500 bg-primary-50' 
+                  isActive
+                    ? 'border-primary-500 bg-primary-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -227,7 +227,7 @@ export default function PreferenceLists() {
                   </span>
                 </div>
               </button>
-            )
+            );
           })}
         </div>
       </div>
@@ -487,9 +487,9 @@ export default function PreferenceLists() {
                 >
                   Previous
                 </button>
-                
+
                 {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                  const page = i + 1
+                  const page = i + 1;
                   return (
                     <button
                       key={page}
@@ -500,9 +500,9 @@ export default function PreferenceLists() {
                     >
                       {page}
                     </button>
-                  )
+                  );
                 })}
-                
+
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.pages}
@@ -521,5 +521,5 @@ export default function PreferenceLists() {
         </>
       )}
     </div>
-  )
+  );
 }

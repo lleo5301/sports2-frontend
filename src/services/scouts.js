@@ -21,7 +21,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Scout management service object containing all scout-related API methods
@@ -76,8 +76,8 @@ const scoutService = {
       return acc;
     }, {});
 
-    const response = await api.get('/scouts', { params: filteredParams })
-    return response.data
+    const response = await api.get('/scouts', { params: filteredParams });
+    return response.data;
   },
 
   /**
@@ -106,8 +106,8 @@ const scoutService = {
    * console.log('Region:', scout.region);
    */
   getScout: async (id) => {
-    const response = await api.get(`/scouts/${id}`)
-    return response.data
+    const response = await api.get(`/scouts/${id}`);
+    return response.data;
   },
 
   /**
@@ -155,8 +155,8 @@ const scoutService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/scouts', filteredData)
-    return response.data
+    const response = await api.post('/scouts', filteredData);
+    return response.data;
   },
 
   /**
@@ -202,8 +202,8 @@ const scoutService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/scouts/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/scouts/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -224,9 +224,9 @@ const scoutService = {
    * console.log(result.message); // "Scout deleted successfully"
    */
   deleteScout: async (id) => {
-    const response = await api.delete(`/scouts/${id}`)
-    return response.data
+    const response = await api.delete(`/scouts/${id}`);
+    return response.data;
   }
-}
+};
 
-export default scoutService
+export default scoutService;

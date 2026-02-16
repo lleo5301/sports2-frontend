@@ -8,7 +8,7 @@ async function stubAuth(page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, data: { id: 1, email: 'coach@example.edu', first_name: 'Coach', last_name: 'Smith', team_id: 1 } }),
+      body: JSON.stringify({ success: true, data: { id: 1, email: 'coach@example.edu', first_name: 'Coach', last_name: 'Smith', team_id: 1 } })
     });
   });
 }
@@ -32,14 +32,14 @@ async function stubPlayers(page) {
         school: idx % 2 ? 'Central HS' : 'State U',
         city: 'Austin',
         state: 'TX',
-        status: idx % 3 === 0 ? 'inactive' : 'active',
+        status: idx % 3 === 0 ? 'inactive' : 'active'
       };
     });
 
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, data, pagination: { page: pageParam, limit, total, pages: Math.ceil(total / limit) } }),
+      body: JSON.stringify({ success: true, data, pagination: { page: pageParam, limit, total, pages: Math.ceil(total / limit) } })
     });
   });
 }
@@ -61,9 +61,7 @@ test.describe('Visual - Players', () => {
       fullPage: true,
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.03,
+      maxDiffPixelRatio: 0.03
     });
   });
 });
-
-

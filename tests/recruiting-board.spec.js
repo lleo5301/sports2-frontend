@@ -29,7 +29,7 @@ test.describe('Recruiting Board Page', () => {
       const position = url.searchParams.get('position') || '';
       const school_type = url.searchParams.get('school_type') || '';
       const page = url.searchParams.get('page') || '1';
-      
+
       let recruits = [
         {
           id: 1,
@@ -89,7 +89,7 @@ test.describe('Recruiting Board Page', () => {
 
       // Apply filters
       if (search) {
-        recruits = recruits.filter(r => 
+        recruits = recruits.filter(r =>
           r.first_name.toLowerCase().includes(search.toLowerCase()) ||
           r.last_name.toLowerCase().includes(search.toLowerCase()) ||
           r.school.toLowerCase().includes(search.toLowerCase()) ||
@@ -131,7 +131,7 @@ test.describe('Recruiting Board Page', () => {
     await page.route('**/api/recruits/preference-lists**', async route => {
       const url = new URL(route.request().url());
       const listType = url.searchParams.get('list_type') || 'overall_pref_list';
-      
+
       const preferenceLists = [
         {
           id: 1,
@@ -214,7 +214,7 @@ test.describe('Recruiting Board Page', () => {
     // Check page title and description
     await expect(page.getByRole('heading', { name: 'Recruiting Board' })).toBeVisible();
     await expect(page.getByText('View and manage your recruiting targets and prospects.')).toBeVisible();
-    
+
     // Check stats cards
     await expect(page.getByText('Total Recruits')).toBeVisible();
     await expect(page.getByText('3')).toBeVisible();
@@ -232,7 +232,7 @@ test.describe('Recruiting Board Page', () => {
     await expect(page.getByRole('button', { name: 'Overall Pref List' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'HS Pref List' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'College Transfers' })).toBeVisible();
-    
+
     // Overall Pref List should be selected by default
     await expect(page.getByRole('button', { name: 'Overall Pref List' })).toHaveClass(/bg-primary-100/);
   });
@@ -245,7 +245,7 @@ test.describe('Recruiting Board Page', () => {
     await expect(page.getByText('Springfield, IL')).toBeVisible();
     await expect(page.getByText('Grad Year: 2025')).toBeVisible();
     await expect(page.getByText('Size: 6\'0" • 180 lbs')).toBeVisible();
-    
+
     // Check stats in card
     await expect(page.getByText('AVG: 0.350')).toBeVisible();
     await expect(page.getByText('HR: 8')).toBeVisible();
@@ -256,7 +256,7 @@ test.describe('Recruiting Board Page', () => {
   test('should have search functionality', async ({ page }) => {
     const searchInput = page.getByPlaceholder('Search recruits by name, school, city, state...');
     await expect(searchInput).toBeVisible();
-    
+
     // Test search
     await searchInput.fill('Tom');
     await expect(page.getByText('Tom Anderson')).toBeVisible();
@@ -267,17 +267,17 @@ test.describe('Recruiting Board Page', () => {
   test('should have filter functionality', async ({ page }) => {
     // Open filters
     await page.getByRole('button', { name: /filters/i }).click();
-    
+
     // Check filter options are visible
     await expect(page.getByLabel('School Type')).toBeVisible();
     await expect(page.getByLabel('Position')).toBeVisible();
-    
+
     // Test position filter
     await page.getByLabel('Position').selectOption('SS');
     await expect(page.getByText('Tom Anderson')).toBeVisible();
     await expect(page.getByText('Chris Davis')).not.toBeVisible();
     await expect(page.getByText('Ryan Miller')).not.toBeVisible();
-    
+
     // Test school type filter
     await page.getByLabel('Position').selectOption('');
     await page.getByLabel('School Type').selectOption('HS');
@@ -290,10 +290,10 @@ test.describe('Recruiting Board Page', () => {
     // Open filters and apply some
     await page.getByRole('button', { name: /filters/i }).click();
     await page.getByLabel('Position').selectOption('SS');
-    
+
     // Clear filters
     await page.getByRole('button', { name: 'Clear Filters' }).click();
-    
+
     // All recruits should be visible again
     await expect(page.getByText('Tom Anderson')).toBeVisible();
     await expect(page.getByText('Chris Davis')).toBeVisible();
@@ -305,11 +305,11 @@ test.describe('Recruiting Board Page', () => {
     const tomCard = page.locator('.card').filter({ hasText: 'Tom Anderson' });
     await expect(tomCard.getByText('Interest Level:')).toBeVisible();
     await expect(tomCard.getByText('Visit Scheduled')).toBeVisible();
-    
+
     // Check that Chris Davis is in preference list
     const chrisCard = page.locator('.card').filter({ hasText: 'Chris Davis' });
     await expect(chrisCard.getByText('Scholarship Offered')).toBeVisible();
-    
+
     // Check that Ryan Miller is not in preference list
     const ryanCard = page.locator('.card').filter({ hasText: 'Ryan Miller' });
     await expect(ryanCard.getByRole('button', { name: 'Add to List' })).toBeVisible();
@@ -339,7 +339,7 @@ test.describe('Recruiting Board Page', () => {
     // Find Ryan Miller's card and add to list
     const ryanCard = page.locator('.card').filter({ hasText: 'Ryan Miller' });
     await ryanCard.getByRole('button', { name: 'Add to List' }).click();
-    
+
     // Should show success message
     await expect(page.getByText('Added to preference list')).toBeVisible();
   });
@@ -366,7 +366,7 @@ test.describe('Recruiting Board Page', () => {
     const tomCard = page.locator('.card').filter({ hasText: 'Tom Anderson' });
     const interestSelect = tomCard.locator('select');
     await interestSelect.selectOption('Medium');
-    
+
     // Should show success message
     await expect(page.getByText('Preference list updated')).toBeVisible();
   });
@@ -376,7 +376,7 @@ test.describe('Recruiting Board Page', () => {
     await page.route('**/api/recruits/preference-lists**', async route => {
       const url = new URL(route.request().url());
       const listType = url.searchParams.get('list_type');
-      
+
       let data = [];
       if (listType === 'hs_pref_list') {
         data = [
@@ -396,7 +396,7 @@ test.describe('Recruiting Board Page', () => {
           }
         ];
       }
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -410,7 +410,7 @@ test.describe('Recruiting Board Page', () => {
 
     // Click on HS Pref List tab
     await page.getByRole('button', { name: 'HS Pref List' }).click();
-    
+
     // Should update the selected tab
     await expect(page.getByRole('button', { name: 'HS Pref List' })).toHaveClass(/bg-primary-100/);
     await expect(page.getByRole('button', { name: 'Overall Pref List' })).not.toHaveClass(/bg-primary-100/);
@@ -421,7 +421,7 @@ test.describe('Recruiting Board Page', () => {
     await page.route('**/api/recruits**', async route => {
       const url = new URL(route.request().url());
       const pageNum = url.searchParams.get('page') || '1';
-      
+
       const recruits = Array.from({ length: 25 }, (_, i) => ({
         id: i + 1,
         first_name: `Recruit${i + 1}`,
@@ -456,14 +456,14 @@ test.describe('Recruiting Board Page', () => {
     });
 
     await page.reload();
-    
+
     // Check pagination info
     await expect(page.getByText('Showing 1 to 20 of 25 recruits')).toBeVisible();
-    
+
     // Check pagination buttons
     await expect(page.getByRole('button', { name: 'Previous' })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
-    
+
     // Go to next page
     await page.getByRole('button', { name: 'Next' }).click();
     await expect(page.getByText('Showing 21 to 25 of 25 recruits')).toBeVisible();
@@ -473,7 +473,7 @@ test.describe('Recruiting Board Page', () => {
     // Check action buttons are present
     const firstRecruitCard = page.locator('.card').first();
     await expect(firstRecruitCard.getByRole('link', { name: 'View Details' })).toBeVisible();
-    
+
     // Check add to preference list button for recruits not in list
     const ryanCard = page.locator('.card').filter({ hasText: 'Ryan Miller' });
     await expect(ryanCard.getByRole('button', { name: 'Add to Preference List' })).toBeVisible();
@@ -505,7 +505,7 @@ test.describe('Recruiting Board Page', () => {
     });
 
     await page.reload();
-    
+
     await expect(page.getByText('No recruits found')).toBeVisible();
     await expect(page.getByText('Get started by adding your first recruit.')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Add Recruit' })).toBeVisible();
@@ -525,7 +525,7 @@ test.describe('Recruiting Board Page', () => {
     });
 
     await page.reload();
-    
+
     await expect(page.getByText('Error loading recruits. Please try again.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
   });
@@ -533,18 +533,18 @@ test.describe('Recruiting Board Page', () => {
   test('should be responsive on mobile', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     // Check mobile layout
     await expect(page.getByRole('heading', { name: 'Recruiting Board' })).toBeVisible();
-    
+
     // Stats cards should stack
     const statsCards = page.locator('.card');
     await expect(statsCards).toHaveCount(4);
-    
+
     // Search and filters should be responsive
     await expect(page.getByPlaceholder('Search recruits by name, school, city, state...')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Filters' })).toBeVisible();
-    
+
     // Preference list tabs should wrap
     await expect(page.getByRole('button', { name: /players/i })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Overall Pref List' })).toBeVisible();
@@ -554,10 +554,10 @@ test.describe('Recruiting Board Page', () => {
     // Verify that no pitchers are shown in the recruiting board
     // (pitchers should be excluded from the recruiting board)
     await expect(page.getByText('P •')).not.toBeVisible();
-    
+
     // Only position players should be visible
     await expect(page.getByText('SS •')).toBeVisible();
     await expect(page.getByText('CF •')).toBeVisible();
     await expect(page.getByText('C •')).toBeVisible();
   });
-}); 
+});

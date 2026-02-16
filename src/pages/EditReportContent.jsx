@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
 import { toast } from 'react-hot-toast';
-import { 
-  ArrowLeft, 
-  Save, 
-  Plus, 
-  Trash2, 
+import {
+  ArrowLeft,
+  Save,
+  Plus,
+  Trash2,
   Table,
   Type
 } from 'lucide-react';
@@ -26,7 +26,7 @@ const EditReportContent = () => {
   const { data: existingReportData, isLoading: isLoadingReport } = useQuery({
     queryKey: ['report', id],
     queryFn: () => reportsService.getReport(id),
-    enabled: Boolean(id),
+    enabled: Boolean(id)
   });
 
   // Populate form with existing report data
@@ -69,8 +69,8 @@ const EditReportContent = () => {
   const handleSectionUpdate = (sectionIndex, field, value) => {
     setReportData(prev => ({
       ...prev,
-      sections: prev.sections.map((section, index) => 
-        index === sectionIndex 
+      sections: prev.sections.map((section, index) =>
+        index === sectionIndex
           ? { ...section, [field]: value }
           : section
       )
@@ -80,16 +80,16 @@ const EditReportContent = () => {
   const handleTableDataUpdate = (sectionIndex, rowIndex, colIndex, value) => {
     setReportData(prev => ({
       ...prev,
-      sections: prev.sections.map((section, index) => 
-        index === sectionIndex 
+      sections: prev.sections.map((section, index) =>
+        index === sectionIndex
           ? {
-              ...section,
-              data: section.data.map((row, rIndex) =>
-                rIndex === rowIndex
-                  ? row.map((cell, cIndex) => cIndex === colIndex ? value : cell)
-                  : row
-              )
-            }
+            ...section,
+            data: section.data.map((row, rIndex) =>
+              rIndex === rowIndex
+                ? row.map((cell, cIndex) => cIndex === colIndex ? value : cell)
+                : row
+            )
+          }
           : section
       )
     }));
@@ -98,15 +98,15 @@ const EditReportContent = () => {
   const addTableRow = (sectionIndex) => {
     setReportData(prev => ({
       ...prev,
-      sections: prev.sections.map((section, index) => 
+      sections: prev.sections.map((section, index) =>
         index === sectionIndex && section.type === 'table'
           ? {
-              ...section,
-              data: [
-                ...section.data,
-                new Array(section.headers?.length || 1).fill('')
-              ]
-            }
+            ...section,
+            data: [
+              ...section.data,
+              new Array(section.headers?.length || 1).fill('')
+            ]
+          }
           : section
       )
     }));
@@ -115,17 +115,16 @@ const EditReportContent = () => {
   const removeTableRow = (sectionIndex, rowIndex) => {
     setReportData(prev => ({
       ...prev,
-      sections: prev.sections.map((section, index) => 
+      sections: prev.sections.map((section, index) =>
         index === sectionIndex && section.type === 'table'
           ? {
-              ...section,
-              data: section.data.filter((_, rIndex) => rIndex !== rowIndex)
-            }
+            ...section,
+            data: section.data.filter((_, rIndex) => rIndex !== rowIndex)
+          }
           : section
       )
     }));
   };
-
 
   if (isLoadingReport) {
     return (

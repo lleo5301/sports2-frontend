@@ -123,7 +123,7 @@ const getFocusableElements = (container) => {
     'textarea:not([disabled])',
     'input:not([disabled])',
     'select:not([disabled])',
-    '[tabindex]:not([tabindex="-1"])',
+    '[tabindex]:not([tabindex="-1"])'
   ];
 
   const elements = container.querySelectorAll(focusableSelectors.join(','));

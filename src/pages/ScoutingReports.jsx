@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import {
   FileText,
   Plus,
@@ -18,12 +18,12 @@ import {
   CheckCircle,
   AlertCircle,
   Info
-} from 'lucide-react'
-import api from '../services/api'
-import toast from 'react-hot-toast'
-import { useDebounce } from '../hooks/useDebounce'
+} from 'lucide-react';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import { useDebounce } from '../hooks/useDebounce';
 
-const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F']
+const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
 
 const gradeColors = {
   'A+': 'bg-green-100 text-green-800',
@@ -39,28 +39,28 @@ const gradeColors = {
   'D': 'bg-orange-100 text-orange-800',
   'D-': 'bg-orange-100 text-orange-800',
   'F': 'bg-red-100 text-red-800'
-}
+};
 
 export default function ScoutingReports() {
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
     player_id: '',
     created_by: '',
     overall_grade: '',
     page: 1
-  })
-  const [showFilters, setShowFilters] = useState(false)
-  const queryClient = useQueryClient()
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  const queryClient = useQueryClient();
 
   // Debounce the search input to avoid excessive API calls
-  const debouncedSearch = useDebounce(filters.search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300);
 
   // Create filters object with debounced search for API calls
   const queryFilters = {
     ...filters,
     search: debouncedSearch
-  }
+  };
 
   // Fetch scouting reports
   const { data: reportsData, isLoading, error, refetch } = useQuery({
@@ -70,85 +70,85 @@ export default function ScoutingReports() {
         Object.entries(queryFilters).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
-      )
-      const response = await api.get('/reports/scouting', { params: cleanParams })
-      return response.data
+      );
+      const response = await api.get('/reports/scouting', { params: cleanParams });
+      return response.data;
     },
     placeholderData: (previousData) => previousData,
     staleTime: 30000
-  })
+  });
 
   // Fetch players for dropdown
   const { data: playersData } = useQuery({
     queryKey: ['players-for-scouting'],
     queryFn: async () => {
-      const response = await api.get('/players', { params: { status: 'active', limit: 100 } })
-      return response.data
+      const response = await api.get('/players', { params: { status: 'active', limit: 100 } });
+      return response.data;
     },
     staleTime: 300000 // 5 minutes
-  })
+  });
 
   // Create scouting report mutation
   const createReport = useMutation(
     (data) => api.post('/reports/scouting', data),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['scouting-reports'])
-        setShowCreateForm(false)
-        toast.success('Scouting report created successfully')
+        queryClient.invalidateQueries(['scouting-reports']);
+        setShowCreateForm(false);
+        toast.success('Scouting report created successfully');
       },
       onError: (error) => {
-        const errorMessage = error.response?.data?.error || 'Failed to create scouting report'
-        toast.error(errorMessage)
+        const errorMessage = error.response?.data?.error || 'Failed to create scouting report';
+        toast.error(errorMessage);
       }
     }
-  )
+  );
 
   // Delete scouting report mutation
   const deleteReport = useMutation(
     (id) => api.delete(`/reports/scouting/byId/${id}`),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['scouting-reports'])
-        toast.success('Scouting report deleted')
+        queryClient.invalidateQueries(['scouting-reports']);
+        toast.success('Scouting report deleted');
       },
       onError: () => {
-        toast.error('Failed to delete scouting report')
+        toast.error('Failed to delete scouting report');
       }
     }
-  )
+  );
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => {
-      const newFilters = { ...prev, page: 1 }
-      
+      const newFilters = { ...prev, page: 1 };
+
       if (value && value !== '') {
-        newFilters[key] = value
+        newFilters[key] = value;
       } else {
-        delete newFilters[key]
+        delete newFilters[key];
       }
-      
-      return newFilters
-    })
-  }
+
+      return newFilters;
+    });
+  };
 
   const handlePageChange = (page) => {
-    setFilters(prev => ({ ...prev, page }))
-  }
+    setFilters(prev => ({ ...prev, page }));
+  };
 
   const handleDeleteReport = (reportId) => {
-    if (!confirm('Are you sure you want to delete this scouting report?')) return
-    deleteReport.mutate(reportId)
-  }
+    if (!confirm('Are you sure you want to delete this scouting report?')) return;
+    deleteReport.mutate(reportId);
+  };
 
   const getGradeDisplay = (grade) => {
-    if (!grade) return null
+    if (!grade) return null;
     return (
       <span className={`text-xs px-2 py-1 rounded-full font-medium ${gradeColors[grade] || 'bg-gray-100 text-gray-800'}`}>
         {grade}
       </span>
-    )
-  }
+    );
+  };
 
   const getOverallGrade = (report) => {
     const grades = [
@@ -158,9 +158,9 @@ export default function ScoutingReports() {
       report.fielding_grade,
       report.speed_grade,
       report.intangibles_grade
-    ].filter(Boolean)
+    ].filter(Boolean);
 
-    if (grades.length === 0) return null
+    if (grades.length === 0) return null;
 
     // Simple average grade calculation
     const gradeValues = {
@@ -169,22 +169,22 @@ export default function ScoutingReports() {
       'C+': 7, 'C': 6, 'C-': 5,
       'D+': 4, 'D': 3, 'D-': 2,
       'F': 1
-    }
+    };
 
-    const total = grades.reduce((sum, grade) => sum + (gradeValues[grade] || 0), 0)
-    const average = total / grades.length
+    const total = grades.reduce((sum, grade) => sum + (gradeValues[grade] || 0), 0);
+    const average = total / grades.length;
 
     // Convert back to grade
-    const gradeMap = Object.entries(gradeValues).sort((a, b) => b[1] - a[1])
+    const gradeMap = Object.entries(gradeValues).sort((a, b) => b[1] - a[1]);
     for (const [grade, value] of gradeMap) {
-      if (average >= value) return grade
+      if (average >= value) return grade;
     }
-    return 'F'
-  }
+    return 'F';
+  };
 
-  const reports = Array.isArray(reportsData?.data) ? reportsData.data : []
-  const players = Array.isArray(playersData?.data) ? playersData.data : []
-  const pagination = reportsData?.pagination || {}
+  const reports = Array.isArray(reportsData?.data) ? reportsData.data : [];
+  const players = Array.isArray(playersData?.data) ? playersData.data : [];
+  const pagination = reportsData?.pagination || {};
 
   return (
     <div className="space-y-6">
@@ -299,23 +299,23 @@ export default function ScoutingReports() {
           </div>
 
           <form onSubmit={(e) => {
-            e.preventDefault()
-            const formData = new FormData(e.target)
-            
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
             // Validate required fields
-            const playerId = parseInt(formData.get('player_id'))
-            const reportDate = formData.get('report_date')
-            
+            const playerId = parseInt(formData.get('player_id'));
+            const reportDate = formData.get('report_date');
+
             if (!playerId || isNaN(playerId)) {
-              toast.error('Please select a player')
-              return
+              toast.error('Please select a player');
+              return;
             }
-            
+
             if (!reportDate) {
-              toast.error('Please select a report date')
-              return
+              toast.error('Please select a report date');
+              return;
             }
-            
+
             const data = {
               player_id: playerId,
               report_date: reportDate ? new Date(reportDate).toISOString() : null,
@@ -333,17 +333,17 @@ export default function ScoutingReports() {
               speed_notes: formData.get('speed_notes') || null,
               intangibles_grade: formData.get('intangibles_grade') || null,
               intangibles_notes: formData.get('intangibles_notes') || null
-            }
-            
+            };
+
             // Clean up empty strings
             Object.keys(data).forEach(key => {
               if (data[key] === '') {
-                data[key] = null
+                data[key] = null;
               }
-            })
-            
-            console.log('Submitting scouting report data:', data)
-            createReport.mutate(data)
+            });
+
+            // console.log('Submitting scouting report data:', data);
+            createReport.mutate(data);
           }}>
             {/* Basic Information */}
             <div className="mb-8">
@@ -654,7 +654,7 @@ export default function ScoutingReports() {
         <>
           <div className="space-y-4">
             {reports.map((report) => {
-              const overallGrade = getOverallGrade(report)
+              const overallGrade = getOverallGrade(report);
               return (
                 <div key={report.id} className="card hover:shadow-md transition-shadow">
                   <div className="p-6">
@@ -778,7 +778,7 @@ export default function ScoutingReports() {
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
@@ -793,9 +793,9 @@ export default function ScoutingReports() {
                 >
                   Previous
                 </button>
-                
+
                 {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                  const page = i + 1
+                  const page = i + 1;
                   return (
                     <button
                       key={page}
@@ -806,9 +806,9 @@ export default function ScoutingReports() {
                     >
                       {page}
                     </button>
-                  )
+                  );
                 })}
-                
+
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.pages}
@@ -827,5 +827,5 @@ export default function ScoutingReports() {
         </>
       )}
     </div>
-  )
+  );
 }

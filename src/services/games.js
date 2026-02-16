@@ -25,7 +25,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Game management service object containing all game-related API methods
@@ -77,8 +77,8 @@ export const gamesService = {
    * });
    */
   getAllGames: async (params = {}) => {
-    const response = await api.get('/games', { params })
-    return response.data
+    const response = await api.get('/games', { params });
+    return response.data;
   },
 
   /**
@@ -110,8 +110,8 @@ export const gamesService = {
    * console.log('Score:', `${game.teamScore} - ${game.opponentScore}`);
    */
   getGame: async (id) => {
-    const response = await api.get(`/games/byId/${id}`)
-    return response.data
+    const response = await api.get(`/games/byId/${id}`);
+    return response.data;
   },
 
   /**
@@ -137,8 +137,8 @@ export const gamesService = {
    * boxScore.batting.forEach(b => console.log(`${b.player.name}: ${b.h}/${b.ab}`));
    */
   getGameStats: async (gameId) => {
-    const response = await api.get(`/games/${gameId}/stats`)
-    return response.data
+    const response = await api.get(`/games/${gameId}/stats`);
+    return response.data;
   },
 
   /**
@@ -190,8 +190,8 @@ export const gamesService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/games', filteredData)
-    return response.data
+    const response = await api.post('/games', filteredData);
+    return response.data;
   },
 
   /**
@@ -244,8 +244,8 @@ export const gamesService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/games/byId/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/games/byId/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -266,8 +266,8 @@ export const gamesService = {
    * console.log(result.message); // "Game deleted successfully"
    */
   deleteGame: async (id) => {
-    const response = await api.delete(`/games/byId/${id}`)
-    return response.data
+    const response = await api.delete(`/games/byId/${id}`);
+    return response.data;
   },
 
   /**
@@ -301,8 +301,8 @@ export const gamesService = {
    * });
    */
   getGameLog: async (limit = 10) => {
-    const response = await api.get('/games/log', { params: { limit } })
-    return response.data
+    const response = await api.get('/games/log', { params: { limit } });
+    return response.data;
   },
 
   /**
@@ -332,8 +332,8 @@ export const gamesService = {
    * console.log(`Avg points per game: ${teamStats.avgPointsScored}`);
    */
   getTeamGameStats: async () => {
-    const response = await api.get('/games/team-stats')
-    return response.data
+    const response = await api.get('/games/team-stats');
+    return response.data;
   },
 
   /**
@@ -369,8 +369,8 @@ export const gamesService = {
    * });
    */
   getPlayerGameStats: async (playerId) => {
-    const response = await api.get(`/games/player-stats/${playerId}`)
-    return response.data
+    const response = await api.get(`/games/player-stats/${playerId}`);
+    return response.data;
   },
 
   /**
@@ -403,8 +403,8 @@ export const gamesService = {
    * });
    */
   getUpcomingGames: async (limit = 5) => {
-    const response = await api.get('/games/upcoming', { params: { limit } })
-    return response.data
+    const response = await api.get('/games/upcoming', { params: { limit } });
+    return response.data;
   },
 
   /**
@@ -441,7 +441,7 @@ export const gamesService = {
    * console.log(`2023 avg points: ${season2023Stats.avgPointsScored}`);
    */
   getSeasonStats: async (season = null) => {
-    const response = await api.get('/games/season-stats', { params: { season } })
-    return response.data
+    const response = await api.get('/games/season-stats', { params: { season } });
+    return response.data;
   }
-}
+};

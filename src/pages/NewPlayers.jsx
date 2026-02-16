@@ -1,4 +1,3 @@
-import React from 'react';
 import { UserPlus, Plus, Search, Filter, AlertTriangle } from 'lucide-react';
 
 const NewPlayers = () => {

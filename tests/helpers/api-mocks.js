@@ -118,7 +118,7 @@ export async function mockAuthEndpoints(page) {
 
 /**
  * Mock player endpoints
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function mockPlayerEndpoints(page) {
   const mockPlayers = [
@@ -156,7 +156,7 @@ export async function mockPlayerEndpoints(page) {
   await page.route('**/api/players/*', async route => {
     const playerId = route.request().url().split('/').pop();
     const player = mockPlayers.find(p => p.id.toString() === playerId);
-    
+
     if (!player) {
       await route.fulfill({
         status: 404,
@@ -179,7 +179,7 @@ export async function mockPlayerEndpoints(page) {
 
 /**
  * Mock team endpoints
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function mockTeamEndpoints(page) {
   const mockTeam = {
@@ -203,7 +203,7 @@ export async function mockTeamEndpoints(page) {
 
 /**
  * Mock error responses for testing error handling
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function mockErrorResponses(page) {
   // Mock network error
@@ -238,7 +238,7 @@ export async function mockErrorResponses(page) {
 
 /**
  * Setup all API mocks
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function setupAllMocks(page) {
   await mockAuthEndpoints(page);

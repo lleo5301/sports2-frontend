@@ -1,4 +1,4 @@
-import Skeleton from './Skeleton'
+import Skeleton from './Skeleton';
 
 export default function PlayersListSkeleton({ animation = 'pulse' }) {
   return (
@@ -303,5 +303,5 @@ export default function PlayersListSkeleton({ animation = 'pulse' }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { playersService } from '../services/players';
@@ -31,6 +31,36 @@ const Players = () => {
 
   const queryClient = useQueryClient();
 
+  const fetchPlayers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: pagination.page,
+        limit: pagination.limit
+      };
+
+      // Only add non-empty filter values
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value.trim() !== '') {
+          params[key] = value;
+        }
+      });
+
+      const response = await playersService.getPlayers(params);
+      setPlayers(response.data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: response.pagination?.total || 0,
+        pages: response.pagination?.pages || 0
+      }));
+    } catch (err) {
+      // console.error('Error fetching players:', err);
+      setError('Failed to load players');
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, pagination.page, pagination.limit]);
+
   // Bulk delete mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: () => playersService.bulkDeletePlayers(selectedIds),
@@ -50,37 +80,7 @@ const Players = () => {
   useEffect(() => {
     fetchPlayers();
     setSelectedIds([]); // Clear selection when filters or page changes
-  }, [filters, pagination.page]);
-
-  const fetchPlayers = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit
-      };
-      
-      // Only add non-empty filter values
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value && value.trim() !== '') {
-          params[key] = value;
-        }
-      });
-      
-      const response = await playersService.getPlayers(params);
-      setPlayers(response.data || []);
-      setPagination(prev => ({
-        ...prev,
-        total: response.pagination?.total || 0,
-        pages: response.pagination?.pages || 0
-      }));
-    } catch (err) {
-      console.error('Error fetching players:', err);
-      setError('Failed to load players');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchPlayers]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -116,12 +116,12 @@ const Players = () => {
     try {
       setReportsLoading(true);
       const response = await reportsService.getScoutingReports({ player_id: playerId });
-      
+
       if (response.success) {
         setSelectedPlayerReports(response.data);
       }
     } catch (error) {
-      console.error('Error fetching player reports:', error);
+      // console.error('Error fetching player reports:', error);
       setSelectedPlayerReports([]);
     } finally {
       setReportsLoading(false);
@@ -142,7 +142,7 @@ const Players = () => {
         setSelectedReport(response.data);
       }
     } catch (error) {
-      console.error('Error fetching report details:', error);
+      // console.error('Error fetching report details:', error);
     }
   };
 
@@ -185,7 +185,7 @@ const Players = () => {
                 Players
               </h1>
               <p className="text-base-content/70">
-                Manage your team's player roster
+                Manage your team&apos;s player roster
               </p>
             </div>
             <div className="flex gap-2">
@@ -348,9 +348,9 @@ const Players = () => {
                       <td>
                         <div className={`badge ${
                           player.status === 'active' ? 'badge-success' :
-                          player.status === 'inactive' ? 'badge-neutral' :
-                          player.status === 'graduated' ? 'badge-info' :
-                          'badge-warning'
+                            player.status === 'inactive' ? 'badge-neutral' :
+                              player.status === 'graduated' ? 'badge-info' :
+                                'badge-warning'
                         }`}>
                           {player.status}
                         </div>
@@ -454,9 +454,9 @@ const Players = () => {
                   <span className="font-medium">Status:</span>
                   <span className={`badge ${
                     selectedPlayer.status === 'active' ? 'badge-success' :
-                    selectedPlayer.status === 'inactive' ? 'badge-neutral' :
-                    selectedPlayer.status === 'graduated' ? 'badge-info' :
-                    'badge-warning'
+                      selectedPlayer.status === 'inactive' ? 'badge-neutral' :
+                        selectedPlayer.status === 'graduated' ? 'badge-info' :
+                          'badge-warning'
                   }`}>
                     {selectedPlayer.status}
                   </span>
@@ -481,7 +481,7 @@ const Players = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Stats Section */}
             <div className="mt-6 pt-4 border-t">
               <h4 className="font-semibold mb-3">Performance Stats</h4>
@@ -595,7 +595,7 @@ const Players = () => {
             <h3 className="font-bold text-lg mb-4">
               Scouting Report - {selectedReport.Player?.first_name} {selectedReport.Player?.last_name}
             </h3>
-            
+
             {/* Report Header */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-2">
@@ -745,7 +745,7 @@ const Players = () => {
             </div>
 
             <div className="modal-action">
-              <button 
+              <button
                 className="btn btn-outline"
                 onClick={() => setSelectedReport(null)}
               >
@@ -794,4 +794,4 @@ const Players = () => {
   );
 };
 
-export default Players; 
+export default Players;

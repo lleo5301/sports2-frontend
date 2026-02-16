@@ -25,7 +25,7 @@ test.describe('Performance Integration Tests', () => {
     await page.click('a[href="/performance"]');
     await page.waitForURL('/performance');
     await expect(page.locator('h1')).toContainText('Performance Rankings');
-    
+
     // Verify page loads with data
     await page.waitForSelector('table tbody tr', { timeout: 10000 });
     const rows = await page.locator('table tbody tr').count();
@@ -35,23 +35,23 @@ test.describe('Performance Integration Tests', () => {
   test('should display complete performance functionality', async ({ page }) => {
     await page.goto('/performance');
     await page.waitForLoadState('networkidle');
-    
+
     // Check all major sections are present
     await expect(page.locator('h1:has-text("Performance Rankings")')).toBeVisible();
     await expect(page.locator('[data-testid="summary-cards"]')).toBeVisible();
     await expect(page.locator('[data-testid="filters-section"]')).toBeVisible();
     await expect(page.locator('[data-testid="performance-table"]')).toBeVisible();
-    
+
     // Verify data is displayed
     await page.waitForSelector('table tbody tr', { timeout: 10000 });
     const playerRows = await page.locator('table tbody tr').count();
     expect(playerRows).toBeGreaterThan(0);
-    
+
     // Verify interactive elements work
     await page.click('button:has-text("Position Players")');
     await page.selectOption('select:nth-of-type(1)', 'P'); // Filter by pitchers
     await page.click('th:has-text("HR")'); // Sort by home runs
-    
+
     console.log('✅ Performance page integration test completed successfully');
   });
 });

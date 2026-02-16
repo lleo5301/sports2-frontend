@@ -1,40 +1,39 @@
-import React from 'react'
-import { Printer, Download } from 'lucide-react'
-import html2canvas from 'html2canvas'
-import toast from 'react-hot-toast'
+import { Printer, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import toast from 'react-hot-toast';
 
 export default function DepthChartSheetViewV2({ depthChart }) {
-  const positions = depthChart?.DepthChartPositions || []
+  const positions = depthChart?.DepthChartPositions || [];
 
   const byCode = (code) => {
-    const pos = positions.find((p) => p.position_code === code)
+    const pos = positions.find((p) => p.position_code === code);
     return (pos?.DepthChartPlayers || [])
       .sort((a, b) => a.depth_order - b.depth_order)
       .map((a) => ({
         id: a.id,
         name: `${a.Player?.first_name || ''} ${a.Player?.last_name || ''}`.trim(),
-        depth: a.depth_order,
-      }))
-  }
+        depth: a.depth_order
+      }));
+  };
 
-  const take = (arr, n) => arr.slice(0, n)
+  const take = (arr, n) => arr.slice(0, n);
 
   // Print functionality
   const handlePrint = () => {
-    window.print()
-  }
+    window.print();
+  };
 
   // Export as image
   const handleExportImage = async () => {
     try {
-      const element = document.getElementById('depth-chart-sheet-v2')
+      const element = document.getElementById('depth-chart-sheet-v2');
       if (!element) {
-        toast.error('Unable to find depth chart element')
-        return
+        toast.error('Unable to find depth chart element');
+        return;
       }
 
-      toast.loading('Generating image...', { id: 'export' })
-      
+      toast.loading('Generating image...', { id: 'export' });
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -42,22 +41,21 @@ export default function DepthChartSheetViewV2({ depthChart }) {
         backgroundColor: '#ffffff',
         width: element.offsetWidth,
         height: element.offsetHeight
-      })
+      });
 
       // Create download link
-      const link = document.createElement('a')
-      link.download = `depth-chart-v2-${depthChart?.name || 'sheet'}-${new Date().toISOString().split('T')[0]}.png`
-      link.href = canvas.toDataURL('image/png')
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement('a');
+      link.download = `depth-chart-v2-${depthChart?.name || 'sheet'}-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-      toast.success('Depth chart exported successfully!', { id: 'export' })
+      toast.success('Depth chart exported successfully!', { id: 'export' });
     } catch (error) {
-      console.error('Export error:', error)
-      toast.error('Failed to export depth chart', { id: 'export' })
+      toast.error('Failed to export depth chart', { id: 'export' });
     }
-  }
+  };
 
   // Map position codes to full names
   const fallbackNames = {
@@ -71,33 +69,33 @@ export default function DepthChartSheetViewV2({ depthChart }) {
     CF: 'Center Field',
     RF: 'Right Field',
     DH: 'Designated Hitter'
-  }
-  const nameFor = (code) => positions.find((p) => p.position_code === code)?.position_name || fallbackNames[code] || code
+  };
+  const nameFor = (code) => positions.find((p) => p.position_code === code)?.position_name || fallbackNames[code] || code;
 
   // Get players by position
-  const pitchers = byCode('P')
-  const catcher = byCode('C')
-  const first = byCode('1B')
-  const second = byCode('2B')
-  const third = byCode('3B')
-  const short = byCode('SS')
-  const left = byCode('LF')
-  const center = byCode('CF')
-  const right = byCode('RF')
-  const dh = byCode('DH')
+  const pitchers = byCode('P');
+  const catcher = byCode('C');
+  const first = byCode('1B');
+  const second = byCode('2B');
+  const third = byCode('3B');
+  const short = byCode('SS');
+  const left = byCode('LF');
+  const center = byCode('CF');
+  const right = byCode('RF');
+  const dh = byCode('DH');
 
   // Build starters and subs
-  const orderCodes = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH']
-  const starters = orderCodes.map((c) => byCode(c)[0]).filter(Boolean)
-  const subs = orderCodes.map((c) => byCode(c)[1]).filter(Boolean)
+  const orderCodes = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+  const starters = orderCodes.map((c) => byCode(c)[0]).filter(Boolean);
+  const subs = orderCodes.map((c) => byCode(c)[1]).filter(Boolean);
 
   // Bench players
-  const usedStarterIds = new Set(starters.map((p) => p.id))
+  const usedStarterIds = new Set(starters.map((p) => p.id));
   const bench = positions
     .flatMap((p) => p.DepthChartPlayers || [])
     .sort((a, b) => a.depth_order - b.depth_order)
     .map((a) => ({ id: a.id, name: `${a.Player?.first_name || ''} ${a.Player?.last_name || ''}`.trim() }))
-    .filter((a) => !usedStarterIds.has(a.id))
+    .filter((a) => !usedStarterIds.has(a.id));
 
   return (
     <div className="w-full">
@@ -123,7 +121,7 @@ export default function DepthChartSheetViewV2({ depthChart }) {
       </div>
 
       {/* Main Chart Container */}
-      <div 
+      <div
         id="depth-chart-sheet-v2"
         className="depth-chart-container"
       >
@@ -487,13 +485,13 @@ export default function DepthChartSheetViewV2({ depthChart }) {
             {[0, 1, 2, 3].map((col) => (
               <ol key={col} className="player-list">
                 {Array.from({ length: 5 }).map((_, i) => {
-                  const idx = col * 5 + i
+                  const idx = col * 5 + i;
                   return (
                     <li key={idx} className="player-item">
                       <span className="player-number">{idx + 1}.</span>
                       <div className="player-name">{bench[idx]?.name || ''}</div>
                     </li>
-                  )
+                  );
                 })}
               </ol>
             ))}
@@ -501,5 +499,5 @@ export default function DepthChartSheetViewV2({ depthChart }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

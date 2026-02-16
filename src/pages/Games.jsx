@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -86,13 +86,13 @@ const Games = () => {
 
     const result = game.result || (
       teamScore > opponentScore ? 'W' :
-      teamScore < opponentScore ? 'L' : 'T'
+        teamScore < opponentScore ? 'L' : 'T'
     );
 
     const badgeClass =
       result === 'W' || result === 'Win' ? 'badge-success' :
-      result === 'L' || result === 'Loss' ? 'badge-error' :
-      'badge-ghost';
+        result === 'L' || result === 'Loss' ? 'badge-error' :
+          'badge-ghost';
 
     return (
       <span className={`badge ${badgeClass}`}>
@@ -106,10 +106,10 @@ const Games = () => {
 
     const badgeClass =
       game.status === 'scheduled' ? 'badge-info' :
-      game.status === 'in_progress' ? 'badge-warning' :
-      game.status === 'completed' ? 'badge-success' :
-      game.status === 'cancelled' ? 'badge-error' :
-      'badge-ghost';
+        game.status === 'in_progress' ? 'badge-warning' :
+          game.status === 'completed' ? 'badge-success' :
+            game.status === 'cancelled' ? 'badge-error' :
+              'badge-ghost';
 
     return (
       <span className={`badge badge-sm ${badgeClass}`}>
@@ -352,7 +352,7 @@ const Games = () => {
             <div className="text-center py-8 text-base-content/50">
               <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="font-medium">No past games</p>
-              <p className="text-sm">Games will appear here after they're played</p>
+              <p className="text-sm">Games will appear here after they&apos;re played</p>
             </div>
           )}
         </div>

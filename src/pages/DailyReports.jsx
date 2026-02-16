@@ -18,5 +18,5 @@ export default function DailyReports() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

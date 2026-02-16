@@ -1,4 +1,4 @@
-import api from './api'
+import api from './api';
 
 /**
  * Admin User Management Service
@@ -16,8 +16,8 @@ export const adminUsersService = {
    * @returns {Promise<Object>} Paginated user list
    */
   getUsers: async (params = {}) => {
-    const response = await api.get('/auth/admin/users', { params })
-    return response.data
+    const response = await api.get('/auth/admin/users', { params });
+    return response.data;
   },
 
   /**
@@ -26,8 +26,8 @@ export const adminUsersService = {
    * @returns {Promise<Object>} User details
    */
   getUser: async (userId) => {
-    const response = await api.get(`/auth/admin/users/${userId}`)
-    return response.data
+    const response = await api.get(`/auth/admin/users/${userId}`);
+    return response.data;
   },
 
   /**
@@ -42,8 +42,8 @@ export const adminUsersService = {
    * @returns {Promise<Object>} Created user
    */
   createUser: async (userData) => {
-    const response = await api.post('/auth/admin/users', userData)
-    return response.data
+    const response = await api.post('/auth/admin/users', userData);
+    return response.data;
   },
 
   /**
@@ -53,8 +53,8 @@ export const adminUsersService = {
    * @returns {Promise<Object>} Updated user
    */
   updateUser: async (userId, userData) => {
-    const response = await api.put(`/auth/admin/users/${userId}`, userData)
-    return response.data
+    const response = await api.put(`/auth/admin/users/${userId}`, userData);
+    return response.data;
   },
 
   /**
@@ -63,8 +63,8 @@ export const adminUsersService = {
    * @returns {Promise<Object>} Deletion confirmation
    */
   deleteUser: async (userId) => {
-    const response = await api.delete(`/auth/admin/users/${userId}`)
-    return response.data
+    const response = await api.delete(`/auth/admin/users/${userId}`);
+    return response.data;
   },
 
   /**
@@ -76,10 +76,10 @@ export const adminUsersService = {
   resetPassword: async (userId, newPassword = null) => {
     const response = await api.put(`/auth/admin/users/${userId}/reset-password`, {
       new_password: newPassword
-    })
-    return response.data
+    });
+    return response.data;
   }
-}
+};
 
 /**
  * Available user roles (must match database ENUM)
@@ -88,6 +88,6 @@ export const USER_ROLES = [
   { value: 'super_admin', label: 'Super Admin', description: 'Full access to all features and user management' },
   { value: 'head_coach', label: 'Head Coach', description: 'Full access to team features, can manage branding' },
   { value: 'assistant_coach', label: 'Assistant Coach', description: 'Can manage players, schedules, and reports' }
-]
+];
 
-export default adminUsersService
+export default adminUsersService;

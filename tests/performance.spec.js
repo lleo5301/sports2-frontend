@@ -22,14 +22,14 @@ test.describe('Performance & Accessibility Tests', () => {
         const performanceMetrics = await page.evaluate(() => {
           const perfData = performance.getEntriesByType('navigation')[0];
           const paintEntries = performance.getEntriesByType('paint');
-          
+
           return {
             loadTime: perfData?.loadEventEnd - perfData?.loadEventStart || 0,
             domContentLoaded: perfData?.domContentLoadedEventEnd - perfData?.domContentLoadedEventStart || 0,
             firstPaint: paintEntries.find(entry => entry.name === 'first-paint')?.startTime || 0,
             firstContentfulPaint: paintEntries.find(entry => entry.name === 'first-contentful-paint')?.startTime || 0,
             responseTime: perfData?.responseEnd - perfData?.requestStart || 0,
-            ttfb: perfData?.responseStart - perfData?.requestStart || 0, // Time to First Byte
+            ttfb: perfData?.responseStart - perfData?.requestStart || 0 // Time to First Byte
           };
         });
 
@@ -38,7 +38,7 @@ test.describe('Performance & Accessibility Tests', () => {
         // Performance assertions (lenient for development)
         expect(performanceMetrics.loadTime).toBeLessThan(10000); // 10 seconds max
         expect(performanceMetrics.ttfb).toBeLessThan(5000); // 5 seconds TTFB max
-        
+
         // Log metrics for monitoring
         console.log(`🚀 Load Time: ${performanceMetrics.loadTime}ms`);
         console.log(`🎨 First Paint: ${performanceMetrics.firstPaint}ms`);
@@ -64,20 +64,20 @@ test.describe('Performance & Accessibility Tests', () => {
 
         const resourceMetrics = await page.evaluate(() => {
           const resources = performance.getEntriesByType('resource');
-          
+
           const byType = {};
           let totalSize = 0;
           let maxDuration = 0;
-          
+
           resources.forEach(resource => {
             const type = resource.initiatorType || 'other';
             if (!byType[type]) {
               byType[type] = { count: 0, totalDuration: 0 };
             }
-            
+
             byType[type].count++;
             byType[type].totalDuration += resource.duration;
-            
+
             totalSize += resource.transferSize || 0;
             maxDuration = Math.max(maxDuration, resource.duration);
           });
@@ -96,7 +96,7 @@ test.describe('Performance & Accessibility Tests', () => {
         // Resource performance assertions
         expect(resourceMetrics.resourceCount).toBeLessThan(100); // Reasonable resource count
         expect(resourceMetrics.maxDuration).toBeLessThan(10000); // No single resource takes > 10s
-        
+
         if (resourceMetrics.totalSize > 0) {
           expect(resourceMetrics.totalSize).toBeLessThan(10 * 1024 * 1024); // Less than 10MB total
         }
@@ -163,7 +163,7 @@ test.describe('Performance & Accessibility Tests', () => {
           const focusableElements = document.querySelectorAll(
             'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
           );
-          
+
           return {
             focusableCount: focusableElements.length,
             hasTabOrder: Array.from(focusableElements).some(el => el.tabIndex >= 0),
@@ -175,7 +175,7 @@ test.describe('Performance & Accessibility Tests', () => {
 
         if (keyboardNavigation.focusableCount > 0) {
           expect(keyboardNavigation.focusableCount).toBeGreaterThan(0);
-          
+
           // Test actual tab navigation
           await page.keyboard.press('Tab');
           const focusedElement = await page.evaluate(() => document.activeElement?.tagName);
@@ -201,12 +201,12 @@ test.describe('Performance & Accessibility Tests', () => {
         const colorInfo = await page.evaluate(() => {
           const body = document.body;
           const computedStyle = getComputedStyle(body);
-          
+
           return {
             backgroundColor: computedStyle.backgroundColor,
             color: computedStyle.color,
             fontSize: computedStyle.fontSize,
-            hasCustomColors: computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
+            hasCustomColors: computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' &&
                            computedStyle.color !== 'rgb(0, 0, 0)'
           };
         });

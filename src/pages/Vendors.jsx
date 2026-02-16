@@ -21,7 +21,7 @@ import {
 
 const vendorTypes = [
   'Equipment',
-  'Apparel', 
+  'Apparel',
   'Technology',
   'Food Service',
   'Transportation',
@@ -203,14 +203,14 @@ export default function Vendors() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!vendorForm.company_name.trim()) {
       toast.error('Company name is required');
       return;
     }
 
     const data = { ...vendorForm };
-    
+
     if (showEditModal && selectedVendor) {
       updateVendorMutation.mutate({ id: selectedVendor.id, data });
     } else {
@@ -268,7 +268,7 @@ export default function Vendors() {
                 Vendors
               </h1>
               <p className="text-base-content/70">
-                Manage your team's vendor relationships and contracts
+                Manage your team&apos;s vendor relationships and contracts
               </p>
             </div>
             <div className="flex gap-2">
@@ -485,7 +485,7 @@ export default function Vendors() {
                   {/* Company Information */}
                   <div className="space-y-4">
                     <h4 className="font-semibold text-base-content">Company Information</h4>
-                    
+
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text">Company Name *</span>
@@ -543,7 +543,7 @@ export default function Vendors() {
                   {/* Contact & Location */}
                   <div className="space-y-4">
                     <h4 className="font-semibold text-base-content">Contact & Location</h4>
-                    
+
                     <div className="form-control">
                       <label className="label">
                         <span className="label-text">Email</span>

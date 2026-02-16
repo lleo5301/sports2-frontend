@@ -163,7 +163,7 @@ export const mockScoutingReports = [
 
 /**
  * Mock scouting report endpoints
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function mockScoutingReportEndpoints(page) {
   // Mock GET /api/reports/scouting - Get scouting reports with filtering
@@ -172,18 +172,18 @@ export async function mockScoutingReportEndpoints(page) {
     const playerId = url.searchParams.get('player_id');
     const page_num = url.searchParams.get('page') || '1';
     const limit = parseInt(url.searchParams.get('limit') || '20');
-    
+
     let reports = [...mockScoutingReports];
-    
+
     // Filter by player_id if provided
     if (playerId) {
       reports = reports.filter(report => report.player_id.toString() === playerId);
     }
-    
+
     // Pagination
     const offset = (parseInt(page_num) - 1) * limit;
     const paginatedReports = reports.slice(offset, offset + limit);
-    
+
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -204,7 +204,7 @@ export async function mockScoutingReportEndpoints(page) {
   await page.route('**/api/reports/scouting/*', async route => {
     const reportId = route.request().url().split('/').pop();
     const report = mockScoutingReports.find(r => r.id.toString() === reportId);
-    
+
     if (!report) {
       await route.fulfill({
         status: 404,
@@ -231,7 +231,7 @@ export async function mockScoutingReportEndpoints(page) {
   await page.route('**/api/reports/scouting', async route => {
     if (route.request().method() === 'POST') {
       const requestBody = await route.request().postDataJSON();
-      
+
       const newReport = {
         id: mockScoutingReports.length + 1,
         ...requestBody,
@@ -267,14 +267,14 @@ export async function mockScoutingReportEndpoints(page) {
 
 /**
  * Mock empty scouting reports for a player
- * @param {import('@playwright/test').Page} page 
- * @param {number} playerId 
+ * @param {import('@playwright/test').Page} page
+ * @param {number} playerId
  */
 export async function mockEmptyScoutingReports(page, playerId) {
   await page.route('**/api/reports/scouting**', async route => {
     const url = new URL(route.request().url());
     const requestedPlayerId = url.searchParams.get('player_id');
-    
+
     if (requestedPlayerId === playerId.toString()) {
       await route.fulfill({
         status: 200,
@@ -292,10 +292,10 @@ export async function mockEmptyScoutingReports(page, playerId) {
       });
     } else {
       // Return normal mock for other players
-      const reports = mockScoutingReports.filter(r => 
+      const reports = mockScoutingReports.filter(r =>
         !requestedPlayerId || r.player_id.toString() === requestedPlayerId
       );
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -316,7 +316,7 @@ export async function mockEmptyScoutingReports(page, playerId) {
 
 /**
  * Mock scouting report error responses
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function mockScoutingReportErrors(page) {
   // Mock network error for reports
@@ -351,7 +351,7 @@ export async function mockScoutingReportErrors(page) {
 
 /**
  * Setup all scouting report mocks
- * @param {import('@playwright/test').Page} page 
+ * @param {import('@playwright/test').Page} page
  */
 export async function setupScoutingReportMocks(page) {
   await mockScoutingReportEndpoints(page);

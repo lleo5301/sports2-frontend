@@ -21,7 +21,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Coach management service object containing all coach-related API methods
@@ -76,8 +76,8 @@ const coachService = {
       return acc;
     }, {});
 
-    const response = await api.get('/coaches', { params: filteredParams })
-    return response.data
+    const response = await api.get('/coaches', { params: filteredParams });
+    return response.data;
   },
 
   /**
@@ -107,8 +107,8 @@ const coachService = {
    * console.log('Position:', coach.position);
    */
   getCoach: async (id) => {
-    const response = await api.get(`/coaches/${id}`)
-    return response.data
+    const response = await api.get(`/coaches/${id}`);
+    return response.data;
   },
 
   /**
@@ -158,8 +158,8 @@ const coachService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/coaches', filteredData)
-    return response.data
+    const response = await api.post('/coaches', filteredData);
+    return response.data;
   },
 
   /**
@@ -207,8 +207,8 @@ const coachService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/coaches/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/coaches/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -229,15 +229,15 @@ const coachService = {
    * console.log(result.message); // "Coach deleted successfully"
    */
   deleteCoach: async (id) => {
-    const response = await api.delete(`/coaches/${id}`)
-    return response.data
+    const response = await api.delete(`/coaches/${id}`);
+    return response.data;
   },
 
   // Bulk delete coaches
   bulkDeleteCoaches: async (ids) => {
-    const response = await api.post('/coaches/bulk-delete', { ids })
-    return response.data
+    const response = await api.post('/coaches/bulk-delete', { ids });
+    return response.data;
   }
-}
+};
 
-export default coachService
+export default coachService;

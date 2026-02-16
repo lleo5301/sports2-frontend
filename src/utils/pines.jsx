@@ -1,12 +1,12 @@
-import React from 'react'
-import useModalAccessibility from '../hooks/useModalAccessibility'
+import React from 'react';
+import useModalAccessibility from '../hooks/useModalAccessibility';
 
 // Pines UI Component Wrappers for React
 export const PinesComponents = {
   // Button component
   Button: ({ children, variant = 'primary', size = 'md', className = '', ...props }) => {
-    const baseClasses = 'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background'
-    
+    const baseClasses = 'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background';
+
     const variants = {
       primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
       secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -14,22 +14,22 @@ export const PinesComponents = {
       outline: 'border border-input hover:bg-accent hover:text-accent-foreground',
       ghost: 'hover:bg-accent hover:text-accent-foreground',
       link: 'underline-offset-4 hover:underline text-primary'
-    }
-    
+    };
+
     const sizes = {
       sm: 'h-9 px-3 rounded-md',
       md: 'h-10 py-2 px-4',
       lg: 'h-11 px-8 rounded-md',
       icon: 'h-10 w-10'
-    }
-    
-    const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`
-    
+    };
+
+    const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
+
     return (
       <button className={classes} {...props}>
         {children}
       </button>
-    )
+    );
   },
 
   // Card component
@@ -87,40 +87,40 @@ export const PinesComponents = {
 
   // Badge component
   Badge: ({ children, variant = 'default', className = '', ...props }) => {
-    const baseClasses = 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
-    
+    const baseClasses = 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2';
+
     const variants = {
       default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
       secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
       destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
       outline: 'text-foreground'
-    }
-    
-    const classes = `${baseClasses} ${variants[variant]} ${className}`
-    
+    };
+
+    const classes = `${baseClasses} ${variants[variant]} ${className}`;
+
     return (
       <div className={classes} {...props}>
         {children}
       </div>
-    )
+    );
   },
 
   // Alert component
   Alert: ({ children, variant = 'default', className = '', ...props }) => {
-    const baseClasses = 'relative w-full rounded-lg border p-4'
-    
+    const baseClasses = 'relative w-full rounded-lg border p-4';
+
     const variants = {
       default: 'bg-background text-foreground',
       destructive: 'border-destructive/50 text-destructive dark:border-destructive'
-    }
-    
-    const classes = `${baseClasses} ${variants[variant]} ${className}`
-    
+    };
+
+    const classes = `${baseClasses} ${variants[variant]} ${className}`;
+
     return (
       <div className={classes} {...props}>
         {children}
       </div>
-    )
+    );
   },
 
   AlertTitle: ({ children, className = '', ...props }) => (
@@ -176,31 +176,31 @@ export const PinesComponents = {
 
   // Tabs components
   Tabs: ({ children, defaultValue, value, onValueChange, className = '', ...props }) => {
-    const [activeTab, setActiveTab] = React.useState(value || defaultValue || '')
-    
+    const [activeTab, setActiveTab] = React.useState(value || defaultValue || '');
+
     React.useEffect(() => {
       if (value !== undefined) {
-        setActiveTab(value)
+        setActiveTab(value);
       }
-    }, [value])
-    
+    }, [value]);
+
     const handleTabChange = (newValue) => {
-      setActiveTab(newValue)
+      setActiveTab(newValue);
       if (onValueChange) {
-        onValueChange(newValue)
+        onValueChange(newValue);
       }
-    }
-    
+    };
+
     return (
       <div className={className} {...props}>
         {React.Children.map(children, child => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child, { activeTab, onTabChange: handleTabChange })
+            return React.cloneElement(child, { activeTab, onTabChange: handleTabChange });
           }
-          return child
+          return child;
         })}
       </div>
-    )
+    );
   },
 
   TabsList: ({ children, className = '', ...props }) => (
@@ -221,8 +221,8 @@ export const PinesComponents = {
   ),
 
   TabsContent: ({ children, value, activeTab, className = '', ...props }) => {
-    if (activeTab !== value) return null
-    
+    if (activeTab !== value) return null;
+
     return (
       <div
         className={`mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className}`}
@@ -230,17 +230,17 @@ export const PinesComponents = {
       >
         {children}
       </div>
-    )
+    );
   },
 
   // Modal component
   Modal: ({ children, isOpen, onClose, title, className = '', ...props }) => {
-    const modalRef = useModalAccessibility(isOpen, onClose)
+    const modalRef = useModalAccessibility(isOpen, onClose);
 
-    if (!isOpen) return null
+    if (!isOpen) return null;
 
     // Generate unique ID for aria-labelledby if title is provided
-    const titleId = title ? `modal-title-${title.replace(/\s+/g, '-').toLowerCase()}` : undefined
+    const titleId = title ? `modal-title-${title.replace(/\s+/g, '-').toLowerCase()}` : undefined;
 
     return (
       <div
@@ -263,7 +263,7 @@ export const PinesComponents = {
           {children}
         </div>
       </div>
-    )
+    );
   },
 
   ModalHeader: ({ children, className = '', ...props }) => (
@@ -310,7 +310,7 @@ export const PinesComponents = {
       <span className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0" data-state={checked ? 'checked' : 'unchecked'} />
     </button>
   )
-}
+};
 
 // Export individual components for easier imports
 export const {
@@ -343,4 +343,4 @@ export const {
   ModalFooter,
   Select,
   Switch
-} = PinesComponents 
+} = PinesComponents;

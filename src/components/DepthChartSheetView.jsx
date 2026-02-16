@@ -1,42 +1,41 @@
-import React from 'react'
-import { Printer, Download, FileText } from 'lucide-react'
-import html2canvas from 'html2canvas'
-import toast from 'react-hot-toast'
+import { Printer, Download, FileText } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import toast from 'react-hot-toast';
 
 // DepthChartSheetView: a printable/overview sheet that mimics a paper depth chart layout
 // Props: depthChart (full object with DepthChartPositions)
 export default function DepthChartSheetView({ depthChart }) {
-  const positions = depthChart?.DepthChartPositions || []
+  const positions = depthChart?.DepthChartPositions || [];
 
   const byCode = (code) => {
-    const pos = positions.find((p) => p.position_code === code)
+    const pos = positions.find((p) => p.position_code === code);
     return (pos?.DepthChartPlayers || [])
       .sort((a, b) => a.depth_order - b.depth_order)
       .map((a) => ({
         id: a.id,
         name: `${a.Player?.first_name || ''} ${a.Player?.last_name || ''}`.trim(),
-        depth: a.depth_order,
-      }))
-  }
+        depth: a.depth_order
+      }));
+  };
 
-  const take = (arr, n) => arr.slice(0, n)
+  const take = (arr, n) => arr.slice(0, n);
 
   // Print functionality
   const handlePrint = () => {
-    window.print()
-  }
+    window.print();
+  };
 
   // Export as image
   const handleExportImage = async () => {
     try {
-      const element = document.getElementById('depth-chart-sheet')
+      const element = document.getElementById('depth-chart-sheet');
       if (!element) {
-        toast.error('Unable to find depth chart element')
-        return
+        toast.error('Unable to find depth chart element');
+        return;
       }
 
-      toast.loading('Generating image...', { id: 'export' })
-      
+      toast.loading('Generating image...', { id: 'export' });
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -46,12 +45,12 @@ export default function DepthChartSheetView({ depthChart }) {
         height: element.offsetHeight,
         ignoreElements: (element) => {
           // Ignore elements that might have problematic CSS
-          return element.classList.contains('print:hidden') || 
-                 element.tagName === 'STYLE'
+          return element.classList.contains('print:hidden') ||
+                 element.tagName === 'STYLE';
         },
         onclone: (clonedDoc) => {
           // Convert problematic CSS colors to standard values and fix text rendering
-          const style = clonedDoc.createElement('style')
+          const style = clonedDoc.createElement('style');
           style.textContent = `
             * {
               color: rgb(0, 0, 0) !important;
@@ -96,25 +95,24 @@ export default function DepthChartSheetView({ depthChart }) {
               text-rendering: optimizeLegibility !important;
               -webkit-font-smoothing: antialiased !important;
             }
-          `
-          clonedDoc.head.appendChild(style)
+          `;
+          clonedDoc.head.appendChild(style);
         }
-      })
+      });
 
       // Create download link
-      const link = document.createElement('a')
-      link.download = `depth-chart-${depthChart?.name || 'sheet'}-${new Date().toISOString().split('T')[0]}.png`
-      link.href = canvas.toDataURL('image/png')
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const link = document.createElement('a');
+      link.download = `depth-chart-${depthChart?.name || 'sheet'}-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-      toast.success('Depth chart exported successfully!', { id: 'export' })
+      toast.success('Depth chart exported successfully!', { id: 'export' });
     } catch (error) {
-      console.error('Export error:', error)
-      toast.error('Failed to export depth chart', { id: 'export' })
+      toast.error('Failed to export depth chart', { id: 'export' });
     }
-  }
+  };
 
   // Map position codes to full names (fallbacks if not configured on chart)
   const fallbackNames = {
@@ -128,8 +126,8 @@ export default function DepthChartSheetView({ depthChart }) {
     CF: 'Center Field',
     RF: 'Right Field',
     DH: 'Designated Hitter'
-  }
-  const nameFor = (code) => positions.find((p) => p.position_code === code)?.position_name || fallbackNames[code] || code
+  };
+  const nameFor = (code) => positions.find((p) => p.position_code === code)?.position_name || fallbackNames[code] || code;
 
   const listBox = (title, items = [], lines = 3) => (
     <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 h-full flex flex-col print:bg-white print:shadow-none print:break-inside-avoid">
@@ -147,35 +145,35 @@ export default function DepthChartSheetView({ depthChart }) {
         ))}
       </ol>
     </div>
-  )
+  );
 
   // Build starters (depth 1) and subs (depth 2) across common positions
-  const orderCodes = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH']
+  const orderCodes = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
   const starters = orderCodes
     .map((c) => byCode(c)[0])
-    .filter(Boolean)
+    .filter(Boolean);
   const subs = orderCodes
     .map((c) => byCode(c)[1])
-    .filter(Boolean)
+    .filter(Boolean);
 
-  const pitchers = byCode('P')
-  const catcher = byCode('C')
-  const first = byCode('1B')
-  const second = byCode('2B')
-  const third = byCode('3B')
-  const short = byCode('SS')
-  const left = byCode('LF')
-  const center = byCode('CF')
-  const right = byCode('RF')
-  const dh = byCode('DH')
+  const pitchers = byCode('P');
+  const catcher = byCode('C');
+  const first = byCode('1B');
+  const second = byCode('2B');
+  const third = byCode('3B');
+  const short = byCode('SS');
+  const left = byCode('LF');
+  const center = byCode('CF');
+  const right = byCode('RF');
+  const dh = byCode('DH');
 
   // Bench = everyone not used as a starter (depth > 1 or positions not in order codes)
-  const usedStarterIds = new Set(starters.map((p) => p.id))
+  const usedStarterIds = new Set(starters.map((p) => p.id));
   const bench = positions
     .flatMap((p) => p.DepthChartPlayers || [])
     .sort((a, b) => a.depth_order - b.depth_order)
     .map((a) => ({ id: a.id, name: `${a.Player?.first_name || ''} ${a.Player?.last_name || ''}`.trim() }))
-    .filter((a) => !usedStarterIds.has(a.id))
+    .filter((a) => !usedStarterIds.has(a.id));
 
   return (
     <div className="w-full">
@@ -223,7 +221,7 @@ export default function DepthChartSheetView({ depthChart }) {
 
       {/* Main Chart Container - Scrollable wrapper */}
       <div className="w-full overflow-auto">
-        <div 
+        <div
           id="depth-chart-sheet"
           className="relative min-w-[1200px] w-full bg-white print:min-w-0"
         >
@@ -238,143 +236,141 @@ export default function DepthChartSheetView({ depthChart }) {
             {/* Chart grid - Fixed aspect ratio that can expand */}
             <div className="relative min-h-[900px] h-[85vh] max-h-[1600px] bg-gradient-to-b from-white/50 to-white/30 rounded-lg border border-gray-200 print:h-[1000px] print:max-h-none">
               <div className="absolute inset-0 p-6 grid grid-cols-12 grid-rows-12 gap-4 print:gap-3">
-            {/* Top row: LF - CF - RF */}
-            <div className="col-span-3 row-span-2">{listBox(nameFor('LF'), take(left, 3))}</div>
-            <div className="col-start-5 col-span-4 row-span-2">{listBox(nameFor('CF'), take(center, 3))}</div>
-            <div className="col-start-10 col-span-3 row-span-2">{listBox(nameFor('RF'), take(right, 3))}</div>
+                {/* Top row: LF - CF - RF */}
+                <div className="col-span-3 row-span-2">{listBox(nameFor('LF'), take(left, 3))}</div>
+                <div className="col-start-5 col-span-4 row-span-2">{listBox(nameFor('CF'), take(center, 3))}</div>
+                <div className="col-start-10 col-span-3 row-span-2">{listBox(nameFor('RF'), take(right, 3))}</div>
 
-            {/* Mid row between outfield and bases: SS and 2B */}
-            <div className="col-start-1 col-span-3 row-start-3 row-span-2">{listBox(nameFor('SS'), take(short, 3))}</div>
-            <div className="col-start-10 col-span-3 row-start-3 row-span-2">{listBox(nameFor('2B'), take(second, 3))}</div>
+                {/* Mid row between outfield and bases: SS and 2B */}
+                <div className="col-start-1 col-span-3 row-start-3 row-span-2">{listBox(nameFor('SS'), take(short, 3))}</div>
+                <div className="col-start-10 col-span-3 row-start-3 row-span-2">{listBox(nameFor('2B'), take(second, 3))}</div>
 
-            {/* Infield corners: 3B and 1B */}
-            <div className="col-start-1 col-span-3 row-start-5 row-span-2">{listBox(nameFor('3B'), take(third, 3))}</div>
-            <div className="col-start-10 col-span-3 row-start-5 row-span-2">{listBox(nameFor('1B'), take(first, 3))}</div>
+                {/* Infield corners: 3B and 1B */}
+                <div className="col-start-1 col-span-3 row-start-5 row-span-2">{listBox(nameFor('3B'), take(third, 3))}</div>
+                <div className="col-start-10 col-span-3 row-start-5 row-span-2">{listBox(nameFor('1B'), take(first, 3))}</div>
 
-            {/* Left column: Starting Pitcher/Relief & Closer */}
-            <div className="col-start-1 col-span-3 row-start-7 row-span-4">
-              <div className="space-y-2 h-full">
-                <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 print:bg-white print:shadow-none print:break-inside-avoid flex-1 flex flex-col">
-                  <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight flex-shrink-0">Starting Pitcher/Relief</div>
-                  <ol className="text-sm space-y-2 flex-1 overflow-y-auto print:text-xs print:space-y-1 print:overflow-visible">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <li key={i} className="flex items-center min-h-[24px] py-1">
-                        <span className="w-6 text-gray-400 print:w-5 print:text-[10px] flex-shrink-0 font-medium">{i + 1}.</span>
-                        <div className="flex-1 border-b border-dashed border-gray-300 ml-3 text-gray-800 print:text-[10px] print:ml-2 overflow-hidden">
-                          <span className="block leading-relaxed py-1 font-medium">
-                            {pitchers[i]?.name || ''}
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 print:bg-white print:shadow-none print:break-inside-avoid">
-                  <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight">Closer</div>
-                  <div className="border-b border-dashed border-gray-300 h-8 text-sm text-gray-800 print:text-[10px] print:h-6 overflow-hidden flex items-center">
-                    <span className="block leading-relaxed font-medium w-full text-center">
-                      {pitchers[0]?.name || ''}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Center pane: Pitchers list */}
-            <div className="col-start-5 col-span-4 row-start-3 row-span-6">
-              <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 h-full flex flex-col print:bg-white print:shadow-none print:break-inside-avoid">
-                <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight flex-shrink-0">{nameFor('P')}s</div>
-                <ol className="text-sm space-y-2 flex-1 overflow-y-auto pr-2 print:text-xs print:space-y-1 print:overflow-visible print:pr-0">
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <li key={i} className="flex items-center min-h-[24px] py-1">
-                      <span className="w-6 text-gray-400 print:w-5 print:text-[10px] flex-shrink-0 font-medium">{i + 1}.</span>
-                      <div className="flex-1 border-b border-dashed border-gray-300 ml-3 text-gray-800 print:text-[10px] print:ml-2 overflow-hidden">
-                        <span className="block leading-relaxed py-1 font-medium">
-                          {pitchers[i]?.name || ''}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-                <div className="flex justify-between text-xs text-gray-500 mt-3 print:text-[8px] leading-tight flex-shrink-0">
-                  <span>A - Available</span>
-                  <span>N/A - Not Available</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Catcher below home area */}
-            <div className="col-start-5 col-span-4 row-start-9 row-span-2">{listBox(nameFor('C'), take(catcher, 4), 4)}</div>
-
-            {/* Right pane: Batting Order Starters/Sub */}
-            <div className="col-start-9 col-span-4 row-start-7 row-span-4">
-              <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 h-full flex flex-col print:bg-white print:shadow-none print:break-inside-avoid">
-                <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight flex-shrink-0">Batting Order</div>
-                <div className="grid grid-cols-2 gap-4 flex-1 overflow-hidden print:gap-2">
-                  <div className="flex flex-col overflow-hidden print:overflow-visible">
-                    <div className="text-sm font-semibold mb-2 print:text-xs leading-tight flex-shrink-0">Starters</div>
-                    <ol className="text-sm space-y-1 flex-1 overflow-y-auto print:text-xs print:space-y-0.5 print:overflow-visible">
-                      {Array.from({ length: 9 }).map((_, i) => (
-                        <li key={i} className="flex items-center min-h-[24px] py-1">
-                          <span className="w-5 text-gray-400 text-sm print:text-[10px] print:w-4 flex-shrink-0 font-medium">{i + 1}.</span>
-                          <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 print:text-[10px] print:ml-1 overflow-hidden">
-                            <span className="block leading-relaxed py-1 font-medium">
-                              {starters[i]?.name || ''}
-                            </span>
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                  <div className="flex flex-col overflow-hidden print:overflow-visible">
-                    <div className="text-sm font-semibold mb-2 print:text-xs leading-tight flex-shrink-0">Sub</div>
-                    <ol className="text-sm space-y-1 flex-1 overflow-y-auto print:text-xs print:space-y-0.5 print:overflow-visible">
-                      {Array.from({ length: 9 }).map((_, i) => (
-                        <li key={i} className="flex items-center min-h-[24px] py-1">
-                          <span className="w-5 text-gray-400 text-sm print:text-[10px] print:w-4 flex-shrink-0 font-medium">{i + 1}.</span>
-                          <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 print:text-[10px] print:ml-1 overflow-hidden">
-                            <span className="block leading-relaxed py-1 font-medium">
-                              {subs[i]?.name || ''}
-                            </span>
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bench list across bottom */}
-            <div className="col-start-1 col-span-12 row-start-11 row-span-2">
-              <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full print:bg-white print:shadow-none print:break-inside-avoid">
-                <div className="font-semibold text-center mb-2 text-sm print:text-xs">Bench/Player List</div>
-                <div className="grid grid-cols-4 gap-4 h-full print:gap-2">
-                  {[0, 1, 2, 3].map((col) => (
-                    <ol key={col} className="text-sm space-y-1 print:text-xs print:space-y-0.5">
-                      {Array.from({ length: 4 }).map((_, i) => {
-                        const idx = col * 4 + i
-                        return (
-                          <li key={idx} className="flex items-center">
-                            <span className="w-5 text-gray-400 print:w-4 print:text-[10px]">{idx + 1}.</span>
-                            <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate print:text-[10px] print:ml-1">
-                              {bench[idx]?.name || ''}
+                {/* Left column: Starting Pitcher/Relief & Closer */}
+                <div className="col-start-1 col-span-3 row-start-7 row-span-4">
+                  <div className="space-y-2 h-full">
+                    <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 print:bg-white print:shadow-none print:break-inside-avoid flex-1 flex flex-col">
+                      <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight flex-shrink-0">Starting Pitcher/Relief</div>
+                      <ol className="text-sm space-y-2 flex-1 overflow-y-auto print:text-xs print:space-y-1 print:overflow-visible">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <li key={i} className="flex items-center min-h-[24px] py-1">
+                            <span className="w-6 text-gray-400 print:w-5 print:text-[10px] flex-shrink-0 font-medium">{i + 1}.</span>
+                            <div className="flex-1 border-b border-dashed border-gray-300 ml-3 text-gray-800 print:text-[10px] print:ml-2 overflow-hidden">
+                              <span className="block leading-relaxed py-1 font-medium">
+                                {pitchers[i]?.name || ''}
+                              </span>
                             </div>
                           </li>
-                        )
-                      })}
+                        ))}
+                      </ol>
+                    </div>
+                    <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 print:bg-white print:shadow-none print:break-inside-avoid">
+                      <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight">Closer</div>
+                      <div className="border-b border-dashed border-gray-300 h-8 text-sm text-gray-800 print:text-[10px] print:h-6 overflow-hidden flex items-center">
+                        <span className="block leading-relaxed font-medium w-full text-center">
+                          {pitchers[0]?.name || ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Center pane: Pitchers list */}
+                <div className="col-start-5 col-span-4 row-start-3 row-span-6">
+                  <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 h-full flex flex-col print:bg-white print:shadow-none print:break-inside-avoid">
+                    <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight flex-shrink-0">{nameFor('P')}s</div>
+                    <ol className="text-sm space-y-2 flex-1 overflow-y-auto pr-2 print:text-xs print:space-y-1 print:overflow-visible print:pr-0">
+                      {Array.from({ length: 10 }).map((_, i) => (
+                        <li key={i} className="flex items-center min-h-[24px] py-1">
+                          <span className="w-6 text-gray-400 print:w-5 print:text-[10px] flex-shrink-0 font-medium">{i + 1}.</span>
+                          <div className="flex-1 border-b border-dashed border-gray-300 ml-3 text-gray-800 print:text-[10px] print:ml-2 overflow-hidden">
+                            <span className="block leading-relaxed py-1 font-medium">
+                              {pitchers[i]?.name || ''}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
                     </ol>
-                  ))}
+                    <div className="flex justify-between text-xs text-gray-500 mt-3 print:text-[8px] leading-tight flex-shrink-0">
+                      <span>A - Available</span>
+                      <span>N/A - Not Available</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Catcher below home area */}
+                <div className="col-start-5 col-span-4 row-start-9 row-span-2">{listBox(nameFor('C'), take(catcher, 4), 4)}</div>
+
+                {/* Right pane: Batting Order Starters/Sub */}
+                <div className="col-start-9 col-span-4 row-start-7 row-span-4">
+                  <div className="bg-white/90 border border-gray-300 rounded shadow p-4 w-full min-w-0 h-full flex flex-col print:bg-white print:shadow-none print:break-inside-avoid">
+                    <div className="font-semibold text-center mb-3 text-base print:text-sm leading-tight flex-shrink-0">Batting Order</div>
+                    <div className="grid grid-cols-2 gap-4 flex-1 overflow-hidden print:gap-2">
+                      <div className="flex flex-col overflow-hidden print:overflow-visible">
+                        <div className="text-sm font-semibold mb-2 print:text-xs leading-tight flex-shrink-0">Starters</div>
+                        <ol className="text-sm space-y-1 flex-1 overflow-y-auto print:text-xs print:space-y-0.5 print:overflow-visible">
+                          {Array.from({ length: 9 }).map((_, i) => (
+                            <li key={i} className="flex items-center min-h-[24px] py-1">
+                              <span className="w-5 text-gray-400 text-sm print:text-[10px] print:w-4 flex-shrink-0 font-medium">{i + 1}.</span>
+                              <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 print:text-[10px] print:ml-1 overflow-hidden">
+                                <span className="block leading-relaxed py-1 font-medium">
+                                  {starters[i]?.name || ''}
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                      <div className="flex flex-col overflow-hidden print:overflow-visible">
+                        <div className="text-sm font-semibold mb-2 print:text-xs leading-tight flex-shrink-0">Sub</div>
+                        <ol className="text-sm space-y-1 flex-1 overflow-y-auto print:text-xs print:space-y-0.5 print:overflow-visible">
+                          {Array.from({ length: 9 }).map((_, i) => (
+                            <li key={i} className="flex items-center min-h-[24px] py-1">
+                              <span className="w-5 text-gray-400 text-sm print:text-[10px] print:w-4 flex-shrink-0 font-medium">{i + 1}.</span>
+                              <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 print:text-[10px] print:ml-1 overflow-hidden">
+                                <span className="block leading-relaxed py-1 font-medium">
+                                  {subs[i]?.name || ''}
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bench list across bottom */}
+                <div className="col-start-1 col-span-12 row-start-11 row-span-2">
+                  <div className="bg-white/90 border border-gray-300 rounded shadow p-3 w-full min-w-0 h-full print:bg-white print:shadow-none print:break-inside-avoid">
+                    <div className="font-semibold text-center mb-2 text-sm print:text-xs">Bench/Player List</div>
+                    <div className="grid grid-cols-4 gap-4 h-full print:gap-2">
+                      {[0, 1, 2, 3].map((col) => (
+                        <ol key={col} className="text-sm space-y-1 print:text-xs print:space-y-0.5">
+                          {Array.from({ length: 4 }).map((_, i) => {
+                            const idx = col * 4 + i;
+                            return (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-5 text-gray-400 print:w-4 print:text-[10px]">{idx + 1}.</span>
+                                <div className="flex-1 border-b border-dashed border-gray-300 ml-2 text-gray-800 truncate print:text-[10px] print:ml-1">
+                                  {bench[idx]?.name || ''}
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ol>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
           </div>
         </div>
-        </div>
       </div>
     </div>
-  )
+  );
 }
-
-

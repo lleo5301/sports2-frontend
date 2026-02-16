@@ -1,4 +1,3 @@
-import React from 'react';
 import useModalAccessibility from '../../hooks/useModalAccessibility';
 
 /**

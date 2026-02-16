@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import highSchoolCoachService from '../services/highSchoolCoaches';
 import toast from 'react-hot-toast';
@@ -22,7 +22,7 @@ import {
 
 const positions = [
   'Head Coach',
-  'Assistant Coach', 
+  'Assistant Coach',
   'JV Coach',
   'Freshman Coach',
   'Pitching Coach',
@@ -194,14 +194,14 @@ export default function HighSchoolCoaches() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!coachForm.first_name.trim() || !coachForm.last_name.trim() || !coachForm.school_name.trim()) {
       toast.error('First name, last name, and school name are required');
       return;
     }
 
     const data = { ...coachForm };
-    
+
     if (showEditModal && selectedCoach) {
       updateCoachMutation.mutate({ id: selectedCoach.id, data });
     } else {

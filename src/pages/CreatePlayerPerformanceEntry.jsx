@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
 import PlayerSelector from '../components/PlayerSelector';
-import { 
-  ArrowLeft, 
-  Save, 
-  User, 
+import {
+  ArrowLeft,
+  Save,
+  User,
   BarChart3,
   Target,
   Award,
@@ -69,13 +69,13 @@ const CreatePlayerPerformanceEntry = () => {
     staleTime: 300000 // 5 minutes
   });
 
-  const players = playersData.data || [];
+  const players = useMemo(() => playersData.data || [], [playersData.data]);
 
   // Fetch existing performance data for edit mode
   const { data: existingPerformanceData, isLoading: isLoadingPerformance } = useQuery({
     queryKey: ['performance-entry', editEntryId],
     queryFn: () => api.get(`/performance/${editEntryId}`).then(res => res.data),
-    enabled: isEditMode,
+    enabled: isEditMode
   });
 
   // Pre-select player if coming from player page
@@ -110,7 +110,7 @@ const CreatePlayerPerformanceEntry = () => {
       if (data.at_bats && data.hits) {
         data.batting_avg = (parseFloat(data.hits) / parseFloat(data.at_bats)).toFixed(3);
       }
-      
+
       // Calculate ERA if innings_pitched and earned_runs are provided
       if (data.innings_pitched && data.earned_runs) {
         data.era = ((parseFloat(data.earned_runs) * 9) / parseFloat(data.innings_pitched)).toFixed(2);
@@ -183,7 +183,7 @@ const CreatePlayerPerformanceEntry = () => {
                 <User className="w-5 h-5 mr-2" />
                 Basic Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <PlayerSelector
                   selectedPlayerId={performanceData.player_id}
@@ -231,7 +231,7 @@ const CreatePlayerPerformanceEntry = () => {
                 <BarChart3 className="w-5 h-5 mr-2" />
                 Batting Statistics
               </h2>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -391,7 +391,7 @@ const CreatePlayerPerformanceEntry = () => {
                 Pitching Statistics
                 <span className="text-sm font-normal text-base-content/60">(if applicable)</span>
               </h2>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -525,7 +525,7 @@ const CreatePlayerPerformanceEntry = () => {
                 <Award className="w-5 h-5 mr-2" />
                 Fielding Statistics
               </h2>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -590,7 +590,7 @@ const CreatePlayerPerformanceEntry = () => {
                 <TrendingUp className="w-5 h-5 mr-2" />
                 Notes & Analysis
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">

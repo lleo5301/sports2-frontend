@@ -1,4 +1,4 @@
-import Skeleton from './Skeleton'
+import Skeleton from './Skeleton';
 
 export default function TeamsListSkeleton({ animation = 'pulse' }) {
   return (
@@ -214,5 +214,5 @@ export default function TeamsListSkeleton({ animation = 'pulse' }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

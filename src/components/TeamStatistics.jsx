@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Calendar,
@@ -52,12 +52,13 @@ const lightenColor = (hex, percent) => {
 // Helper to adjust hue of a hex color
 const adjustHue = (hex, degrees) => {
   hex = hex.replace(/^#/, '');
-  let r = parseInt(hex.substring(0, 2), 16) / 255;
-  let g = parseInt(hex.substring(2, 4), 16) / 255;
-  let b = parseInt(hex.substring(4, 6), 16) / 255;
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
 
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
+  let h, s;
+  const l = (max + min) / 2;
 
   if (max === min) {
     h = s = 0;
@@ -118,7 +119,7 @@ const TeamStatistics = () => {
     queryKey: ['team-stats'],
     queryFn: teamsService.getTeamStats,
     onError: (error) => {
-      console.error('Error fetching team stats:', error);
+      // Error fetching team stats
     }
   });
 
@@ -127,7 +128,7 @@ const TeamStatistics = () => {
     queryKey: ['schedule-stats'],
     queryFn: schedulesService.getScheduleStats,
     onError: (error) => {
-      console.error('Error fetching schedule stats:', error);
+      // Error fetching schedule stats
     }
   });
 
@@ -136,7 +137,7 @@ const TeamStatistics = () => {
     queryKey: ['upcoming-events'],
     queryFn: () => schedulesService.getUpcomingSchedules(5),
     onError: (error) => {
-      console.error('Error fetching upcoming events:', error);
+      // Error fetching upcoming events
     }
   });
 
@@ -145,7 +146,7 @@ const TeamStatistics = () => {
     queryKey: ['recent-events'],
     queryFn: () => schedulesService.getRecentSchedules(5),
     onError: (error) => {
-      console.error('Error fetching recent events:', error);
+      // Error fetching recent events
     }
   });
 
@@ -154,7 +155,7 @@ const TeamStatistics = () => {
     queryKey: ['game-log'],
     queryFn: () => gamesService.getGameLog(10),
     onError: (error) => {
-      console.error('Error fetching game log:', error);
+      // Error fetching game log
     }
   });
 
@@ -163,7 +164,7 @@ const TeamStatistics = () => {
     queryKey: ['team-game-stats'],
     queryFn: gamesService.getTeamGameStats,
     onError: (error) => {
-      console.error('Error fetching team game stats:', error);
+      // Error fetching team game stats
     }
   });
 
@@ -633,4 +634,4 @@ const TeamStatistics = () => {
   );
 };
 
-export default TeamStatistics; 
+export default TeamStatistics;

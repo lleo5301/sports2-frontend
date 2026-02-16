@@ -1,16 +1,16 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getProfile } from '../services/auth'
-import api from '../services/api'
-import csrfService from '../services/csrf'
-import toast from 'react-hot-toast'
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getProfile } from '../services/auth';
+import api from '../services/api';
+import csrfService from '../services/csrf';
+import toast from 'react-hot-toast';
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const queryClient = useQueryClient()
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // Check for existing session on mount
   // With httpOnly cookies, we can't check for a token directly
@@ -18,44 +18,45 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     getProfile()
       .then(userData => {
-        setUser(userData)
+        setUser(userData);
       })
       .catch(() => {
         // No valid session - user is not authenticated
         // Cookie will be cleared by backend or expired naturally
-        setUser(null)
+        setUser(null);
       })
       .finally(() => {
-        setLoading(false)
-      })
-  }, [])
+        setLoading(false);
+      });
+  }, []);
 
   const login = (userData) => {
-    setUser(userData)
-    queryClient.clear() // Clear any cached data
+    setUser(userData);
+    queryClient.clear(); // Clear any cached data
     // JWT token is now stored in httpOnly cookie by the backend
     // No need to manually store it in localStorage
-  }
+  };
 
   const logout = async () => {
     try {
       // Call backend logout endpoint to clear httpOnly cookies
-      await api.post('/auth/logout')
+      await api.post('/auth/logout');
     } catch (error) {
       // Continue with logout even if API call fails
-      console.error('Logout API call failed:', error)
+      setUser(null);
+      // Error fetching user
     } finally {
       // Clear local state regardless of API call result
-      setUser(null)
-      queryClient.clear() // Clear all cached data
-      csrfService.clearCsrfToken() // Clear CSRF token cache
-      toast.success('Logged out successfully')
+      setUser(null);
+      queryClient.clear(); // Clear all cached data
+      csrfService.clearCsrfToken(); // Clear CSRF token cache
+      toast.success('Logged out successfully');
     }
-  }
+  };
 
   const updateUser = (userData) => {
-    setUser(userData)
-  }
+    setUser(userData);
+  };
 
   const value = {
     user,
@@ -67,19 +68,20 @@ export function AuthProvider({ children }) {
     isSuperAdmin: user?.role === 'super_admin',
     isHeadCoach: user?.role === 'head_coach',
     canModifyBranding: user?.role === 'super_admin' || user?.role === 'head_coach'
-  }
+  };
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
-} 
+  return context;
+}

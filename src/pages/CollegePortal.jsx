@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRightLeft, Building2, Search, Filter, TrendingUp, AlertTriangle } from 'lucide-react';
 
 const CollegePortal = () => {

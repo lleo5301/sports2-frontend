@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { Plus, User, Search, X } from 'lucide-react';
 import api from '../services/api';
 
-const PlayerSelector = ({ 
-  selectedPlayerId, 
-  onPlayerSelect, 
-  players = [], 
+const PlayerSelector = ({
+  selectedPlayerId,
+  onPlayerSelect,
+  players = [],
   required = false,
-  label = "Player",
-  placeholder = "Select a player...",
+  label = 'Player',
+  placeholder = 'Select a player...',
   allowCreate = true
 }) => {
   const queryClient = useQueryClient();
@@ -31,7 +31,7 @@ const PlayerSelector = ({
     const position = player.position?.toLowerCase() || '';
     const school = player.school?.toLowerCase() || '';
     const search = searchTerm.toLowerCase();
-    
+
     return fullName.includes(search) || position.includes(search) || school.includes(search);
   });
 
@@ -46,10 +46,10 @@ const PlayerSelector = ({
       queryClient.invalidateQueries(['players']);
       queryClient.invalidateQueries(['players-for-performance']);
       queryClient.invalidateQueries(['players-for-statistics']);
-      
+
       // Select the newly created player
       onPlayerSelect(data.data.id.toString());
-      
+
       // Reset form and close
       setNewPlayerData({
         first_name: '',
@@ -69,7 +69,7 @@ const PlayerSelector = ({
 
   const handleCreatePlayer = (e) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!newPlayerData.first_name.trim() || !newPlayerData.last_name.trim()) {
       toast.error('First name and last name are required');
@@ -166,7 +166,7 @@ const PlayerSelector = ({
                 </div>
               ) : (
                 <div className="p-4 text-center text-base-content/70">
-                  <div className="mb-2">No players found matching "{searchTerm}"</div>
+                  <div className="mb-2">No players found matching &quot;{searchTerm}&quot;</div>
                   {allowCreate && (
                     <button
                       type="button"
@@ -189,7 +189,7 @@ const PlayerSelector = ({
                       className="btn btn-sm btn-primary"
                     >
                       <Plus className="w-4 h-4 mr-1" />
-                      Create "{searchTerm}"
+                      Create &quot;{searchTerm}&quot;
                     </button>
                   )}
                 </div>
@@ -371,6 +371,3 @@ const PlayerSelector = ({
 };
 
 export default PlayerSelector;
-
-
-

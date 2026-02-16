@@ -1,34 +1,34 @@
-import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
-import { Search, Filter, Plus, Eye, Star, Calendar, Phone, Mail, MapPin, Target, Users, Bookmark, TrendingUp, UserCheck, Award } from 'lucide-react'
-import api from '../services/api'
-import toast from 'react-hot-toast'
-import { useDebounce } from '../hooks/useDebounce'
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { Search, Filter, Plus, Eye, Star, Calendar, Phone, Mail, MapPin, Target, Users, Bookmark, TrendingUp, UserCheck, Award } from 'lucide-react';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import { useDebounce } from '../hooks/useDebounce';
 
-const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF']
-const schoolTypes = ['HS', 'COLL']
-const interestLevels = ['High', 'Medium', 'Low', 'Unknown']
-const listTypes = ['new_players', 'overall_pref_list', 'hs_pref_list', 'college_transfers']
+const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF'];
+const schoolTypes = ['HS', 'COLL'];
+const interestLevels = ['High', 'Medium', 'Low', 'Unknown'];
+const listTypes = ['new_players', 'overall_pref_list', 'hs_pref_list', 'college_transfers'];
 
 export default function RecruitingBoard() {
   const [filters, setFilters] = useState({
     search: '',
     page: 1
-  })
+  });
 
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedListType, setSelectedListType] = useState('overall_pref_list')
-  const queryClient = useQueryClient()
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedListType, setSelectedListType] = useState('overall_pref_list');
+  const queryClient = useQueryClient();
 
   // Debounce the search input to avoid excessive API calls
-  const debouncedSearch = useDebounce(filters.search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300);
 
   // Create filters object with debounced search for API calls
   const queryFilters = {
     ...filters,
     search: debouncedSearch
-  }
+  };
 
   // Fetch recruits with filters
   const { data: recruitsData, isLoading, error, refetch } = useQuery({
@@ -39,65 +39,65 @@ export default function RecruitingBoard() {
         Object.entries(queryFilters).filter(([key, value]) =>
           value !== '' && value !== null && value !== undefined
         )
-      )
-      return api.get('/recruits', { params: cleanParams })
+      );
+      return api.get('/recruits', { params: cleanParams });
     },
     placeholderData: (previousData) => previousData,
     staleTime: 30000
-  })
+  });
 
   // Fetch preference lists
   const { data: preferenceListsData } = useQuery({
     queryKey: ['preference-lists', selectedListType],
-    queryFn: () => api.get('/recruits/preference-lists', { 
-      params: { list_type: selectedListType } 
+    queryFn: () => api.get('/recruits/preference-lists', {
+      params: { list_type: selectedListType }
     }),
     staleTime: 30000
-  })
+  });
 
   // Add to preference list mutation
   const addToPreferenceList = useMutation({
     mutationFn: (data) => api.post('/recruits/preference-lists', data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
-      queryClient.invalidateQueries({ queryKey: ['recruits'] })
-      toast.success('Added to preference list')
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['recruits'] });
+      toast.success('Added to preference list');
     },
     onError: () => {
-      toast.error('Failed to add to preference list')
+      toast.error('Failed to add to preference list');
     }
-  })
+  });
 
   // Update preference list mutation
   const updatePreferenceList = useMutation({
     mutationFn: ({ id, data }) => api.put(`/recruits/preference-lists/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['preference-lists'] })
-      toast.success('Preference list updated')
+      queryClient.invalidateQueries({ queryKey: ['preference-lists'] });
+      toast.success('Preference list updated');
     },
     onError: () => {
-      toast.error('Failed to update preference list')
+      toast.error('Failed to update preference list');
     }
-  })
+  });
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => {
-      const newFilters = { ...prev, page: 1 } // Reset to first page when filters change
-      
+      const newFilters = { ...prev, page: 1 }; // Reset to first page when filters change
+
       // Only add the filter if it has a value, otherwise remove it
       if (value && value !== '') {
-        newFilters[key] = value
+        newFilters[key] = value;
       } else {
-        delete newFilters[key]
+        delete newFilters[key];
       }
-      
-      return newFilters
-    })
-  }
+
+      return newFilters;
+    });
+  };
 
   const handlePageChange = (page) => {
-    setFilters(prev => ({ ...prev, page }))
-  }
+    setFilters(prev => ({ ...prev, page }));
+  };
 
   const handleAddToPreferenceList = (playerId) => {
     addToPreferenceList.mutate({
@@ -105,38 +105,38 @@ export default function RecruitingBoard() {
       list_type: selectedListType,
       priority: 999,
       interest_level: 'Unknown'
-    })
-  }
+    });
+  };
 
   const handleUpdateInterestLevel = (preferenceId, interestLevel) => {
     updatePreferenceList.mutate({
       id: preferenceId,
       data: { interest_level: interestLevel }
-    })
-  }
+    });
+  };
 
   // Handle both response formats for recruits: { data: [...] } or direct array
-  const recruits = Array.isArray(recruitsData?.data) 
-    ? recruitsData.data 
-    : Array.isArray(recruitsData) 
-    ? recruitsData 
-    : []
-  const pagination = recruitsData?.pagination || {}
-  
+  const recruits = Array.isArray(recruitsData?.data)
+    ? recruitsData.data
+    : Array.isArray(recruitsData)
+      ? recruitsData
+      : [];
+  const pagination = recruitsData?.pagination || {};
+
   // Handle both response formats for preference lists: { data: { data: [...] } }, { data: [...] } or direct array
   const preferenceLists = Array.isArray(preferenceListsData?.data?.data)
     ? preferenceListsData.data.data
     : Array.isArray(preferenceListsData?.data)
-    ? preferenceListsData.data
-    : Array.isArray(preferenceListsData)
-    ? preferenceListsData
-    : []
+      ? preferenceListsData.data
+      : Array.isArray(preferenceListsData)
+        ? preferenceListsData
+        : [];
 
   // Get recruit stats
-  const totalRecruits = Array.isArray(recruits) ? recruits.length : 0
-  const highInterestRecruits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.interest_level === 'High').length : 0
-  const scheduledVisits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.visit_scheduled).length : 0
-  const scholarshipOffers = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.scholarship_offered).length : 0
+  const totalRecruits = Array.isArray(recruits) ? recruits.length : 0;
+  const highInterestRecruits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.interest_level === 'High').length : 0;
+  const scheduledVisits = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.visit_scheduled).length : 0;
+  const scholarshipOffers = Array.isArray(preferenceLists) ? preferenceLists.filter(p => p.scholarship_offered).length : 0;
 
   return (
     <div className="p-6">
@@ -363,8 +363,8 @@ export default function RecruitingBoard() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.isArray(recruits) && recruits.map((recruit) => {
-              const preference = Array.isArray(preferenceLists) ? preferenceLists.find(p => p.player_id === recruit.id) : null
-              
+              const preference = Array.isArray(preferenceLists) ? preferenceLists.find(p => p.player_id === recruit.id) : null;
+
               return (
                 <div key={recruit.id} className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="card-body">
@@ -468,7 +468,7 @@ export default function RecruitingBoard() {
                             ))}
                           </select>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2">
                           {preference.visit_scheduled && (
                             <div className="badge badge-success badge-sm">
@@ -483,7 +483,7 @@ export default function RecruitingBoard() {
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="flex items-center justify-between text-sm">
                           <span className="opacity-70">Priority:</span>
                           <span className="font-semibold">{preference.priority}</span>
@@ -502,7 +502,7 @@ export default function RecruitingBoard() {
                     )}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
@@ -517,9 +517,9 @@ export default function RecruitingBoard() {
                 >
                   Previous
                 </button>
-                
+
                 {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                  const page = i + 1
+                  const page = i + 1;
                   return (
                     <button
                       key={page}
@@ -530,9 +530,9 @@ export default function RecruitingBoard() {
                     >
                       {page}
                     </button>
-                  )
+                  );
                 })}
-                
+
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.pages}
@@ -551,5 +551,5 @@ export default function RecruitingBoard() {
         </>
       )}
     </div>
-  )
-} 
+  );
+}

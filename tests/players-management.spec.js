@@ -32,7 +32,7 @@ test.describe('Players Management Page', () => {
       const school_type = url.searchParams.get('school_type') || '';
       const status = url.searchParams.get('status') || 'active';
       const page = url.searchParams.get('page') || '1';
-      
+
       let players = [
         {
           id: 1,
@@ -99,7 +99,7 @@ test.describe('Players Management Page', () => {
 
       // Apply filters
       if (search) {
-        players = players.filter(p => 
+        players = players.filter(p =>
           p.first_name.toLowerCase().includes(search.toLowerCase()) ||
           p.last_name.toLowerCase().includes(search.toLowerCase()) ||
           p.school.toLowerCase().includes(search.toLowerCase()) ||
@@ -186,7 +186,7 @@ test.describe('Players Management Page', () => {
   test('should have search functionality', async ({ page }) => {
     const searchInput = page.getByPlaceholder(/Search players/i).or(page.getByPlaceholder(/Search players\.{0,}/i));
     await expect(searchInput).toBeVisible();
-    
+
     // Test search
     await searchInput.first().fill('John D');
     await expect(page.getByText('John Doe')).toBeVisible();
@@ -212,7 +212,7 @@ test.describe('Players Management Page', () => {
     await page.route('**/api/players**', async route => {
       const url = new URL(route.request().url());
       const pageNum = url.searchParams.get('page') || '1';
-      
+
       const players = Array.from({ length: 25 }, (_, i) => ({
         id: i + 1,
         first_name: `Player${i + 1}`,
@@ -248,17 +248,17 @@ test.describe('Players Management Page', () => {
     });
 
     await page.reload();
-    
+
     // Check pagination info
     await expect(page.getByText(/Showing\s+1\s+to\s+20\s+of\s+25\s+players/i)).toBeVisible();
-    
+
     // Check pagination buttons
     // Pagination UI uses « and » buttons
     const prevBtn = page.locator('button:has-text("«")');
     const nextBtn = page.locator('button:has-text("»")');
     await expect(prevBtn).toBeDisabled();
     await expect(nextBtn).toBeEnabled();
-    
+
     // Go to next page
     await nextBtn.click();
     await expect(page.getByText('Showing 21 to 25 of 25 players')).toBeVisible();
@@ -340,23 +340,23 @@ test.describe('Players Management Page', () => {
     });
 
     await page.reload();
-    
+
     await expect(page.getByText('Failed to load players')).toBeVisible();
   });
 
   test('should be responsive on mobile', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     // Check mobile layout
     await expect(page.getByRole('heading', { name: 'Players' })).toBeVisible();
-    
+
     // Stats cards should stack
     const statsCards = page.locator('.card');
     // Table view has fewer cards; just ensure table present
     await expect(page.locator('table.table')).toBeVisible();
-    
+
     // Search input should be present
     await expect(page.getByPlaceholder(/Search players/i)).toBeVisible();
   });
-}); 
+});

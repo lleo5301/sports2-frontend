@@ -1,4 +1,3 @@
-import React from 'react';
 import { GraduationCap, MapPin, Calendar, Award, AlertTriangle } from 'lucide-react';
 
 const HSPrefList = () => {

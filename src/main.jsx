@@ -1,13 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Toaster } from 'react-hot-toast'
-import { AuthProvider } from './contexts/AuthContext'
-import { ThemeProvider } from './contexts/ThemeContext'
-import { BrandingProvider } from './contexts/BrandingContext'
-import App from './App.jsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { BrandingProvider } from './contexts/BrandingContext';
+import App from './App.jsx';
+import './index.css';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -15,15 +15,15 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-})
+      staleTime: 5 * 60 * 1000 // 5 minutes
+    }
+  }
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-        <BrowserRouter basename={import.meta.env.VITE_BASE_PATH || ''}>
+      <BrowserRouter basename={import.meta.env.VITE_BASE_PATH || ''}>
         <ThemeProvider>
           <AuthProvider>
             <BrandingProvider>
@@ -35,8 +35,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   style: {
                     background: 'hsl(var(--b1))',
                     color: 'hsl(var(--bc))',
-                    border: '1px solid hsl(var(--b3))',
-                  },
+                    border: '1px solid hsl(var(--b3))'
+                  }
                 }}
               />
             </BrandingProvider>
@@ -44,5 +44,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
-  </React.StrictMode>,
-) 
+  </React.StrictMode>
+);

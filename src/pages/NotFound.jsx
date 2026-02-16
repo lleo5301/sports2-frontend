@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const NotFound = () => {
@@ -11,7 +10,7 @@ const NotFound = () => {
             Page Not Found
           </h2>
           <p className="text-base-content/70 mb-8 max-w-md mx-auto">
-            Sorry, the page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+            Sorry, the page you&apos;re looking for doesn&apos;t exist. It might have been moved, deleted, or you entered the wrong URL.
           </p>
         </div>
 
@@ -22,7 +21,7 @@ const NotFound = () => {
             </svg>
             Go to Dashboard
           </Link>
-          
+
           <div className="flex justify-center space-x-4">
             <Link to="/players" className="btn btn-outline btn-sm">
               Players
@@ -46,4 +45,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound; 
+export default NotFound;

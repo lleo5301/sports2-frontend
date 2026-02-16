@@ -23,7 +23,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Player management service object containing all player-related API methods
@@ -68,8 +68,8 @@ export const playersService = {
    * });
    */
   getPlayers: async (params = {}) => {
-    const response = await api.get('/players', { params })
-    return response.data
+    const response = await api.get('/players', { params });
+    return response.data;
   },
 
   /**
@@ -100,8 +100,8 @@ export const playersService = {
    * console.log('Position:', player.position);
    */
   getPlayer: async (id) => {
-    const response = await api.get(`/players/byId/${id}`)
-    return response.data
+    const response = await api.get(`/players/byId/${id}`);
+    return response.data;
   },
 
   /**
@@ -154,8 +154,8 @@ export const playersService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/players', filteredData)
-    return response.data
+    const response = await api.post('/players', filteredData);
+    return response.data;
   },
 
   /**
@@ -206,8 +206,8 @@ export const playersService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/players/byId/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/players/byId/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -228,14 +228,14 @@ export const playersService = {
    * console.log(result.message); // "Player deleted successfully"
    */
   deletePlayer: async (id) => {
-    const response = await api.delete(`/players/byId/${id}`)
-    return response.data
+    const response = await api.delete(`/players/byId/${id}`);
+    return response.data;
   },
 
   // Bulk delete players
   bulkDeletePlayers: async (ids) => {
-    const response = await api.post('/players/bulk-delete', { ids })
-    return response.data
+    const response = await api.post('/players/bulk-delete', { ids });
+    return response.data;
   },
 
   /**
@@ -264,8 +264,8 @@ export const playersService = {
    * console.log('Total touchdowns:', stats.stats.touchdowns);
    */
   getPlayerStats: async (id) => {
-    const response = await api.get(`/players/byId/${id}/stats`)
-    return response.data
+    const response = await api.get(`/players/byId/${id}/stats`);
+    return response.data;
   },
 
   /**
@@ -315,7 +315,7 @@ export const playersService = {
       return acc;
     }, {});
 
-    const response = await api.get('/players/performance', { params: filteredParams })
-    return response.data
+    const response = await api.get('/players/performance', { params: filteredParams });
+    return response.data;
   }
-} 
+};

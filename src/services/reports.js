@@ -620,14 +620,14 @@ export const pdfUtils = {
   generatePlayerPerformancePDF: (data, options = {}) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    
+
     // Header
     doc.setFontSize(20);
     doc.text('Player Performance Report', pageWidth / 2, 20, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
-    
+
     // Table data
     const tableData = data.players.map(player => [
       `${player.first_name} ${player.last_name}`,
@@ -686,15 +686,15 @@ export const pdfUtils = {
   generateTeamStatisticsPDF: (data, options = {}) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    
+
     // Header
     doc.setFontSize(20);
     doc.text('Team Statistics Summary', pageWidth / 2, 20, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text(`Team: ${data.team_name}`, pageWidth / 2, 30, { align: 'center' });
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 40, { align: 'center' });
-    
+
     // Team stats
     const teamStats = [
       ['Category', 'Value'],
@@ -760,26 +760,26 @@ export const pdfUtils = {
   generateScoutingAnalysisPDF: (data, options = {}) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    
+
     // Header
     doc.setFontSize(20);
     doc.text('Scouting Analysis Report', pageWidth / 2, 20, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
-    
+
     let yPosition = 40;
-    
+
     // Process each scouting report
     data.reports.forEach((report, index) => {
       if (yPosition > 250) {
         doc.addPage();
         yPosition = 20;
       }
-      
+
       doc.setFontSize(14);
       doc.text(`${report.player_name} - ${report.position}`, 20, yPosition);
-      
+
       yPosition += 10;
       doc.setFontSize(10);
       doc.text(`Overall Grade: ${report.overall_grade}`, 20, yPosition);
@@ -790,7 +790,7 @@ export const pdfUtils = {
       yPosition += 7;
       doc.text(`Fielding Grade: ${report.fielding_grade}`, 20, yPosition);
       yPosition += 7;
-      
+
       // Notes (truncated if too long)
       const notes = report.overall_notes || 'No notes available';
       const maxWidth = pageWidth - 40;
@@ -835,14 +835,14 @@ export const pdfUtils = {
   generateRecruitmentPipelinePDF: (data, options = {}) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    
+
     // Header
     doc.setFontSize(20);
     doc.text('Recruitment Pipeline Report', pageWidth / 2, 20, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
-    
+
     // Pipeline stages
     const pipelineData = data.pipeline.map(stage => [
       stage.stage_name,
@@ -908,27 +908,27 @@ export const pdfUtils = {
   generateCustomReportPDF: (data, options = {}) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    
+
     // Header
     doc.setFontSize(20);
     doc.text(data.title || 'Custom Report', pageWidth / 2, 20, { align: 'center' });
-    
+
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
-    
+
     let yPosition = 40;
-    
+
     // Process sections
     data.sections.forEach((section, index) => {
       if (yPosition > 250) {
         doc.addPage();
         yPosition = 20;
       }
-      
+
       doc.setFontSize(14);
       doc.text(section.title, 20, yPosition);
       yPosition += 10;
-      
+
       if (section.type === 'table' && section.data) {
         doc.autoTable({
           startY: yPosition,
@@ -1013,7 +1013,7 @@ export const pdfUtils = {
    */
   generateAndDownloadReport: (reportType, data, filename) => {
     let doc;
-    
+
     switch (reportType) {
       case 'player-performance':
         doc = pdfUtils.generatePlayerPerformancePDF(data);
@@ -1033,7 +1033,7 @@ export const pdfUtils = {
       default:
         throw new Error(`Unknown report type: ${reportType}`);
     }
-    
+
     pdfUtils.downloadPDF(doc, filename);
   }
 };
@@ -1163,4 +1163,4 @@ export const chartUtils = {
       }]
     };
   }
-}; 
+};

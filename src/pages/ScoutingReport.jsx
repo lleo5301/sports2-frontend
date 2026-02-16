@@ -1,4 +1,3 @@
-import React from 'react';
 
 const ScoutingReport = () => {
   const report = {
@@ -17,7 +16,7 @@ const ScoutingReport = () => {
     { category: 'Curveball', rating: 7, notes: 'Sharp break, needs consistency' },
     { category: 'Changeup', rating: 6, notes: 'Developing pitch, shows promise' },
     { category: 'Control', rating: 8, notes: 'Good command of all pitches' },
-    { category: 'Athleticism', rating: 9, notes: 'Excellent athlete, good fielding' },
+    { category: 'Athleticism', rating: 9, notes: 'Excellent athlete, good fielding' }
   ];
 
   return (
@@ -153,8 +152,8 @@ const ScoutingReport = () => {
                   </div>
                   <div className="flex items-center mb-2">
                     <div className="flex-1 bg-base-300 rounded-full h-2 mr-4">
-                      <div 
-                        className="bg-primary h-2 rounded-full" 
+                      <div
+                        className="bg-primary h-2 rounded-full"
                         style={{ width: `${(rating.rating / 10) * 100}%` }}
                       ></div>
                     </div>
@@ -175,18 +174,18 @@ const ScoutingReport = () => {
           <div className="card-content">
             <div className="prose max-w-none">
               <p>
-                Mike Johnson is an excellent pitching prospect with a strong foundation of skills. 
-                His fastball velocity is consistently in the 92-94 mph range with good movement, 
-                making it his primary weapon. The curveball shows sharp break but needs more 
+                Mike Johnson is an excellent pitching prospect with a strong foundation of skills.
+                His fastball velocity is consistently in the 92-94 mph range with good movement,
+                making it his primary weapon. The curveball shows sharp break but needs more
                 consistency in command.
               </p>
               <p>
-                His athleticism is outstanding, and he moves well on the mound. The changeup is 
-                still developing but shows promise as a third pitch. Overall control is good, 
+                His athleticism is outstanding, and he moves well on the mound. The changeup is
+                still developing but shows promise as a third pitch. Overall control is good,
                 and he demonstrates the ability to command all his pitches effectively.
               </p>
               <p>
-                <strong>Recommendation:</strong> High priority recruit. Should be actively pursued 
+                <strong>Recommendation:</strong> High priority recruit. Should be actively pursued
                 for the upcoming season. Has the potential to contribute immediately at the collegiate level.
               </p>
             </div>
@@ -197,4 +196,4 @@ const ScoutingReport = () => {
   );
 };
 
-export default ScoutingReport; 
+export default ScoutingReport;

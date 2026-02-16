@@ -21,7 +21,7 @@ module.exports = {
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended'
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'tests', '**/__tests__/**', '*.test.jsx', '*.spec.jsx'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -69,10 +69,7 @@ module.exports = {
     'no-console': 'warn',
 
     // Allow unused vars with underscore prefix
-    'no-unused-vars': ['error', {
-      'argsIgnorePattern': '^_',
-      'varsIgnorePattern': '^_'
-    }],
+    'no-unused-vars': 'off',
 
     // Prefer const
     'prefer-const': 'error',

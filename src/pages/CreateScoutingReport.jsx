@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DayPicker } from 'react-day-picker';
@@ -6,13 +6,13 @@ import api from '../services/api';
 import { reportsService } from '../services/reports';
 import { toast } from 'react-hot-toast';
 import PlayerSelector from '../components/PlayerSelector';
-import { 
-  ArrowLeft, 
-  Save, 
-  Plus, 
-  User, 
-  Calendar, 
-  Target, 
+import {
+  ArrowLeft,
+  Save,
+  Plus,
+  User,
+  Calendar,
+  Target,
   FileText,
   Award,
   Zap,
@@ -134,7 +134,7 @@ const CreateScoutingReport = () => {
         is_draft: report.is_draft || false,
         is_public: report.is_public || false
       });
-      
+
       if (report.report_date) {
         setReportDate(new Date(report.report_date));
       }
@@ -203,7 +203,7 @@ const CreateScoutingReport = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.player_id) {
       toast.error('Please select a player');
       return;
@@ -238,7 +238,7 @@ const CreateScoutingReport = () => {
             {isEditMode ? 'Edit Scouting Report' : 'Create New Scouting Report'}
           </h1>
           <p className="text-base-content/70">
-            Evaluate a player's performance and potential
+            Evaluate a player&apos;s performance and potential
           </p>
         </div>
 
@@ -276,7 +276,7 @@ const CreateScoutingReport = () => {
                       <span>{reportDate.toLocaleDateString()}</span>
                       <Calendar className="w-4 h-4" />
                     </button>
-                    
+
                     {showReportDatePicker && (
                       <div className="absolute top-full left-0 mt-1 z-50 bg-base-100 border border-base-300 rounded-box shadow-lg">
                         <DayPicker
@@ -285,26 +285,26 @@ const CreateScoutingReport = () => {
                           onSelect={handleReportDateSelect}
                           className="react-day-picker"
                           classNames={{
-                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                            month: "space-y-4",
-                            caption: "flex justify-center pt-1 relative items-center",
-                            caption_label: "text-sm font-medium",
-                            nav: "space-x-1 flex items-center",
-                            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                            nav_button_previous: "absolute left-1",
-                            nav_button_next: "absolute right-1",
-                            table: "w-full border-collapse space-y-1",
-                            head_row: "flex",
-                            head_cell: "text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]",
-                            row: "flex w-full mt-2",
-                            cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                            day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md",
-                            day_selected: "bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content",
-                            day_today: "bg-accent text-accent-content",
-                            day_outside: "text-base-content/30 opacity-50",
-                            day_disabled: "text-base-content/30 opacity-50",
-                            day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-content",
-                            day_hidden: "invisible",
+                            months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
+                            month: 'space-y-4',
+                            caption: 'flex justify-center pt-1 relative items-center',
+                            caption_label: 'text-sm font-medium',
+                            nav: 'space-x-1 flex items-center',
+                            nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                            nav_button_previous: 'absolute left-1',
+                            nav_button_next: 'absolute right-1',
+                            table: 'w-full border-collapse space-y-1',
+                            head_row: 'flex',
+                            head_cell: 'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
+                            row: 'flex w-full mt-2',
+                            cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
+                            day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md',
+                            day_selected: 'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
+                            day_today: 'bg-accent text-accent-content',
+                            day_outside: 'text-base-content/30 opacity-50',
+                            day_disabled: 'text-base-content/30 opacity-50',
+                            day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-content',
+                            day_hidden: 'invisible'
                           }}
                         />
                       </div>
@@ -325,7 +325,7 @@ const CreateScoutingReport = () => {
                       <span>{gameDate ? gameDate.toLocaleDateString() : 'Select game date...'}</span>
                       <Calendar className="w-4 h-4" />
                     </button>
-                    
+
                     {showGameDatePicker && (
                       <div className="absolute top-full left-0 mt-1 z-50 bg-base-100 border border-base-300 rounded-box shadow-lg">
                         <DayPicker
@@ -334,26 +334,26 @@ const CreateScoutingReport = () => {
                           onSelect={handleGameDateSelect}
                           className="react-day-picker"
                           classNames={{
-                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                            month: "space-y-4",
-                            caption: "flex justify-center pt-1 relative items-center",
-                            caption_label: "text-sm font-medium",
-                            nav: "space-x-1 flex items-center",
-                            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                            nav_button_previous: "absolute left-1",
-                            nav_button_next: "absolute right-1",
-                            table: "w-full border-collapse space-y-1",
-                            head_row: "flex",
-                            head_cell: "text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]",
-                            row: "flex w-full mt-2",
-                            cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                            day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md",
-                            day_selected: "bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content",
-                            day_today: "bg-accent text-accent-content",
-                            day_outside: "text-base-content/30 opacity-50",
-                            day_disabled: "text-base-content/30 opacity-50",
-                            day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-content",
-                            day_hidden: "invisible",
+                            months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
+                            month: 'space-y-4',
+                            caption: 'flex justify-center pt-1 relative items-center',
+                            caption_label: 'text-sm font-medium',
+                            nav: 'space-x-1 flex items-center',
+                            nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                            nav_button_previous: 'absolute left-1',
+                            nav_button_next: 'absolute right-1',
+                            table: 'w-full border-collapse space-y-1',
+                            head_row: 'flex',
+                            head_cell: 'text-base-content/70 rounded-md w-8 font-normal text-[0.8rem]',
+                            row: 'flex w-full mt-2',
+                            cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
+                            day: 'h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-base-200 rounded-md',
+                            day_selected: 'bg-primary text-primary-content hover:bg-primary hover:text-primary-content focus:bg-primary focus:text-primary-content',
+                            day_today: 'bg-accent text-accent-content',
+                            day_outside: 'text-base-content/30 opacity-50',
+                            day_disabled: 'text-base-content/30 opacity-50',
+                            day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-content',
+                            day_hidden: 'invisible'
                           }}
                         />
                       </div>
@@ -967,4 +967,4 @@ const CreateScoutingReport = () => {
   );
 };
 
-export default CreateScoutingReport; 
+export default CreateScoutingReport;

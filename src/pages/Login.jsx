@@ -1,77 +1,76 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { login } from '../services/auth'
-import toast from 'react-hot-toast'
-import OAuthButtons from '../components/OAuthButtons'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { login } from '../services/auth';
+import toast from 'react-hot-toast';
+import OAuthButtons from '../components/OAuthButtons';
 
 export default function Login() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
-  })
-  const [errors, setErrors] = useState({})
-  const { login: authLogin } = useAuth()
-  const navigate = useNavigate()
+  });
+  const [errors, setErrors] = useState({});
+  const { login: authLogin } = useAuth();
+  const navigate = useNavigate();
 
   const validateForm = () => {
-    const newErrors = {}
-    
+    const newErrors = {};
+
     if (!formData.email) {
-      newErrors.email = 'Email is required'
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
+      newErrors.email = 'Please enter a valid email address';
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = 'Password is required';
     }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }))
+    }));
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
         [name]: ''
-      }))
+      }));
     }
-  }
+  };
 
   const onSubmit = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // login() returns user data directly (with token included)
-      const userData = await login(formData)
+      const userData = await login(formData);
 
       // Store token and user data
-      authLogin(userData, userData.token)
-      toast.success('Welcome back!')
-      navigate('/dashboard')
+      authLogin(userData, userData.token);
+      toast.success('Welcome back!');
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Login error:', error)
-      const errorMessage = error.response?.data?.error || 'Login failed. Please check your credentials.'
-      toast.error(errorMessage)
+      const errorMessage = error.response?.data?.error || 'Login failed. Please check your credentials.';
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -105,7 +104,7 @@ export default function Login() {
             {import.meta.env.VITE_APP_NAME || 'The Program'} - Collegiate Baseball Management
           </p>
         </div>
-        
+
         <div className="card">
           <div className="card-body">
             <form className="mt-8 space-y-6" onSubmit={onSubmit}>
@@ -189,5 +188,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

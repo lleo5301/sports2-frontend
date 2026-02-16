@@ -23,7 +23,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Team management service object containing all team-related API methods
@@ -56,8 +56,8 @@ export const teamsService = {
    * teams.data.forEach(team => console.log(team.name));
    */
   getAllTeams: async () => {
-    const response = await api.get('/teams')
-    return response.data
+    const response = await api.get('/teams');
+    return response.data;
   },
 
   /**
@@ -88,8 +88,8 @@ export const teamsService = {
    * console.log('Conference:', team.conference);
    */
   getTeam: async (id) => {
-    const response = await api.get(`/teams/byId/${id}`)
-    return response.data
+    const response = await api.get(`/teams/byId/${id}`);
+    return response.data;
   },
 
   /**
@@ -119,8 +119,8 @@ export const teamsService = {
    * console.log('My team:', myTeam.name);
    */
   getMyTeam: async () => {
-    const response = await api.get('/teams/me')
-    return response.data
+    const response = await api.get('/teams/me');
+    return response.data;
   },
 
   /**
@@ -172,8 +172,8 @@ export const teamsService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/teams', filteredData)
-    return response.data
+    const response = await api.post('/teams', filteredData);
+    return response.data;
   },
 
   /**
@@ -224,8 +224,8 @@ export const teamsService = {
       }
       return acc;
     }, {});
-    const response = await api.put('/teams/me', filteredData)
-    return response.data
+    const response = await api.put('/teams/me', filteredData);
+    return response.data;
   },
 
   /**
@@ -255,8 +255,8 @@ export const teamsService = {
    * });
    */
   getTeamStats: async () => {
-    const response = await api.get('/teams/stats')
-    return response.data
+    const response = await api.get('/teams/stats');
+    return response.data;
   },
 
   /**
@@ -288,7 +288,7 @@ export const teamsService = {
    * });
    */
   getTeamRoster: async () => {
-    const response = await api.get('/teams/roster')
-    return response.data
+    const response = await api.get('/teams/roster');
+    return response.data;
   }
-}
+};

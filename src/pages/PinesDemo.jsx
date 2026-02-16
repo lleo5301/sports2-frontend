@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react';
 import {
   Button,
   Card,
@@ -29,7 +29,7 @@ import {
   ModalFooter,
   Select,
   Switch
-} from '../utils/pines.jsx'
+} from '../utils/pines.jsx';
 import {
   Skeleton,
   SkeletonText,
@@ -38,13 +38,13 @@ import {
   SkeletonAvatar,
   DashboardSkeleton,
   GenericPageSkeleton
-} from '../components/skeletons'
+} from '../components/skeletons';
 
 const PinesDemo = () => {
-  const [modalOpen, setModalOpen] = useState(false)
-  const [switchValue, setSwitchValue] = useState(false)
-  const [selectValue, setSelectValue] = useState('')
-  const [activeTab, setActiveTab] = useState('overview')
+  const [modalOpen, setModalOpen] = useState(false);
+  const [switchValue, setSwitchValue] = useState(false);
+  const [selectValue, setSelectValue] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -291,7 +291,7 @@ const PinesDemo = () => {
           </CardHeader>
           <CardContent>
             <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
-            
+
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
               <ModalHeader>
                 <CardTitle>Modal Title</CardTitle>
@@ -299,7 +299,7 @@ const PinesDemo = () => {
               </ModalHeader>
               <ModalContent>
                 <p className="text-sm text-muted-foreground">
-                  This is the modal content. You can put any content here including forms, 
+                  This is the modal content. You can put any content here including forms,
                   images, or other components.
                 </p>
               </ModalContent>
@@ -484,7 +484,7 @@ const PinesDemo = () => {
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm font-medium mb-2">Basic Skeleton:</p>
                   <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
-{`import { Skeleton } from './components/skeletons'
+                    {`import { Skeleton } from './components/skeletons'
 
 <Skeleton width="200px" height="20px" />
 <Skeleton variant="circular" width="80px" height="80px" />
@@ -495,7 +495,7 @@ const PinesDemo = () => {
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm font-medium mb-2">Page Loading State:</p>
                   <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
-{`import { DashboardSkeleton } from './components/skeletons'
+                    {`import { DashboardSkeleton } from './components/skeletons'
 
 function Dashboard() {
   const { data, loading } = useQuery(GET_DASHBOARD_DATA)
@@ -510,7 +510,7 @@ function Dashboard() {
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm font-medium mb-2">Generic Page Skeleton:</p>
                   <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
-{`import { GenericPageSkeleton } from './components/skeletons'
+                    {`import { GenericPageSkeleton } from './components/skeletons'
 
 // Table view
 <GenericPageSkeleton contentType="table" columns={5} itemCount={10} />
@@ -556,7 +556,7 @@ function Dashboard() {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PinesDemo 
+export default PinesDemo;

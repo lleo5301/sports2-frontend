@@ -56,7 +56,7 @@ const Coaches = () => {
   // Position options
   const positionOptions = [
     'Head Coach',
-    'Recruiting Coordinator', 
+    'Recruiting Coordinator',
     'Pitching Coach',
     'Volunteer'
   ];
@@ -79,7 +79,7 @@ const Coaches = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Create coach error:', error);
+      // console.error('Create coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to add coach');
     }
   });
@@ -95,7 +95,7 @@ const Coaches = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Update coach error:', error);
+      // console.error('Update coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to update coach');
     }
   });
@@ -108,7 +108,7 @@ const Coaches = () => {
       toast.success('Coach deleted successfully');
     },
     onError: (error) => {
-      console.error('Delete coach error:', error);
+      // console.error('Delete coach error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete coach');
     }
   });
@@ -219,8 +219,8 @@ const Coaches = () => {
       <div className="p-6">
         <div className="text-center py-12">
           <p className="text-red-600">Error loading coaches: {error.message}</p>
-          <button 
-            onClick={() => refetch()} 
+          <button
+            onClick={() => refetch()}
             className="btn btn-primary mt-4"
           >
             Try Again
@@ -330,7 +330,7 @@ const Coaches = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <select 
+              <select
                 className="select select-bordered"
                 value={filters.position}
                 onChange={(e) => handleFilterChange('position', e.target.value)}
@@ -340,7 +340,7 @@ const Coaches = () => {
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
-              <select 
+              <select
                 className="select select-bordered"
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -366,12 +366,12 @@ const Coaches = () => {
               <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Coaches Found</h3>
               <p className="text-gray-500 mb-4">
-                {filters.search || filters.position 
+                {filters.search || filters.position
                   ? 'No coaches match your current filters.'
                   : 'Get started by adding your first coach contact.'
                 }
               </p>
-              <button 
+              <button
                 onClick={() => setShowCreateModal(true)}
                 className="btn btn-primary"
               >
@@ -449,22 +449,22 @@ const Coaches = () => {
                       </td>
                       <td>
                         <div className="text-sm">
-                          {coach.last_contact_date ? 
-                            new Date(coach.last_contact_date).toLocaleDateString() : 
+                          {coach.last_contact_date ?
+                            new Date(coach.last_contact_date).toLocaleDateString() :
                             'Never'
                           }
                         </div>
                       </td>
                       <td>
                         <div className="flex gap-2">
-                          <button 
+                          <button
                             onClick={() => handleEdit(coach)}
                             className="btn btn-sm btn-ghost"
                             title="Edit Coach"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(coach)}
                             className="btn btn-sm btn-ghost text-red-600"
                             title="Delete Coach"
@@ -489,7 +489,7 @@ const Coaches = () => {
             <h3 className="font-bold text-lg mb-4">
               {selectedCoach ? 'Edit Coach' : 'Add New Coach'}
             </h3>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
@@ -505,7 +505,7 @@ const Coaches = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Last Name *</span>

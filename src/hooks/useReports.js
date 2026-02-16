@@ -12,7 +12,7 @@ export const reportsKeys = {
   scoutingReportDetails: () => [...reportsKeys.scoutingReports(), 'detail'],
   scoutingReportDetail: (id) => [...reportsKeys.scoutingReportDetails(), id],
   playerReports: () => [...reportsKeys.all, 'player-reports'],
-  playerReport: (playerId) => [...reportsKeys.playerReports(), playerId],
+  playerReport: (playerId) => [...reportsKeys.playerReports(), playerId]
 };
 
 /**

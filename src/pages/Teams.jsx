@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { teamsService } from '../services/teams';
@@ -12,14 +12,14 @@ const Teams = () => {
   // Fetch all teams
   const { data: teamsResponse, isLoading: teamsLoading, error: teamsError } = useQuery({
     queryKey: ['teams'],
-    queryFn: teamsService.getAllTeams,
+    queryFn: teamsService.getAllTeams
   });
 
   // Fetch user's team if they have a team_id
   const { data: myTeamResponse, isLoading: myTeamLoading } = useQuery({
     queryKey: ['team', user?.team_id],
     queryFn: () => teamsService.getTeam(user.team_id),
-    enabled: !!user?.team_id,
+    enabled: !!user?.team_id
   });
 
   const teams = teamsResponse?.data || [];
@@ -76,13 +76,13 @@ const Teams = () => {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <button 
+                    <button
                       onClick={() => navigate(`/teams/${myTeam.id}`)}
                       className="btn btn-sm btn-primary"
                     >
                       View Details
                     </button>
-                    <button 
+                    <button
                       onClick={() => navigate(`/teams/${myTeam.id}`)}
                       className="btn btn-sm btn-outline"
                     >
@@ -122,14 +122,14 @@ const Teams = () => {
                     </div>
                   </div>
                   <div className="card-actions justify-end mt-4">
-                    <button 
+                    <button
                       onClick={() => navigate(`/teams/${team.id}`)}
                       className="btn btn-sm btn-outline"
                     >
                       View
                     </button>
                     {myTeam?.id === team.id && (
-                      <button 
+                      <button
                         onClick={() => navigate(`/teams/${team.id}`)}
                         className="btn btn-sm btn-primary"
                       >
@@ -145,7 +145,7 @@ const Teams = () => {
 
         {/* Add Team Button */}
         <div className="mt-8 text-center">
-          <button 
+          <button
             onClick={() => navigate('/teams/create')}
             className="btn btn-primary"
           >
@@ -160,4 +160,4 @@ const Teams = () => {
   );
 };
 
-export default Teams; 
+export default Teams;

@@ -22,9 +22,9 @@ async function stubAuth(page) {
           first_name: 'Coach',
           last_name: 'Smith',
           role: 'head_coach',
-          team_id: 1,
-        },
-      }),
+          team_id: 1
+        }
+      })
     });
   });
 
@@ -42,9 +42,9 @@ async function stubAuth(page) {
           'depth_chart_delete',
           'depth_chart_manage_positions',
           'player_assign',
-          'player_unassign',
-        ],
-      }),
+          'player_unassign'
+        ]
+      })
     });
   });
 }
@@ -69,10 +69,10 @@ async function stubDepthChart(page) {
             position: 'C',
             jersey_number: 12,
             school_type: 'COLL',
-            graduation_year: 2025,
-          },
-        },
-      ],
+            graduation_year: 2025
+          }
+        }
+      ]
     },
     {
       id: 2,
@@ -90,10 +90,10 @@ async function stubDepthChart(page) {
             position: 'P',
             jersey_number: 34,
             school_type: 'COLL',
-            graduation_year: 2025,
-          },
-        },
-      ],
+            graduation_year: 2025
+          }
+        }
+      ]
     },
     {
       id: 3,
@@ -111,10 +111,10 @@ async function stubDepthChart(page) {
             position: '1B',
             jersey_number: 19,
             school_type: 'COLL',
-            graduation_year: 2024,
-          },
-        },
-      ],
+            graduation_year: 2024
+          }
+        }
+      ]
     },
     {
       id: 4,
@@ -132,10 +132,10 @@ async function stubDepthChart(page) {
             position: '2B',
             jersey_number: 8,
             school_type: 'HS',
-            graduation_year: 2026,
-          },
-        },
-      ],
+            graduation_year: 2026
+          }
+        }
+      ]
     },
     {
       id: 5,
@@ -153,10 +153,10 @@ async function stubDepthChart(page) {
             position: '3B',
             jersey_number: 7,
             school_type: 'HS',
-            graduation_year: 2026,
-          },
-        },
-      ],
+            graduation_year: 2026
+          }
+        }
+      ]
     },
     {
       id: 6,
@@ -174,10 +174,10 @@ async function stubDepthChart(page) {
             position: 'SS',
             jersey_number: 2,
             school_type: 'HS',
-            graduation_year: 2026,
-          },
-        },
-      ],
+            graduation_year: 2026
+          }
+        }
+      ]
     },
     {
       id: 7,
@@ -195,10 +195,10 @@ async function stubDepthChart(page) {
             position: 'LF',
             jersey_number: 23,
             school_type: 'COLL',
-            graduation_year: 2024,
-          },
-        },
-      ],
+            graduation_year: 2024
+          }
+        }
+      ]
     },
     {
       id: 8,
@@ -216,10 +216,10 @@ async function stubDepthChart(page) {
             position: 'CF',
             jersey_number: 5,
             school_type: 'COLL',
-            graduation_year: 2025,
-          },
-        },
-      ],
+            graduation_year: 2025
+          }
+        }
+      ]
     },
     {
       id: 9,
@@ -237,18 +237,18 @@ async function stubDepthChart(page) {
             position: 'RF',
             jersey_number: 17,
             school_type: 'COLL',
-            graduation_year: 2024,
-          },
-        },
-      ],
+            graduation_year: 2024
+          }
+        }
+      ]
     },
     {
       id: 10,
       position_code: 'DH',
       position_name: 'Designated Hitter',
       color: '#06B6D4',
-      DepthChartPlayers: [],
-    },
+      DepthChartPlayers: []
+    }
   ];
 
   // List charts
@@ -271,11 +271,11 @@ async function stubDepthChart(page) {
               id: p.id,
               position_code: p.position_code,
               position_name: p.position_name,
-              color: p.color,
-            })),
-          },
-        ],
-      }),
+              color: p.color
+            }))
+          }
+        ]
+      })
     });
   });
 
@@ -293,9 +293,9 @@ async function stubDepthChart(page) {
           version: 1,
           effective_date: '2025-02-01T00:00:00Z',
           Creator: { first_name: 'Coach', last_name: 'Smith' },
-          DepthChartPositions: positions,
-        },
-      }),
+          DepthChartPositions: positions
+        }
+      })
     });
   });
 
@@ -304,7 +304,7 @@ async function stubDepthChart(page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ success: true, data: [] }),
+      body: JSON.stringify({ success: true, data: [] })
     });
   });
 }
@@ -327,7 +327,7 @@ test.describe('Visual - Depth Chart', () => {
       fullPage: true,
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.03,
+      maxDiffPixelRatio: 0.03
     });
   });
 
@@ -343,7 +343,7 @@ test.describe('Visual - Depth Chart', () => {
       fullPage: true,
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.03,
+      maxDiffPixelRatio: 0.03
     });
   });
 
@@ -359,9 +359,7 @@ test.describe('Visual - Depth Chart', () => {
       fullPage: true,
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.03,
+      maxDiffPixelRatio: 0.03
     });
   });
 });
-
-

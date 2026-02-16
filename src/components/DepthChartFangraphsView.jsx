@@ -1,27 +1,26 @@
-import React from 'react'
 
 // A compact, Fangraphs-style depth chart board with position boxes around a field
 // Props: depthChart (with DepthChartPositions)
 export default function DepthChartFangraphsView({ depthChart }) {
-  const positions = depthChart?.DepthChartPositions || []
+  const positions = depthChart?.DepthChartPositions || [];
 
   const byCode = (code) => {
-    const pos = positions.find((p) => p.position_code === code)
-    const players = (pos?.DepthChartPlayers || []).sort((a, b) => a.depth_order - b.depth_order)
+    const pos = positions.find((p) => p.position_code === code);
+    const players = (pos?.DepthChartPlayers || []).sort((a, b) => a.depth_order - b.depth_order);
     return players.map((a) => ({
       id: a.id,
       name: `${a.Player?.first_name || ''} ${a.Player?.last_name || ''}`.trim(),
       depth: a.depth_order
-    }))
-  }
+    }));
+  };
 
   // Weight depth order to simple percentages (rough mimic)
-  const weights = { 1: 70, 2: 20, 3: 10, 4: 6, 5: 4 }
+  const weights = { 1: 70, 2: 20, 3: 10, 4: 6, 5: 4 };
   const withPercents = (arr) => {
-    const w = arr.map((p) => weights[p.depth] ?? 2)
-    const total = w.reduce((s, n) => s + n, 0) || 1
-    return arr.map((p, i) => ({ ...p, pct: Math.round((w[i] / total) * 100) }))
-  }
+    const w = arr.map((p) => weights[p.depth] ?? 2);
+    const total = w.reduce((s, n) => s + n, 0) || 1;
+    return arr.map((p, i) => ({ ...p, pct: Math.round((w[i] / total) * 100) }));
+  };
 
   const renderBox = (title, rows) => (
     <div className="w-[240px] bg-white/95 border border-gray-400 rounded-lg shadow-lg backdrop-blur-sm" data-testid={`position-box-${title}`}>
@@ -40,18 +39,18 @@ export default function DepthChartFangraphsView({ depthChart }) {
         </ul>
       </div>
     </div>
-  )
+  );
 
   // Precompute rows
-  const LF = withPercents(byCode('LF'))
-  const CF = withPercents(byCode('CF'))
-  const RF = withPercents(byCode('RF'))
-  const SS = withPercents(byCode('SS'))
-  const _2B = withPercents(byCode('2B'))
-  const _3B = withPercents(byCode('3B'))
-  const _1B = withPercents(byCode('1B'))
-  const C = withPercents(byCode('C'))
-  const RP = withPercents(byCode('P')) // relief/overall pitchers list
+  const LF = withPercents(byCode('LF'));
+  const CF = withPercents(byCode('CF'));
+  const RF = withPercents(byCode('RF'));
+  const SS = withPercents(byCode('SS'));
+  const _2B = withPercents(byCode('2B'));
+  const _3B = withPercents(byCode('3B'));
+  const _1B = withPercents(byCode('1B'));
+  const C = withPercents(byCode('C'));
+  const RP = withPercents(byCode('P')); // relief/overall pitchers list
 
   return (
     <div className="relative w-full max-w-7xl mx-auto h-[1100px] rounded-xl border-2 border-gray-600 shadow-xl overflow-hidden" data-testid="fangraphs-depth-chart">
@@ -101,7 +100,5 @@ export default function DepthChartFangraphsView({ depthChart }) {
       {/* Relief Pitchers column */}
       <div className="absolute top-[820px] right-[60px]" data-testid="position-rp">{renderBox('RP', RP)}</div>
     </div>
-  )
+  );
 }
-
-

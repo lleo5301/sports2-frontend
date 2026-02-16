@@ -1,11 +1,10 @@
-import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
-import { 
-  ArrowLeft, 
-  Download, 
-  Edit, 
+import {
+  ArrowLeft,
+  Download,
+  Edit,
   Calendar,
   Users,
   TrendingUp,
@@ -46,7 +45,7 @@ const ViewPerformanceReport = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-error mb-4">Report Not Found</h1>
             <p className="text-base-content/70 mb-6">
-              The performance report you're looking for doesn't exist or you don't have permission to view it.
+              The performance report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
             <button
               onClick={() => navigate('/reports')}
@@ -88,7 +87,7 @@ const ViewPerformanceReport = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </button>
-            
+
             <div className="flex space-x-2">
               <button
                 onClick={handleDownloadPDF}
@@ -133,14 +132,14 @@ const ViewPerformanceReport = () => {
                 </div>
                 <div className={`badge ${
                   report.status === 'published' ? 'badge-success' :
-                  report.status === 'draft' ? 'badge-neutral' :
-                  'badge-warning'
+                    report.status === 'draft' ? 'badge-neutral' :
+                      'badge-warning'
                 }`}>
                   {report.status?.charAt(0).toUpperCase() + report.status?.slice(1)}
                 </div>
               </div>
             </div>
-            
+
             <div className="text-right">
               <div className="text-sm text-base-content/60">Report Type</div>
               <div className="badge badge-primary badge-lg">Performance Report</div>
@@ -158,7 +157,7 @@ const ViewPerformanceReport = () => {
                   <TrendingUp className="w-6 h-6 mr-2" />
                   Performance Metrics
                 </h2>
-                
+
                 {performanceSection.data && performanceSection.data.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="table table-zebra w-full">

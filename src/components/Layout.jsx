@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useBranding } from '../contexts/BrandingContext';
@@ -15,13 +15,9 @@ import {
   Menu,
   ChevronRight,
   ChevronLeft,
-  Moon,
-  Sun,
-  User,
   Trophy,
   Star,
   UserPlus,
-  List,
   GraduationCap,
   ArrowRightLeft,
   UserCheck,
@@ -34,7 +30,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, changeTheme } = useTheme();
-  const { logoUrl, name, programName, primaryColor, secondaryColor } = useBranding();
+  const { logoUrl, name, programName, primaryColor } = useBranding();
   const { logout, user } = useAuth();
   const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);
 
@@ -59,7 +55,7 @@ const Layout = ({ children }) => {
     {
       title: 'Overview',
       items: [
-        { path: '/', label: 'Dashboard', icon: Home },
+        { path: '/', label: 'Dashboard', icon: Home }
       ]
     },
     {
@@ -69,7 +65,7 @@ const Layout = ({ children }) => {
         { path: '/performance', label: 'Performance Rankings', icon: Trophy },
         { path: '/recruiting', label: 'Recruiting Board', icon: UserCheck },
         { path: '/scouting', label: 'Scouting', icon: Target },
-        { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 },
+        { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 }
       ]
     },
     {
@@ -78,7 +74,7 @@ const Layout = ({ children }) => {
         { path: '/coaches', label: 'Coaches', icon: School },
         { path: '/scouts', label: 'Scouts', icon: Eye },
         { path: '/vendors', label: 'Vendors', icon: Building2 },
-        { path: '/high-school-coaches', label: 'High School Coaches', icon: GraduationCap },
+        { path: '/high-school-coaches', label: 'High School Coaches', icon: GraduationCap }
       ]
     },
     {
@@ -87,7 +83,7 @@ const Layout = ({ children }) => {
         { path: '/pref-list/new-players', label: 'New Players', icon: UserPlus },
         { path: '/pref-list/overall', label: 'Overall Pref List', icon: Star },
         { path: '/pref-list/high-school', label: 'HS Pref List', icon: GraduationCap },
-        { path: '/pref-list/college-portal', label: 'College Portal/transfers', icon: ArrowRightLeft },
+        { path: '/pref-list/college-portal', label: 'College Portal/transfers', icon: ArrowRightLeft }
       ]
     },
     {
@@ -97,22 +93,17 @@ const Layout = ({ children }) => {
         { path: '/team-settings', label: 'Team Settings', icon: Settings },
         { path: '/games', label: 'Games', icon: Trophy },
         { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
-        { path: '/schedule-templates', label: 'Schedule Templates', icon: FileText },
+        { path: '/schedule-templates', label: 'Schedule Templates', icon: FileText }
       ]
     },
     {
       title: 'Reports & Settings',
       items: [
         { path: '/reports', label: 'Reports', icon: FileText },
-        { path: '/settings', label: 'Settings', icon: Settings },
+        { path: '/settings', label: 'Settings', icon: Settings }
       ]
     }
   ];
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    changeTheme(newTheme);
-  };
 
   const toggleDrawer = () => {
     setIsDrawerCollapsed(!isDrawerCollapsed);
@@ -126,7 +117,7 @@ const Layout = ({ children }) => {
   return (
     <div className={`drawer lg:drawer-open ${isDrawerCollapsed ? 'lg:drawer-collapsed' : ''}`}>
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-      
+
       {/* Page content */}
       <div className="drawer-content flex flex-col">
         {/* Mobile menu toggle - only visible on mobile */}
@@ -135,13 +126,13 @@ const Layout = ({ children }) => {
             <Menu className="w-6 h-6" />
           </label>
         </div>
-        
+
         {/* Page content */}
         <div className="flex-1 p-4">
           {children}
         </div>
       </div>
-      
+
       {/* Sidebar */}
       <div className="drawer-side">
         <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
@@ -190,7 +181,7 @@ const Layout = ({ children }) => {
               )}
             </button>
           </div>
-          
+
           {/* Navigation menu */}
           <div className="p-4 min-h-full bg-base-200 text-base-content">
             {navSections.map((section, sectionIndex) => (
@@ -203,14 +194,14 @@ const Layout = ({ children }) => {
                     </h3>
                   </div>
                 )}
-                
+
                 {/* Section items */}
                 <ul className="menu">
                   {section.items.map((item) => {
                     const IconComponent = item.icon;
                     return (
                       <li key={item.path}>
-                        <Link 
+                        <Link
                           to={item.path}
                           className={`${location.pathname === item.path ? 'active' : ''} ${isDrawerCollapsed ? 'justify-center' : ''}`}
                           title={isDrawerCollapsed ? item.label : ''}
@@ -253,4 +244,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout; 
+export default Layout;

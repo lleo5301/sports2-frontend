@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
 import MultiPlayerSelector from '../components/MultiPlayerSelector';
-import { 
-  ArrowLeft, 
-  Save, 
-  Plus, 
-  Trash2, 
+import {
+  ArrowLeft,
+  Save,
+  Plus,
+  Trash2,
   Users,
   TrendingUp,
   Target,
@@ -62,13 +62,13 @@ const CreatePerformanceReport = () => {
     staleTime: 300000 // 5 minutes
   });
 
-  const players = playersData.data || [];
+  const players = useMemo(() => playersData.data || [], [playersData.data]);
 
   // Fetch existing report data for edit mode
   const { data: existingReportData, isLoading: isLoadingReport } = useQuery({
     queryKey: ['report', editReportId],
     queryFn: () => reportsService.getReport(editReportId),
-    enabled: isEditMode,
+    enabled: isEditMode
   });
 
   // Pre-select player and set default title if coming from player page
@@ -152,7 +152,7 @@ const CreatePerformanceReport = () => {
         filters: data.filters,
         schedule: null
       };
-      
+
       if (isEditMode) {
         return await reportsService.updateReport(editReportId, reportPayload);
       } else {
@@ -229,7 +229,7 @@ const CreatePerformanceReport = () => {
                 <Users className="w-5 h-5 mr-2" />
                 Report Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -244,7 +244,7 @@ const CreatePerformanceReport = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">Date Range</span>
@@ -307,7 +307,7 @@ const CreatePerformanceReport = () => {
                 <Filter className="w-5 h-5 mr-2" />
                 Additional Filters
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -324,7 +324,7 @@ const CreatePerformanceReport = () => {
                     }))}
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Team Filter</span>
@@ -351,7 +351,7 @@ const CreatePerformanceReport = () => {
                 <TrendingUp className="w-5 h-5 mr-2" />
                 Performance Metrics
               </h2>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {Object.entries(reportData.metrics).map(([metric, enabled]) => (
                   <label key={metric} className="cursor-pointer">
@@ -379,7 +379,7 @@ const CreatePerformanceReport = () => {
                 <Award className="w-5 h-5 mr-2" />
                 Analysis & Recommendations
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">
@@ -392,7 +392,7 @@ const CreatePerformanceReport = () => {
                     onChange={(e) => setReportData(prev => ({ ...prev, analysis: e.target.value }))}
                   />
                 </div>
-                
+
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">Recommendations</span>

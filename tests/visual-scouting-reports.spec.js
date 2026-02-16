@@ -7,7 +7,7 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
     await page.addInitScript(() => {
       localStorage.setItem('token', 'mock-jwt-token');
     });
-    
+
     // Mock auth endpoints
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -98,17 +98,17 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
     // Wait for modal and reports to load
     await expect(page.locator('.modal.modal-open')).toBeVisible();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     // Wait for reports to be visible
     await expect(page.getByText('Report Date: 3/15/2024')).toBeVisible();
-    
+
     // Take screenshot of player modal with scouting reports
     await expect(page.locator('.modal.modal-open .modal-box')).toHaveScreenshot('player-modal-with-reports.png');
   });
 
   test('scouting reports list view', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
@@ -122,12 +122,12 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
 
   test('full scouting report detail modal', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     // Click on first report
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
@@ -142,11 +142,11 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
 
   test('tool grades grid layout', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -159,11 +159,11 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
 
   test('pitcher report with pitching assessment', async ({ page }) => {
     await page.goto('/players');
-    
+
     const mikeRow = page.locator('table.table tbody tr').filter({ hasText: 'Mike Johnson' });
     await mikeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -190,7 +190,7 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
     });
 
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
@@ -205,9 +205,9 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
   test('mobile responsive player modal', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
@@ -221,13 +221,13 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
   test('mobile responsive report detail modal', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
-    
+
     const firstReport = page.locator('.bg-base-200.rounded-lg.hover\\:bg-base-300').first();
     await firstReport.click();
 
@@ -239,7 +239,7 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
 
   test('report list item hover state', async ({ page }) => {
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
     await expect(page.locator('.loading.loading-spinner')).not.toBeVisible({ timeout: 5000 });
@@ -260,10 +260,10 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
     await page.route('**/api/reports/scouting**', async route => {
       // Add delay to see loading state
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const url = new URL(route.request().url());
       const playerId = url.searchParams.get('player_id');
-      
+
       const reports = playerId === '1' ? [{
         id: 1,
         player_id: 1,
@@ -272,7 +272,7 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
         Player: { first_name: 'John', last_name: 'Doe' },
         User: { first_name: 'Coach', last_name: 'Smith' }
       }] : [];
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -285,17 +285,17 @@ test.describe('Visual Regression Tests - Scouting Reports', () => {
     });
 
     await page.goto('/players');
-    
+
     const johnDoeRow = page.locator('table.table tbody tr').filter({ hasText: 'John Doe' });
     await johnDoeRow.getByText('View').click();
 
     // Wait for modal to open and capture loading state
     await expect(page.locator('.modal.modal-open')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Scouting Reports' })).toBeVisible();
-    
+
     // Capture loading spinner
     await expect(page.locator('.loading.loading-spinner')).toBeVisible();
-    
+
     const reportsSection = page.locator('div:has(> h4:text("Scouting Reports"))');
     await expect(reportsSection).toHaveScreenshot('reports-loading-state.png');
   });

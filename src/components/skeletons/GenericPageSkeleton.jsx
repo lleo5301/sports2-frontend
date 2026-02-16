@@ -1,7 +1,7 @@
-import Skeleton from './Skeleton'
-import SkeletonText from './SkeletonText'
-import SkeletonCard from './SkeletonCard'
-import SkeletonTable from './SkeletonTable'
+import Skeleton from './Skeleton';
+import SkeletonText from './SkeletonText';
+import SkeletonCard from './SkeletonCard';
+import SkeletonTable from './SkeletonTable';
 
 export default function GenericPageSkeleton({
   animation = 'pulse',
@@ -26,7 +26,7 @@ export default function GenericPageSkeleton({
               />
             </div>
           </div>
-        )
+        );
 
       case 'list':
         return (
@@ -73,18 +73,18 @@ export default function GenericPageSkeleton({
               </div>
             </div>
           </div>
-        )
+        );
 
       case 'cards':
-      default:
+      default: {
         const gridClasses = {
           1: 'grid-cols-1',
           2: 'grid-cols-1 md:grid-cols-2',
           3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
           4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
-        }
+        };
 
-        const gridClass = gridClasses[columns] || gridClasses[3]
+        const gridClass = gridClasses[columns] || gridClasses[3];
 
         return (
           <div className={`grid ${gridClass} gap-6`}>
@@ -116,9 +116,10 @@ export default function GenericPageSkeleton({
               </div>
             ))}
           </div>
-        )
+        );
+      }
     }
-  }
+  };
 
   return (
     <div className="p-8">
@@ -161,5 +162,5 @@ export default function GenericPageSkeleton({
         {renderContent()}
       </div>
     </div>
-  )
+  );
 }

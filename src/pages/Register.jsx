@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { useNavigate, Link, Navigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useAuth } from '../contexts/AuthContext'
-import { register as registerUser } from '../services/auth'
-import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react'
-import toast from 'react-hot-toast'
-import { passwordSchema } from '../utils/passwordValidator'
-import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator'
+import { useState } from 'react';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuth } from '../contexts/AuthContext';
+import { register as registerUser } from '../services/auth';
+import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { passwordSchema } from '../utils/passwordValidator';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 
 const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -17,54 +17,52 @@ const registerSchema = z.object({
   first_name: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
   last_name: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
   role: z.enum(['head_coach', 'assistant_coach'], { required_error: 'Please select a role' }),
-  phone: z.string().optional(),
+  phone: z.string().optional()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+  path: ['confirmPassword']
+});
 
 export default function Register() {
   // Registration disabled for initial release - users are managed via admin interface
   const REGISTRATION_ENABLED = false;
+  const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { login: authLogin } = useAuth();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useForm({
+    resolver: zodResolver(registerSchema)
+  });
 
   if (!REGISTRATION_ENABLED) {
     // Redirect to login if someone navigates directly to /register
     return <Navigate to="/login" replace />;
   }
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const { login: authLogin } = useAuth()
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(registerSchema),
-  })
-
-  const passwordValue = watch('password', '')
-
-
+  const passwordValue = watch('password', '');
 
   const onSubmit = async (data) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await registerUser(data)
-      authLogin(response.data, response.data.token)
-      toast.success('Account created successfully!')
-      navigate('/')
+      const response = await registerUser(data);
+      authLogin(response.data, response.data.token);
+      toast.success('Account created successfully!');
+      navigate('/');
     } catch (error) {
-      console.error('Registration error:', error)
-      const errorMessage = error.response?.data?.error || 'Registration failed'
-      toast.error(errorMessage)
+      const errorMessage = error.response?.data?.error || 'Registration failed';
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -84,7 +82,7 @@ export default function Register() {
             Join The Program
           </p>
         </div>
-        
+
         <div className="card">
           <div className="card-body">
             <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -282,5 +280,5 @@ export default function Register() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

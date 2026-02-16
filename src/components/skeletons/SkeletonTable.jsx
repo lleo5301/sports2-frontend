@@ -1,4 +1,4 @@
-import Skeleton from './Skeleton'
+import Skeleton from './Skeleton';
 
 export default function SkeletonTable({
   rows = 5,
@@ -9,17 +9,17 @@ export default function SkeletonTable({
   animation = 'pulse'
 }) {
   // Generate arrays for rows and columns
-  const headerColumns = Array.from({ length: columns }, (_, i) => i)
-  const bodyRows = Array.from({ length: rows }, (_, i) => i)
+  const headerColumns = Array.from({ length: columns }, (_, i) => i);
+  const bodyRows = Array.from({ length: rows }, (_, i) => i);
 
   // Get width for a specific column
   const getColumnWidth = (index) => {
     if (columnWidths[index]) {
-      return columnWidths[index]
+      return columnWidths[index];
     }
     // Default widths for natural table appearance
-    return '100%'
-  }
+    return '100%';
+  };
 
   return (
     <div className={`overflow-x-auto ${className}`}>
@@ -61,5 +61,5 @@ export default function SkeletonTable({
         </tbody>
       </table>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScoutingReports } from '../hooks/useReports';
 
@@ -122,8 +122,8 @@ const Scouting = () => {
                       <td>
                         <div className={`badge ${
                           report.status === 'completed' ? 'badge-success' :
-                          report.status === 'in_progress' ? 'badge-warning' :
-                          'badge-neutral'
+                            report.status === 'in_progress' ? 'badge-warning' :
+                              'badge-neutral'
                         }`}>
                           {report.status}
                         </div>
@@ -199,4 +199,4 @@ const Scouting = () => {
   );
 };
 
-export default Scouting; 
+export default Scouting;

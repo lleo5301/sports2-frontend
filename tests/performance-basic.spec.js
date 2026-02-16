@@ -8,7 +8,7 @@ test.describe('Performance Rankings Page', () => {
     await page.fill('input[name="password"]', 'password123');
     await page.click('button[type="submit"]');
     await page.waitForURL('/dashboard');
-    
+
     // Navigate to performance page
     await page.goto('/performance');
     await page.waitForLoadState('networkidle');
@@ -17,7 +17,7 @@ test.describe('Performance Rankings Page', () => {
   test('should display performance page with correct structure', async ({ page }) => {
     // Check page title
     await expect(page.locator('h1')).toContainText('Player Performance Rankings');
-    
+
     // Check main sections exist
     await expect(page.locator('.card').first()).toBeVisible();
     await expect(page.locator('table')).toBeVisible();
@@ -27,7 +27,7 @@ test.describe('Performance Rankings Page', () => {
     await expect(page.locator('button', { hasText: 'All Players' })).toBeVisible();
     await expect(page.locator('button', { hasText: 'Position Players' })).toBeVisible();
     await expect(page.locator('button', { hasText: 'Pitchers' })).toBeVisible();
-    
+
     // Test clicking buttons
     await page.click('button:has-text("Position Players")');
     await page.click('button:has-text("All Players")');
@@ -45,7 +45,7 @@ test.describe('Performance Rankings Page', () => {
     // Test clicking sortable headers
     await page.locator('th:has-text("AVG")').click();
     await page.waitForTimeout(500);
-    
+
     await page.locator('th:has-text("HR")').click();
     await page.waitForTimeout(500);
   });

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import {
   FileText,
   Plus,
@@ -13,13 +13,13 @@ import {
   Eye,
   Star,
   Calendar
-} from 'lucide-react'
-import scheduleTemplateService from '../services/scheduleTemplates'
-import locationsService from '../services/locations'
-import scheduleEventsService from '../services/scheduleEvents'
-import { teamsService } from '../services/teams'
-import toast from 'react-hot-toast'
-import AccessibleModal from '../components/ui/AccessibleModal'
+} from 'lucide-react';
+import scheduleTemplateService from '../services/scheduleTemplates';
+import locationsService from '../services/locations';
+import scheduleEventsService from '../services/scheduleEvents';
+import { teamsService } from '../services/teams';
+import toast from 'react-hot-toast';
+import AccessibleModal from '../components/ui/AccessibleModal';
 
 // Base template data with all schedule types
 const getBaseTemplate = () => ({
@@ -73,7 +73,7 @@ const getBaseTemplate = () => ({
       activities: []
     }
   ]
-})
+});
 
 const scheduleTypes = [
   { id: 'general', name: 'General Schedule', color: 'bg-blue-100 text-blue-800' },
@@ -84,26 +84,26 @@ const scheduleTypes = [
   { id: 'grinder_defensive', name: 'Grinder - Defensive', color: 'bg-teal-100 text-teal-800' },
   { id: 'bullpen', name: 'Bullpen Schedule', color: 'bg-indigo-100 text-indigo-800' },
   { id: 'live_bp', name: 'Live BP Schedule', color: 'bg-pink-100 text-pink-800' }
-]
+];
 
 const getScheduleTypeInfo = (type) => {
-  return scheduleTypes.find(t => t.id === type) || scheduleTypes[0]
-}
+  return scheduleTypes.find(t => t.id === type) || scheduleTypes[0];
+};
 
 export default function ScheduleTemplates({ onLoadTemplate }) {
-  const navigate = useNavigate()
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
-  const [showEventModal, setShowEventModal] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState(null)
-  const [selectedEvent, setSelectedEvent] = useState(null)
+  const navigate = useNavigate();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [templateForm, setTemplateForm] = useState({
     name: '',
     description: '',
     template_data: getBaseTemplate()
-  })
-  
+  });
+
   const [eventForm, setEventForm] = useState({
     title: '',
     description: '',
@@ -113,27 +113,27 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
     end_time: '',
     priority: 'medium',
     event_dates: [{ event_date: '', notes: '' }]
-  })
-  
+  });
+
   const [newLocationForm, setNewLocationForm] = useState({
     name: '',
     location_type: 'field',
     address: '',
     city: '',
     state: ''
-  })
-  
-  const [showNewLocationForm, setShowNewLocationForm] = useState(false)
+  });
 
-  const queryClient = useQueryClient()
+  const [showNewLocationForm, setShowNewLocationForm] = useState(false);
+
+  const queryClient = useQueryClient();
 
   // Fetch available teams
   const { data: teamsResponse, isLoading: teamsLoading } = useQuery({
     queryKey: ['teams'],
     queryFn: teamsService.getAllTeams
-  })
+  });
 
-  const teams = teamsResponse?.data || teamsResponse || []
+  const teams = teamsResponse?.data || teamsResponse || [];
 
   // Fetch templates
   const { data: templatesResponse, isLoading, error: templatesError } = useQuery({
@@ -143,124 +143,124 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
     onError: (error) => {
       toast.error(error.response?.data?.error || 'Failed to load templates');
     }
-  })
+  });
 
-  const templates = templatesResponse?.data || []
+  const templates = templatesResponse?.data || [];
 
   // Fetch locations
   const { data: locationsResponse } = useQuery({
     queryKey: ['locations'],
     queryFn: () => locationsService.getLocations({ is_active: true }),
     enabled: showEventModal
-  })
+  });
 
-  const locations = locationsResponse?.data || []
+  const locations = locationsResponse?.data || [];
 
   // Fetch events for selected template
   const { data: eventsResponse } = useQuery({
     queryKey: ['schedule-events', selectedTemplate?.id],
-    queryFn: () => scheduleEventsService.getScheduleEvents({ 
-      schedule_template_id: selectedTemplate?.id 
+    queryFn: () => scheduleEventsService.getScheduleEvents({
+      schedule_template_id: selectedTemplate?.id
     }),
     enabled: !!selectedTemplate?.id
-  })
+  });
 
-  const templateEvents = eventsResponse?.data || []
+  const templateEvents = eventsResponse?.data || [];
 
   // Mutations
   const createTemplateMutation = useMutation({
     mutationFn: (data) => scheduleTemplateService.createTemplate(data),
     onSuccess: () => {
-      toast.success('Template created successfully!')
-      queryClient.invalidateQueries(['schedule-templates'])
-      setShowCreateModal(false)
-      resetForm()
+      toast.success('Template created successfully!');
+      queryClient.invalidateQueries(['schedule-templates']);
+      setShowCreateModal(false);
+      resetForm();
     },
     onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to create template')
+      toast.error(error.response?.data?.error || 'Failed to create template');
     }
-  })
+  });
 
   const updateTemplateMutation = useMutation({
     mutationFn: ({ id, data }) => scheduleTemplateService.updateTemplate(id, data),
     onSuccess: () => {
-      toast.success('Template updated successfully!')
-      queryClient.invalidateQueries(['schedule-templates'])
-      setShowEditModal(false)
-      setSelectedTemplate(null)
-      resetForm()
+      toast.success('Template updated successfully!');
+      queryClient.invalidateQueries(['schedule-templates']);
+      setShowEditModal(false);
+      setSelectedTemplate(null);
+      resetForm();
     },
     onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to update template')
+      toast.error(error.response?.data?.error || 'Failed to update template');
     }
-  })
+  });
 
   const deleteTemplateMutation = useMutation({
     mutationFn: (id) => scheduleTemplateService.deleteTemplate(id),
     onSuccess: () => {
-      toast.success('Template deleted successfully!')
-      queryClient.invalidateQueries(['schedule-templates'])
+      toast.success('Template deleted successfully!');
+      queryClient.invalidateQueries(['schedule-templates']);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to delete template')
+      toast.error(error.response?.data?.error || 'Failed to delete template');
     }
-  })
+  });
 
   const duplicateTemplateMutation = useMutation({
     mutationFn: ({ id, data }) => scheduleTemplateService.duplicateTemplate(id, data),
     onSuccess: () => {
-      toast.success('Template duplicated successfully!')
-      queryClient.invalidateQueries(['schedule-templates'])
-      setShowDuplicateModal(false)
-      setSelectedTemplate(null)
+      toast.success('Template duplicated successfully!');
+      queryClient.invalidateQueries(['schedule-templates']);
+      setShowDuplicateModal(false);
+      setSelectedTemplate(null);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to duplicate template')
+      toast.error(error.response?.data?.error || 'Failed to duplicate template');
     }
-  })
+  });
 
   // Location mutations
   const createLocationMutation = useMutation({
     mutationFn: (data) => locationsService.createLocation(data),
     onSuccess: (response) => {
-      toast.success('Location created successfully!')
-      queryClient.invalidateQueries(['locations'])
-      setEventForm(prev => ({ ...prev, location_id: response.data.id }))
-      setShowNewLocationForm(false)
+      toast.success('Location created successfully!');
+      queryClient.invalidateQueries(['locations']);
+      setEventForm(prev => ({ ...prev, location_id: response.data.id }));
+      setShowNewLocationForm(false);
       setNewLocationForm({
         name: '',
         location_type: 'field',
         address: '',
         city: '',
         state: ''
-      })
+      });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create location')
+      toast.error(error.response?.data?.message || 'Failed to create location');
     }
-  })
+  });
 
   // Event mutations
   const createEventMutation = useMutation({
     mutationFn: (data) => scheduleEventsService.createScheduleEvent(data),
     onSuccess: () => {
-      toast.success('Event created successfully!')
-      queryClient.invalidateQueries(['schedule-events'])
-      setShowEventModal(false)
-      resetEventForm()
+      toast.success('Event created successfully!');
+      queryClient.invalidateQueries(['schedule-events']);
+      setShowEventModal(false);
+      resetEventForm();
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create event')
+      toast.error(error.response?.data?.message || 'Failed to create event');
     }
-  })
+  });
 
   const resetForm = () => {
     setTemplateForm({
       name: '',
       description: '',
       template_data: getBaseTemplate()
-    })
-  }
+    });
+  };
 
   const resetEventForm = () => {
     setEventForm({
@@ -272,71 +272,71 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
       end_time: '',
       priority: 'medium',
       event_dates: [{ event_date: '', notes: '' }]
-    })
-    setSelectedEvent(null)
-  }
+    });
+    setSelectedEvent(null);
+  };
 
   const handleCreateBaseTemplate = () => {
     setTemplateForm({
       name: 'Base Schedule Template',
       description: 'Complete schedule template with all section types',
       template_data: getBaseTemplate()
-    })
-    setShowCreateModal(true)
-  }
+    });
+    setShowCreateModal(true);
+  };
 
   const handleEditTemplate = (template) => {
-    setSelectedTemplate(template)
+    setSelectedTemplate(template);
     setTemplateForm({
       name: template.name,
       description: template.description || '',
       template_data: template.template_data
-    })
-    setShowEditModal(true)
-  }
+    });
+    setShowEditModal(true);
+  };
 
   const handleDuplicateTemplate = (template) => {
-    setSelectedTemplate(template)
-    setShowDuplicateModal(true)
-  }
+    setSelectedTemplate(template);
+    setShowDuplicateModal(true);
+  };
 
   const handleLoadTemplate = (template) => {
     // Store template data in localStorage to pass to TeamSchedule
     localStorage.setItem('loadedTemplate', JSON.stringify({
       name: template.name,
       template_data: template.template_data
-    }))
-    
-    toast.success(`Loading template: ${template.name}`)
-    
+    }));
+
+    toast.success(`Loading template: ${template.name}`);
+
     // Navigate to team schedule page
-    navigate('/team-schedule')
-  }
+    navigate('/team-schedule');
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!templateForm.name.trim()) {
-      toast.error('Template name is required')
-      return
+      toast.error('Template name is required');
+      return;
     }
 
     const data = {
       ...templateForm,
       template_data: templateForm.template_data
-    }
+    };
 
     if (showEditModal && selectedTemplate) {
-      updateTemplateMutation.mutate({ id: selectedTemplate.id, data })
+      updateTemplateMutation.mutate({ id: selectedTemplate.id, data });
     } else {
-      createTemplateMutation.mutate(data)
+      createTemplateMutation.mutate(data);
     }
-  }
+  };
 
   const handleDuplicateSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!templateForm.name.trim()) {
-      toast.error('Template name is required')
-      return
+      toast.error('Template name is required');
+      return;
     }
 
     duplicateTemplateMutation.mutate({
@@ -345,69 +345,69 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         name: templateForm.name,
         description: templateForm.description
       }
-    })
-  }
+    });
+  };
 
   const handleExportPDF = (template) => {
     // This would integrate with a PDF generation library
-    toast.success(`PDF export for "${template.name}" would be implemented here`)
-  }
+    toast.success(`PDF export for "${template.name}" would be implemented here`);
+  };
 
   const handleManageEvents = (template) => {
-    setSelectedTemplate(template)
-    setShowEventModal(true)
-  }
+    setSelectedTemplate(template);
+    setShowEventModal(true);
+  };
 
   const handleAddEventDate = () => {
     setEventForm(prev => ({
       ...prev,
       event_dates: [...prev.event_dates, { event_date: '', notes: '' }]
-    }))
-  }
+    }));
+  };
 
   const handleRemoveEventDate = (index) => {
     setEventForm(prev => ({
       ...prev,
       event_dates: prev.event_dates.filter((_, i) => i !== index)
-    }))
-  }
+    }));
+  };
 
   const handleEventDateChange = (index, field, value) => {
     setEventForm(prev => ({
       ...prev,
-      event_dates: prev.event_dates.map((date, i) => 
+      event_dates: prev.event_dates.map((date, i) =>
         i === index ? { ...date, [field]: value } : date
       )
-    }))
-  }
+    }));
+  };
 
   const handleSubmitEvent = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!eventForm.title.trim()) {
-      toast.error('Event title is required')
-      return
+      toast.error('Event title is required');
+      return;
     }
 
     if (eventForm.event_dates.some(date => !date.event_date)) {
-      toast.error('All event dates are required')
-      return
+      toast.error('All event dates are required');
+      return;
     }
 
     createEventMutation.mutate({
       ...eventForm,
       schedule_template_id: selectedTemplate.id
-    })
-  }
+    });
+  };
 
   const handleSubmitNewLocation = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!newLocationForm.name.trim()) {
-      toast.error('Location name is required')
-      return
+      toast.error('Location name is required');
+      return;
     }
 
-    createLocationMutation.mutate(newLocationForm)
-  }
+    createLocationMutation.mutate(newLocationForm);
+  };
 
   if (isLoading) {
     return (
@@ -418,7 +418,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (templatesError) {
@@ -435,8 +435,8 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 {templatesError.response?.data?.error || templatesError.message || 'Unable to connect to the server'}
               </div>
             </div>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="btn btn-sm btn-outline"
             >
               Retry
@@ -444,7 +444,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -469,13 +469,13 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 <Plus className="h-4 w-4 mr-2" />
                 Create Base Template
               </button>
-                          <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn btn-outline"
-            >
-              <FileText className="h-4 w-4 mr-2" />
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="btn btn-outline"
+              >
+                <FileText className="h-4 w-4 mr-2" />
               New Template
-            </button>
+              </button>
             </div>
           </div>
         </div>
@@ -532,7 +532,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                         <button
                           onClick={() => {
                             if (confirm('Are you sure you want to delete this template?')) {
-                              deleteTemplateMutation.mutate(template.id)
+                              deleteTemplateMutation.mutate(template.id);
                             }
                           }}
                           className="text-red-600"
@@ -555,7 +555,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {template.template_data?.sections?.slice(0, 3).map((section, index) => {
-                      const typeInfo = getScheduleTypeInfo(section.type)
+                      const typeInfo = getScheduleTypeInfo(section.type);
                       return (
                         <span
                           key={index}
@@ -563,7 +563,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                         >
                           {section.title}
                         </span>
-                      )
+                      );
                     })}
                     {template.template_data?.sections?.length > 3 && (
                       <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
@@ -611,10 +611,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         <AccessibleModal
           isOpen={showCreateModal || showEditModal}
           onClose={() => {
-            setShowCreateModal(false)
-            setShowEditModal(false)
-            setSelectedTemplate(null)
-            resetForm()
+            setShowCreateModal(false);
+            setShowEditModal(false);
+            setSelectedTemplate(null);
+            resetForm();
           }}
           title={showEditModal ? 'Edit Template' : 'Create New Template'}
           size="lg"
@@ -622,10 +622,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           <AccessibleModal.Header
             title={showEditModal ? 'Edit Template' : 'Create New Template'}
             onClose={() => {
-              setShowCreateModal(false)
-              setShowEditModal(false)
-              setSelectedTemplate(null)
-              resetForm()
+              setShowCreateModal(false);
+              setShowEditModal(false);
+              setSelectedTemplate(null);
+              resetForm();
             }}
           />
           <AccessibleModal.Content>
@@ -663,7 +663,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                 </label>
                 <div className="max-h-60 overflow-y-auto space-y-2">
                   {templateForm.template_data.sections.map((section, index) => {
-                    const typeInfo = getScheduleTypeInfo(section.type)
+                    const typeInfo = getScheduleTypeInfo(section.type);
                     return (
                       <div key={section.id} className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
                         <div className="flex items-center">
@@ -676,7 +676,7 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
                           {section.activities?.length || 0} activities
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -686,10 +686,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
             <button
               type="button"
               onClick={() => {
-                setShowCreateModal(false)
-                setShowEditModal(false)
-                setSelectedTemplate(null)
-                resetForm()
+                setShowCreateModal(false);
+                setShowEditModal(false);
+                setSelectedTemplate(null);
+                resetForm();
               }}
               className="btn btn-outline"
             >
@@ -720,8 +720,8 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         <AccessibleModal
           isOpen={showDuplicateModal && !!selectedTemplate}
           onClose={() => {
-            setShowDuplicateModal(false)
-            setSelectedTemplate(null)
+            setShowDuplicateModal(false);
+            setSelectedTemplate(null);
           }}
           title="Duplicate Template"
           size="md"
@@ -729,8 +729,8 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           <AccessibleModal.Header
             title="Duplicate Template"
             onClose={() => {
-              setShowDuplicateModal(false)
-              setSelectedTemplate(null)
+              setShowDuplicateModal(false);
+              setSelectedTemplate(null);
             }}
           />
           <AccessibleModal.Content>
@@ -767,8 +767,8 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
             <button
               type="button"
               onClick={() => {
-                setShowDuplicateModal(false)
-                setSelectedTemplate(null)
+                setShowDuplicateModal(false);
+                setSelectedTemplate(null);
               }}
               className="btn btn-outline"
             >
@@ -799,10 +799,10 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         <AccessibleModal
           isOpen={showEventModal && !!selectedTemplate}
           onClose={() => {
-            setShowEventModal(false)
-            setSelectedTemplate(null)
-            resetEventForm()
-            setShowNewLocationForm(false)
+            setShowEventModal(false);
+            setSelectedTemplate(null);
+            resetEventForm();
+            setShowNewLocationForm(false);
           }}
           title={selectedTemplate ? `Manage Events - ${selectedTemplate.name}` : 'Manage Events'}
           size="xl"
@@ -810,302 +810,302 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
           <AccessibleModal.Header
             title={selectedTemplate ? `Manage Events - ${selectedTemplate.name}` : 'Manage Events'}
             onClose={() => {
-              setShowEventModal(false)
-              setSelectedTemplate(null)
-              resetEventForm()
-              setShowNewLocationForm(false)
+              setShowEventModal(false);
+              setSelectedTemplate(null);
+              resetEventForm();
+              setShowNewLocationForm(false);
             }}
           />
           <AccessibleModal.Content>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Existing Events */}
-                <div>
-                  <h4 className="font-semibold mb-3">Existing Events ({templateEvents.length})</h4>
-                  <div className="max-h-60 overflow-y-auto space-y-2">
-                    {templateEvents.map((event) => (
-                      <div key={event.id} className="p-3 bg-base-200 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h5 className="font-medium">{event.title}</h5>
-                            <p className="text-sm text-base-content/70">
-                              {event.event_type} • {event.EventDates?.length || 0} dates
-                            </p>
-                          </div>
-                          <button className="btn btn-sm btn-ghost">
-                            <Edit className="h-4 w-4" />
+              {/* Existing Events */}
+              <div>
+                <h4 className="font-semibold mb-3">Existing Events ({templateEvents.length})</h4>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {templateEvents.map((event) => (
+                    <div key={event.id} className="p-3 bg-base-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-medium">{event.title}</h5>
+                          <p className="text-sm text-base-content/70">
+                            {event.event_type} • {event.EventDates?.length || 0} dates
+                          </p>
+                        </div>
+                        <button className="btn btn-sm btn-ghost">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {templateEvents.length === 0 && (
+                    <p className="text-center text-base-content/50 py-4">
+                        No events created yet
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Add New Event Form */}
+              <div>
+                <h4 className="font-semibold mb-3">Add New Event</h4>
+                <form onSubmit={handleSubmitEvent} className="space-y-4">
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Event Title *</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered w-full"
+                      value={eventForm.title}
+                      onChange={(e) => setEventForm(prev => ({ ...prev, title: e.target.value }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Event Type</span>
+                      </label>
+                      <select
+                        className="select select-bordered w-full"
+                        value={eventForm.event_type}
+                        onChange={(e) => setEventForm(prev => ({ ...prev, event_type: e.target.value }))}
+                      >
+                        {scheduleEventsService.getEventTypes().map(type => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label">
+                        <span className="label-text">Priority</span>
+                      </label>
+                      <select
+                        className="select select-bordered w-full"
+                        value={eventForm.priority}
+                        onChange={(e) => setEventForm(prev => ({ ...prev, priority: e.target.value }))}
+                      >
+                        {scheduleEventsService.getPriorityLevels().map(level => (
+                          <option key={level.value} value={level.value}>
+                            {level.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Location Selection with Add New Option */}
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Location</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        className="select select-bordered flex-1"
+                        value={eventForm.location_id}
+                        onChange={(e) => {
+                          if (e.target.value === 'add_new') {
+                            setShowNewLocationForm(true);
+                          } else {
+                            setEventForm(prev => ({ ...prev, location_id: e.target.value }));
+                          }
+                        }}
+                      >
+                        <option value="">Select location (optional)</option>
+                        {locations.map(location => (
+                          <option key={location.id} value={location.id}>
+                            {location.name} ({location.location_type})
+                          </option>
+                        ))}
+                        <option value="add_new">+ Add New Location</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* New Location Form */}
+                  {showNewLocationForm && (
+                    <div className="p-4 bg-base-200 rounded-lg">
+                      <h5 className="font-medium mb-3">Add New Location</h5>
+                      <div className="space-y-3">
+                        <div>
+                          <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            placeholder="Location name *"
+                            value={newLocationForm.name}
+                            onChange={(e) => setNewLocationForm(prev => ({ ...prev, name: e.target.value }))}
+                            required
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <select
+                            className="select select-bordered"
+                            value={newLocationForm.location_type}
+                            onChange={(e) => setNewLocationForm(prev => ({ ...prev, location_type: e.target.value }))}
+                          >
+                            {locationsService.getLocationTypes().map(type => (
+                              <option key={type.value} value={type.value}>
+                                {type.label}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="text"
+                            className="input input-bordered"
+                            placeholder="Address"
+                            value={newLocationForm.address}
+                            onChange={(e) => setNewLocationForm(prev => ({ ...prev, address: e.target.value }))}
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={handleSubmitNewLocation}
+                            disabled={createLocationMutation.isLoading}
+                            className="btn btn-sm btn-primary"
+                          >
+                            {createLocationMutation.isLoading ? (
+                              <div className="loading loading-spinner loading-sm"></div>
+                            ) : (
+                              'Add Location'
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowNewLocationForm(false);
+                              setNewLocationForm({
+                                name: '',
+                                location_type: 'field',
+                                address: '',
+                                city: '',
+                                state: ''
+                              });
+                            }}
+                            className="btn btn-sm btn-outline"
+                          >
+                              Cancel
                           </button>
                         </div>
                       </div>
-                    ))}
-                    {templateEvents.length === 0 && (
-                      <p className="text-center text-base-content/50 py-4">
-                        No events created yet
-                      </p>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  )}
 
-                {/* Add New Event Form */}
-                <div>
-                  <h4 className="font-semibold mb-3">Add New Event</h4>
-                  <form onSubmit={handleSubmitEvent} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="label">
-                        <span className="label-text">Event Title *</span>
+                        <span className="label-text">Start Time</span>
                       </label>
                       <input
-                        type="text"
+                        type="time"
                         className="input input-bordered w-full"
-                        value={eventForm.title}
-                        onChange={(e) => setEventForm(prev => ({ ...prev, title: e.target.value }))}
-                        required
+                        value={eventForm.start_time}
+                        onChange={(e) => setEventForm(prev => ({ ...prev, start_time: e.target.value }))}
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="label">
-                          <span className="label-text">Event Type</span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          value={eventForm.event_type}
-                          onChange={(e) => setEventForm(prev => ({ ...prev, event_type: e.target.value }))}
-                        >
-                          {scheduleEventsService.getEventTypes().map(type => (
-                            <option key={type.value} value={type.value}>
-                              {type.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="label">
-                          <span className="label-text">Priority</span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          value={eventForm.priority}
-                          onChange={(e) => setEventForm(prev => ({ ...prev, priority: e.target.value }))}
-                        >
-                          {scheduleEventsService.getPriorityLevels().map(level => (
-                            <option key={level.value} value={level.value}>
-                              {level.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Location Selection with Add New Option */}
                     <div>
                       <label className="label">
-                        <span className="label-text">Location</span>
+                        <span className="label-text">End Time</span>
                       </label>
-                      <div className="flex gap-2">
-                        <select
-                          className="select select-bordered flex-1"
-                          value={eventForm.location_id}
-                          onChange={(e) => {
-                            if (e.target.value === 'add_new') {
-                              setShowNewLocationForm(true)
-                            } else {
-                              setEventForm(prev => ({ ...prev, location_id: e.target.value }))
-                            }
-                          }}
-                        >
-                          <option value="">Select location (optional)</option>
-                          {locations.map(location => (
-                            <option key={location.id} value={location.id}>
-                              {location.name} ({location.location_type})
-                            </option>
-                          ))}
-                          <option value="add_new">+ Add New Location</option>
-                        </select>
-                      </div>
+                      <input
+                        type="time"
+                        className="input input-bordered w-full"
+                        value={eventForm.end_time}
+                        onChange={(e) => setEventForm(prev => ({ ...prev, end_time: e.target.value }))}
+                      />
                     </div>
+                  </div>
 
-                    {/* New Location Form */}
-                    {showNewLocationForm && (
-                      <div className="p-4 bg-base-200 rounded-lg">
-                        <h5 className="font-medium mb-3">Add New Location</h5>
-                        <div className="space-y-3">
-                          <div>
-                            <input
-                              type="text"
-                              className="input input-bordered w-full"
-                              placeholder="Location name *"
-                              value={newLocationForm.name}
-                              onChange={(e) => setNewLocationForm(prev => ({ ...prev, name: e.target.value }))}
-                              required
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <select
-                              className="select select-bordered"
-                              value={newLocationForm.location_type}
-                              onChange={(e) => setNewLocationForm(prev => ({ ...prev, location_type: e.target.value }))}
-                            >
-                              {locationsService.getLocationTypes().map(type => (
-                                <option key={type.value} value={type.value}>
-                                  {type.label}
-                                </option>
-                              ))}
-                            </select>
-                            <input
-                              type="text"
-                              className="input input-bordered"
-                              placeholder="Address"
-                              value={newLocationForm.address}
-                              onChange={(e) => setNewLocationForm(prev => ({ ...prev, address: e.target.value }))}
-                            />
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={handleSubmitNewLocation}
-                              disabled={createLocationMutation.isLoading}
-                              className="btn btn-sm btn-primary"
-                            >
-                              {createLocationMutation.isLoading ? (
-                                <div className="loading loading-spinner loading-sm"></div>
-                              ) : (
-                                'Add Location'
-                              )}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowNewLocationForm(false)
-                                setNewLocationForm({
-                                  name: '',
-                                  location_type: 'field',
-                                  address: '',
-                                  city: '',
-                                  state: ''
-                                })
-                              }}
-                              className="btn btn-sm btn-outline"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="label">
-                          <span className="label-text">Start Time</span>
-                        </label>
-                        <input
-                          type="time"
-                          className="input input-bordered w-full"
-                          value={eventForm.start_time}
-                          onChange={(e) => setEventForm(prev => ({ ...prev, start_time: e.target.value }))}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="label">
-                          <span className="label-text">End Time</span>
-                        </label>
-                        <input
-                          type="time"
-                          className="input input-bordered w-full"
-                          value={eventForm.end_time}
-                          onChange={(e) => setEventForm(prev => ({ ...prev, end_time: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Event Dates */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="label-text font-medium">Event Dates *</label>
-                        <button
-                          type="button"
-                          onClick={handleAddEventDate}
-                          className="btn btn-xs btn-outline"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
+                  {/* Event Dates */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="label-text font-medium">Event Dates *</label>
+                      <button
+                        type="button"
+                        onClick={handleAddEventDate}
+                        className="btn btn-xs btn-outline"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
                           Add Date
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        {eventForm.event_dates.map((dateEntry, index) => (
-                          <div key={index} className="flex gap-2">
-                            <input
-                              type="date"
-                              className="input input-bordered flex-1"
-                              value={dateEntry.event_date}
-                              onChange={(e) => handleEventDateChange(index, 'event_date', e.target.value)}
-                              required
-                            />
-                            <input
-                              type="text"
-                              className="input input-bordered flex-1"
-                              placeholder="Notes (optional)"
-                              value={dateEntry.notes}
-                              onChange={(e) => handleEventDateChange(index, 'notes', e.target.value)}
-                            />
-                            {eventForm.event_dates.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveEventDate(index)}
-                                className="btn btn-sm btn-outline btn-error"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                      </button>
                     </div>
-
-                    <div>
-                      <label className="label">
-                        <span className="label-text">Description</span>
-                      </label>
-                      <textarea
-                        className="textarea textarea-bordered w-full"
-                        rows="2"
-                        value={eventForm.description}
-                        onChange={(e) => setEventForm(prev => ({ ...prev, description: e.target.value }))}
-                      />
+                    <div className="space-y-2">
+                      {eventForm.event_dates.map((dateEntry, index) => (
+                        <div key={index} className="flex gap-2">
+                          <input
+                            type="date"
+                            className="input input-bordered flex-1"
+                            value={dateEntry.event_date}
+                            onChange={(e) => handleEventDateChange(index, 'event_date', e.target.value)}
+                            required
+                          />
+                          <input
+                            type="text"
+                            className="input input-bordered flex-1"
+                            placeholder="Notes (optional)"
+                            value={dateEntry.notes}
+                            onChange={(e) => handleEventDateChange(index, 'notes', e.target.value)}
+                          />
+                          {eventForm.event_dates.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveEventDate(index)}
+                              className="btn btn-sm btn-outline btn-error"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
+                  </div>
 
-                    <button
-                      type="submit"
-                      disabled={createEventMutation.isLoading}
-                      className="btn btn-primary w-full"
-                    >
-                      {createEventMutation.isLoading ? (
-                        <>
-                          <div className="loading loading-spinner loading-sm mr-2"></div>
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Description</span>
+                    </label>
+                    <textarea
+                      className="textarea textarea-bordered w-full"
+                      rows="2"
+                      value={eventForm.description}
+                      onChange={(e) => setEventForm(prev => ({ ...prev, description: e.target.value }))}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={createEventMutation.isLoading}
+                    className="btn btn-primary w-full"
+                  >
+                    {createEventMutation.isLoading ? (
+                      <>
+                        <div className="loading loading-spinner loading-sm mr-2"></div>
                           Creating Event...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="h-4 w-4 mr-2" />
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
                           Create Event
-                        </>
-                      )}
-                    </button>
-                  </form>
-                </div>
+                      </>
+                    )}
+                  </button>
+                </form>
               </div>
+            </div>
           </AccessibleModal.Content>
           <AccessibleModal.Footer>
             <button
               type="button"
               onClick={() => {
-                setShowEventModal(false)
-                setSelectedTemplate(null)
-                resetEventForm()
-                setShowNewLocationForm(false)
+                setShowEventModal(false);
+                setSelectedTemplate(null);
+                resetEventForm();
+                setShowNewLocationForm(false);
               }}
               className="btn btn-outline"
             >
@@ -1115,5 +1115,5 @@ export default function ScheduleTemplates({ onLoadTemplate }) {
         </AccessibleModal>
       </div>
     </div>
-  )
+  );
 }

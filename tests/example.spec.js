@@ -6,20 +6,20 @@ test.describe('Example Tests', () => {
   test('should load the application homepage', async ({ page }) => {
     // Navigate to the application
     await page.goto('/');
-    
+
     // Since the app has compilation issues, let's check what we can
     // First check if the static HTML loads (the title from index.html)
     try {
       await page.waitForLoadState('domcontentloaded');
-      
+
       // Check if we get the basic HTML structure
       const htmlContent = await page.content();
       expect(htmlContent).toContain('<title>The Program</title>');
       expect(htmlContent).toContain('<div id="root"></div>');
-      
+
       // If the app has compilation errors, we'll see the error page
       const hasCompilationError = await page.locator('text=Html Webpack Plugin').isVisible({ timeout: 3000 }).catch(() => false);
-      
+
       if (hasCompilationError) {
         console.log('⚠️  Application has compilation errors - test passes for static HTML structure');
       } else {
@@ -37,16 +37,16 @@ test.describe('Example Tests', () => {
   test('should navigate to login page', async ({ page }, testInfo) => {
     // Setup API mocks for better reliability
     await setupAllMocks(page);
-    
+
     // Navigate to login page
     await page.goto('/login');
-    
+
     // Check for compilation errors and skip if necessary
     await skipIfCompilationError(page, testInfo);
-    
+
     // Verify we're on the login page
     await expect(page).toHaveURL('/login');
-    
+
     // Check for login form elements (with fallback)
     try {
       await expect(page.getByRole('heading', { name: 'Sign in to your account' })).toBeVisible({ timeout: 5000 });
@@ -63,16 +63,16 @@ test.describe('Example Tests', () => {
   test('should navigate to registration page', async ({ page }, testInfo) => {
     // Setup API mocks
     await setupAllMocks(page);
-    
+
     // Navigate to registration page
     await page.goto('/register');
-    
+
     // Check for compilation errors and skip if necessary
     await skipIfCompilationError(page, testInfo);
-    
+
     // Verify we're on the registration page
     await expect(page).toHaveURL('/register');
-    
+
     // Check for registration form elements (with fallback)
     try {
       await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible({ timeout: 5000 });
@@ -92,11 +92,11 @@ test.describe('Example Tests', () => {
 
   test('should demonstrate form interaction', async ({ page }) => {
     await page.goto('/login');
-    
+
     // Fill in the login form
     await page.getByLabel('Email address').fill('test@example.com');
     await page.getByLabel('Password').fill('password123');
-    
+
     // Verify the form fields have the correct values
     await expect(page.getByLabel('Email address')).toHaveValue('test@example.com');
     await expect(page.getByLabel('Password')).toHaveValue('password123');
@@ -106,14 +106,14 @@ test.describe('Example Tests', () => {
     // Test desktop viewport
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
-    
+
     // Verify elements are visible on desktop
     await expect(page.getByText(/Collegiate Baseball Scouting Platform/)).toBeVisible();
-    
+
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    
+
     // Verify elements are still visible on mobile
     await expect(page.getByText(/Collegiate Baseball Scouting Platform/)).toBeVisible();
   });
@@ -138,15 +138,15 @@ test.describe('Example Tests', () => {
         })
       });
     });
-    
+
     await page.goto('/login');
-    
+
     // Fill and submit the form
     await page.getByLabel('Email address').fill('test@example.com');
     await page.getByLabel('Password').fill('password');
     await page.getByRole('button', { name: 'Sign in' }).click();
-    
+
     // Verify successful login (redirect to dashboard)
     await expect(page).toHaveURL('/');
   });
-}); 
+});

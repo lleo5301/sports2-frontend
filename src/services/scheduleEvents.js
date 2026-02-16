@@ -353,7 +353,3 @@ const scheduleEventsService = {
 };
 
 export default scheduleEventsService;
-
-
-
-

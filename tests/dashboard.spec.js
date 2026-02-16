@@ -7,7 +7,7 @@ test.describe('Dashboard', () => {
     await page.evaluate(() => {
       localStorage.setItem('token', 'mock-jwt-token');
     });
-    
+
     // Mock user profile response
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -37,10 +37,10 @@ test.describe('Dashboard', () => {
 
   test('should display dashboard after successful login', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check that we're on the dashboard
     await expect(page).toHaveURL('/');
-    
+
     // Check for main navigation elements
     await expect(page.getByText('The Shark Tank')).toBeVisible();
     await expect(page.getByText('Collegiate Baseball Scouting Platform')).toBeVisible();
@@ -48,14 +48,14 @@ test.describe('Dashboard', () => {
 
   test('should display user information', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check for user name display
     await expect(page.getByText('John Smith')).toBeVisible();
   });
 
   test('should have main navigation menu', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check for main navigation items
     await expect(page.getByRole('link', { name: /Conference Teams/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /Home Pref List/i })).toBeVisible();
@@ -66,7 +66,7 @@ test.describe('Dashboard', () => {
 
   test('should have player management section', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check for player management elements
     await expect(page.getByRole('link', { name: /Open AI/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /Create Player/i })).toBeVisible();
@@ -75,7 +75,7 @@ test.describe('Dashboard', () => {
 
   test('should have statistics sections', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check for statistics sections
     await expect(page.getByText(/Conference Standings/i)).toBeVisible();
     await expect(page.getByText(/Conference Leaders/i)).toBeVisible();
@@ -84,7 +84,7 @@ test.describe('Dashboard', () => {
 
   test('should have reports section', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check for reports section
     await expect(page.getByText(/New Reports/i)).toBeVisible();
     await expect(page.getByText(/Transfer Portal Updates/i)).toBeVisible();
@@ -92,7 +92,7 @@ test.describe('Dashboard', () => {
 
   test('should have daily coach report section', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check for daily coach report
     await expect(page.getByText(/Daily Coach's Report/i)).toBeVisible();
   });
@@ -101,7 +101,7 @@ test.describe('Dashboard', () => {
     // Clear token
     await page.goto('/');
     await page.evaluate(() => localStorage.removeItem('token'));
-    
+
     // Mock failed profile request
     await page.route('**/api/auth/me', async route => {
       await route.fulfill({
@@ -113,26 +113,26 @@ test.describe('Dashboard', () => {
         })
       });
     });
-    
+
     // Navigate to dashboard
     await page.goto('/');
-    
+
     // Should redirect to login
     await expect(page).toHaveURL('/login');
   });
 
   test('should handle logout', async ({ page }) => {
     await page.goto('/');
-    
+
     // Find and click logout button (assuming it exists in the UI)
     // This test will need to be updated based on actual logout UI implementation
     const logoutButton = page.getByRole('button', { name: /logout/i });
     if (await logoutButton.isVisible()) {
       await logoutButton.click();
-      
+
       // Should redirect to login
       await expect(page).toHaveURL('/login');
-      
+
       // Token should be cleared
       const token = await page.evaluate(() => localStorage.getItem('token'));
       expect(token).toBeNull();
@@ -143,9 +143,9 @@ test.describe('Dashboard', () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    
+
     // Check that main elements are still visible
     await expect(page.getByText('The Shark Tank')).toBeVisible();
     await expect(page.getByText('Collegiate Baseball Scouting Platform')).toBeVisible();
   });
-}); 
+});

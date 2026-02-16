@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
@@ -32,7 +32,7 @@ const PerformanceList = () => {
   const { data: performanceData, isLoading, error, refetch } = useQuery({
     queryKey: ['player-performance', queryFilters],
     queryFn: () => playersService.getPlayerPerformance(queryFilters),
-    staleTime: 30000,
+    staleTime: 30000
   });
 
   const players = performanceData?.data || [];
@@ -68,8 +68,8 @@ const PerformanceList = () => {
     if (filters.sort_by !== column) {
       return <ChevronUp className="w-4 h-4 text-gray-400" />;
     }
-    return filters.order === 'DESC' ? 
-      <ChevronDown className="w-4 h-4 text-blue-600" /> : 
+    return filters.order === 'DESC' ?
+      <ChevronDown className="w-4 h-4 text-blue-600" /> :
       <ChevronUp className="w-4 h-4 text-blue-600" />;
   };
 
@@ -395,7 +395,7 @@ const PerformanceList = () => {
                         </div>
                       </td>
                       <td>
-                        <button 
+                        <button
                           className="btn btn-ghost btn-xs"
                           onClick={() => handleViewPlayer(player.id)}
                         >
@@ -407,7 +407,7 @@ const PerformanceList = () => {
                   ))}
                 </tbody>
               </table>
-              
+
               {viewPlayers.length === 0 && (
                 <div className="text-center py-12 text-base-content/70">
                   <Trophy className="w-16 h-16 mx-auto mb-4 text-base-content/30" />

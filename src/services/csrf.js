@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 
 /**
  * @fileoverview CSRF token management service for handling Cross-Site Request Forgery protection.
@@ -18,21 +18,21 @@ import axios from 'axios'
  * In-memory cache for the CSRF token
  * @type {string|null}
  */
-let cachedToken = null
+let cachedToken = null;
 
 /**
  * Promise to track ongoing token fetch requests
  * Prevents duplicate concurrent requests to the CSRF endpoint
  * @type {Promise<string>|null}
  */
-let tokenFetchPromise = null
+let tokenFetchPromise = null;
 
 /**
  * Timestamp of when the token was last fetched
  * Used for cache invalidation and refresh logic
  * @type {number|null}
  */
-let tokenFetchedAt = null
+let tokenFetchedAt = null;
 
 /**
  * Token cache duration in milliseconds
@@ -40,7 +40,7 @@ let tokenFetchedAt = null
  * Default: 30 minutes (configurable via environment variable)
  * @type {number}
  */
-const TOKEN_CACHE_DURATION = parseInt(import.meta.env.VITE_CSRF_TOKEN_CACHE_DURATION) || 30 * 60 * 1000
+const TOKEN_CACHE_DURATION = parseInt(import.meta.env.VITE_CSRF_TOKEN_CACHE_DURATION) || 30 * 60 * 1000;
 
 /**
  * Get the currently cached CSRF token
@@ -55,8 +55,8 @@ const TOKEN_CACHE_DURATION = parseInt(import.meta.env.VITE_CSRF_TOKEN_CACHE_DURA
  * }
  */
 export const getCsrfToken = () => {
-  return cachedToken
-}
+  return cachedToken;
+};
 
 /**
  * Set the CSRF token in the cache
@@ -69,9 +69,9 @@ export const getCsrfToken = () => {
  * // Token is now cached and will be used in subsequent requests
  */
 export const setCsrfToken = (token) => {
-  cachedToken = token
-  tokenFetchedAt = token ? Date.now() : null
-}
+  cachedToken = token;
+  tokenFetchedAt = token ? Date.now() : null;
+};
 
 /**
  * Check if the cached CSRF token is expired based on cache duration
@@ -85,12 +85,12 @@ export const setCsrfToken = (token) => {
  */
 export const isTokenExpired = () => {
   if (!cachedToken || !tokenFetchedAt) {
-    return true
+    return true;
   }
 
-  const elapsed = Date.now() - tokenFetchedAt
-  return elapsed > TOKEN_CACHE_DURATION
-}
+  const elapsed = Date.now() - tokenFetchedAt;
+  return elapsed > TOKEN_CACHE_DURATION;
+};
 
 /**
  * Fetch a new CSRF token from the backend API
@@ -113,7 +113,7 @@ export const fetchCsrfToken = async () => {
   // If a fetch is already in progress, return that promise
   // This prevents duplicate requests when multiple components call this simultaneously
   if (tokenFetchPromise) {
-    return tokenFetchPromise
+    return tokenFetchPromise;
   }
 
   // Create a new fetch promise
@@ -124,32 +124,32 @@ export const fetchCsrfToken = async () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL || '/api/v1'}/auth/csrf-token`,
         {
-          withCredentials: true,
+          withCredentials: true
         }
-      )
+      );
 
-      const token = response.data.token
+      const token = response.data.token;
 
       if (!token) {
-        throw new Error('CSRF token not found in response')
+        throw new Error('CSRF token not found in response');
       }
 
       // Cache the token and update timestamp
-      setCsrfToken(token)
+      setCsrfToken(token);
 
-      return token
+      return token;
     } catch (error) {
       // Clear the cache on error to ensure retry on next request
-      setCsrfToken(null)
-      throw error
+      setCsrfToken(null);
+      throw error;
     } finally {
       // Clear the promise tracker once the request completes
-      tokenFetchPromise = null
+      tokenFetchPromise = null;
     }
-  })()
+  })();
 
-  return tokenFetchPromise
-}
+  return tokenFetchPromise;
+};
 
 /**
  * Refresh the CSRF token by fetching a new one from the backend
@@ -165,8 +165,8 @@ export const fetchCsrfToken = async () => {
  * }
  */
 export const refreshCsrfToken = async () => {
-  return fetchCsrfToken()
-}
+  return fetchCsrfToken();
+};
 
 /**
  * Ensure a valid CSRF token is available, fetching one if necessary
@@ -183,12 +183,12 @@ export const refreshCsrfToken = async () => {
 export const ensureCsrfToken = async () => {
   // If we have a valid cached token that hasn't expired, return it
   if (cachedToken && !isTokenExpired()) {
-    return cachedToken
+    return cachedToken;
   }
 
   // Otherwise, fetch a new token
-  return fetchCsrfToken()
-}
+  return fetchCsrfToken();
+};
 
 /**
  * Clear the cached CSRF token
@@ -200,8 +200,8 @@ export const ensureCsrfToken = async () => {
  * await logoutUser()
  */
 export const clearCsrfToken = () => {
-  setCsrfToken(null)
-}
+  setCsrfToken(null);
+};
 
 /**
  * Initialize CSRF protection by fetching an initial token
@@ -217,14 +217,14 @@ export const clearCsrfToken = () => {
  */
 export const initializeCsrf = async () => {
   try {
-    return await fetchCsrfToken()
+    return await fetchCsrfToken();
   } catch (error) {
     // Silently fail during initialization
     // The token will be fetched lazily when needed
-    console.warn('Failed to initialize CSRF token:', error.message)
-    return null
+    // console.warn('Failed to initialize CSRF token:', error.message);
+    return null;
   }
-}
+};
 
 /**
  * CSRF service object with all token management functions
@@ -242,7 +242,7 @@ const csrfService = {
   ensureCsrfToken,
   isTokenExpired,
   clearCsrfToken,
-  initializeCsrf,
-}
+  initializeCsrf
+};
 
-export default csrfService
+export default csrfService;

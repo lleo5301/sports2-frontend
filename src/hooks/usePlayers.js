@@ -10,7 +10,7 @@ export const playersKeys = {
   lists: () => [...playersKeys.all, 'list'],
   list: (filters) => [...playersKeys.lists(), filters],
   details: () => [...playersKeys.all, 'detail'],
-  detail: (id) => [...playersKeys.details(), id],
+  detail: (id) => [...playersKeys.details(), id]
 };
 
 /**

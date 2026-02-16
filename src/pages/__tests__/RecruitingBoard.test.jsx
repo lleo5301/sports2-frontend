@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
@@ -23,9 +22,9 @@ vi.mock('react-hot-toast', () => ({
 const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
-    },
-  },
+      retry: false
+    }
+  }
 });
 
 const TestWrapper = ({ children }) => {
@@ -46,7 +45,7 @@ describe('RecruitingBoard', () => {
 
   test('renders recruiting board header', async () => {
     const mockApi = await import('../../services/api');
-    
+
     // Mock API responses
     mockApi.default.get
       .mockResolvedValueOnce({
@@ -76,7 +75,7 @@ describe('RecruitingBoard', () => {
 
   test('handles empty recruits data without errors', async () => {
     const mockApi = await import('../../services/api');
-    
+
     // Mock empty responses
     mockApi.default.get
       .mockResolvedValueOnce({
@@ -120,7 +119,7 @@ describe('RecruitingBoard', () => {
 
   test('handles malformed preference lists data without throwing errors', async () => {
     const mockApi = await import('../../services/api');
-    
+
     // Mock responses where preference lists return unexpected format
     mockApi.default.get
       .mockResolvedValueOnce({
@@ -159,7 +158,7 @@ describe('RecruitingBoard', () => {
 
   test('handles preference lists data in different formats', async () => {
     const mockApi = await import('../../services/api');
-    
+
     // Mock responses with preference lists data
     mockApi.default.get
       .mockResolvedValueOnce({

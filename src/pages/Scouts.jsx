@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Target, Plus, Search, Filter, Phone, Mail, Building2, UserCheck, Edit, Trash2, Eye, MapPin, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -82,7 +82,7 @@ const Scouts = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Create scout error:', error);
+      // console.error('Create scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to add scout');
     }
   });
@@ -98,7 +98,7 @@ const Scouts = () => {
       resetForm();
     },
     onError: (error) => {
-      console.error('Update scout error:', error);
+      // console.error('Update scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to update scout');
     }
   });
@@ -111,7 +111,7 @@ const Scouts = () => {
       toast.success('Scout deleted successfully');
     },
     onError: (error) => {
-      console.error('Delete scout error:', error);
+      // console.error('Delete scout error:', error);
       toast.error(error.response?.data?.error || 'Failed to delete scout');
     }
   });
@@ -180,8 +180,8 @@ const Scouts = () => {
       <div className="p-6">
         <div className="text-center py-12">
           <p className="text-red-600">Error loading scouts: {error.message}</p>
-          <button 
-            onClick={() => refetch()} 
+          <button
+            onClick={() => refetch()}
             className="btn btn-primary mt-4"
           >
             Try Again
@@ -204,7 +204,7 @@ const Scouts = () => {
             </p>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => setShowCreateModal(true)}
           className="btn btn-primary"
         >
@@ -278,7 +278,7 @@ const Scouts = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <select 
+              <select
                 className="select select-bordered"
                 value={filters.position}
                 onChange={(e) => handleFilterChange('position', e.target.value)}
@@ -288,7 +288,7 @@ const Scouts = () => {
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
-              <select 
+              <select
                 className="select select-bordered"
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -314,12 +314,12 @@ const Scouts = () => {
               <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Scouts Found</h3>
               <p className="text-gray-500 mb-4">
-                {filters.search || filters.position 
+                {filters.search || filters.position
                   ? 'No scouts match your current filters.'
                   : 'Get started by adding your first scout contact.'
                 }
               </p>
-              <button 
+              <button
                 onClick={() => setShowCreateModal(true)}
                 className="btn btn-primary"
               >
@@ -393,22 +393,22 @@ const Scouts = () => {
                       </td>
                       <td>
                         <div className="text-sm">
-                          {scout.last_contact_date ? 
-                            new Date(scout.last_contact_date).toLocaleDateString() : 
+                          {scout.last_contact_date ?
+                            new Date(scout.last_contact_date).toLocaleDateString() :
                             'Never'
                           }
                         </div>
                       </td>
                       <td>
                         <div className="flex gap-2">
-                          <button 
+                          <button
                             onClick={() => handleEdit(scout)}
                             className="btn btn-sm btn-ghost"
                             title="Edit Scout"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(scout)}
                             className="btn btn-sm btn-ghost text-red-600"
                             title="Delete Scout"

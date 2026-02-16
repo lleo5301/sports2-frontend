@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { Plus, User, Search, X, Users } from 'lucide-react';
 import api from '../services/api';
 
-const MultiPlayerSelector = ({ 
-  selectedPlayerIds = [], 
-  onPlayersChange, 
-  players = [], 
-  label = "Player Selection",
+const MultiPlayerSelector = ({
+  selectedPlayerIds = [],
+  onPlayersChange,
+  players = [],
+  label = 'Player Selection',
   allowCreate = true,
   positionFilter = '',
   onPositionFilterChange
@@ -31,10 +31,10 @@ const MultiPlayerSelector = ({
     const position = player.position?.toLowerCase() || '';
     const school = player.school?.toLowerCase() || '';
     const search = searchTerm.toLowerCase();
-    
+
     const matchesSearch = !searchTerm || fullName.includes(search) || position.includes(search) || school.includes(search);
     const matchesPosition = !positionFilter || player.position === positionFilter;
-    
+
     return matchesSearch && matchesPosition;
   });
 
@@ -49,11 +49,11 @@ const MultiPlayerSelector = ({
       queryClient.invalidateQueries(['players']);
       queryClient.invalidateQueries(['players-for-performance']);
       queryClient.invalidateQueries(['players-for-statistics']);
-      
+
       // Add the newly created player to selection
       const newPlayerId = data.data.id.toString();
       onPlayersChange([...selectedPlayerIds, newPlayerId]);
-      
+
       // Reset form and close
       setNewPlayerData({
         first_name: '',
@@ -73,7 +73,7 @@ const MultiPlayerSelector = ({
 
   const handleCreatePlayer = (e) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!newPlayerData.first_name.trim() || !newPlayerData.last_name.trim()) {
       toast.error('First name and last name are required');
@@ -136,7 +136,7 @@ const MultiPlayerSelector = ({
                 <option value="DH">Designated Hitter</option>
               </select>
             </div>
-            
+
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Selected Players</span>
@@ -210,11 +210,11 @@ const MultiPlayerSelector = ({
                     </div>
                   </label>
                 ))}
-                
+
                 {/* No players found / Create new option */}
                 {filteredPlayers.length === 0 && searchTerm && (
                   <div className="col-span-2 p-4 text-center text-base-content/70">
-                    <div className="mb-2">No players found matching "{searchTerm}"</div>
+                    <div className="mb-2">No players found matching &quot;{searchTerm}&quot;</div>
                     {allowCreate && (
                       <button
                         type="button"
@@ -237,7 +237,7 @@ const MultiPlayerSelector = ({
                         className="btn btn-sm btn-primary"
                       >
                         <Plus className="w-4 h-4 mr-1" />
-                        Create "{searchTerm}"
+                        Create &quot;{searchTerm}&quot;
                       </button>
                     )}
                   </div>
@@ -420,6 +420,3 @@ const MultiPlayerSelector = ({
 };
 
 export default MultiPlayerSelector;
-
-
-

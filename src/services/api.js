@@ -17,9 +17,9 @@
  * @requires react-hot-toast
  */
 
-import axios from 'axios'
-import toast from 'react-hot-toast'
-import csrfService from './csrf'
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import csrfService from './csrf';
 
 /**
  * Configured axios instance for API requests
@@ -46,10 +46,10 @@ import csrfService from './csrf'
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api/v1',
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   },
-  withCredentials: true, // Enable sending cookies with requests
-})
+  withCredentials: true // Enable sending cookies with requests
+});
 
 /**
  * Request interceptor to inject JWT authentication token
@@ -73,27 +73,27 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     // Add CSRF token for state-changing requests (POST, PUT, PATCH, DELETE)
-    const requiresCsrf = ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())
+    const requiresCsrf = ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase());
 
     if (requiresCsrf) {
       // Ensure we have a valid CSRF token before making state-changing requests
       try {
-        const token = await csrfService.ensureCsrfToken()
+        const token = await csrfService.ensureCsrfToken();
         if (token) {
-          config.headers['X-CSRF-Token'] = token
+          config.headers['X-CSRF-Token'] = token;
         }
       } catch (error) {
-        console.warn('Failed to fetch CSRF token:', error.message)
+        // console.warn('Failed to fetch CSRF token:', error.message);
         // Continue with request - server will reject if CSRF is required
       }
     }
 
-    return config
+    return config;
   },
   (error) => {
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
 /**
  * Response interceptor for centralized error handling
@@ -129,36 +129,36 @@ api.interceptors.request.use(
  */
 api.interceptors.response.use(
   (response) => {
-    return response
+    return response;
   },
   async (error) => {
-    const message = error.response?.data?.error || 'An error occurred'
+    const message = error.response?.data?.error || 'An error occurred';
 
     // Handle authentication errors
     if (error.response?.status === 401) {
-      const basePath = import.meta.env.VITE_BASE_PATH || ''
-      const currentPath = window.location.pathname
-      const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register')
-      const isAuthMeRequest = error.config?.url?.includes('/auth/me')
+      const basePath = import.meta.env.VITE_BASE_PATH || '';
+      const currentPath = window.location.pathname;
+      const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register');
+      const isAuthMeRequest = error.config?.url?.includes('/auth/me');
 
       // Don't redirect if already on login/register page or if this is just an auth check
       if (!isAuthPage && !isAuthMeRequest) {
         // Session expired or invalid - redirect to login
-        window.location.href = `${basePath}/login`
+        window.location.href = `${basePath}/login`;
 
         // Show specific message for revoked tokens
         if (message.includes('Token has been revoked')) {
-          toast.error('Your session has been revoked. Please log in again.')
+          toast.error('Your session has been revoked. Please log in again.');
         } else {
-          toast.error('Session expired. Please log in again.')
+          toast.error('Session expired. Please log in again.');
         }
       }
     } else {
-      toast.error(message)
+      toast.error(message);
     }
 
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default api 
+export default api;

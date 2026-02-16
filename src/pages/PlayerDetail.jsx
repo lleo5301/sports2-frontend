@@ -1,37 +1,37 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User, BarChart3, Users, Plus } from 'lucide-react'
-import api from '../services/api'
-import toast from 'react-hot-toast'
-import AccessibleModal from '../components/ui/AccessibleModal'
+import { ArrowLeft, Edit, Trash2, Phone, Mail, MapPin, Calendar, GraduationCap, Target, FileText, Star, TrendingUp, AlertTriangle, User, BarChart3, Users, Plus } from 'lucide-react';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import AccessibleModal from '../components/ui/AccessibleModal';
 
 export default function PlayerDetail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Fetch player details
   const { data: player, isLoading, error } = useQuery({
     queryKey: ['player', id],
     queryFn: () => api.get(`/players/byId/${id}`),
     enabled: !!id
-  })
+  });
 
   // Delete player mutation
   const deletePlayerMutation = useMutation({
     mutationFn: () => api.delete(`/players/byId/${id}`),
     onSuccess: () => {
-      toast.success('Player deleted successfully')
-      navigate('/players')
+      toast.success('Player deleted successfully');
+      navigate('/players');
     },
     onError: () => {
-      toast.error('Failed to delete player')
+      toast.error('Failed to delete player');
     }
-  })
+  });
 
-  const playerData = player?.data?.data
+  const playerData = player?.data?.data;
 
   if (isLoading) {
     return (
@@ -42,7 +42,7 @@ export default function PlayerDetail() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !playerData) {
@@ -62,12 +62,12 @@ export default function PlayerDetail() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   const handleDelete = () => {
-    deletePlayerMutation.mutate()
-  }
+    deletePlayerMutation.mutate();
+  };
 
   return (
     <div className="p-8">
@@ -264,10 +264,10 @@ export default function PlayerDetail() {
                   <span className="text-base-content/70">Status:</span>
                   <div className={`badge ${
                     !playerData.status ? 'badge-neutral' :
-                    playerData.status === 'active' ? 'badge-success' :
-                    playerData.status === 'inactive' ? 'badge-neutral' :
-                    playerData.status === 'graduated' ? 'badge-info' :
-                    'badge-warning'
+                      playerData.status === 'active' ? 'badge-success' :
+                        playerData.status === 'inactive' ? 'badge-neutral' :
+                          playerData.status === 'graduated' ? 'badge-info' :
+                            'badge-warning'
                   }`}>
                     {playerData.status ? playerData.status.charAt(0).toUpperCase() + playerData.status.slice(1) : 'Unknown'}
                   </div>
@@ -390,7 +390,7 @@ export default function PlayerDetail() {
             <p className="text-base-content/70 mb-6">
               Create detailed reports and analysis for {playerData.first_name} {playerData.last_name}
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Performance Report */}
               <div className="card bg-base-200">
@@ -479,8 +479,8 @@ export default function PlayerDetail() {
           <div className="card mb-8">
             <div className="card-body">
               <h2 className="card-title">Player Video</h2>
-              <video 
-                controls 
+              <video
+                controls
                 className="w-full max-w-2xl h-auto bg-black rounded-lg"
                 src={`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}${playerData.video_url}`}
               >
@@ -557,5 +557,5 @@ export default function PlayerDetail() {
         </AccessibleModal>
       </div>
     </div>
-  )
-} 
+  );
+}

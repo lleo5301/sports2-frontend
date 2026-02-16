@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const ThemeContext = createContext();
 
@@ -17,6 +17,7 @@ const getMappedTheme = (mode) => {
   return mode;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
@@ -105,8 +106,7 @@ export const ThemeProvider = ({ children }) => {
     const actualTheme = getMappedTheme(newMode);
     setTheme(actualTheme);
     localStorage.setItem('theme', actualTheme);
-    applyTheme(actualTheme);
-  }, [applyTheme]);
+  }, []);
 
   // Legacy changeTheme for backward compatibility
   const changeTheme = useCallback((newTheme) => {
@@ -119,9 +119,8 @@ export const ThemeProvider = ({ children }) => {
       setThemeMode(newTheme); // Store the specific theme as the mode
       localStorage.setItem('theme', newTheme);
       localStorage.setItem('themeMode', newTheme);
-      applyTheme(newTheme);
     }
-  }, [changeThemeMode, applyTheme]);
+  }, [changeThemeMode]);
 
   // Listen for system preference changes
   useEffect(() => {
@@ -132,18 +131,17 @@ export const ThemeProvider = ({ children }) => {
         const newTheme = e.matches ? 'dark' : 'light';
         setTheme(newTheme);
         localStorage.setItem('theme', newTheme);
-        applyTheme(newTheme);
       }
     };
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [themeMode, applyTheme]);
+  }, [themeMode]);
 
-  // Set initial theme on mount
+  // Apply theme whenever it changes
   useEffect(() => {
     applyTheme(theme);
-  }, []);
+  }, [theme, applyTheme]);
 
   const value = {
     theme,
@@ -151,7 +149,7 @@ export const ThemeProvider = ({ children }) => {
     changeTheme,
     changeThemeMode,
     THEME_MODES,
-    isDarkMode: ['dark', 'night', 'black', 'dracula', 'synthwave', 'halloween', 'forest', 'luxury', 'coffee'].includes(theme),
+    isDarkMode: ['dark', 'night', 'black', 'dracula', 'synthwave', 'halloween', 'forest', 'luxury', 'coffee'].includes(theme)
   };
 
   return (
@@ -159,4 +157,4 @@ export const ThemeProvider = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-}; 
+};

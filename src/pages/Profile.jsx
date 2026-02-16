@@ -1,4 +1,3 @@
-import React from 'react';
 
 const Profile = () => {
   return (
@@ -119,4 +118,4 @@ Experienced baseball scout with over 10 years in collegiate recruiting. Speciali
   );
 };
 
-export default Profile; 
+export default Profile;

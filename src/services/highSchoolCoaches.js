@@ -21,7 +21,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * High school coach management service object containing all high school coach-related API methods
@@ -76,8 +76,8 @@ const highSchoolCoachService = {
       return acc;
     }, {});
 
-    const response = await api.get('/high-school-coaches', { params: filteredParams })
-    return response.data
+    const response = await api.get('/high-school-coaches', { params: filteredParams });
+    return response.data;
   },
 
   /**
@@ -107,8 +107,8 @@ const highSchoolCoachService = {
    * console.log('School:', coach.school);
    */
   getHighSchoolCoach: async (id) => {
-    const response = await api.get(`/high-school-coaches/${id}`)
-    return response.data
+    const response = await api.get(`/high-school-coaches/${id}`);
+    return response.data;
   },
 
   /**
@@ -159,8 +159,8 @@ const highSchoolCoachService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/high-school-coaches', filteredData)
-    return response.data
+    const response = await api.post('/high-school-coaches', filteredData);
+    return response.data;
   },
 
   /**
@@ -207,8 +207,8 @@ const highSchoolCoachService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/high-school-coaches/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/high-school-coaches/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -229,9 +229,9 @@ const highSchoolCoachService = {
    * console.log(result.message); // "High school coach deleted successfully"
    */
   deleteHighSchoolCoach: async (id) => {
-    const response = await api.delete(`/high-school-coaches/${id}`)
-    return response.data
+    const response = await api.delete(`/high-school-coaches/${id}`);
+    return response.data;
   }
-}
+};
 
-export default highSchoolCoachService
+export default highSchoolCoachService;

@@ -18,9 +18,9 @@ async function stubAuth(page) {
           first_name: 'Coach',
           last_name: 'Smith',
           role: 'head_coach',
-          team_id: 1,
-        },
-      }),
+          team_id: 1
+        }
+      })
     });
   });
 
@@ -37,9 +37,9 @@ async function stubAuth(page) {
           'depth_chart_delete',
           'depth_chart_manage_positions',
           'player_assign',
-          'player_unassign',
-        ],
-      }),
+          'player_unassign'
+        ]
+      })
     });
   });
 }
@@ -49,7 +49,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
   test.skip(({ browserName }) => browserName !== 'chromium');
   test.beforeEach(async ({ page }) => {
     await stubAuth(page);
-    
+
     // Mock depth charts API
     await page.route('**/api/depth-charts', async (route) => {
       await route.fulfill({
@@ -219,10 +219,10 @@ test.describe('Depth Chart Baseball Field Views', () => {
               }
             ]
           }]
-        }),
+        })
       });
     });
-    
+
     // Mock individual depth chart API
     await page.route('**/api/depth-charts/byId/1', async (route) => {
       await route.fulfill({
@@ -392,7 +392,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
               }
             ]
           }
-        }),
+        })
       });
     });
 
@@ -437,7 +437,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
     // Test player positions are visible and not overlapping
     const playerBubbles = page.locator('circle[r="28"]'); // Player circles with radius 28
     const playerCount = await playerBubbles.count();
-    
+
     if (playerCount > 0) {
       // Check that player names are readable (not empty)
       const playerTexts = page.locator('svg text').filter({ hasText: /\w+/ }); // Text with at least one word character
@@ -453,7 +453,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
     const svgBox = await svg.boundingBox();
     expect(svgBox.width).toBeGreaterThan(500); // Reasonable minimum width
     expect(svgBox.height).toBeGreaterThan(400); // Reasonable minimum height
-    
+
     // Width should be greater than height for a baseball field
     expect(svgBox.width).toBeGreaterThan(svgBox.height * 0.8);
   });
@@ -485,17 +485,17 @@ test.describe('Depth Chart Baseball Field Views', () => {
     ];
 
     for (const element of fieldElementTests) {
-      await expect(page.locator(`[data-testid="${element.testId}"]`), 
+      await expect(page.locator(`[data-testid="${element.testId}"]`),
         `${element.description} should be visible`).toBeVisible();
     }
 
     // Test all position boxes are present and positioned correctly
     const positions = ['LF', 'CF', 'RF', 'SS', '2B', '3B', '1B', 'C', 'RP'];
-    
+
     for (const position of positions) {
       const positionBox = page.locator(`[data-testid="position-box-${position}"]`);
       await expect(positionBox, `${position} position box should be visible`).toBeVisible();
-      
+
       // Check box content is readable
       const boxText = positionBox.locator('text, span, div').filter({ hasText: /\w+/ });
       await expect(boxText.first(), `${position} box should contain readable text`).toBeVisible();
@@ -504,22 +504,22 @@ test.describe('Depth Chart Baseball Field Views', () => {
     // Test no overlapping position boxes
     const allBoxes = page.locator('[data-testid^="position-box-"]');
     const boxCount = await allBoxes.count();
-    
+
     if (boxCount > 1) {
       const boxPositions = [];
-      
+
       for (let i = 0; i < boxCount; i++) {
         const box = allBoxes.nth(i);
         const boundingBox = await box.boundingBox();
         boxPositions.push(boundingBox);
       }
-      
+
       // Check for overlaps
       for (let i = 0; i < boxPositions.length; i++) {
         for (let j = i + 1; j < boxPositions.length; j++) {
           const box1 = boxPositions[i];
           const box2 = boxPositions[j];
-          
+
           // Check if boxes overlap (with small tolerance for borders)
           const tolerance = 5;
           const noOverlap = (
@@ -528,7 +528,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
             box1.y + box1.height < box2.y + tolerance ||
             box2.y + box2.height < box1.y + tolerance
           );
-          
+
           expect(noOverlap, `Position boxes ${i} and ${j} should not overlap`).toBe(true);
         }
       }
@@ -537,7 +537,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
     // Test player name readability
     const playerElements = page.locator('[data-testid^="player-"]');
     const playerCount = await playerElements.count();
-    
+
     if (playerCount > 0) {
       // Check first few players have readable names
       for (let i = 0; i < Math.min(3, playerCount); i++) {
@@ -577,7 +577,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
     // Test that the sheet has appropriate size (letter/A4-like)
     const sheetContainer = page.locator('.max-w-\\[980px\\]').first();
     await expect(sheetContainer).toBeVisible();
-    
+
     const containerBox = await sheetContainer.boundingBox();
     expect(containerBox.width).toBeGreaterThan(700); // Reasonable letter width
     expect(containerBox.height).toBeGreaterThan(900); // Reasonable letter height
@@ -639,7 +639,7 @@ test.describe('Depth Chart Baseball Field Views', () => {
 
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
-      
+
       // Test Pro View at this size
       await page.click('button:has-text("Pro View")');
       // Wait for enhanced field SVG to render

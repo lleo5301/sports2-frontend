@@ -28,17 +28,17 @@ test.describe('Navigation & Authentication Flow', () => {
         try {
           // Navigate to route
           await page.goto(route.path);
-          
+
           // Use smart wait for better reliability
           const waitResult = await smartWait(page, {
             waitForSelector: route.selector,
             timeout: 10000
           });
-          
+
           if (waitResult.success) {
             // Verify URL
             await expect(page).toHaveURL(new RegExp(route.path.replace('/', '\\/')));
-            
+
             // Verify page content loaded
             await expect(page.locator(route.selector)).toBeVisible({ timeout: 5000 });
           } else {
@@ -61,14 +61,14 @@ test.describe('Navigation & Authentication Flow', () => {
       try {
         // Test 404 handling
         await page.goto('/non-existent-page');
-        
+
         const waitResult = await smartWait(page, { timeout: 5000 });
-        
+
         // Should either show 404 page or redirect to home/login
         const currentUrl = page.url();
         const validUrls = ['/login', '/', '/not-found', '/404'];
         const isValidRedirect = validUrls.some(url => currentUrl.includes(url));
-        
+
         expect(isValidRedirect).toBe(true);
       } catch (error) {
         // Fallback: just verify we don't get a browser error
@@ -87,12 +87,12 @@ test.describe('Navigation & Authentication Flow', () => {
       for (const route of protectedRoutes) {
         try {
           await page.goto(route);
-          
+
           // Wait for potential redirect
           await page.waitForTimeout(2000);
-          
+
           const currentUrl = page.url();
-          
+
           // Should be redirected to login or stay on current page if no auth implemented yet
           if (currentUrl.includes('/login')) {
             expect(currentUrl).toContain('/login');
@@ -114,16 +114,16 @@ test.describe('Navigation & Authentication Flow', () => {
 
       // Setup authenticated user
       await setupAuthenticatedUser(page);
-      
+
       try {
         // Try to access dashboard
         await page.goto('/dashboard');
-        
+
         const waitResult = await smartWait(page, {
           waitForSelector: 'main, .dashboard, #root',
           timeout: 10000
         });
-        
+
         if (waitResult.success) {
           // Should stay on dashboard or show dashboard content
           expect(page.url()).toContain('/dashboard');
@@ -153,17 +153,17 @@ test.describe('Navigation & Authentication Flow', () => {
           // Fill and submit login form
           await page.fill('input[type="email"]', 'test@example.com');
           await page.fill('input[type="password"]', 'password123');
-          
+
           // Submit form
           await page.click('button[type="submit"]');
-          
+
           // Wait for navigation or response
           await page.waitForTimeout(2000);
-          
+
           // Should either redirect or show response
           const currentUrl = page.url();
           const hasNavigated = !currentUrl.includes('/login') || currentUrl.includes('/dashboard');
-          
+
           if (hasNavigated) {
             expect(currentUrl).not.toContain('/login');
           } else {
@@ -189,20 +189,20 @@ test.describe('Navigation & Authentication Flow', () => {
 
       // Setup authenticated user
       await setupAuthenticatedUser(page);
-      
+
       try {
         // Go to a page that might have logout functionality
         await page.goto('/dashboard');
-        
+
         // Look for logout button/link
         const logoutSelectors = [
-          'button:has-text("Logout")', 
+          'button:has-text("Logout")',
           'a:has-text("Logout")',
           'button:has-text("Sign out")',
           'a:has-text("Sign out")',
           '[data-testid="logout"]'
         ];
-        
+
         let logoutFound = false;
         for (const selector of logoutSelectors) {
           const logoutButton = await page.locator(selector).first();
@@ -212,18 +212,18 @@ test.describe('Navigation & Authentication Flow', () => {
             break;
           }
         }
-        
+
         if (logoutFound) {
           // Wait for logout action
           await page.waitForTimeout(2000);
-          
+
           // Should be redirected to login or home
           const currentUrl = page.url();
           const validLogoutUrls = ['/login', '/'];
           const isValidLogout = validLogoutUrls.some(url => currentUrl.includes(url));
-          
+
           expect(isValidLogout).toBe(true);
-          
+
           // Token should be removed
           const hasToken = await page.evaluate(() => !!localStorage.getItem('token'));
           expect(hasToken).toBe(false);
@@ -234,7 +234,7 @@ test.describe('Navigation & Authentication Flow', () => {
             localStorage.removeItem('token');
             window.location.href = '/login';
           });
-          
+
           await page.waitForTimeout(1000);
           expect(page.url()).toContain('/login');
         }
@@ -255,19 +255,19 @@ test.describe('Navigation & Authentication Flow', () => {
 
       try {
         const formResult = await waitForFormReady(page, 'form');
-        
+
         if (formResult.success) {
           // Test empty form submission
           const submitButton = page.locator('button[type="submit"]').first();
           if (await submitButton.isVisible({ timeout: 2000 })) {
             await submitButton.click();
-            
+
             // Should show validation errors or prevent submission
             await page.waitForTimeout(1000);
-            
+
             // Look for validation messages
             const hasValidation = await page.locator('.error, .invalid, [role="alert"]').isVisible({ timeout: 2000 });
-            
+
             if (hasValidation) {
               expect(hasValidation).toBe(true);
             } else {

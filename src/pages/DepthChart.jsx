@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
-import { toast } from 'react-hot-toast'
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import {
   Users,
   Eye,
@@ -36,14 +36,14 @@ import {
   Archive,
   RefreshCw,
   CheckCircle
-} from 'lucide-react'
-import api from '../services/api'
-import { useAuth } from '../contexts/AuthContext'
-import DepthChartPositionManager from '../components/DepthChartPositionManager'
-import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView'
-import DepthChartSheetView from '../components/DepthChartSheetView'
-import DepthChartSheetViewV2 from '../components/DepthChartSheetViewV2'
-import AccessibleModal from '../components/ui/AccessibleModal'
+} from 'lucide-react';
+import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import DepthChartPositionManager from '../components/DepthChartPositionManager';
+import EnhancedBaseballFieldView from '../components/EnhancedBaseballFieldView';
+import DepthChartSheetView from '../components/DepthChartSheetView';
+import DepthChartSheetViewV2 from '../components/DepthChartSheetViewV2';
+import AccessibleModal from '../components/ui/AccessibleModal';
 
 // Default position configurations
 const defaultPositions = [
@@ -57,41 +57,41 @@ const defaultPositions = [
   { position_code: 'CF', position_name: 'Center Field', color: '#14B8A6', icon: 'Zap', sort_order: 8 },
   { position_code: 'RF', position_name: 'Right Field', color: '#F97316', icon: 'Zap', sort_order: 9 },
   { position_code: 'DH', position_name: 'Designated Hitter', color: '#06B6D4', icon: 'Heart', sort_order: 10 }
-]
+];
 
 const statusColors = {
   active: 'bg-green-100 text-green-800',
   inactive: 'bg-gray-100 text-gray-800',
   injured: 'bg-red-100 text-red-800',
   suspended: 'bg-yellow-100 text-yellow-800'
-}
+};
 
 export default function DepthChart() {
-  const queryClient = useQueryClient()
-  const { isSuperAdmin } = useAuth()
-  const [selectedDepthChart, setSelectedDepthChart] = useState(null)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showPositionModal, setShowPositionModal] = useState(false)
-  const [showAssignPlayerModal, setShowAssignPlayerModal] = useState(false)
-  const [showPermissionsModal, setShowPermissionsModal] = useState(false)
-  const [selectedPosition, setSelectedPosition] = useState(null)
-  const [activeTab, setActiveTab] = useState('chart') // 'chart', 'positions', 'history', 'permissions'
-  const [chartViewMode, setChartViewMode] = useState('list') // 'list', 'enhanced', 'sheet'
+  const queryClient = useQueryClient();
+  const { isSuperAdmin } = useAuth();
+  const [selectedDepthChart, setSelectedDepthChart] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPositionModal, setShowPositionModal] = useState(false);
+  const [showAssignPlayerModal, setShowAssignPlayerModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [activeTab, setActiveTab] = useState('chart'); // 'chart', 'positions', 'history', 'permissions'
+  const [chartViewMode, setChartViewMode] = useState('list'); // 'list', 'enhanced', 'sheet'
   const [filters, setFilters] = useState({
     search: '',
     position: '',
     status: 'active',
     school_type: ''
-  })
-  const [sortBy, setSortBy] = useState('name')
+  });
+  const [sortBy, setSortBy] = useState('name');
   const [newDepthChart, setNewDepthChart] = useState({
     name: '',
     description: '',
     is_default: false,
     effective_date: '',
     notes: ''
-  })
+  });
 
   // State for Assign Player Modal
   const [playerSearch, setPlayerSearch] = useState('');
@@ -102,139 +102,139 @@ export default function DepthChart() {
   const { data: userPermissions } = useQuery({
     queryKey: ['user-permissions'],
     queryFn: async () => {
-      const response = await api.get('/auth/permissions')
-      return response.data
+      const response = await api.get('/auth/permissions');
+      return response.data;
     },
     onError: (error) => {
-      console.error('Error loading permissions:', error)
+      // console.error('Error loading permissions:', error);
     }
-  })
+  });
 
   // Fetch recommended players for the selected position
   const { data: recommendedPlayersData } = useQuery({
     queryKey: ['recommended-players', selectedDepthChart, selectedPosition?.id],
     queryFn: async () => {
-      if (!selectedDepthChart || !selectedPosition?.id) return []
-      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}/recommended-players/${selectedPosition.id}`)
-      return response.data
+      if (!selectedDepthChart || !selectedPosition?.id) return [];
+      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}/recommended-players/${selectedPosition.id}`);
+      return response.data;
     },
     enabled: !!selectedDepthChart && !!selectedPosition?.id,
     onError: (error) => {
-      console.error('Error loading recommended players:', error)
+      // console.error('Error loading recommended players:', error);
     }
-  })
+  });
 
   // Fetch depth charts
   const { data: depthChartsData, isLoading: depthChartsLoading } = useQuery({
     queryKey: ['depth-charts'],
     queryFn: async () => {
-      const response = await api.get('/depth-charts')
-      return response.data
+      const response = await api.get('/depth-charts');
+      return response.data;
     },
     onError: (error) => {
-      toast.error('Failed to load depth charts')
-      console.error('Error loading depth charts:', error)
+      toast.error('Failed to load depth charts');
+      // console.error('Error loading depth charts:', error);
     }
-  })
+  });
 
   // Fetch specific depth chart
   const { data: depthChartData, isLoading: depthChartLoading } = useQuery({
     queryKey: ['depth-chart', selectedDepthChart],
     queryFn: async () => {
-      if (!selectedDepthChart) return null
-      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}`)
-      return response.data
+      if (!selectedDepthChart) return null;
+      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}`);
+      return response.data;
     },
     enabled: !!selectedDepthChart,
     onError: (error) => {
-      toast.error('Failed to load depth chart')
-      console.error('Error loading depth chart:', error)
+      toast.error('Failed to load depth chart');
+      // console.error('Error loading depth chart:', error);
     }
-  })
+  });
 
   // Fetch available players for assignment
   const { data: availablePlayersData } = useQuery({
     queryKey: ['available-players', selectedDepthChart],
     queryFn: async () => {
-      if (!selectedDepthChart) return []
-      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}/available-players`)
-      return response.data
+      if (!selectedDepthChart) return [];
+      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}/available-players`);
+      return response.data;
     },
     enabled: !!selectedDepthChart,
     onError: (error) => {
-      console.error('Error loading available players:', error)
+      // console.error('Error loading available players:', error);
     }
-  })
+  });
 
   // Fetch depth chart history
   const { data: depthChartHistory } = useQuery({
     queryKey: ['depth-chart-history', selectedDepthChart],
     queryFn: async () => {
-      if (!selectedDepthChart) return []
-      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}/history`)
-      return response.data
+      if (!selectedDepthChart) return [];
+      const response = await api.get(`/depth-charts/byId/${selectedDepthChart}/history`);
+      return response.data;
     },
     enabled: !!selectedDepthChart && activeTab === 'history',
     onError: (error) => {
-      console.error('Error loading depth chart history:', error)
+      // console.error('Error loading depth chart history:', error);
     }
-  })
+  });
 
   // Mutations
   const createDepthChartMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await api.post('/depth-charts', data)
-      return response.data
+      const response = await api.post('/depth-charts', data);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-charts'])
-      setShowCreateModal(false)
+      queryClient.invalidateQueries(['depth-charts']);
+      setShowCreateModal(false);
       setNewDepthChart({
         name: '',
         description: '',
         is_default: false,
         effective_date: '',
         notes: ''
-      })
-      toast.success('Depth chart created successfully')
+      });
+      toast.success('Depth chart created successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create depth chart')
+      toast.error(error.response?.data?.message || 'Failed to create depth chart');
     }
-  })
+  });
 
   const updateDepthChartMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const response = await api.put(`/depth-charts/byId/${id}`, data)
-      return response.data
+      const response = await api.put(`/depth-charts/byId/${id}`, data);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-charts'])
-      queryClient.invalidateQueries(['depth-chart', selectedDepthChart])
-      setShowEditModal(false)
-      toast.success('Depth chart updated successfully')
+      queryClient.invalidateQueries(['depth-charts']);
+      queryClient.invalidateQueries(['depth-chart', selectedDepthChart]);
+      setShowEditModal(false);
+      toast.success('Depth chart updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update depth chart')
+      toast.error(error.response?.data?.message || 'Failed to update depth chart');
     }
-  })
+  });
 
   const deleteDepthChartMutation = useMutation({
     mutationFn: async (id) => {
-      const response = await api.delete(`/depth-charts/byId/${id}`)
-      return response.data
+      const response = await api.delete(`/depth-charts/byId/${id}`);
+      return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['depth-charts'])
-      if (selectedDepthChart === id) {
-        setSelectedDepthChart(null)
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries(['depth-charts']);
+      if (selectedDepthChart === variables) {
+        setSelectedDepthChart(null);
       }
-      toast.success('Depth chart deleted successfully')
+      toast.success('Depth chart deleted successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete depth chart')
+      toast.error(error.response?.data?.message || 'Failed to delete depth chart');
     }
-  })
+  });
 
   const assignPlayerMutation = useMutation({
     mutationFn: async ({ positionId, playerId, depthOrder, notes }) => {
@@ -242,70 +242,70 @@ export default function DepthChart() {
         player_id: playerId,
         depth_order: depthOrder,
         notes
-      })
-      return response.data
+      });
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-chart', selectedDepthChart])
-      queryClient.invalidateQueries(['available-players', selectedDepthChart])
-      setShowAssignPlayerModal(false)
-      toast.success('Player assigned successfully')
+      queryClient.invalidateQueries(['depth-chart', selectedDepthChart]);
+      queryClient.invalidateQueries(['available-players', selectedDepthChart]);
+      setShowAssignPlayerModal(false);
+      toast.success('Player assigned successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to assign player')
+      toast.error(error.response?.data?.message || 'Failed to assign player');
     }
-  })
+  });
 
   const unassignPlayerMutation = useMutation({
     mutationFn: async (assignmentId) => {
-      const response = await api.delete(`/depth-charts/players/byId/${assignmentId}`)
-      return response.data
+      const response = await api.delete(`/depth-charts/players/byId/${assignmentId}`);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-chart', selectedDepthChart])
-      queryClient.invalidateQueries(['available-players', selectedDepthChart])
-      toast.success('Player unassigned successfully')
+      queryClient.invalidateQueries(['depth-chart', selectedDepthChart]);
+      queryClient.invalidateQueries(['available-players', selectedDepthChart]);
+      toast.success('Player unassigned successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to unassign player')
+      toast.error(error.response?.data?.message || 'Failed to unassign player');
     }
-  })
+  });
 
   const duplicateDepthChartMutation = useMutation({
     mutationFn: async (id) => {
-      const response = await api.post(`/depth-charts/byId/${id}/duplicate`)
-      return response.data
+      const response = await api.post(`/depth-charts/byId/${id}/duplicate`);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-charts'])
-      toast.success('Depth chart duplicated successfully')
+      queryClient.invalidateQueries(['depth-charts']);
+      toast.success('Depth chart duplicated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to duplicate depth chart')
+      toast.error(error.response?.data?.message || 'Failed to duplicate depth chart');
     }
-  })
+  });
 
   // Auto-select first depth chart if none selected
   useEffect(() => {
     if (depthChartsData?.data?.length > 0 && !selectedDepthChart) {
-      const defaultChart = depthChartsData.data.find(chart => chart.is_default) || depthChartsData.data[0]
-      setSelectedDepthChart(defaultChart.id)
+      const defaultChart = depthChartsData.data.find(chart => chart.is_default) || depthChartsData.data[0];
+      setSelectedDepthChart(defaultChart.id);
     }
-  }, [depthChartsData, selectedDepthChart])
+  }, [depthChartsData, selectedDepthChart]);
 
   // Handle invalid view modes (field, fangraphs) by defaulting to list view
   useEffect(() => {
     if (chartViewMode === 'field' || chartViewMode === 'fangraphs') {
-      setChartViewMode('list')
+      setChartViewMode('list');
     }
-  }, [chartViewMode])
+  }, [chartViewMode]);
 
   const handleCreateDepthChart = () => {
     createDepthChartMutation.mutate({
       ...newDepthChart,
       positions: defaultPositions
-    })
-  }
+    });
+  };
 
   const handleAssignPlayer = (playerId, depthOrder = 1, notes = '') => {
     assignPlayerMutation.mutate({
@@ -313,80 +313,80 @@ export default function DepthChart() {
       playerId,
       depthOrder,
       notes
-    })
-    resetAssignPlayerModal()
-  }
+    });
+    resetAssignPlayerModal();
+  };
 
   const handleUnassignPlayer = (assignmentId) => {
-    unassignPlayerMutation.mutate(assignmentId)
-  }
+    unassignPlayerMutation.mutate(assignmentId);
+  };
 
   const handleDuplicateChart = (chartId) => {
-    duplicateDepthChartMutation.mutate(chartId)
-  }
+    duplicateDepthChartMutation.mutate(chartId);
+  };
 
   const resetAssignPlayerModal = () => {
-    setShowAssignPlayerModal(false)
-    setSelectedPosition(null)
-    setPlayerSearch('')
-    setPositionFilter('')
-    setViewMode('recommended')
-  }
+    setShowAssignPlayerModal(false);
+    setSelectedPosition(null);
+    setPlayerSearch('');
+    setPositionFilter('');
+    setViewMode('recommended');
+  };
 
   const getPlayerStats = (player) => {
-    const stats = []
+    const stats = [];
 
     if (player.batting_avg) {
-      stats.push(`AVG: ${player.batting_avg}`)
+      stats.push(`AVG: ${player.batting_avg}`);
     }
     if (player.home_runs) {
-      stats.push(`HR: ${player.home_runs}`)
+      stats.push(`HR: ${player.home_runs}`);
     }
     if (player.rbi) {
-      stats.push(`RBI: ${player.rbi}`)
+      stats.push(`RBI: ${player.rbi}`);
     }
     if (player.stolen_bases) {
-      stats.push(`SB: ${player.stolen_bases}`)
+      stats.push(`SB: ${player.stolen_bases}`);
     }
     if (player.era) {
-      stats.push(`ERA: ${player.era}`)
+      stats.push(`ERA: ${player.era}`);
     }
     if (player.wins !== null && player.losses !== null) {
-      stats.push(`W-L: ${player.wins}-${player.losses}`)
+      stats.push(`W-L: ${player.wins}-${player.losses}`);
     }
     if (player.strikeouts) {
-      stats.push(`K: ${player.strikeouts}`)
+      stats.push(`K: ${player.strikeouts}`);
     }
 
-    return stats
-  }
+    return stats;
+  };
 
   const getPlayerStatus = (player) => {
     if (player.has_medical_issues) {
-      return { label: 'Injured', color: statusColors.injured }
+      return { label: 'Injured', color: statusColors.injured };
     }
     if (player.status === 'inactive') {
-      return { label: 'Inactive', color: statusColors.inactive }
+      return { label: 'Inactive', color: statusColors.inactive };
     }
-    return { label: 'Active', color: statusColors.active }
-  }
+    return { label: 'Active', color: statusColors.active };
+  };
 
   // Super admins bypass all permission checks
-  const canView = isSuperAdmin || userPermissions?.data?.includes('depth_chart_view')
-  const canCreate = isSuperAdmin || userPermissions?.data?.includes('depth_chart_create')
-  const canEdit = isSuperAdmin || userPermissions?.data?.includes('depth_chart_edit')
-  const canDelete = isSuperAdmin || userPermissions?.data?.includes('depth_chart_delete')
-  const canManagePositions = isSuperAdmin || userPermissions?.data?.includes('depth_chart_manage_positions')
-  const canAssignPlayers = isSuperAdmin || userPermissions?.data?.includes('player_assign')
-  const canUnassignPlayers = isSuperAdmin || userPermissions?.data?.includes('player_unassign')
+  const canView = isSuperAdmin || userPermissions?.data?.includes('depth_chart_view');
+  const canCreate = isSuperAdmin || userPermissions?.data?.includes('depth_chart_create');
+  const canEdit = isSuperAdmin || userPermissions?.data?.includes('depth_chart_edit');
+  const canDelete = isSuperAdmin || userPermissions?.data?.includes('depth_chart_delete');
+  const canManagePositions = isSuperAdmin || userPermissions?.data?.includes('depth_chart_manage_positions');
+  const canAssignPlayers = isSuperAdmin || userPermissions?.data?.includes('player_assign');
+  const canUnassignPlayers = isSuperAdmin || userPermissions?.data?.includes('player_unassign');
 
-  const depthCharts = depthChartsData?.data || []
-  const depthChart = depthChartData?.data
-  const availablePlayers = availablePlayersData?.data || []
-  const history = depthChartHistory?.data || []
+  const depthCharts = depthChartsData?.data || [];
+  const depthChart = depthChartData?.data;
+  const availablePlayers = availablePlayersData?.data || [];
+  const history = depthChartHistory?.data || [];
 
   // Filter available players for recommendations
-  const recommendedPlayers = recommendedPlayersData?.data || []
+  const recommendedPlayers = recommendedPlayersData?.data || [];
 
   if (!canView) {
     return (
@@ -396,12 +396,12 @@ export default function DepthChart() {
             <Lock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Access Restricted</h3>
             <p className="text-gray-500">
-              You don't have permission to view depth charts. Please contact your administrator.
+              You don&apos;t have permission to view depth charts. Please contact your administrator.
             </p>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -412,7 +412,7 @@ export default function DepthChart() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Depth Chart</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Manage your team's depth chart configurations and player assignments.
+              Manage your team&apos;s depth chart configurations and player assignments.
             </p>
           </div>
           <div className="flex gap-2">
@@ -609,13 +609,11 @@ export default function DepthChart() {
                   </div>
                 </div>
 
-
-
                 {/* Enhanced Field View */}
                 {chartViewMode === 'enhanced' && (
                   <EnhancedBaseballFieldView
                     positions={depthChart.DepthChartPositions || []}
-                    assignedPlayers={depthChart.DepthChartPositions?.flatMap(pos => 
+                    assignedPlayers={depthChart.DepthChartPositions?.flatMap(pos =>
                       pos.DepthChartPlayers?.map(player => ({
                         ...player,
                         position_code: pos.position_code
@@ -642,165 +640,163 @@ export default function DepthChart() {
                   <DepthChartSheetViewV2 depthChart={depthChart} />
                 )}
 
-
-
                 {/* List View */}
                 {chartViewMode === 'list' && (
                   <>
                     {/* Positions */}
                     {depthChart.DepthChartPositions?.map((position) => (
-                  <div key={position.id} className="card">
-                    <div className="p-6">
-                      {/* Position Header */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center">
-                          <div
-                            className="w-4 h-4 rounded mr-3"
-                            style={{ backgroundColor: position.color }}
-                          ></div>
-                          <h3 className="text-lg font-semibold">{position.position_name}</h3>
-                          <span className="ml-3 text-sm text-gray-500">
-                            {position.DepthChartPlayers?.length || 0} players
-                            {position.max_players && ` / ${position.max_players} max`}
-                          </span>
-                        </div>
-                        {canAssignPlayers && (
-                          <button
-                            onClick={() => {
-                              setSelectedPosition(position)
-                              setShowAssignPlayerModal(true)
-                            }}
-                            className="btn btn-outline btn-sm"
-                            disabled={position.max_players && position.DepthChartPlayers?.length >= position.max_players}
-                          >
-                            <UserPlus className="h-4 w-4 mr-1" />
+                      <div key={position.id} className="card">
+                        <div className="p-6">
+                          {/* Position Header */}
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center">
+                              <div
+                                className="w-4 h-4 rounded mr-3"
+                                style={{ backgroundColor: position.color }}
+                              ></div>
+                              <h3 className="text-lg font-semibold">{position.position_name}</h3>
+                              <span className="ml-3 text-sm text-gray-500">
+                                {position.DepthChartPlayers?.length || 0} players
+                                {position.max_players && ` / ${position.max_players} max`}
+                              </span>
+                            </div>
+                            {canAssignPlayers && (
+                              <button
+                                onClick={() => {
+                                  setSelectedPosition(position);
+                                  setShowAssignPlayerModal(true);
+                                }}
+                                className="btn btn-outline btn-sm"
+                                disabled={position.max_players && position.DepthChartPlayers?.length >= position.max_players}
+                              >
+                                <UserPlus className="h-4 w-4 mr-1" />
                             Add Player
-                          </button>
-                        )}
-                      </div>
+                              </button>
+                            )}
+                          </div>
 
-                      {/* Players */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {position.DepthChartPlayers?.map((assignment, index) => {
-                          const player = assignment.Player
-                          const status = getPlayerStatus(player)
-                          const stats = getPlayerStats(player)
+                          {/* Players */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {position.DepthChartPlayers?.map((assignment, index) => {
+                              const player = assignment.Player;
+                              const status = getPlayerStatus(player);
+                              const stats = getPlayerStats(player);
 
-                          return (
-                            <div key={assignment.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                              <div className="flex justify-between items-start mb-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center justify-between">
-                                    <h4 className="text-lg font-semibold text-gray-900">
-                                      {player.first_name} {player.last_name}
-                                    </h4>
-                                    <span className="text-sm text-gray-500">#{assignment.depth_order}</span>
-                                  </div>
-                                  <p className="text-sm text-gray-500">
-                                    {player.position} • {player.school_type}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Link
-                                    to={`/players/${player.id}`}
-                                    className="p-1 text-gray-400 hover:text-gray-600"
-                                    title="View Details"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </Link>
-                                  {canUnassignPlayers && (
-                                    <button
-                                      onClick={() => handleUnassignPlayer(assignment.id)}
-                                      className="p-1 text-gray-400 hover:text-red-600"
-                                      title="Remove Player"
-                                    >
-                                      <UserMinus className="h-4 w-4" />
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Player Details */}
-                              <div className="space-y-2 mb-3">
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <Calendar className="h-3 w-3 mr-1" />
-                                  <span>Grad: {player.graduation_year || 'N/A'}</span>
-                                </div>
-                                {player.height && player.weight && (
-                                  <div className="text-sm text-gray-600">
-                                    {player.height} • {player.weight} lbs
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Stats */}
-                              {stats.length > 0 && (
-                                <div className="mb-3">
-                                  <div className="flex flex-wrap gap-1">
-                                    {stats.map((stat, statIndex) => (
-                                      <span
-                                        key={statIndex}
-                                        className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                              return (
+                                <div key={assignment.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                  <div className="flex justify-between items-start mb-3">
+                                    <div className="flex-1">
+                                      <div className="flex items-center justify-between">
+                                        <h4 className="text-lg font-semibold text-gray-900">
+                                          {player.first_name} {player.last_name}
+                                        </h4>
+                                        <span className="text-sm text-gray-500">#{assignment.depth_order}</span>
+                                      </div>
+                                      <p className="text-sm text-gray-500">
+                                        {player.position} • {player.school_type}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Link
+                                        to={`/players/${player.id}`}
+                                        className="p-1 text-gray-400 hover:text-gray-600"
+                                        title="View Details"
                                       >
-                                        {stat}
-                                      </span>
-                                    ))}
+                                        <Eye className="h-4 w-4" />
+                                      </Link>
+                                      {canUnassignPlayers && (
+                                        <button
+                                          onClick={() => handleUnassignPlayer(assignment.id)}
+                                          className="p-1 text-gray-400 hover:text-red-600"
+                                          title="Remove Player"
+                                        >
+                                          <UserMinus className="h-4 w-4" />
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
 
-                              {/* Status and Special Indicators */}
-                              <div className="flex items-center justify-between">
-                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${status.color}`}>
-                                  {status.label}
-                                </span>
-                                <div className="flex items-center space-x-1">
-                                  {player.has_medical_issues && (
-                                    <span className="text-red-500" title="Medical Issues">
-                                      <Heart className="h-3 w-3" />
-                                    </span>
-                                  )}
-                                  {player.has_comparison && (
-                                    <span className="text-blue-500" title="Comparison Player">
-                                      <Star className="h-3 w-3" />
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                                  {/* Player Details */}
+                                  <div className="space-y-2 mb-3">
+                                    <div className="flex items-center text-sm text-gray-600">
+                                      <Calendar className="h-3 w-3 mr-1" />
+                                      <span>Grad: {player.graduation_year || 'N/A'}</span>
+                                    </div>
+                                    {player.height && player.weight && (
+                                      <div className="text-sm text-gray-600">
+                                        {player.height} • {player.weight} lbs
+                                      </div>
+                                    )}
+                                  </div>
 
-                              {/* Assignment Notes */}
-                              {assignment.notes && (
-                                <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
-                                  {assignment.notes}
+                                  {/* Stats */}
+                                  {stats.length > 0 && (
+                                    <div className="mb-3">
+                                      <div className="flex flex-wrap gap-1">
+                                        {stats.map((stat, statIndex) => (
+                                          <span
+                                            key={statIndex}
+                                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                                          >
+                                            {stat}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Status and Special Indicators */}
+                                  <div className="flex items-center justify-between">
+                                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${status.color}`}>
+                                      {status.label}
+                                    </span>
+                                    <div className="flex items-center space-x-1">
+                                      {player.has_medical_issues && (
+                                        <span className="text-red-500" title="Medical Issues">
+                                          <Heart className="h-3 w-3" />
+                                        </span>
+                                      )}
+                                      {player.has_comparison && (
+                                        <span className="text-blue-500" title="Comparison Player">
+                                          <Star className="h-3 w-3" />
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Assignment Notes */}
+                                  {assignment.notes && (
+                                    <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                                      {assignment.notes}
+                                    </div>
+                                  )}
                                 </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Empty State */}
+                          {(!position.DepthChartPlayers || position.DepthChartPlayers.length === 0) && (
+                            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                              <Users className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                              <p className="text-gray-500">No players assigned to this position</p>
+                              {canAssignPlayers && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedPosition(position);
+                                    setShowAssignPlayerModal(true);
+                                  }}
+                                  className="btn btn-outline btn-sm mt-2"
+                                >
+                                  <UserPlus className="h-4 w-4 mr-1" />
+                              Add Player
+                                </button>
                               )}
                             </div>
-                          )
-                        })}
-                      </div>
-
-                      {/* Empty State */}
-                      {(!position.DepthChartPlayers || position.DepthChartPlayers.length === 0) && (
-                        <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                          <Users className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                          <p className="text-gray-500">No players assigned to this position</p>
-                          {canAssignPlayers && (
-                            <button
-                              onClick={() => {
-                                setSelectedPosition(position)
-                                setShowAssignPlayerModal(true)
-                              }}
-                              className="btn btn-outline btn-sm mt-2"
-                            >
-                              <UserPlus className="h-4 w-4 mr-1" />
-                              Add Player
-                            </button>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                      </div>
+                    ))}
                   </>
                 )}
               </div>
@@ -1043,82 +1039,218 @@ export default function DepthChart() {
         <AccessibleModal.Content>
           {/* Search and Filter */}
           <div className="mb-6 space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="label">
-                    <span className="label-text">Search Players</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Search by name, position, or stats..."
-                    className="input input-bordered w-full"
-                    value={playerSearch}
-                    onChange={(e) => setPlayerSearch(e.target.value)}
-                  />
-                </div>
-                <div className="w-48">
-                  <label className="label">
-                    <span className="label-text">Filter by Position</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={positionFilter}
-                    onChange={(e) => setPositionFilter(e.target.value)}
-                  >
-                    <option value="">All Positions</option>
-                    <option value="P">Pitcher</option>
-                    <option value="C">Catcher</option>
-                    <option value="1B">First Base</option>
-                    <option value="2B">Second Base</option>
-                    <option value="3B">Third Base</option>
-                    <option value="SS">Shortstop</option>
-                    <option value="LF">Left Field</option>
-                    <option value="CF">Center Field</option>
-                    <option value="RF">Right Field</option>
-                    <option value="DH">Designated Hitter</option>
-                    <option value="UTIL">Utility</option>
-                  </select>
-                </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="label">
+                  <span className="label-text">Search Players</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Search by name, position, or stats..."
+                  className="input input-bordered w-full"
+                  value={playerSearch}
+                  onChange={(e) => setPlayerSearch(e.target.value)}
+                />
               </div>
-              
-              <div className="flex gap-2">
-                <button
-                  className={`btn btn-sm ${viewMode === 'recommended' ? 'btn-primary' : 'btn-outline'}`}
-                  onClick={() => setViewMode('recommended')}
+              <div className="w-48">
+                <label className="label">
+                  <span className="label-text">Filter by Position</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={positionFilter}
+                  onChange={(e) => setPositionFilter(e.target.value)}
                 >
-                  <Star className="h-4 w-4 mr-1" />
-                  Recommended
-                </button>
-                <button
-                  className={`btn btn-sm ${viewMode === 'all' ? 'btn-primary' : 'btn-outline'}`}
-                  onClick={() => setViewMode('all')}
-                >
-                  <Users className="h-4 w-4 mr-1" />
-                  All Players
-                </button>
+                  <option value="">All Positions</option>
+                  <option value="P">Pitcher</option>
+                  <option value="C">Catcher</option>
+                  <option value="1B">First Base</option>
+                  <option value="2B">Second Base</option>
+                  <option value="3B">Third Base</option>
+                  <option value="SS">Shortstop</option>
+                  <option value="LF">Left Field</option>
+                  <option value="CF">Center Field</option>
+                  <option value="RF">Right Field</option>
+                  <option value="DH">Designated Hitter</option>
+                  <option value="UTIL">Utility</option>
+                </select>
               </div>
             </div>
 
-            {/* Player Lists */}
-            <div className="space-y-6">
-              {/* Recommended Players */}
-              {viewMode === 'recommended' && (
-                <div>
-                  <h4 className="text-lg font-semibold mb-3 flex items-center">
-                    <Star className="h-5 w-5 mr-2 text-yellow-500" />
+            <div className="flex gap-2">
+              <button
+                className={`btn btn-sm ${viewMode === 'recommended' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setViewMode('recommended')}
+              >
+                <Star className="h-4 w-4 mr-1" />
+                  Recommended
+              </button>
+              <button
+                className={`btn btn-sm ${viewMode === 'all' ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setViewMode('all')}
+              >
+                <Users className="h-4 w-4 mr-1" />
+                  All Players
+              </button>
+            </div>
+          </div>
+
+          {/* Player Lists */}
+          <div className="space-y-6">
+            {/* Recommended Players */}
+            {viewMode === 'recommended' && (
+              <div>
+                <h4 className="text-lg font-semibold mb-3 flex items-center">
+                  <Star className="h-5 w-5 mr-2 text-yellow-500" />
                     Top Recommendations for {selectedPosition?.position_name || 'Position'}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                    {recommendedPlayers
-                      .filter(player => 
-                        !playerSearch || 
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                  {recommendedPlayers
+                    .filter(player =>
+                      !playerSearch ||
                         `${player.first_name} ${player.last_name}`.toLowerCase().includes(playerSearch.toLowerCase()) ||
                         player.position?.toLowerCase().includes(playerSearch.toLowerCase())
-                      )
-                      .map((player) => (
+                    )
+                    .map((player) => (
+                      <div
+                        key={player.id}
+                        className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 cursor-pointer transition-all"
+                        onClick={() => handleAssignPlayer(player.id)}
+                      >
+                        <div className="card-body p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h5 className="font-bold text-lg">
+                              {player.first_name} {player.last_name}
+                            </h5>
+                            <div className="flex items-center gap-2">
+                              <span className="badge badge-primary">{player.position}</span>
+                              <span className="text-sm font-bold text-blue-600">
+                                  Score: {player.score}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="text-sm text-gray-600 mb-3">
+                            <div className="flex items-center gap-4">
+                              <span>{player.school_type}</span>
+                              {player.graduation_year && (
+                                <span>Grad: {player.graduation_year}</span>
+                              )}
+                              {player.height && player.weight && (
+                                <span>{player.height} • {player.weight} lbs</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Player Stats */}
+                          <div className="mb-3">
+                            <div className="flex flex-wrap gap-1">
+                              {player.batting_avg && (
+                                <span className="badge badge-outline badge-sm">
+                                    AVG: {player.batting_avg}
+                                </span>
+                              )}
+                              {player.home_runs && (
+                                <span className="badge badge-outline badge-sm">
+                                    HR: {player.home_runs}
+                                </span>
+                              )}
+                              {player.rbi && (
+                                <span className="badge badge-outline badge-sm">
+                                    RBI: {player.rbi}
+                                </span>
+                              )}
+                              {player.stolen_bases && (
+                                <span className="badge badge-outline badge-sm">
+                                    SB: {player.stolen_bases}
+                                </span>
+                              )}
+                              {player.era && (
+                                <span className="badge badge-outline badge-sm">
+                                    ERA: {player.era}
+                                </span>
+                              )}
+                              {player.strikeouts && (
+                                <span className="badge badge-outline badge-sm">
+                                    K: {player.strikeouts}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Recommendation Reasons */}
+                          <div className="space-y-1">
+                            {player.reasons?.map((reason, index) => (
+                              <div key={index} className="text-xs text-blue-700 flex items-center">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                {reason}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Status Indicators */}
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center gap-1">
+                              {player.has_medical_issues && (
+                                <span className="text-red-500" title="Medical Issues">
+                                  <Heart className="h-3 w-3" />
+                                </span>
+                              )}
+                              {player.has_comparison && (
+                                <span className="text-blue-500" title="Comparison Player">
+                                  <Star className="h-3 w-3" />
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAssignPlayer(player.id);
+                              }}
+                            >
+                              <UserPlus className="h-3 w-3 mr-1" />
+                                Assign
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {recommendedPlayers.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Star className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                    <p>No recommendations available</p>
+                    <p className="text-sm">Try switching to &quot;All Players&quot; view</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* All Players */}
+            {viewMode === 'all' && (
+              <div>
+                <h4 className="text-lg font-semibold mb-3 flex items-center">
+                  <Users className="h-5 w-5 mr-2" />
+                    All Available Players
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                  {availablePlayers
+                    .filter(player =>
+                      (!playerSearch ||
+                          `${player.first_name} ${player.last_name}`.toLowerCase().includes(playerSearch.toLowerCase()) ||
+                          player.position?.toLowerCase().includes(playerSearch.toLowerCase())) &&
+                        (!positionFilter || player.position === positionFilter)
+                    )
+                    .map((player) => {
+                      const status = getPlayerStatus(player);
+                      const stats = getPlayerStats(player);
+
+                      return (
                         <div
                           key={player.id}
-                          className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 cursor-pointer transition-all"
+                          className="card border border-gray-200 hover:border-gray-300 cursor-pointer transition-all"
                           onClick={() => handleAssignPlayer(player.id)}
                         >
                           <div className="card-body p-4">
@@ -1126,14 +1258,9 @@ export default function DepthChart() {
                               <h5 className="font-bold text-lg">
                                 {player.first_name} {player.last_name}
                               </h5>
-                              <div className="flex items-center gap-2">
-                                <span className="badge badge-primary">{player.position}</span>
-                                <span className="text-sm font-bold text-blue-600">
-                                  Score: {player.score}
-                                </span>
-                              </div>
+                              <span className="badge badge-outline">{player.position}</span>
                             </div>
-                            
+
                             <div className="text-sm text-gray-600 mb-3">
                               <div className="flex items-center gap-4">
                                 <span>{player.school_type}</span>
@@ -1147,53 +1274,26 @@ export default function DepthChart() {
                             </div>
 
                             {/* Player Stats */}
-                            <div className="mb-3">
-                              <div className="flex flex-wrap gap-1">
-                                {player.batting_avg && (
-                                  <span className="badge badge-outline badge-sm">
-                                    AVG: {player.batting_avg}
-                                  </span>
-                                )}
-                                {player.home_runs && (
-                                  <span className="badge badge-outline badge-sm">
-                                    HR: {player.home_runs}
-                                  </span>
-                                )}
-                                {player.rbi && (
-                                  <span className="badge badge-outline badge-sm">
-                                    RBI: {player.rbi}
-                                  </span>
-                                )}
-                                {player.stolen_bases && (
-                                  <span className="badge badge-outline badge-sm">
-                                    SB: {player.stolen_bases}
-                                  </span>
-                                )}
-                                {player.era && (
-                                  <span className="badge badge-outline badge-sm">
-                                    ERA: {player.era}
-                                  </span>
-                                )}
-                                {player.strikeouts && (
-                                  <span className="badge badge-outline badge-sm">
-                                    K: {player.strikeouts}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Recommendation Reasons */}
-                            <div className="space-y-1">
-                              {player.reasons?.map((reason, index) => (
-                                <div key={index} className="text-xs text-blue-700 flex items-center">
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  {reason}
+                            {stats.length > 0 && (
+                              <div className="mb-3">
+                                <div className="flex flex-wrap gap-1">
+                                  {stats.map((stat, statIndex) => (
+                                    <span
+                                      key={statIndex}
+                                      className="badge badge-outline badge-sm"
+                                    >
+                                      {stat}
+                                    </span>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
+                              </div>
+                            )}
 
-                            {/* Status Indicators */}
-                            <div className="flex items-center justify-between mt-3">
+                            {/* Status and Actions */}
+                            <div className="flex items-center justify-between">
+                              <span className={`text-xs px-2 py-1 rounded-full font-medium ${status.color}`}>
+                                {status.label}
+                              </span>
                               <div className="flex items-center gap-1">
                                 {player.has_medical_issues && (
                                   <span className="text-red-500" title="Medical Issues">
@@ -1205,142 +1305,38 @@ export default function DepthChart() {
                                     <Star className="h-3 w-3" />
                                   </span>
                                 )}
+                                <button
+                                  className="btn btn-outline btn-sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAssignPlayer(player.id);
+                                  }}
+                                >
+                                  <UserPlus className="h-3 w-3 mr-1" />
+                                    Assign
+                                </button>
                               </div>
-                              <button
-                                className="btn btn-primary btn-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAssignPlayer(player.id);
-                                }}
-                              >
-                                <UserPlus className="h-3 w-3 mr-1" />
-                                Assign
-                              </button>
                             </div>
                           </div>
                         </div>
-                      ))}
-                  </div>
-                  
-                  {recommendedPlayers.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Star className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-                      <p>No recommendations available</p>
-                      <p className="text-sm">Try switching to "All Players" view</p>
-                    </div>
-                  )}
+                      );
+                    })}
                 </div>
-              )}
 
-              {/* All Players */}
-              {viewMode === 'all' && (
-                <div>
-                  <h4 className="text-lg font-semibold mb-3 flex items-center">
-                    <Users className="h-5 w-5 mr-2" />
-                    All Available Players
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                    {availablePlayers
-                      .filter(player => 
-                        (!playerSearch || 
-                          `${player.first_name} ${player.last_name}`.toLowerCase().includes(playerSearch.toLowerCase()) ||
-                          player.position?.toLowerCase().includes(playerSearch.toLowerCase())) &&
-                        (!positionFilter || player.position === positionFilter)
-                      )
-                      .map((player) => {
-                        const status = getPlayerStatus(player);
-                        const stats = getPlayerStats(player);
-                        
-                        return (
-                          <div
-                            key={player.id}
-                            className="card border border-gray-200 hover:border-gray-300 cursor-pointer transition-all"
-                            onClick={() => handleAssignPlayer(player.id)}
-                          >
-                            <div className="card-body p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <h5 className="font-bold text-lg">
-                                  {player.first_name} {player.last_name}
-                                </h5>
-                                <span className="badge badge-outline">{player.position}</span>
-                              </div>
-                              
-                              <div className="text-sm text-gray-600 mb-3">
-                                <div className="flex items-center gap-4">
-                                  <span>{player.school_type}</span>
-                                  {player.graduation_year && (
-                                    <span>Grad: {player.graduation_year}</span>
-                                  )}
-                                  {player.height && player.weight && (
-                                    <span>{player.height} • {player.weight} lbs</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Player Stats */}
-                              {stats.length > 0 && (
-                                <div className="mb-3">
-                                  <div className="flex flex-wrap gap-1">
-                                    {stats.map((stat, statIndex) => (
-                                      <span
-                                        key={statIndex}
-                                        className="badge badge-outline badge-sm"
-                                      >
-                                        {stat}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Status and Actions */}
-                              <div className="flex items-center justify-between">
-                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${status.color}`}>
-                                  {status.label}
-                                </span>
-                                <div className="flex items-center gap-1">
-                                  {player.has_medical_issues && (
-                                    <span className="text-red-500" title="Medical Issues">
-                                      <Heart className="h-3 w-3" />
-                                    </span>
-                                  )}
-                                  {player.has_comparison && (
-                                    <span className="text-blue-500" title="Comparison Player">
-                                      <Star className="h-3 w-3" />
-                                    </span>
-                                  )}
-                                  <button
-                                    className="btn btn-outline btn-sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAssignPlayer(player.id);
-                                    }}
-                                  >
-                                    <UserPlus className="h-3 w-3 mr-1" />
-                                    Assign
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                  
-                  {availablePlayers.filter(player => 
-                    (!playerSearch || 
+                {availablePlayers.filter(player =>
+                  (!playerSearch ||
                       `${player.first_name} ${player.last_name}`.toLowerCase().includes(playerSearch.toLowerCase()) ||
                       player.position?.toLowerCase().includes(playerSearch.toLowerCase())) &&
                     (!positionFilter || player.position === positionFilter)
-                  ).length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Users className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-                      <p>No players match your filters</p>
-                      <p className="text-sm">Try adjusting your search or filters</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                ).length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                    <p>No players match your filters</p>
+                    <p className="text-sm">Try adjusting your search or filters</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </AccessibleModal.Content>
         <AccessibleModal.Footer>
@@ -1392,5 +1388,5 @@ export default function DepthChart() {
         </AccessibleModal.Footer>
       </AccessibleModal>
     </div>
-  )
+  );
 }

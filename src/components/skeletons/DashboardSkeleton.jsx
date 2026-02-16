@@ -1,5 +1,5 @@
-import Skeleton from './Skeleton'
-import SkeletonText from './SkeletonText'
+import Skeleton from './Skeleton';
+import SkeletonText from './SkeletonText';
 
 export default function DashboardSkeleton({ animation = 'pulse' }) {
   return (
@@ -472,5 +472,5 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

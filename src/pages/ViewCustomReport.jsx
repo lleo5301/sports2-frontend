@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '../services/reports';
-import { 
-  ArrowLeft, 
-  Download, 
-  Edit, 
+import {
+  ArrowLeft,
+  Download,
+  Edit,
   Calendar,
   Users,
   FileText,
@@ -65,7 +65,7 @@ const ViewCustomReport = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-error mb-4">Report Not Found</h1>
             <p className="text-base-content/70 mb-6">
-              The custom report you're looking for doesn't exist or you don't have permission to view it.
+              The custom report you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
             </p>
             <button
               onClick={() => navigate('/reports')}
@@ -113,7 +113,7 @@ const ViewCustomReport = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </button>
-            
+
             <div className="flex space-x-2">
               <button
                 onClick={handleDownloadPDF}
@@ -171,14 +171,14 @@ const ViewCustomReport = () => {
                 </div>
                 <div className={`badge ${
                   report.status === 'published' ? 'badge-success' :
-                  report.status === 'draft' ? 'badge-neutral' :
-                  'badge-warning'
+                    report.status === 'draft' ? 'badge-neutral' :
+                      'badge-warning'
                 }`}>
                   {report.status?.charAt(0).toUpperCase() + report.status?.slice(1)}
                 </div>
               </div>
             </div>
-            
+
             <div className="text-right">
               <div className="text-sm text-base-content/60">Report Type</div>
               <div className="badge badge-accent badge-lg">Custom Report</div>
@@ -196,7 +196,7 @@ const ViewCustomReport = () => {
                     {getSectionIcon(section.type)}
                     <span className="ml-2">{section.title}</span>
                   </h2>
-                  
+
                   {section.type === 'table' && section.data && section.data.length > 0 ? (
                     <div className="overflow-x-auto">
                       <table className="table table-zebra w-full">
@@ -249,7 +249,7 @@ const ViewCustomReport = () => {
                 <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <h3 className="text-xl font-semibold mb-2">No Sections Available</h3>
                 <p className="text-base-content/60">
-                  This custom report doesn't have any sections configured yet.
+                  This custom report doesn&apos;t have any sections configured yet.
                 </p>
                 <Link
                   to={`/reports/${id}/edit`}

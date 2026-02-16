@@ -1,4 +1,3 @@
-import React from 'react';
 
 const OAuthButtons = ({ onError }) => {
   // OAuth disabled for initial release - will be enabled in future version
@@ -13,7 +12,6 @@ const OAuthButtons = ({ onError }) => {
       const googleAuthUrl = `${import.meta.env.VITE_API_URL || window.location.origin}/api/auth/google`;
       window.location.href = googleAuthUrl;
     } catch (error) {
-      console.error('Google OAuth error:', error);
       onError?.('Failed to initiate Google sign-in');
     }
   };
@@ -23,7 +21,6 @@ const OAuthButtons = ({ onError }) => {
       const appleAuthUrl = `${import.meta.env.VITE_API_URL || window.location.origin}/api/auth/apple`;
       window.location.href = appleAuthUrl;
     } catch (error) {
-      console.error('Apple OAuth error:', error);
       onError?.('Failed to initiate Apple sign-in');
     }
   };
@@ -81,4 +78,4 @@ const OAuthButtons = ({ onError }) => {
   );
 };
 
-export default OAuthButtons; 
+export default OAuthButtons;

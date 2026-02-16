@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'react-hot-toast'
-import { Plus, Edit, Trash2, Save, X, Palette, Hash } from 'lucide-react'
-import api from '../services/api'
-import AccessibleModal from './ui/AccessibleModal'
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
+import { Plus, Edit, Trash2, Save, X, Palette, Hash } from 'lucide-react';
+import api from '../services/api';
+import AccessibleModal from './ui/AccessibleModal';
 
 const iconOptions = [
   { value: 'Shield', label: 'Shield' },
@@ -18,7 +18,7 @@ const iconOptions = [
   { value: 'Calendar', label: 'Calendar' },
   { value: 'MapPin', label: 'Map Pin' },
   { value: 'Brain', label: 'Brain' }
-]
+];
 
 const colorOptions = [
   { value: '#EF4444', label: 'Red' },
@@ -37,12 +37,12 @@ const colorOptions = [
   { value: '#EC4899', label: 'Pink' },
   { value: '#F43F5E', label: 'Rose' },
   { value: '#6B7280', label: 'Gray' }
-]
+];
 
 export default function DepthChartPositionManager({ depthChartId, positions = [], onPositionsChange }) {
-  const queryClient = useQueryClient()
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [editingPosition, setEditingPosition] = useState(null)
+  const queryClient = useQueryClient();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingPosition, setEditingPosition] = useState(null);
   const [newPosition, setNewPosition] = useState({
     position_code: '',
     position_name: '',
@@ -51,16 +51,16 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
     sort_order: positions.length + 1,
     max_players: null,
     description: ''
-  })
+  });
 
   const addPositionMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await api.post(`/depth-charts/byId/${depthChartId}/positions`, data)
-      return response.data
+      const response = await api.post(`/depth-charts/byId/${depthChartId}/positions`, data);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-chart', depthChartId])
-      setShowAddModal(false)
+      queryClient.invalidateQueries(['depth-chart', depthChartId]);
+      setShowAddModal(false);
       setNewPosition({
         position_code: '',
         position_name: '',
@@ -69,67 +69,67 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
         sort_order: positions.length + 1,
         max_players: null,
         description: ''
-      })
-      toast.success('Position added successfully')
+      });
+      toast.success('Position added successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to add position')
+      toast.error(error.response?.data?.message || 'Failed to add position');
     }
-  })
+  });
 
   const updatePositionMutation = useMutation({
     mutationFn: async ({ positionId, data }) => {
-      const response = await api.put(`/depth-charts/positions/byId/${positionId}`, data)
-      return response.data
+      const response = await api.put(`/depth-charts/positions/byId/${positionId}`, data);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-chart', depthChartId])
-      setEditingPosition(null)
-      toast.success('Position updated successfully')
+      queryClient.invalidateQueries(['depth-chart', depthChartId]);
+      setEditingPosition(null);
+      toast.success('Position updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update position')
+      toast.error(error.response?.data?.message || 'Failed to update position');
     }
-  })
+  });
 
   const deletePositionMutation = useMutation({
     mutationFn: async (positionId) => {
-      const response = await api.delete(`/depth-charts/positions/byId/${positionId}`)
-      return response.data
+      const response = await api.delete(`/depth-charts/positions/byId/${positionId}`);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['depth-chart', depthChartId])
-      toast.success('Position deleted successfully')
+      queryClient.invalidateQueries(['depth-chart', depthChartId]);
+      toast.success('Position deleted successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete position')
+      toast.error(error.response?.data?.message || 'Failed to delete position');
     }
-  })
+  });
 
   const handleAddPosition = () => {
-    addPositionMutation.mutate(newPosition)
-  }
+    addPositionMutation.mutate(newPosition);
+  };
 
   const handleUpdatePosition = () => {
     updatePositionMutation.mutate({
       positionId: editingPosition.id,
       data: editingPosition
-    })
-  }
+    });
+  };
 
   const handleDeletePosition = (positionId) => {
     if (window.confirm('Are you sure you want to delete this position? This will also remove all player assignments.')) {
-      deletePositionMutation.mutate(positionId)
+      deletePositionMutation.mutate(positionId);
     }
-  }
+  };
 
   const startEditing = (position) => {
-    setEditingPosition({ ...position })
-  }
+    setEditingPosition({ ...position });
+  };
 
   const cancelEditing = () => {
-    setEditingPosition(null)
-  }
+    setEditingPosition(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -156,7 +156,7 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="w-4 h-4 rounded mr-2"
                         style={{ backgroundColor: editingPosition.color }}
                       ></div>
@@ -244,7 +244,7 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="w-4 h-4 rounded mr-2"
                         style={{ backgroundColor: position.color }}
                       ></div>
@@ -271,7 +271,7 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <Palette className="h-3 w-3" />
@@ -426,5 +426,5 @@ export default function DepthChartPositionManager({ depthChartId, positions = []
         </AccessibleModal.Footer>
       </AccessibleModal>
     </div>
-  )
-} 
+  );
+}

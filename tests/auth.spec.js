@@ -29,24 +29,24 @@ test.describe('Authentication', () => {
     test('should display login page with correct elements', async ({ page }, testInfo) => {
       // Setup API mocks first
       await setupAllMocks(page);
-      
+
       await page.goto('/login');
-      
+
       // Check for compilation errors and skip if necessary
       await skipIfCompilationError(page, testInfo);
-      
+
       // Check page title
       await expect(page).toHaveTitle(/The Program/);
-      
+
       try {
         // Check main heading
         await expect(page.getByRole('heading', { name: 'Sign in to your account' })).toBeVisible({ timeout: 5000 });
-        
+
         // Check form elements
         await expect(page.getByLabel('Email address')).toBeVisible({ timeout: 5000 });
         await expect(page.getByLabel('Password')).toBeVisible({ timeout: 5000 });
         await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible({ timeout: 5000 });
-        
+
         // Check sign up link
         await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible({ timeout: 5000 });
       } catch (error) {
@@ -59,10 +59,10 @@ test.describe('Authentication', () => {
 
     test('should show validation errors for invalid input', async ({ page }) => {
       await page.goto('/login');
-      
+
       // Try to submit empty form
       await page.getByRole('button', { name: 'Sign in' }).click();
-      
+
       // Check for validation errors
       await expect(page.getByText('Please enter a valid email address')).toBeVisible();
       await expect(page.getByText('Password is required')).toBeVisible();
@@ -70,12 +70,12 @@ test.describe('Authentication', () => {
 
     test('should show validation error for invalid email', async ({ page }) => {
       await page.goto('/login');
-      
+
       // Enter invalid email
       await page.getByLabel('Email address').fill('invalid-email');
       await page.getByLabel('Password').fill('password');
       await page.getByRole('button', { name: 'Sign in' }).click();
-      
+
       // Check for validation error
       await expect(page.getByText('Please enter a valid email address')).toBeVisible();
     });
@@ -132,7 +132,7 @@ test.describe('Authentication', () => {
 
     test('should show error message for invalid credentials', async ({ page }) => {
       await page.goto('/login');
-      
+
       // Mock failed login response
       await page.route('**/api/auth/login', async route => {
         await route.fulfill({
@@ -144,36 +144,36 @@ test.describe('Authentication', () => {
           })
         });
       });
-      
+
       // Fill login form
       await page.getByLabel('Email address').fill('wrong@example.com');
       await page.getByLabel('Password').fill('wrongpassword');
-      
+
       // Submit form
       await page.getByRole('button', { name: 'Sign in' }).click();
-      
+
       // Should show error message
       await expect(page.getByText('Invalid credentials')).toBeVisible();
     });
 
     test('should toggle password visibility', async ({ page }) => {
       await page.goto('/login');
-      
+
       const passwordInput = page.getByLabel('Password');
       const toggleButton = page.locator('button[type="button"]').last();
-      
+
       // Password should be hidden by default
       await expect(passwordInput).toHaveAttribute('type', 'password');
-      
+
       // Click toggle button
       await toggleButton.click();
-      
+
       // Password should be visible
       await expect(passwordInput).toHaveAttribute('type', 'text');
-      
+
       // Click toggle button again
       await toggleButton.click();
-      
+
       // Password should be hidden again
       await expect(passwordInput).toHaveAttribute('type', 'password');
     });
@@ -182,20 +182,20 @@ test.describe('Authentication', () => {
   test.describe('Registration', () => {
     test('should navigate to registration page from login', async ({ page }) => {
       await page.goto('/login');
-      
+
       // Click sign up link
       await page.getByRole('link', { name: 'Sign up' }).click();
-      
+
       // Should be on registration page
       await expect(page).toHaveURL('/register');
     });
 
     test('should display registration page with correct elements', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Check main heading
       await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible();
-      
+
       // Check form elements
       await expect(page.getByLabel('First Name')).toBeVisible();
       await expect(page.getByLabel('Last Name')).toBeVisible();
@@ -204,17 +204,17 @@ test.describe('Authentication', () => {
       await expect(page.getByLabel('Password')).toBeVisible();
       await expect(page.getByLabel('Confirm Password')).toBeVisible();
       await expect(page.getByRole('button', { name: 'Create Account' })).toBeVisible();
-      
+
       // Check sign in link
       await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
     });
 
     test('should show validation errors for invalid registration input', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Try to submit empty form
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Check for validation errors
       await expect(page.getByText('First name is required')).toBeVisible();
       await expect(page.getByText('Last name is required')).toBeVisible();
@@ -225,7 +225,7 @@ test.describe('Authentication', () => {
 
     test('should show error for password mismatch', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Fill form with mismatched passwords
       await page.getByLabel('First Name').fill('John');
       await page.getByLabel('Last Name').fill('Doe');
@@ -233,10 +233,10 @@ test.describe('Authentication', () => {
       await page.getByLabel('Phone Number').fill('555-0123');
       await page.getByLabel('Password').fill('password123');
       await page.getByLabel('Confirm Password').fill('differentpassword');
-      
+
       // Submit form
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Check for password mismatch error
       await expect(page.getByText('Passwords do not match')).toBeVisible();
     });
@@ -297,7 +297,7 @@ test.describe('Authentication', () => {
 
     test('should show error for duplicate email', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Mock failed registration response
       await page.route('**/api/auth/register', async route => {
         await route.fulfill({
@@ -309,7 +309,7 @@ test.describe('Authentication', () => {
           })
         });
       });
-      
+
       // Fill registration form
       await page.getByLabel('First Name').fill('John');
       await page.getByLabel('Last Name').fill('Doe');
@@ -317,10 +317,10 @@ test.describe('Authentication', () => {
       await page.getByLabel('Phone Number').fill('555-0123');
       await page.getByLabel('Password').fill('password123');
       await page.getByLabel('Confirm Password').fill('password123');
-      
+
       // Submit form
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should show error message
       await expect(page.getByText('Email already exists')).toBeVisible();
     });
@@ -331,14 +331,14 @@ test.describe('Authentication', () => {
       // Start at login
       await page.goto('/login');
       await expect(page).toHaveURL('/login');
-      
+
       // Go to register
       await page.getByRole('link', { name: 'Sign up' }).click();
       await expect(page).toHaveURL('/register');
-      
+
       // Go back to login
       await page.getByRole('link', { name: 'Sign in' }).click();
       await expect(page).toHaveURL('/login');
     });
   });
-}); 
+});

@@ -24,7 +24,7 @@
  * @requires ./api
  */
 
-import api from './api'
+import api from './api';
 
 /**
  * Schedule management service object containing all schedule-related API methods
@@ -73,8 +73,8 @@ export const schedulesService = {
    * });
    */
   getAllSchedules: async (params = {}) => {
-    const response = await api.get('/schedules', { params })
-    return response.data
+    const response = await api.get('/schedules', { params });
+    return response.data;
   },
 
   /**
@@ -105,8 +105,8 @@ export const schedulesService = {
    * console.log('Opponent:', schedule.opponent);
    */
   getSchedule: async (id) => {
-    const response = await api.get(`/schedules/byId/${id}`)
-    return response.data
+    const response = await api.get(`/schedules/byId/${id}`);
+    return response.data;
   },
 
   /**
@@ -156,8 +156,8 @@ export const schedulesService = {
       }
       return acc;
     }, {});
-    const response = await api.post('/schedules', filteredData)
-    return response.data
+    const response = await api.post('/schedules', filteredData);
+    return response.data;
   },
 
   /**
@@ -205,8 +205,8 @@ export const schedulesService = {
       }
       return acc;
     }, {});
-    const response = await api.put(`/schedules/byId/${id}`, filteredData)
-    return response.data
+    const response = await api.put(`/schedules/byId/${id}`, filteredData);
+    return response.data;
   },
 
   /**
@@ -227,8 +227,8 @@ export const schedulesService = {
    * console.log(result.message); // "Schedule deleted successfully"
    */
   deleteSchedule: async (id) => {
-    const response = await api.delete(`/schedules/byId/${id}`)
-    return response.data
+    const response = await api.delete(`/schedules/byId/${id}`);
+    return response.data;
   },
 
   /**
@@ -256,8 +256,8 @@ export const schedulesService = {
    * console.log('Date:', upcoming.data[0].date);
    */
   getUpcomingSchedules: async (limit = 10) => {
-    const response = await api.get('/teams/upcoming-schedules', { params: { limit } })
-    return response.data
+    const response = await api.get('/teams/upcoming-schedules', { params: { limit } });
+    return response.data;
   },
 
   /**
@@ -286,8 +286,8 @@ export const schedulesService = {
    * console.log('Result:', recent.data[0].result);
    */
   getRecentSchedules: async (limit = 10) => {
-    const response = await api.get('/teams/recent-schedules', { params: { limit } })
-    return response.data
+    const response = await api.get('/teams/recent-schedules', { params: { limit } });
+    return response.data;
   },
 
   /**
@@ -316,7 +316,7 @@ export const schedulesService = {
    * console.log('Win/Loss:', `${stats.winLossRecord.wins}-${stats.winLossRecord.losses}`);
    */
   getScheduleStats: async () => {
-    const response = await api.get('/schedules/stats')
-    return response.data
+    const response = await api.get('/schedules/stats');
+    return response.data;
   }
-}
+};

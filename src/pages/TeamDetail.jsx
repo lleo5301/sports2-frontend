@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamsService } from '../services/teams';
@@ -353,29 +353,29 @@ const TeamDetail = () => {
                     <div className="stat-title">Team Name</div>
                     <div className="stat-value text-lg">{team?.name}</div>
                   </div>
-                  
+
                   <div className="stat">
                     <div className="stat-title">Program</div>
                     <div className="stat-value text-lg">{team?.program_name || 'N/A'}</div>
                   </div>
-                  
+
                   <div className="stat">
                     <div className="stat-title">Division</div>
                     <div className="stat-value text-lg">{team?.division || 'N/A'}</div>
                   </div>
-                  
+
                   <div className="stat">
                     <div className="stat-title">Conference</div>
                     <div className="stat-value text-lg">{team?.conference || 'N/A'}</div>
                   </div>
-                  
+
                   <div className="stat">
                     <div className="stat-title">Location</div>
                     <div className="stat-value text-lg">
                       {team?.city && team?.state ? `${team.city}, ${team.state}` : 'N/A'}
                     </div>
                   </div>
-                  
+
                   <div className="stat">
                     <div className="stat-title">Team Members</div>
                     <div className="stat-value text-lg">{team?.Users?.length || 0}</div>
@@ -397,7 +397,7 @@ const TeamDetail = () => {
                   <div className="flex gap-4">
                     {team?.primary_color && (
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-8 h-8 rounded border"
                           style={{ backgroundColor: team.primary_color }}
                         ></div>
@@ -406,7 +406,7 @@ const TeamDetail = () => {
                     )}
                     {team?.secondary_color && (
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-8 h-8 rounded border"
                           style={{ backgroundColor: team.secondary_color }}
                         ></div>
@@ -487,4 +487,4 @@ const TeamDetail = () => {
   );
 };
 
-export default TeamDetail; 
+export default TeamDetail;

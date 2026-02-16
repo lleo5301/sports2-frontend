@@ -292,7 +292,3 @@ const locationsService = {
 };
 
 export default locationsService;
-
-
-
-

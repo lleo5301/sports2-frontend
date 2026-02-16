@@ -12,26 +12,26 @@ test.describe('API Integration', () => {
     test('should handle network errors during login', async ({ page }, testInfo) => {
       // Setup API mocks first
       await setupAllMocks(page);
-      
+
       await page.goto('/login');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
-      
+
       // Check for compilation errors and skip if necessary
       await skipIfCompilationError(page, testInfo);
-      
+
       // Mock network error (override the default mock)
       await page.route('**/api/auth/login', async route => {
         await route.abort('failed');
       });
-      
+
       try {
         // Fill and submit form
         await page.getByLabel('Email address').fill('test@example.com');
         await page.getByLabel('Password').fill('password');
         await page.getByRole('button', { name: 'Sign in' }).click();
-        
+
         // Should show error message
         await expect(page.getByText(/An error occurred|Network error/i)).toBeVisible({ timeout: 10000 });
       } catch (error) {
@@ -54,15 +54,15 @@ test.describe('API Integration', () => {
 
     test('should handle network errors during registration', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
-      
+
       // Mock network error
       await page.route('**/api/auth/register', async route => {
         await route.abort('failed');
       });
-      
+
       // Fill and submit form
       await page.locator('input#first_name').fill('John');
       await page.locator('input#last_name').fill('Doe');
@@ -71,17 +71,17 @@ test.describe('API Integration', () => {
       await page.locator('input#password').fill('password123');
       await page.locator('input#confirmPassword').fill('password123');
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should show error message
       await expect(page.getByText(/An error occurred|Network error/i)).toBeVisible();
     });
 
     test('should handle server errors (500)', async ({ page }) => {
       await page.goto('/login');
-      
-      // Wait for React app to load and render the form  
+
+      // Wait for React app to load and render the form
       await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
-      
+
       // Mock server error
       await page.route('**/api/auth/login', async route => {
         await route.fulfill({
@@ -93,12 +93,12 @@ test.describe('API Integration', () => {
           })
         });
       });
-      
+
       // Fill and submit form
       await page.locator('input[type="email"]').fill('test@example.com');
       await page.locator('input[type="password"]').fill('password');
       await page.getByRole('button', { name: 'Sign in' }).click();
-      
+
       // Should show error message
       await expect(page.getByText('Internal server error')).toBeVisible();
     });
@@ -111,11 +111,11 @@ test.describe('API Integration', () => {
       await page.evaluate(() => {
         localStorage.setItem('token', 'test-token');
       });
-      
+
       // Mock profile request and check headers
       let requestHeaders = null;
       let requestReceived = false;
-      
+
       await page.route('**/api/auth/me', async route => {
         requestHeaders = route.request().headers();
         requestReceived = true;
@@ -135,7 +135,7 @@ test.describe('API Integration', () => {
           })
         });
       });
-      
+
       // Trigger a request to /api/auth/me by manually making an API call
       await page.evaluate(async () => {
         try {
@@ -155,10 +155,10 @@ test.describe('API Integration', () => {
           // Expected since we're mocking the request
         }
       });
-      
+
       // Wait for request to be intercepted
       await page.waitForTimeout(1000); // Simple wait instead of complex function
-      
+
       // Check that Authorization header was sent
       expect(requestHeaders).not.toBeNull();
       expect(requestHeaders.authorization || requestHeaders.Authorization).toBe('Bearer test-token');
@@ -169,7 +169,7 @@ test.describe('API Integration', () => {
       await page.evaluate(() => {
         localStorage.setItem('token', 'invalid-token');
       });
-      
+
       // Mock 401 response
       await page.route('**/api/auth/me', async route => {
         await route.fulfill({
@@ -181,12 +181,12 @@ test.describe('API Integration', () => {
           })
         });
       });
-      
+
       await page.goto('/');
-      
+
       // Should redirect to login
       await expect(page).toHaveURL('/login');
-      
+
       // Token should be cleared
       const token = await page.evaluate(() => localStorage.getItem('token'));
       expect(token).toBeNull();
@@ -196,55 +196,55 @@ test.describe('API Integration', () => {
   test.describe('Form Validation', () => {
     test.skip('should validate email format', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('input#email', { timeout: 10000 });
-      
+
       const emailInput = page.locator('input#email');
-      
+
       // Fill only email with invalid format, leave other required fields empty
       await emailInput.fill('invalid-email');
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should show validation error for email (and possibly other required fields)
       await expect(page.getByText('Please enter a valid email address')).toBeVisible({ timeout: 10000 });
     });
 
     test.skip('should validate password strength', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('input#password', { timeout: 10000 });
-      
+
       const passwordInput = page.locator('input#password');
-      
+
       // Test short password - React Hook Form validates on submission
       await passwordInput.fill('123');
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should show validation error
       await expect(page.getByText('Password must be at least 6 characters')).toBeVisible();
-      
+
       // Test valid password clears the error
       await passwordInput.fill('password123');
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should not show password validation error (other required fields may still show errors)
       await expect(page.getByText('Password must be at least 6 characters')).not.toBeVisible();
     });
 
     test('should validate required fields', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('button[type="submit"], .btn', { timeout: 10000 });
-      
+
       // Try to submit without filling required fields
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Wait for form validation to appear
       await page.waitForTimeout(1000);
-      
+
       // Check for validation errors (phone is optional so no phone validation)
       await expect(page.getByText('First name is required')).toBeVisible();
       await expect(page.getByText('Last name is required')).toBeVisible();
@@ -257,10 +257,10 @@ test.describe('API Integration', () => {
   test.describe('Loading States', () => {
     test('should show loading state during login', async ({ page }) => {
       await page.goto('/login');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
-      
+
       // Mock slow response
       await page.route('**/api/auth/login', async route => {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -281,12 +281,12 @@ test.describe('API Integration', () => {
           })
         });
       });
-      
+
       // Fill form and submit
       await page.locator('input[type="email"]').fill('test@example.com');
       await page.locator('input[type="password"]').fill('password');
       await page.getByRole('button', { name: 'Sign in' }).click();
-      
+
       // Should show loading state
       await expect(page.getByRole('button', { name: 'Sign in' })).toBeDisabled();
       await expect(page.locator('.animate-spin')).toBeVisible();
@@ -294,10 +294,10 @@ test.describe('API Integration', () => {
 
     test('should show loading state during registration', async ({ page }) => {
       await page.goto('/register');
-      
+
       // Wait for React app to load and render the form
       await page.waitForSelector('input[type="email"], input[type="password"]', { timeout: 10000 });
-      
+
       // Mock slow response
       await page.route('**/api/auth/register', async route => {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -318,7 +318,7 @@ test.describe('API Integration', () => {
           })
         });
       });
-      
+
       // Fill form and submit
       await page.locator('input#first_name').fill('New');
       await page.locator('input#last_name').fill('User');
@@ -327,10 +327,10 @@ test.describe('API Integration', () => {
       await page.locator('input#password').fill('password123');
       await page.locator('input#confirmPassword').fill('password123');
       await page.getByRole('button', { name: 'Create Account' }).click();
-      
+
       // Should show loading state
       await expect(page.getByRole('button', { name: 'Create Account' })).toBeDisabled();
       await expect(page.locator('.animate-spin')).toBeVisible();
     });
   });
-}); 
+});
