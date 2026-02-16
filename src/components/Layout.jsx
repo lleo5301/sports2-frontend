@@ -31,7 +31,7 @@ import ThemeToggle from './ui/ThemeToggle';
 const Layout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, changeTheme } = useTheme();
+  const { isDarkMode } = useTheme();
   const { logoUrl, name, programName, primaryColor } = useBranding();
   const { logout, user } = useAuth();
   const [isDrawerCollapsed, setIsDrawerCollapsed] = useState(false);

@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { validatePassword } from '../utils/passwordValidator';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import AccessibleModal from '../components/ui/AccessibleModal';
-import ThemeSelector from '../components/ui/ThemeSelector';
+
 import {
   User,
   Bell,
@@ -26,26 +26,17 @@ import {
   Key,
   Clock,
   Globe,
-  Palette,
   Monitor,
   Database,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Sun,
-  Moon,
-  Laptop
+  Moon
 } from 'lucide-react';
 
 const Settings = () => {
-  const {
-    theme,
-    themeMode,
-    changeTheme,
-    changeThemeMode,
-    THEME_MODES,
-    isDarkMode
-  } = useTheme();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const { primaryColor, secondaryColor, updateBranding, refreshBranding } =
     useBranding();
   const queryClient = useQueryClient();
@@ -186,9 +177,9 @@ const Settings = () => {
   });
 
   // Handlers
-  const handleThemeChange = (e) => {
-    changeTheme(e.target.value);
-    updateGeneralMutation.mutate({ theme: e.target.value });
+  const handleThemeToggle = () => {
+    toggleDarkMode();
+    updateGeneralMutation.mutate({ theme: isDarkMode ? 'light' : 'dark' });
   };
 
   const handlePasswordChange = (e) => {
@@ -317,105 +308,25 @@ const Settings = () => {
                   </p>
                 </div>
                 <div className="card-body">
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Mode</span>
-                    </label>
-
-                    {/* Appearance Mode Buttons */}
-                    <div className="flex gap-2 mb-4">
-                      <button
-                        className={`btn flex-1 ${themeMode === 'light' ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => changeThemeMode('light')}
-                      >
-                        <Sun className="w-4 h-4 mr-2" />
-                        Light
-                      </button>
-                      <button
-                        className={`btn flex-1 ${themeMode === 'dark' ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => changeThemeMode('dark')}
-                      >
-                        <Moon className="w-4 h-4 mr-2" />
-                        Dark
-                      </button>
-                      <button
-                        className={`btn flex-1 ${themeMode === 'system' ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => changeThemeMode('system')}
-                      >
-                        <Laptop className="w-4 h-4 mr-2" />
-                        System
-                      </button>
-                    </div>
-
-                    <p className="text-sm text-base-content/70">
-                      {themeMode === 'system'
-                        ? `Following system preference (currently ${isDarkMode ? 'dark' : 'light'})`
-                        : `Using ${themeMode} mode`}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Theme Settings */}
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="card-title flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
-                    Visual System
-                  </h2>
-                  <p className="card-description">
-                    Choose a curated visual style for the application
-                  </p>
-                </div>
-                <div className="card-body">
-                  <ThemeSelector variant="settings" />
-
-                  <div className="mt-8 pt-6 border-t border-base-300">
-                    <label className="label">
-                      <span className="label-text font-bold text-xs uppercase tracking-widest text-base-content/50">
-                        Specific Theme (Advanced)
-                      </span>
-                    </label>
-                    <select
-                      className="select select-bordered w-full max-w-xs mt-2"
-                      value={theme}
-                      onChange={handleThemeChange}
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      className={`btn flex-1 ${!isDarkMode ? 'btn-primary' : 'btn-outline'}`}
+                      onClick={() => !isDarkMode || handleThemeToggle()}
                     >
-                      <optgroup label="🌞 Light Themes">
-                        <option value="light">Light</option>
-                        <option value="cupcake">Cupcake</option>
-                        <option value="bumblebee">Bumblebee</option>
-                        <option value="emerald">Emerald</option>
-                        <option value="corporate">Corporate</option>
-                        <option value="garden">Garden</option>
-                        <option value="aqua">Aqua</option>
-                        <option value="lofi">Lo-Fi</option>
-                        <option value="pastel">Pastel</option>
-                        <option value="fantasy">Fantasy</option>
-                        <option value="wireframe">Wireframe</option>
-                        <option value="cmyk">CMYK</option>
-                        <option value="autumn">Autumn</option>
-                        <option value="acid">Acid</option>
-                        <option value="lemonade">Lemonade</option>
-                        <option value="winter">Winter</option>
-                      </optgroup>
-                      <optgroup label="🌙 Dark Themes">
-                        <option value="dark">Dark</option>
-                        <option value="synthwave">Synthwave</option>
-                        <option value="retro">Retro</option>
-                        <option value="cyberpunk">Cyberpunk</option>
-                        <option value="valentine">Valentine</option>
-                        <option value="halloween">Halloween</option>
-                        <option value="forest">Forest</option>
-                        <option value="black">Black</option>
-                        <option value="luxury">Luxury</option>
-                        <option value="dracula">Dracula</option>
-                        <option value="business">Business</option>
-                        <option value="night">Night</option>
-                        <option value="coffee">Coffee</option>
-                      </optgroup>
-                    </select>
+                      <Sun className="w-4 h-4 mr-2" />
+                      Light
+                    </button>
+                    <button
+                      className={`btn flex-1 ${isDarkMode ? 'btn-primary' : 'btn-outline'}`}
+                      onClick={() => isDarkMode || handleThemeToggle()}
+                    >
+                      <Moon className="w-4 h-4 mr-2" />
+                      Dark
+                    </button>
                   </div>
+                  <p className="text-sm text-ui-secondary">
+                    Currently using {isDarkMode ? 'dark' : 'light'} mode
+                  </p>
                 </div>
               </div>
 

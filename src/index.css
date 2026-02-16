@@ -92,7 +92,7 @@
   }
 
   body {
-    @apply text-base-content antialiased;
+    @apply text-foreground antialiased;
     background-color: var(--page-bg, var(--color-bg-1));
     color: var(--color-text-primary);
     min-height: 100vh;
@@ -230,7 +230,7 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-content;
+    @apply bg-primary text-primary-foreground;
     box-shadow: 0 2px 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3);
   }
 
@@ -240,7 +240,7 @@
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-content;
+    @apply bg-secondary text-secondary-foreground;
     box-shadow: 0 2px 4px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.2);
   }
 
@@ -250,17 +250,17 @@
   }
 
   .btn-outline {
-    @apply border-2 border-base-300 bg-transparent;
+    @apply border-2 border-divider bg-transparent;
   }
 
   .btn-outline:hover {
-    @apply bg-base-200;
+    @apply bg-content1;
     border-color: var(--border-strong, rgba(0, 0, 0, 0.15));
   }
 
   .btn-ghost {
     @apply bg-transparent;
-    @apply hover:bg-base-200/50;
+    @apply hover:bg-content1/50;
   }
 
   .btn-glass {
@@ -338,11 +338,11 @@
      INPUTS - Modern with focus glow
      ---------------------------------------- */
   .input {
-    @apply flex h-11 w-full rounded-xl border-2 border-base-300 bg-base-100 px-4 py-2.5 text-sm;
+    @apply flex h-11 w-full rounded-xl border-2 border-divider bg-background px-4 py-2.5 text-sm;
     @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
-    @apply placeholder:text-base-content/40;
+    @apply placeholder:text-foreground/40;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
-    @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-base-200;
+    @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-content1;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease,
@@ -368,8 +368,8 @@
   }
 
   .textarea {
-    @apply rounded-xl border-2 border-base-300 bg-base-100 px-4 py-3 text-sm;
-    @apply placeholder:text-base-content/40;
+    @apply rounded-xl border-2 border-divider bg-background px-4 py-3 text-sm;
+    @apply placeholder:text-foreground/40;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
     transition:
       border-color 0.2s ease,
@@ -379,7 +379,7 @@
   }
 
   .select {
-    @apply h-11 rounded-xl border-2 border-base-300 bg-base-100 px-4 text-sm;
+    @apply h-11 rounded-xl border-2 border-divider bg-background px-4 text-sm;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
     transition:
       border-color 0.2s ease,
@@ -390,7 +390,7 @@
      CARDS - Modern with hover lift
      ---------------------------------------- */
   .card {
-    @apply rounded-2xl border bg-base-200 text-base-content;
+    @apply rounded-2xl border bg-content1 text-foreground;
     border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -466,7 +466,7 @@
   }
 
   .card-glass {
-    @apply glass-card text-base-content;
+    @apply glass-card text-foreground;
     background: var(--glass-bg, rgba(255, 255, 255, 0.05));
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
@@ -638,7 +638,7 @@
      MODERN TABLE STYLES
      ---------------------------------------- */
   .table-container {
-    @apply relative overflow-hidden rounded-2xl border bg-base-300/20 backdrop-blur-md;
+    @apply relative overflow-hidden rounded-2xl border bg-content2/20 backdrop-blur-md;
     border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
     box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
   }
@@ -648,12 +648,12 @@
   }
 
   .table-modern thead {
-    @apply bg-base-300/50 border-b;
+    @apply bg-content2/50 border-b;
     border-color: var(--border-default, rgba(255, 255, 255, 0.1));
   }
 
   .table-modern th {
-    @apply px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-base-content/50;
+    @apply px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/50;
   }
 
   .table-modern tbody tr {

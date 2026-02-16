@@ -1,6 +1,12 @@
+const { heroui } = require('@heroui/react');
+
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}'
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -9,10 +15,10 @@ export default {
       },
       colors: {
         brand: {
-          DEFAULT: '#8251EE',
-          hover: '#9366F5',
-          light: '#A37EF5',
-          subtle: 'rgba(130, 81, 238, 0.15)'
+          DEFAULT: '#3b82f6',
+          hover: '#2563eb',
+          light: '#60a5fa',
+          subtle: 'rgba(59, 130, 246, 0.1)'
         },
         'neutral-bg': {
           bg1: 'var(--page-bg, hsl(240, 6%, 10%))',
@@ -102,8 +108,8 @@ export default {
           '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
         'elevated-lg':
           '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-        glow: '0 0 20px rgba(130, 81, 238, 0.3)',
-        'glow-lg': '0 0 40px rgba(130, 81, 238, 0.4)'
+        glow: '0 0 20px rgba(59, 130, 246, 0.3)',
+        'glow-lg': '0 0 40px rgba(59, 130, 246, 0.4)'
       },
       borderRadius: {
         '2xl': '1rem',
@@ -123,7 +129,6 @@ export default {
         touch: '44px'
       },
       fontSize: {
-        // Fluid typography tiers
         'fluid-display': [
           'clamp(2.25rem, 5vw + 1rem, 4.5rem)',
           { lineHeight: '1.05', letterSpacing: '-0.04em' }
@@ -147,88 +152,6 @@ export default {
       }
     }
   },
-  plugins: [require('daisyui')],
-  daisyui: {
-    themes: [
-      {
-        'ocean-breeze': {
-          primary: '#0ea5e9',
-          secondary: '#14b8a6',
-          accent: '#06b6d4',
-          neutral: '#64748b',
-          'base-100': '#f8fafc',
-          'base-200': '#e2e8f0',
-          'base-300': '#cbd5e1',
-          'base-content': '#1e293b',
-          info: '#0ea5e9',
-          success: '#10b981',
-          warning: '#f59e0b',
-          error: '#ef4444'
-        }
-      },
-      {
-        'sunset-glow': {
-          primary: '#f97316',
-          secondary: '#f59e0b',
-          accent: '#ea580c',
-          neutral: '#78716c',
-          'base-100': '#fef7ed',
-          'base-200': '#fed7aa',
-          'base-300': '#fdba74',
-          'base-content': '#451a03',
-          info: '#0ea5e9',
-          success: '#10b981',
-          warning: '#f59e0b',
-          error: '#ef4444'
-        }
-      },
-      {
-        'forest-mist': {
-          primary: '#16a34a',
-          secondary: '#22c55e',
-          accent: '#84cc16',
-          neutral: '#6b7280',
-          'base-100': '#f0fdf4',
-          'base-200': '#dcfce7',
-          'base-300': '#bbf7d0',
-          'base-content': '#14532d',
-          info: '#0ea5e9',
-          success: '#10b981',
-          warning: '#f59e0b',
-          error: '#ef4444'
-        }
-      },
-      {
-        'lavender-dreams': {
-          primary: '#8b5cf6',
-          secondary: '#a855f7',
-          accent: '#c084fc',
-          neutral: '#6b7280',
-          'base-100': '#faf5ff',
-          'base-200': '#f3e8ff',
-          'base-300': '#e9d5ff',
-          'base-content': '#581c87',
-          info: '#0ea5e9',
-          success: '#10b981',
-          warning: '#f59e0b',
-          error: '#ef4444'
-        }
-      },
-      {
-        tropical: {
-          primary: '#3b82f6',
-          secondary: '#f59e0b',
-          accent: '#10b981',
-          neutral: '#6b7280',
-          'base-100': '#ffffff',
-          info: '#3abff8',
-          success: '#36d399',
-          warning: '#fbbd23',
-          error: '#f87272'
-        }
-      },
-      'light',
-      'dark'
-    ]
-  }
+  darkMode: 'class',
+  plugins: [heroui()]
 };
