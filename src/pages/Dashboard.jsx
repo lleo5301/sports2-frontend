@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Chip, Button, Tabs, Tab, Spinner } from '@heroui/react';
+import {
+  Chip,
+  Button,
+  Tabs,
+  Tab,
+  Spinner,
+  Card
+} from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { playersService } from '../services/players';
@@ -17,11 +24,7 @@ import {
   Plus,
   ClipboardList,
   TrendingUp,
-  BarChart3,
-  Settings,
-  Palette,
-  Shield,
-  Link2
+  BarChart3
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -129,11 +132,11 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Bento Grid Layout */}
-        <div className="bento-grid mb-10">
+        {/* Bento Grid Layout - Replaced with standard grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {/* Total Players - Medium card */}
-          <div className="bento-sm card hover-lift animate-fade-in stagger-1">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="hover:scale-[1.02] transition-transform animate-fade-in stagger-1">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-primary/10">
                   <Users className="w-6 h-6 text-primary" />
@@ -154,12 +157,12 @@ const Dashboard = () => {
                 </span>
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-gentle-pulse"></span>
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Scouting Reports - Medium card */}
-          <div className="bento-sm card hover-lift animate-fade-in stagger-2">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="hover:scale-[1.02] transition-transform animate-fade-in stagger-2">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-secondary/10">
                   <FileText className="w-6 h-6 text-secondary" />
@@ -181,12 +184,12 @@ const Dashboard = () => {
                   {stats.recentReports} recent
                 </span>
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Team Status - Medium card */}
-          <div className="bento-sm card hover-lift animate-fade-in stagger-3">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="hover:scale-[1.02] transition-transform animate-fade-in stagger-3">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-success/10">
                   <Activity className="w-6 h-6 text-success" />
@@ -205,12 +208,12 @@ const Dashboard = () => {
                 </span>
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-gentle-pulse"></span>
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Quick Actions Count - Medium card */}
-          <div className="bento-sm card hover-lift animate-fade-in stagger-4">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="hover:scale-[1.02] transition-transform animate-fade-in stagger-4">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-warning/10">
                   <Zap className="w-6 h-6 text-warning" />
@@ -228,33 +231,33 @@ const Dashboard = () => {
                   Available now
                 </span>
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Recent Players - Large card spanning 2 columns */}
-          <div className="bento-lg card animate-fade-in stagger-1">
-            <div className="card-header">
-              <div className="flex items-center justify-between">
-                <h2 className="card-title flex items-center gap-2">
+          <Card className="col-span-1 md:col-span-2 animate-fade-in stagger-1">
+            <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+              <div className="flex items-center justify-between w-full">
+                <h2 className="text-lg font-bold flex items-center gap-2">
                   <Users className="w-5 h-5" />
                   Recent Players
                 </h2>
                 <Button
-                  onClick={() => navigate('/players')}
+                  onPress={() => navigate('/players')}
                   size="sm"
                   variant="light"
                 >
                   View all
                 </Button>
               </div>
-              <p className="card-description">
+              <p className="text-sm text-foreground/60 uppercase tracking-wider font-medium">
                 Latest players added to your roster
               </p>
-            </div>
-            <div className="card-content overflow-auto">
+            </Card.Header>
+            <Card.Content className="px-6 py-2 overflow-auto">
               {recentPlayers.length > 0 ? (
                 <div className="space-y-3">
-                  {recentPlayers.map((player, index) => {
+                  {recentPlayers.map((player) => {
                     const PlayerCard = () => {
                       const keyboardProps = useKeyboardClick(() =>
                         navigate(`/players/${player.id}`)
@@ -308,28 +311,30 @@ const Dashboard = () => {
                   <p>No recent players</p>
                 </div>
               )}
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Recent Reports - Large card spanning 2 columns */}
-          <div className="bento-lg card animate-fade-in stagger-2">
-            <div className="card-header">
-              <div className="flex items-center justify-between">
-                <h2 className="card-title flex items-center gap-2">
+          <Card className="col-span-1 md:col-span-2 animate-fade-in stagger-2">
+            <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+              <div className="flex items-center justify-between w-full">
+                <h2 className="text-lg font-bold flex items-center gap-2">
                   <FileText className="w-5 h-5" />
                   Recent Reports
                 </h2>
                 <Button
-                  onClick={() => navigate('/scouting')}
+                  onPress={() => navigate('/scouting')}
                   size="sm"
                   variant="light"
                 >
                   View all
                 </Button>
               </div>
-              <p className="card-description">Latest scouting reports</p>
-            </div>
-            <div className="card-content overflow-auto">
+              <p className="text-sm text-foreground/60 uppercase tracking-wider font-medium">
+                Latest scouting reports
+              </p>
+            </Card.Header>
+            <Card.Content className="px-6 py-2 overflow-auto">
               {recentReportsData.length > 0 ? (
                 <div className="space-y-3">
                   {recentReportsData.map((report) => {
@@ -378,24 +383,26 @@ const Dashboard = () => {
                   <p>No recent reports</p>
                 </div>
               )}
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
         </div>
 
         {/* Quick Actions - Full width card */}
-        <div className="card mb-10 animate-fade-in group">
-          <div className="card-header">
-            <h2 className="card-title flex items-center gap-2">
+        <Card className="mb-10 animate-fade-in">
+          <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               <Zap className="w-5 h-5" />
               Quick Actions
             </h2>
-            <p className="card-description">Common tasks and shortcuts</p>
-          </div>
-          <div className="card-content">
+            <p className="text-sm text-foreground/60 uppercase tracking-wider font-medium">
+              Common tasks and shortcuts
+            </p>
+          </Card.Header>
+          <Card.Content className="px-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Button
                 className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
-                onClick={handleAddPlayer}
+                onPress={handleAddPlayer}
                 size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
@@ -411,7 +418,7 @@ const Dashboard = () => {
 
               <Button
                 className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
-                onClick={handleCreateReport}
+                onPress={handleCreateReport}
                 size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
@@ -425,7 +432,7 @@ const Dashboard = () => {
 
               <Button
                 className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
-                onClick={handleViewPerformance}
+                onPress={handleViewPerformance}
                 size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
@@ -439,7 +446,7 @@ const Dashboard = () => {
 
               <Button
                 className="justify-start gap-3 h-auto py-4 bg-background hover:bg-content1 border border-divider text-foreground"
-                onClick={handleViewAnalytics}
+                onPress={handleViewAnalytics}
                 size="lg"
               >
                 <div className="p-2 rounded-lg bg-content1">
@@ -451,29 +458,29 @@ const Dashboard = () => {
                 </div>
               </Button>
             </div>
-          </div>
-        </div>
+          </Card.Content>
+        </Card>
 
         {/* Team Statistics Section - Wrapped in a single card */}
         {user?.team_id && teamResponse && (
-          <div className="card animate-fade-in stagger-3 mb-10 overflow-hidden">
-            <div className="card-header bg-content2/10 border-b border-ui-border">
-              <h2 className="card-title flex items-center gap-2">
+          <Card className="animate-fade-in stagger-3 mb-10">
+            <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2 bg-content2/10 border-b border-divider">
+              <h2 className="text-lg font-bold flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-primary" />
                 Team Performance
               </h2>
-              <p className="card-description">
+              <p className="text-sm text-foreground/60 uppercase tracking-wider font-medium">
                 Comprehensive analytics and metrics for {teamResponse.name}
               </p>
-            </div>
-            <div className="card-content p-8">
+            </Card.Header>
+            <Card.Content className="p-8">
               <Tabs
                 selectedKey={activeTeamStatsTab}
                 onSelectionChange={setActiveTeamStatsTab}
                 variant="bordered"
                 size="sm"
                 classNames={{
-                  base: 'bg-content2/30 p-1 border border-ui-border rounded-xl',
+                  base: 'bg-content2/30 p-1 border border-divider rounded-xl mb-6',
                   tabList: 'gap-2',
                   cursor: 'w-full bg-primary',
                   tab: 'max-w-fit px-4 h-8',
@@ -498,8 +505,8 @@ const Dashboard = () => {
                   Roster details coming soon!
                 </div>
               )}
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
         )}
       </div>
     </div>

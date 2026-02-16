@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HeroUIProvider } from '@heroui/react';
+// import { HeroUIProvider } from '@heroui/react';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -26,25 +26,25 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={import.meta.env.VITE_BASE_PATH || ''}>
         <ThemeProvider>
-          <HeroUIProvider>
-            <AuthProvider>
-              <BrandingProvider>
-                <App />
-                <Toaster
-                  position="top-right"
-                  toastOptions={{
-                    duration: 4000,
-                    style: {
-                      background: 'var(--color-bg-2, #18181b)',
-                      color: 'var(--color-text-primary, #f8fafc)',
-                      border:
+          {/* <HeroUIProvider> */}
+          <AuthProvider>
+            <BrandingProvider>
+              <App />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: 'var(--color-bg-2, #18181b)',
+                    color: 'var(--color-text-primary, #f8fafc)',
+                    border:
                         '1px solid var(--border-default, rgba(255,255,255,0.12))'
-                    }
-                  }}
-                />
-              </BrandingProvider>
-            </AuthProvider>
-          </HeroUIProvider>
+                  }
+                }}
+              />
+            </BrandingProvider>
+          </AuthProvider>
+          {/* </HeroUIProvider> */}
         </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>

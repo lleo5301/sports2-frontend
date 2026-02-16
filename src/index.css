@@ -1,6 +1,103 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@source "../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
+
+@theme {
+  --font-sans: "Inter", "system-ui", sans-serif;
+  --font-segoe: "Segoe UI", "system-ui", sans-serif;
+
+  --color-brand: #3b82f6;
+  --color-brand-hover: #2563eb;
+  --color-brand-light: #60a5fa;
+  --color-brand-subtle: rgba(59, 130, 246, 0.1);
+
+  --color-neutral-bg-bg1: var(--color-bg-1, hsl(240, 6%, 10%));
+  --color-neutral-bg-bg2: var(--color-bg-2, hsl(240, 5%, 12%));
+  --color-neutral-bg-bg3: var(--color-bg-3, hsl(240, 5%, 14%));
+  --color-neutral-bg-bg4: hsl(240, 4%, 18%);
+  --color-neutral-bg-bg5: hsl(240, 4%, 22%);
+  --color-neutral-bg-bg6: hsl(240, 4%, 26%);
+
+  --color-ui-primary: var(--color-text-primary, #FFFFFF);
+  --color-ui-secondary: var(--color-text-secondary, #A1A1AA);
+  --color-ui-muted: var(--color-text-muted, #71717A);
+
+  --color-ui-border-subtle: var(--color-border-subtle, hsla(0, 0%, 100%, 0.08));
+  --color-ui-border-default: var(--color-border-default, hsla(0, 0%, 100%, 0.12));
+  --color-ui-border-strong: var(--color-border-strong, hsla(0, 0%, 100%, 0.20));
+
+  --color-status-success: #10b981;
+  --color-status-warning: #f59e0b;
+  --color-status-error: #ef4444;
+  --color-status-info: #3b82f6;
+
+  --color-dataviz-purple: #8251ee;
+  --color-dataviz-blue: #3b82f6;
+  --color-dataviz-green: #10b981;
+  --color-dataviz-yellow: #f59e0b;
+  --color-dataviz-red: #ef4444;
+  --color-dataviz-pink: #ec4899;
+  --color-dataviz-cyan: #06b6d4;
+
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-slide-down: slideDown 0.3s ease-out;
+  --animate-scale-in: scaleIn 0.2s ease-out;
+  --animate-gentle-pulse: gentlePulse 2s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.5s linear infinite;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  @keyframes gentlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  --shadow-neu-sm: 4px 4px 8px rgba(0, 0, 0, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --shadow-neu-md: 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.9);
+  --shadow-neu-lg: 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.9);
+  --shadow-neu-inset: inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-glass-lg: 0 12px 48px rgba(0, 0, 0, 0.12);
+  --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-elevated-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+  --shadow-glow-lg: 0 0 40px rgba(59, 130, 246, 0.4);
+
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  --spacing-safe-top: env(safe-area-inset-top);
+  --spacing-safe-bottom: env(safe-area-inset-bottom);
+  --spacing-safe-left: env(safe-area-inset-left);
+  --spacing-safe-right: env(safe-area-inset-right);
+  --spacing-touch: 44px;
+}
 
 /* ============================================
    BASE LAYER - Modern Typography & Foundations
@@ -92,7 +189,7 @@
   }
 
   body {
-    @apply text-foreground antialiased;
+    @apply text-white antialiased;
     background-color: var(--page-bg, var(--color-bg-1));
     color: var(--color-text-primary);
     min-height: 100vh;
@@ -191,6 +288,7 @@
 
 /* ============================================
    COMPONENTS LAYER - Modern UI Components
+   LEGACY STYLES - TO BE REMOVED AFTER FULL HEROUI MIGRATION
    ============================================ */
 @layer components {
   /* ----------------------------------------
@@ -221,8 +319,13 @@
     @apply inline-flex items-center justify-center rounded-xl text-sm font-bold tracking-tight;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
     @apply disabled:opacity-50 disabled:pointer-events-none;
-    @apply hover-lift;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     user-select: none;
+  }
+
+  .btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
   }
 
   .btn:active:not(:disabled) {
@@ -230,37 +333,43 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground;
+    /* @apply bg-primary text-primary-foreground; */
+    background-color: var(--color-brand);
+    color: white;
     box-shadow: 0 2px 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3);
   }
 
   .btn-primary:hover:not(:disabled) {
-    @apply bg-primary/90;
+    /* @apply bg-primary/90; */
+    opacity: 0.9;
     box-shadow: 0 4px 12px rgba(var(--team-primary-rgb, 59, 130, 246), 0.4);
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground;
+    /* @apply bg-secondary text-secondary-foreground; */
+    background-color: #ef4444; /* Fallback */
+    color: white;
     box-shadow: 0 2px 4px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.2);
   }
 
   .btn-secondary:hover:not(:disabled) {
-    @apply bg-secondary/90;
+    /* @apply bg-secondary/90; */
+    opacity: 0.9;
     box-shadow: 0 4px 12px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.3);
   }
 
   .btn-outline {
-    @apply border-2 border-divider bg-transparent;
+    @apply border-2 border-white/10 bg-transparent;
   }
 
   .btn-outline:hover {
-    @apply bg-content1;
+    @apply bg-gray-800;
     border-color: var(--border-strong, rgba(0, 0, 0, 0.15));
   }
 
   .btn-ghost {
     @apply bg-transparent;
-    @apply hover:bg-content1/50;
+    /* @apply hover:bg-content1/50; */
   }
 
   .btn-glass {
@@ -270,53 +379,15 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-  /* ----------------------------------------
-     STAT CARDS - Team-branded gradient cards
-     Uses CSS variables for dynamic team colors
-     ---------------------------------------- */
-  .stat-card-primary {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--team-primary-rgb, 59, 130, 246), 1) 0%,
-      rgba(var(--team-primary-rgb, 59, 130, 246), 0.8) 100%
-    ) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-    box-shadow: 0 10px 20px -5px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3) !important;
-  }
+/* ----------------------------------------
+   BENTO GRID SYSTEM - DEPRECATED (Use Tailwind Grid)
+   ---------------------------------------- */
+/* Removed bento-* classes as they are replaced by Tailwind grid utilities */
 
-  .stat-card-secondary {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--team-secondary-rgb, 239, 68, 68), 0.9) 0%,
-      rgba(var(--team-secondary-rgb, 239, 68, 68), 0.7) 100%
-    ) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-    box-shadow: 0 10px 20px -5px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.2) !important;
-  }
-
-  .stat-card-accent {
-    background: linear-gradient(
-      135deg,
-      var(--color-brand, #3b82f6) 0%,
-      var(--color-brand-hover, #2563eb) 100%
-    ) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-    box-shadow: 0 10px 20px -5px rgba(var(--team-primary-rgb, 59, 130, 246), 0.2) !important;
-  }
-
-  .stat-card-neutral {
-    background: linear-gradient(
-      135deg,
-      var(--color-bg-4, #2d3748) 0%,
-      var(--color-bg-2, #1a202c) 100%
-    ) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    color: white !important;
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2) !important;
-  }
+/* ----------------------------------------
+   STAT CARDS - DEPRECATED (Use HeroUI Card with Tailwind)
+   ---------------------------------------- */
+/* Removed stat-card-* classes */
 
   .btn-glass:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.25);
@@ -338,11 +409,11 @@
      INPUTS - Modern with focus glow
      ---------------------------------------- */
   .input {
-    @apply flex h-11 w-full rounded-xl border-2 border-divider bg-background px-4 py-2.5 text-sm;
+    @apply flex h-11 w-full rounded-xl border-2 border-white/10 bg-gray-900 px-4 py-2.5 text-sm;
     @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
     @apply placeholder:text-foreground/40;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
-    @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-content1;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/20 focus-visible:border-brand;
+    @apply disabled:cursor-not-allowed disabled:opacity-50; /* disabled:bg-content1 */
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease,
@@ -368,9 +439,9 @@
   }
 
   .textarea {
-    @apply rounded-xl border-2 border-divider bg-background px-4 py-3 text-sm;
+    @apply rounded-xl border-2 border-white/10 bg-gray-900 px-4 py-3 text-sm;
     @apply placeholder:text-foreground/40;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/20 focus-visible:border-brand;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
@@ -379,8 +450,8 @@
   }
 
   .select {
-    @apply h-11 rounded-xl border-2 border-divider bg-background px-4 text-sm;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    @apply h-11 rounded-xl border-2 border-white/10 bg-gray-900 px-4 text-sm;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/20 focus-visible:border-brand;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
@@ -390,7 +461,7 @@
      CARDS - Modern with hover lift
      ---------------------------------------- */
   .card {
-    @apply rounded-2xl border bg-content1 text-foreground;
+    @apply rounded-2xl border bg-gray-800 text-white;
     border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -466,7 +537,7 @@
   }
 
   .card-glass {
-    @apply glass-card text-foreground;
+    @apply backdrop-blur-md bg-white/5 border border-white/10 rounded-xl text-white;
     background: var(--glass-bg, rgba(255, 255, 255, 0.05));
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
@@ -490,115 +561,7 @@
     border: 1px solid rgba(var(--team-primary-rgb, 130, 81, 238), 0.2);
   }
 
-  /* ----------------------------------------
-     BENTO GRID SYSTEM
-     ---------------------------------------- */
-  .bento-grid {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: minmax(180px, auto);
-  }
 
-  @media (max-width: 1024px) {
-    .bento-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 640px) {
-    .bento-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .bento-item {
-    @apply rounded-2xl p-6;
-    min-height: 180px;
-  }
-
-  .bento-sm {
-    grid-column: span 1;
-    grid-row: span 1;
-  }
-
-  .bento-md {
-    grid-column: span 2;
-    grid-row: span 1;
-  }
-
-  .bento-lg {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-
-  .bento-wide {
-    grid-column: span 3;
-    grid-row: span 1;
-  }
-
-  .bento-tall {
-    grid-column: span 1;
-    grid-row: span 2;
-  }
-
-  .bento-full {
-    grid-column: span 4;
-    grid-row: span 1;
-  }
-
-  @media (max-width: 1024px) {
-    .bento-md,
-    .bento-lg,
-    .bento-wide {
-      grid-column: span 2;
-    }
-    .bento-full {
-      grid-column: span 2;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .bento-sm,
-    .bento-md,
-    .bento-lg,
-    .bento-wide,
-    .bento-tall,
-    .bento-full {
-      grid-column: span 1;
-      grid-row: span 1;
-    }
-  }
-
-  /* ----------------------------------------
-     MICROINTERACTION UTILITIES
-     ---------------------------------------- */
-  .hover-lift {
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
-  }
-
-  .hover-scale {
-    transition: transform 0.2s ease;
-  }
-
-  .hover-scale:hover {
-    transform: scale(1.02);
-  }
-
-  .hover-glow {
-    transition: box-shadow 0.3s ease;
-  }
-
-  .hover-glow:hover {
-    box-shadow: 0 0 20px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3);
-  }
 
   /* Shimmer loading effect */
   .shimmer {
@@ -638,7 +601,7 @@
      MODERN TABLE STYLES
      ---------------------------------------- */
   .table-container {
-    @apply relative overflow-hidden rounded-2xl border bg-content2/20 backdrop-blur-md;
+    @apply relative overflow-hidden rounded-2xl border bg-gray-700/20 backdrop-blur-md;
     border-color: var(--border-subtle, rgba(255, 255, 255, 0.05));
     box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
   }
@@ -648,12 +611,12 @@
   }
 
   .table-modern thead {
-    @apply bg-content2/50 border-b;
+    @apply bg-gray-700/50 border-b;
     border-color: var(--border-default, rgba(255, 255, 255, 0.1));
   }
 
   .table-modern th {
-    @apply px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/50;
+    @apply px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-white/50;
   }
 
   .table-modern tbody tr {
@@ -771,11 +734,11 @@
   }
 
   .label-text {
-    @apply text-sm font-medium text-foreground/70;
+    @apply text-sm font-medium text-white/70;
   }
 
   .label-text-alt {
-    @apply text-xs text-foreground/50;
+    @apply text-xs text-white/50;
   }
 
   /* Toggle switch */
@@ -807,7 +770,7 @@
 
   /* Checkbox */
   .checkbox {
-    @apply h-5 w-5 cursor-pointer rounded border-2 border-divider appearance-none;
+    @apply h-5 w-5 cursor-pointer rounded border-2 border-white/10 appearance-none;
     transition: all 0.2s ease;
   }
 
@@ -827,27 +790,27 @@
 
   /* Tabs */
   .tabs {
-    @apply flex border-b border-divider;
+    @apply flex border-b border-white/10;
   }
 
   .tab {
     @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium cursor-pointer;
-    @apply text-foreground/60 border-b-2 border-transparent;
+    @apply text-white/60 border-b-2 border-transparent;
     transition: all 0.2s ease;
   }
 
   .tab:hover {
-    @apply text-foreground/80;
+    @apply text-white/80;
   }
 
   .tab-active,
   .tab[aria-selected="true"] {
-    @apply text-foreground;
+    @apply text-white;
     border-bottom-color: var(--color-brand, #3b82f6);
   }
 
   .tabs-boxed {
-    @apply bg-content1 rounded-xl p-1 border-0;
+    @apply bg-gray-800 rounded-xl p-1 border-0;
   }
 
   .tabs-boxed .tab {
@@ -856,7 +819,7 @@
 
   .tabs-boxed .tab-active,
   .tabs-boxed .tab[aria-selected="true"] {
-    @apply bg-background text-foreground;
+    @apply bg-gray-900 text-white;
     border-bottom-color: transparent;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
@@ -1002,14 +965,14 @@
 
   .menu li > a,
   .menu li > button {
-    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground/80;
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/80;
     transition: all 0.15s ease;
   }
 
   .menu li > a:hover,
   .menu li > button:hover {
     background: var(--color-bg-4, hsl(222, 47%, 18%));
-    @apply text-foreground;
+    @apply text-white;
   }
 }
 

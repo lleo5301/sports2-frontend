@@ -45,14 +45,7 @@ import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import {
   Button,
-  Input,
   Switch,
-  Card,
-  CardHeader,
-  CardBody,
-  Divider,
-  Select,
-  SelectItem,
   Tabs,
   Tab,
   Spinner,

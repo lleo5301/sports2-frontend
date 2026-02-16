@@ -17,7 +17,7 @@ import {
 import { teamsService } from '../services/teams';
 import { schedulesService } from '../services/schedules';
 import { gamesService } from '../services/games';
-import { Spinner, Tabs, Tab } from '@heroui/react';
+import { Spinner, Tabs, Tab, Card } from '@heroui/react';
 
 const TeamStatistics = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -130,7 +130,7 @@ const TeamStatistics = () => {
           variant="bordered"
           size="sm"
           classNames={{
-            base: 'bg-content2/30 p-1 border border-ui-border rounded-xl',
+            base: 'bg-content2/30 p-1 border border-divider rounded-xl',
             tabList: 'gap-2',
             cursor: 'w-full bg-primary',
             tab: 'max-w-fit px-4 h-8',
@@ -149,8 +149,8 @@ const TeamStatistics = () => {
         <div className="space-y-6">
           {/* Team Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="card stat-card-primary">
-              <div className="card-body p-6">
+            <Card className="bg-gradient-to-br from-primary to-primary/80 border-white/10 text-white shadow-lg shadow-primary/30">
+              <Card.Content className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs opacity-70 font-bold uppercase tracking-wider text-white">
@@ -174,11 +174,11 @@ const TeamStatistics = () => {
                     {teamGameStats?.losses || 0}L
                   </span>
                 </div>
-              </div>
-            </div>
+              </Card.Content>
+            </Card>
 
-            <div className="card stat-card-secondary">
-              <div className="card-body p-6">
+            <Card className="bg-gradient-to-br from-secondary to-secondary/80 border-white/10 text-white shadow-lg shadow-secondary/20">
+              <Card.Content className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs opacity-70 font-bold uppercase tracking-wider text-white">
@@ -197,11 +197,11 @@ const TeamStatistics = () => {
                 <div className="mt-4 text-xs font-medium text-white/70">
                   Pitching Performance
                 </div>
-              </div>
-            </div>
+              </Card.Content>
+            </Card>
 
-            <div className="card stat-card-accent">
-              <div className="card-body p-6">
+            <Card className="bg-gradient-to-br from-brand to-brand-hover border-white/10 text-white shadow-lg shadow-brand/20">
+              <Card.Content className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs opacity-70 font-bold uppercase tracking-wider text-white">
@@ -220,11 +220,11 @@ const TeamStatistics = () => {
                 <div className="mt-4 text-xs font-medium text-white/70">
                   Batting Performance
                 </div>
-              </div>
-            </div>
+              </Card.Content>
+            </Card>
 
-            <div className="card stat-card-neutral">
-              <div className="card-body p-6">
+            <Card className="bg-gradient-to-br from-neutral-bg-bg4 to-neutral-bg-bg2 border-white/5 text-white shadow-lg">
+              <Card.Content className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs opacity-70 font-bold uppercase tracking-wider text-white">
@@ -241,24 +241,24 @@ const TeamStatistics = () => {
                 <div className="mt-4 text-xs font-medium text-white/70">
                   Roster Strength
                 </div>
-              </div>
-            </div>
+              </Card.Content>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Performance */}
-            <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Recent Performance</h3>
-                <p className="card-description">Last 5 Games</p>
-              </div>
-              <div className="card-content">
+            <Card>
+              <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+                <h3 className="text-lg font-bold">Recent Performance</h3>
+                <p className="text-sm text-foreground/60">Last 5 Games</p>
+              </Card.Header>
+              <Card.Content className="px-6 py-4">
                 <div className="space-y-4">
                   {recentEvents && recentEvents.length > 0 ? (
                     recentEvents.map((event, index) => (
                       <div
                         key={event.id || index}
-                        className="flex items-center justify-between p-4 bg-content2/30 rounded-xl border border-ui-border hover:border-ui-border-strong transition-colors"
+                        className="flex items-center justify-between p-4 bg-content2/30 rounded-xl border border-divider hover:border-divider transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div
@@ -291,22 +291,22 @@ const TeamStatistics = () => {
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </Card.Content>
+            </Card>
 
             {/* Upcoming Schedule */}
-            <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Upcoming Schedule</h3>
-                <p className="card-description">Next 5 Matchups</p>
-              </div>
-              <div className="card-content">
+            <Card>
+              <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+                <h3 className="text-lg font-bold">Upcoming Schedule</h3>
+                <p className="text-sm text-foreground/60">Next 5 Matchups</p>
+              </Card.Header>
+              <Card.Content className="px-6 py-4">
                 <div className="space-y-4">
                   {upcomingEvents && upcomingEvents.length > 0 ? (
                     upcomingEvents.map((event, index) => (
                       <div
                         key={event.id || index}
-                        className="flex items-center justify-between p-4 bg-content2/30 rounded-xl border border-ui-border hover:border-ui-border-strong transition-colors"
+                        className="flex items-center justify-between p-4 bg-content2/30 rounded-xl border border-divider hover:border-divider transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className="p-3 bg-brand/10 rounded-xl">
@@ -342,27 +342,31 @@ const TeamStatistics = () => {
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </Card.Content>
+            </Card>
           </div>
         </div>
       )}
 
       {/* Placeholder for other tabs */}
       {activeTab === 'performance' && (
-        <div className="card p-12 text-center opacity-50">
-          <Activity className="w-12 h-12 mx-auto mb-4 opacity-20" />
-          <p className="text-lg font-bold">Detailed Performance Metrics</p>
-          <p className="text-sm">Coming soon in the next update</p>
-        </div>
+        <Card className="p-12 text-center opacity-50">
+          <Card.Content>
+            <Activity className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="text-lg font-bold">Detailed Performance Metrics</p>
+            <p className="text-sm">Coming soon in the next update</p>
+          </Card.Content>
+        </Card>
       )}
 
       {activeTab === 'roster' && (
-        <div className="card p-12 text-center opacity-50">
-          <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
-          <p className="text-lg font-bold">Roster Management</p>
-          <p className="text-sm">Coming soon in the next update</p>
-        </div>
+        <Card className="p-12 text-center opacity-50">
+          <Card.Content>
+            <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="text-lg font-bold">Roster Management</p>
+            <p className="text-sm">Coming soon in the next update</p>
+          </Card.Content>
+        </Card>
       )}
     </div>
   );

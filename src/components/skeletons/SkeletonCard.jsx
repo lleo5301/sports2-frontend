@@ -1,3 +1,4 @@
+import { Card } from '@heroui/react';
 import Skeleton from './Skeleton';
 import SkeletonText from './SkeletonText';
 
@@ -11,44 +12,44 @@ export default function SkeletonCard({
   className = '',
   animation = 'pulse'
 }) {
-  // Size mapping to bento grid classes
+  // Size mapping to Tailwind grid column spans
   const sizeClasses = {
-    sm: 'bento-sm',
-    md: 'bento-md',
-    lg: 'bento-lg',
-    wide: 'bento-wide',
-    tall: 'bento-tall',
-    full: 'bento-full'
+    sm: 'col-span-1',
+    md: 'col-span-1 md:col-span-2',
+    lg: 'col-span-1 md:col-span-2 row-span-2',
+    wide: 'col-span-1 md:col-span-3',
+    tall: 'col-span-1 row-span-2',
+    full: 'col-span-1 md:col-span-4'
   };
 
   const sizeClass = sizeClasses[size] || sizeClasses.sm;
 
   return (
-    <div className={`card bento-item ${sizeClass} ${className}`}>
+    <Card className={`${sizeClass} ${className}`}>
       {/* Card Header */}
       {showHeader && (
-        <div className="card-header">
+        <Card.Header>
           <Skeleton
             variant="rectangular"
             height={headerHeight}
             width="60%"
             animation={animation}
           />
-        </div>
+        </Card.Header>
       )}
 
       {/* Card Content */}
-      <div className="card-content">
+      <Card.Content>
         <SkeletonText
           lines={contentLines}
           spacing="gap-3"
           animation={animation}
         />
-      </div>
+      </Card.Content>
 
       {/* Card Footer */}
       {showFooter && (
-        <div className="card-footer">
+        <Card.Footer>
           {footerContent ? (
             footerContent
           ) : (
@@ -67,8 +68,8 @@ export default function SkeletonCard({
               />
             </div>
           )}
-        </div>
+        </Card.Footer>
       )}
-    </div>
+    </Card>
   );
 }

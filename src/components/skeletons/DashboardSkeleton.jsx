@@ -1,5 +1,5 @@
+import { Card } from '@heroui/react';
 import Skeleton from './Skeleton';
-import SkeletonText from './SkeletonText';
 
 export default function DashboardSkeleton({ animation = 'pulse' }) {
   return (
@@ -22,11 +22,11 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
           />
         </div>
 
-        {/* Bento Grid Layout - 4 Stat Cards */}
-        <div className="bento-grid mb-10">
+        {/* Grid Layout - 4 Stat Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {/* Stat Card 1 - Total Players */}
-          <div className="bento-sm card">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="h-full">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <Skeleton
                   variant="rectangular"
@@ -66,12 +66,12 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Stat Card 2 - Scouting Reports */}
-          <div className="bento-sm card">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="h-full">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <Skeleton
                   variant="rectangular"
@@ -111,12 +111,12 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Stat Card 3 - Team Status */}
-          <div className="bento-sm card">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="h-full">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <Skeleton
                   variant="rectangular"
@@ -156,12 +156,12 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Stat Card 4 - Quick Actions Count */}
-          <div className="bento-sm card">
-            <div className="card-body flex flex-col justify-between h-full">
+          <Card className="h-full">
+            <Card.Content className="flex flex-col justify-between h-full p-6">
               <div className="flex items-center justify-between">
                 <Skeleton
                   variant="rectangular"
@@ -201,13 +201,13 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Recent Players - Large card */}
-          <div className="bento-lg card">
-            <div className="card-header">
-              <div className="flex items-center justify-between">
+          <Card className="col-span-1 md:col-span-2">
+            <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2">
                   <Skeleton
                     variant="rectangular"
@@ -230,7 +230,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-              <div className="mt-2">
+              <div className="mt-2 w-full">
                 <Skeleton
                   variant="rectangular"
                   width="70%"
@@ -238,8 +238,8 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-            </div>
-            <div className="card-content">
+            </Card.Header>
+            <Card.Content className="px-6 py-2">
               <div className="space-y-3">
                 {[...Array(5)].map((_, index) => (
                   <div
@@ -279,13 +279,13 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
 
           {/* Recent Reports - Large card */}
-          <div className="bento-lg card">
-            <div className="card-header">
-              <div className="flex items-center justify-between">
+          <Card className="col-span-1 md:col-span-2">
+            <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2">
                   <Skeleton
                     variant="rectangular"
@@ -308,7 +308,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-              <div className="mt-2">
+              <div className="mt-2 w-full">
                 <Skeleton
                   variant="rectangular"
                   width="60%"
@@ -316,8 +316,8 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   animation={animation}
                 />
               </div>
-            </div>
-            <div className="card-content">
+            </Card.Header>
+            <Card.Content className="px-6 py-2">
               <div className="space-y-3">
                 {[...Array(5)].map((_, index) => (
                   <div
@@ -357,13 +357,13 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </Card.Content>
+          </Card>
         </div>
 
         {/* Quick Actions - Full width card */}
-        <div className="card card-glass mb-10">
-          <div className="card-header">
+        <Card className="mb-10">
+          <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
             <div className="flex items-center gap-2">
               <Skeleton
                 variant="rectangular"
@@ -378,7 +378,7 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                 animation={animation}
               />
             </div>
-            <div className="mt-2">
+            <div className="mt-2 w-full">
               <Skeleton
                 variant="rectangular"
                 width="40%"
@@ -386,13 +386,13 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                 animation={animation}
               />
             </div>
-          </div>
-          <div className="card-content">
+          </Card.Header>
+          <Card.Content className="px-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[...Array(4)].map((_, index) => (
                 <div
                   key={index}
-                  className="p-4 bg-white border border-divider rounded-lg"
+                  className="p-4 bg-default-100 border border-divider rounded-lg"
                 >
                   <div className="flex items-start gap-3">
                     <Skeleton
@@ -421,12 +421,12 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </Card.Content>
+        </Card>
 
         {/* Team Statistics Skeleton */}
-        <div className="card">
-          <div className="card-header">
+        <Card>
+          <Card.Header className="flex flex-col items-start gap-1 px-6 pt-6 pb-2">
             <Skeleton
               variant="rectangular"
               width={180}
@@ -440,8 +440,8 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
               height={16}
               animation={animation}
             />
-          </div>
-          <div className="card-content">
+          </Card.Header>
+          <Card.Content className="px-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[...Array(3)].map((_, index) => (
                 <div key={index} className="p-4 bg-content1/50 rounded-lg">
@@ -468,8 +468,8 @@ export default function DashboardSkeleton({ animation = 'pulse' }) {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </Card.Content>
+        </Card>
       </div>
     </div>
   );
