@@ -575,57 +575,44 @@ export default function TeamSettings() {
             tabContent: 'group-data-[selected=true]:text-primary font-medium'
           }}
         >
-          <Tab
-            key="general"
-            title={
+          <Tabs.List>
+            <Tab key="general" id="general">
               <div className="flex items-center space-x-2">
                 <Settings className="h-4 w-4" />
                 <span>General</span>
               </div>
-            }
-          />
-          {canModifyBranding && (
-            <Tab
-              key="branding"
-              title={
+            </Tab>
+            {canModifyBranding && (
+              <Tab key="branding" id="branding">
                 <div className="flex items-center space-x-2">
                   <Palette className="h-4 w-4" />
                   <span>Branding</span>
                 </div>
-              }
-            />
-          )}
-          {isSuperAdmin && (
-            <Tab
-              key="users"
-              title={
+              </Tab>
+            )}
+            {isSuperAdmin && (
+              <Tab key="users" id="users">
                 <div className="flex items-center space-x-2">
                   <Users className="h-4 w-4" />
                   <span>Users</span>
                 </div>
-              }
-            />
-          )}
-          <Tab
-            key="permissions"
-            title={
+              </Tab>
+            )}
+            <Tab key="permissions" id="permissions">
               <div className="flex items-center space-x-2">
                 <Shield className="h-4 w-4" />
                 <span>Permissions</span>
               </div>
-            }
-          />
-          {canModifyBranding && (
-            <Tab
-              key="integrations"
-              title={
+            </Tab>
+            {canModifyBranding && (
+              <Tab key="integrations" id="integrations">
                 <div className="flex items-center space-x-2">
                   <Link2 className="h-4 w-4" />
                   <span>Integrations</span>
                 </div>
-              }
-            />
-          )}
+              </Tab>
+            )}
+          </Tabs.List>
         </Tabs>
 
         {/* General Settings */}

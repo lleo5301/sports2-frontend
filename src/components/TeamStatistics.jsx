@@ -138,9 +138,11 @@ const TeamStatistics = () => {
               'group-data-[selected=true]:text-primary-foreground font-medium'
           }}
         >
-          <Tab key="overview" title="Overview" />
-          <Tab key="performance" title="Performance" />
-          <Tab key="roster" title="Roster" />
+          <Tabs.List>
+            <Tab key="overview" id="overview">Overview</Tab>
+            <Tab key="performance" id="performance">Performance</Tab>
+            <Tab key="roster" id="roster">Roster</Tab>
+          </Tabs.List>
         </Tabs>
       </div>
 
