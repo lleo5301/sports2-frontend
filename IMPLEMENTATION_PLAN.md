@@ -106,12 +106,33 @@ Schedules list, create, detail. Games list, create, detail.
 
 ---
 
+## Phase 6: Contacts CRUD — **Complete**
+
+### Goal
+Coaches, Scouts, Vendors, High School Coaches full CRUD.
+
+### Tasks
+- [x] Coaches API (coaches-api.ts)
+- [x] Coaches list, create, detail, edit, delete
+- [x] Scouts API (scouts-api.ts)
+- [x] Scouts list, create, detail, edit, delete
+- [x] Vendors API (vendors-api.ts)
+- [x] Vendors list, create, detail, edit, delete
+- [x] High School Coaches API (high-school-coaches-api.ts)
+- [x] HS Coaches list, create, detail, edit, delete
+- [x] Routes and sidebar links for all contacts
+
+### Status: Complete
+
+---
+
 ## Future Phases
 
-### Phase 6: Reports, Contacts, Settings
-- Reports, Contacts CRUD, Team/User Settings
+### Phase 7: Reports, Settings
+- Reports list (custom reports), Analytics
+- Team/User Settings (wire to API)
 
-### Phase 7: Integrations
+### Phase 8: Integrations
 - PrestoSports status/sync
 
 ---

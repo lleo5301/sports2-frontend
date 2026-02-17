@@ -85,9 +85,13 @@ export const sidebarData: SidebarData = {
           icon: Contact,
           items: [
             { title: 'Coaches', url: '/coaches', icon: Contact },
+            { title: 'Add Coach', url: '/coaches/create', icon: Contact },
             { title: 'Scouts', url: '/scouts', icon: Contact },
+            { title: 'Add Scout', url: '/scouts/create', icon: Contact },
             { title: 'Vendors', url: '/vendors', icon: Contact },
+            { title: 'Add Vendor', url: '/vendors/create', icon: Contact },
             { title: 'High School Coaches', url: '/high-school-coaches', icon: Contact },
+            { title: 'Add HS Coach', url: '/high-school-coaches/create', icon: Contact },
           ],
         },
       ],
