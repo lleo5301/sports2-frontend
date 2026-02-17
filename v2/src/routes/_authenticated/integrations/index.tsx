@@ -1,11 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PlaceholderPage } from '@/components/placeholder-page'
+import { IntegrationsPage } from '@/features/integrations/integrations-page'
 
 export const Route = createFileRoute('/_authenticated/integrations/')({
-  component: () => (
-    <PlaceholderPage
-      title='Integrations'
-      description='PrestoSports and other integrations'
-    />
-  ),
+  component: IntegrationsPage,
 })

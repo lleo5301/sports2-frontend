@@ -12,7 +12,6 @@
 ## Reuse (unchanged)
 
 - All services in `src/services/`
-- Depth chart components: EnhancedBaseballFieldView, DepthChartPositionManager, DepthChartSheetView, DepthChartSheetViewV2, DepthChartFangraphsView, `src/components/depthchart/*`
 - Auth flow, BrandingContext, ThemeContext
 - Pref list pages: New Players, Overall Pref List, HS Pref List, College Portal
 
@@ -126,14 +125,73 @@ Coaches, Scouts, Vendors, High School Coaches full CRUD.
 
 ---
 
+## Extra Capabilities (Complete)
+
+### Analytics Charts (Recharts)
+- [x] reports-api.ts: player-performance, recruitment-pipeline
+- [x] Analytics page with Pie (pipeline) + Bar (performance) charts
+
+### Schedule Calendar View
+- [x] schedule-events-api.ts
+- [x] Full calendar (react-big-calendar) at /schedules/calendar
+- [x] Sidebar: Calendar link under Operations
+
+### Permission-Aware UI
+- [x] Sidebar filters by GET /auth/permissions (usePermissions hook)
+- [x] Scouting: reports_view, reports_create
+- [x] Operations: schedule_view, schedule_create, depth_chart_view
+
+---
+
+## Phase 7: Team Settings — **Complete**
+
+### Goal
+Team branding (logo, colors), team details, users, and permissions.
+
+### Tasks
+- [x] teams-api: updateMyTeam, uploadLogo, deleteLogo, getUsers, getPermissions, grant/update/revokePermission
+- [x] branding-api: updateColors
+- [x] Team Settings page: Team Details form, Branding (logo upload + colors), Team Members list, Permissions list
+
+### Status: Complete
+
+---
+
+## Depth Charts — **Complete**
+
+### Goal
+Depth chart list, detail with List/Field/Sheet views, assign players, position manager, history.
+
+### Tasks
+- [x] depth-charts-api: getAvailablePlayers, getRecommendedPlayers, getHistory, add/update/deletePosition, assign/unassignPlayer
+- [x] EnhancedBaseballFieldView (D3 baseball diamond)
+- [x] DepthChartDetailPage: List, Field, Sheet view modes; Chart/Positions/History tabs
+- [x] AssignPlayerModal (recommended + all players)
+- [x] DepthChartPositionManager (add/edit/delete positions)
+- [x] DepthChartSheetView (printable, export image)
+
+### Status: Complete
+
+---
+
 ## Future Phases
 
-### Phase 7: Reports, Settings
-- Reports list (custom reports), Analytics
-- Team/User Settings (wire to API)
+### Phase 8: Reports, User Settings
+- Reports list (custom reports)
+- User Settings (profile, notifications, security) — wire to API
 
-### Phase 8: Integrations
-- PrestoSports status/sync
+## Integrations — **Complete**
+
+### Goal
+PrestoSports integration status and sync.
+
+### Tasks
+- [x] integrations-api.ts (status, sync roster/schedule/stats/all)
+- [x] Integrations page with PrestoSports card
+- [x] Status badge, sync buttons
+- [x] Removed placeholder "Phase 5" text
+
+### Status: Complete
 
 ---
 

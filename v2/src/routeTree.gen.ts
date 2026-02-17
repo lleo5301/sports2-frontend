@@ -57,6 +57,7 @@ import { Route as AuthenticatedScoutsIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedScoutingCreateRouteImport } from './routes/_authenticated/scouting/create'
 import { Route as AuthenticatedScoutingIdRouteImport } from './routes/_authenticated/scouting/$id'
 import { Route as AuthenticatedSchedulesCreateRouteImport } from './routes/_authenticated/schedules/create'
+import { Route as AuthenticatedSchedulesCalendarRouteImport } from './routes/_authenticated/schedules/calendar'
 import { Route as AuthenticatedSchedulesIdRouteImport } from './routes/_authenticated/schedules/$id'
 import { Route as AuthenticatedReportsAnalyticsRouteImport } from './routes/_authenticated/reports/analytics'
 import { Route as AuthenticatedProspectsCreateRouteImport } from './routes/_authenticated/prospects/create'
@@ -336,6 +337,12 @@ const AuthenticatedSchedulesCreateRoute =
     path: '/schedules/create',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSchedulesCalendarRoute =
+  AuthenticatedSchedulesCalendarRouteImport.update({
+    id: '/schedules/calendar',
+    path: '/schedules/calendar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSchedulesIdRoute =
   AuthenticatedSchedulesIdRouteImport.update({
     id: '/schedules/$id',
@@ -448,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/prospects/create': typeof AuthenticatedProspectsCreateRoute
   '/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
   '/schedules/$id': typeof AuthenticatedSchedulesIdRoute
+  '/schedules/calendar': typeof AuthenticatedSchedulesCalendarRoute
   '/schedules/create': typeof AuthenticatedSchedulesCreateRoute
   '/scouting/$id': typeof AuthenticatedScoutingIdRoute
   '/scouting/create': typeof AuthenticatedScoutingCreateRoute
@@ -510,6 +518,7 @@ export interface FileRoutesByTo {
   '/prospects/create': typeof AuthenticatedProspectsCreateRoute
   '/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
   '/schedules/$id': typeof AuthenticatedSchedulesIdRoute
+  '/schedules/calendar': typeof AuthenticatedSchedulesCalendarRoute
   '/schedules/create': typeof AuthenticatedSchedulesCreateRoute
   '/scouting/$id': typeof AuthenticatedScoutingIdRoute
   '/scouting/create': typeof AuthenticatedScoutingCreateRoute
@@ -575,6 +584,7 @@ export interface FileRoutesById {
   '/_authenticated/prospects/create': typeof AuthenticatedProspectsCreateRoute
   '/_authenticated/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
   '/_authenticated/schedules/$id': typeof AuthenticatedSchedulesIdRoute
+  '/_authenticated/schedules/calendar': typeof AuthenticatedSchedulesCalendarRoute
   '/_authenticated/schedules/create': typeof AuthenticatedSchedulesCreateRoute
   '/_authenticated/scouting/$id': typeof AuthenticatedScoutingIdRoute
   '/_authenticated/scouting/create': typeof AuthenticatedScoutingCreateRoute
@@ -640,6 +650,7 @@ export interface FileRouteTypes {
     | '/prospects/create'
     | '/reports/analytics'
     | '/schedules/$id'
+    | '/schedules/calendar'
     | '/schedules/create'
     | '/scouting/$id'
     | '/scouting/create'
@@ -702,6 +713,7 @@ export interface FileRouteTypes {
     | '/prospects/create'
     | '/reports/analytics'
     | '/schedules/$id'
+    | '/schedules/calendar'
     | '/schedules/create'
     | '/scouting/$id'
     | '/scouting/create'
@@ -766,6 +778,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prospects/create'
     | '/_authenticated/reports/analytics'
     | '/_authenticated/schedules/$id'
+    | '/_authenticated/schedules/calendar'
     | '/_authenticated/schedules/create'
     | '/_authenticated/scouting/$id'
     | '/_authenticated/scouting/create'
@@ -1154,6 +1167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchedulesCreateRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/schedules/calendar': {
+      id: '/_authenticated/schedules/calendar'
+      path: '/schedules/calendar'
+      fullPath: '/schedules/calendar'
+      preLoaderRoute: typeof AuthenticatedSchedulesCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/schedules/$id': {
       id: '/_authenticated/schedules/$id'
       path: '/schedules/$id'
@@ -1296,6 +1316,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspectsCreateRoute: typeof AuthenticatedProspectsCreateRoute
   AuthenticatedReportsAnalyticsRoute: typeof AuthenticatedReportsAnalyticsRoute
   AuthenticatedSchedulesIdRoute: typeof AuthenticatedSchedulesIdRoute
+  AuthenticatedSchedulesCalendarRoute: typeof AuthenticatedSchedulesCalendarRoute
   AuthenticatedSchedulesCreateRoute: typeof AuthenticatedSchedulesCreateRoute
   AuthenticatedScoutingIdRoute: typeof AuthenticatedScoutingIdRoute
   AuthenticatedScoutingCreateRoute: typeof AuthenticatedScoutingCreateRoute
@@ -1344,6 +1365,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspectsCreateRoute: AuthenticatedProspectsCreateRoute,
   AuthenticatedReportsAnalyticsRoute: AuthenticatedReportsAnalyticsRoute,
   AuthenticatedSchedulesIdRoute: AuthenticatedSchedulesIdRoute,
+  AuthenticatedSchedulesCalendarRoute: AuthenticatedSchedulesCalendarRoute,
   AuthenticatedSchedulesCreateRoute: AuthenticatedSchedulesCreateRoute,
   AuthenticatedScoutingIdRoute: AuthenticatedScoutingIdRoute,
   AuthenticatedScoutingCreateRoute: AuthenticatedScoutingCreateRoute,

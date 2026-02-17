@@ -14,7 +14,7 @@ export function PlaceholderPage({ title, description }: PlaceholderPageProps) {
           <p className='text-muted-foreground'>{description}</p>
         )}
         <p className='text-sm text-muted-foreground'>
-          This section will be implemented in Phase 5.
+          Coming soon.
         </p>
       </div>
     </Main>

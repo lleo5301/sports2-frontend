@@ -57,8 +57,8 @@ export const sidebarData: SidebarData = {
           title: 'Scouting',
           icon: FileSearch,
           items: [
-            { title: 'Reports', url: '/scouting', icon: FileSearch },
-            { title: 'Create Report', url: '/scouting/create', icon: FileSearch },
+            { title: 'Reports', url: '/scouting', icon: FileSearch, permission: 'reports_view' },
+            { title: 'Create Report', url: '/scouting/create', icon: FileSearch, permission: 'reports_create' },
           ],
         },
         {
@@ -66,6 +66,7 @@ export const sidebarData: SidebarData = {
           icon: Calendar,
           items: [
             { title: 'Schedules', url: '/schedules', icon: Calendar, permission: 'schedule_view' },
+            { title: 'Calendar', url: '/schedules/calendar', icon: Calendar, permission: 'schedule_view' },
             { title: 'Create Schedule', url: '/schedules/create', icon: Calendar, permission: 'schedule_create' },
             { title: 'Games', url: '/games', icon: Trophy },
             { title: 'Add Game', url: '/games/create', icon: Trophy },
