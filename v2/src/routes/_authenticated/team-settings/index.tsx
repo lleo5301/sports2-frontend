@@ -1,11 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PlaceholderPage } from '@/components/placeholder-page'
+import { TeamSettingsPage } from '@/features/team-settings'
 
 export const Route = createFileRoute('/_authenticated/team-settings/')({
-  component: () => (
-    <PlaceholderPage
-      title='Team Settings'
-      description='Branding, users, and permissions'
-    />
-  ),
+  component: TeamSettingsPage,
 })

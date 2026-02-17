@@ -22,4 +22,12 @@ export const brandingApi = {
     )
     return unwrap(r.data as { success?: boolean; data?: Branding })
   },
+
+  updateColors: async (primary_color?: string, secondary_color?: string) => {
+    const r = await api.put<{ success?: boolean; data?: Branding }>(
+      '/teams/branding',
+      { primary_color, secondary_color }
+    )
+    return unwrap(r.data as { success?: boolean; data?: Branding })
+  },
 }

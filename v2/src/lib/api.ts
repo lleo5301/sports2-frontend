@@ -14,6 +14,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
     const method = config.method?.toLowerCase()
     if (method && ['post', 'put', 'patch', 'delete'].includes(method)) {
       try {
