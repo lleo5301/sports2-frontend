@@ -69,13 +69,44 @@ Prospects list, create, edit, pipeline view.
 
 ---
 
+## Phase 4: Scouting Reports — **Complete**
+
+### Goal
+Create/edit scouting reports with 20–80 grades.
+
+### Tasks
+- [x] Scouting API (scouting-api.ts)
+- [x] Scouting reports list with prospect filter
+- [x] Create scouting report (prospect selector or preselected from prospect detail)
+- [x] Scouting report detail view + edit form
+- [x] Grades: overall, hitting, pitching, fielding, speed (present/future)
+
+### Status: Complete
+
+---
+
+## Phase 5: Schedules & Games — **Complete**
+
+### Goal
+Schedules list, create, detail. Games list, create, detail.
+
+### Tasks
+- [x] Schedules API (schedules-api.ts)
+- [x] Schedules list with filters
+- [x] Create schedule form
+- [x] Schedule detail view (sections + activities)
+- [x] Games API (games-api.ts)
+- [x] Games list
+- [x] Create game form
+- [x] Game detail view
+- [x] Routes: /schedules, /schedules/create, /schedules/$id, /games, /games/create, /games/$id
+- [x] Sidebar: Create Schedule, Add Game
+
+### Status: Complete
+
+---
+
 ## Future Phases
-
-### Phase 4: Scouting Reports
-- Create/edit reports, 20–80 grades
-
-### Phase 5: Schedules, Depth Charts, Games
-- Wire existing components
 
 ### Phase 6: Reports, Contacts, Settings
 - Reports, Contacts CRUD, Team/User Settings

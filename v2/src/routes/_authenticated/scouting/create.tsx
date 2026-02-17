@@ -1,11 +1,17 @@
+import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
-import { PlaceholderPage } from '@/components/placeholder-page'
+import { CreateScoutingForm } from '@/features/scouting/create-scouting-form'
+
+const searchSchema = z.object({
+  prospectId: z.string().optional(),
+})
 
 export const Route = createFileRoute('/_authenticated/scouting/create')({
-  component: () => (
-    <PlaceholderPage
-      title='Create Scouting Report'
-      description='Create a new scouting report with grades'
-    />
-  ),
+  component: CreateScoutingPage,
+  validateSearch: searchSchema,
 })
+
+function CreateScoutingPage() {
+  const { prospectId } = Route.useSearch()
+  return <CreateScoutingForm preselectedProspectId={prospectId} />
+}

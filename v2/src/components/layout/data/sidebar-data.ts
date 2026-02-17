@@ -66,7 +66,9 @@ export const sidebarData: SidebarData = {
           icon: Calendar,
           items: [
             { title: 'Schedules', url: '/schedules', icon: Calendar, permission: 'schedule_view' },
+            { title: 'Create Schedule', url: '/schedules/create', icon: Calendar, permission: 'schedule_create' },
             { title: 'Games', url: '/games', icon: Trophy },
+            { title: 'Add Game', url: '/games/create', icon: Trophy },
             { title: 'Depth Charts', url: '/depth-charts', icon: ClipboardList, permission: 'depth_chart_view' },
           ],
         },

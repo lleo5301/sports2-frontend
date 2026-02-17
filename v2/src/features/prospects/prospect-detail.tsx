@@ -3,7 +3,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, ClipboardList, Loader2, Pencil, Trash2 } from 'lucide-react'
 import { prospectsApi, type Prospect } from '@/lib/prospects-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
@@ -118,6 +118,15 @@ export function ProspectDetail({ id }: ProspectDetailProps) {
             </div>
           </div>
           <div className='flex gap-2'>
+            <Button variant='outline' asChild>
+              <Link
+                to='/scouting/create'
+                search={{ prospectId: String(prospect.id) }}
+              >
+                <ClipboardList className='size-4' />
+                Create Report
+              </Link>
+            </Button>
             <Button variant='outline' onClick={() => setEditing(true)}>
               <Pencil className='size-4' />
               Edit
