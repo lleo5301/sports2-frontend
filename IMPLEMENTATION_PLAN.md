@@ -37,15 +37,39 @@ Simplified nav, new Dashboard using spec endpoints.
 
 ---
 
+## Phase 2: Roster — **Complete**
+
+### Goal
+Players list, create, edit, delete.
+
+### Tasks
+- [x] Players list with filters (search, position, status, school type)
+- [x] Create player form
+- [x] Player detail view + edit form
+- [x] Delete player
+
+### Status: Complete
+
+---
+
+## Phase 3: Prospects & Recruiting — **Complete**
+
+### Goal
+Prospects list, create, edit, pipeline view.
+
+### Tasks
+- [x] Prospects API (prospects-api.ts)
+- [x] Prospects list with filters (search, position, status, school type)
+- [x] Create prospect form
+- [x] Prospect detail view + edit form
+- [x] Delete prospect
+- [ ] Recruiting Board (retain pref list pages) — future
+
+### Status: Complete
+
+---
+
 ## Future Phases
-
-### Phase 2: Roster
-- Players list, create, edit, delete
-- Use existing players service
-
-### Phase 3: Prospects & Recruiting
-- Prospects list, create, pipeline view
-- Recruiting Board (retain pref list pages)
 
 ### Phase 4: Scouting Reports
 - Create/edit reports, 20–80 grades

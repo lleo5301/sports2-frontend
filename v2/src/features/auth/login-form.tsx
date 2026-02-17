@@ -27,6 +27,14 @@ const formSchema = z.object({
     .min(7, 'Password must be at least 7 characters'),
 })
 
+/** Safe redirect path: internal app path, no open redirect. */
+function sanitizeRedirect(path: string | undefined): string {
+  if (!path || typeof path !== 'string' || !path.startsWith('/')) return '/'
+  if (path.includes('//') || path.startsWith('/login') || path.startsWith('/register'))
+    return '/'
+  return path
+}
+
 interface LoginFormProps extends React.HTMLAttributes<HTMLFormElement> {
   redirectTo?: string
 }
@@ -50,7 +58,7 @@ export function LoginForm({
     try {
       const user = await authLogin(data)
       login(user)
-      navigate({ to: redirectTo || '/', replace: true })
+      navigate({ to: sanitizeRedirect(redirectTo), replace: true })
     } catch {
       // Error toast handled by api interceptor
     } finally {

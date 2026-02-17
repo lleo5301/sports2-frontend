@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -52,6 +53,7 @@ import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_auth
 import { Route as AuthenticatedScoutingCreateRouteImport } from './routes/_authenticated/scouting/create'
 import { Route as AuthenticatedScoutingIdRouteImport } from './routes/_authenticated/scouting/$id'
 import { Route as AuthenticatedReportsAnalyticsRouteImport } from './routes/_authenticated/reports/analytics'
+import { Route as AuthenticatedProspectsCreateRouteImport } from './routes/_authenticated/prospects/create'
 import { Route as AuthenticatedProspectsIdRouteImport } from './routes/_authenticated/prospects/$id'
 import { Route as AuthenticatedPlayersCreateRouteImport } from './routes/_authenticated/players/create'
 import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players/$id'
@@ -65,6 +67,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const errors503Route = errors503RouteImport.update({
@@ -295,6 +302,12 @@ const AuthenticatedReportsAnalyticsRoute =
     path: '/reports/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProspectsCreateRoute =
+  AuthenticatedProspectsCreateRouteImport.update({
+    id: '/prospects/create',
+    path: '/prospects/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProspectsIdRoute =
   AuthenticatedProspectsIdRouteImport.update({
     id: '/prospects/$id',
@@ -340,11 +353,13 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/depth-charts/$id': typeof AuthenticatedDepthChartsIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
   '/players/create': typeof AuthenticatedPlayersCreateRoute
   '/prospects/$id': typeof AuthenticatedProspectsIdRoute
+  '/prospects/create': typeof AuthenticatedProspectsCreateRoute
   '/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
   '/scouting/$id': typeof AuthenticatedScoutingIdRoute
   '/scouting/create': typeof AuthenticatedScoutingCreateRoute
@@ -387,12 +402,14 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthenticatedIndexRoute
   '/depth-charts/$id': typeof AuthenticatedDepthChartsIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
   '/players/create': typeof AuthenticatedPlayersCreateRoute
   '/prospects/$id': typeof AuthenticatedProspectsIdRoute
+  '/prospects/create': typeof AuthenticatedProspectsCreateRoute
   '/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
   '/scouting/$id': typeof AuthenticatedScoutingIdRoute
   '/scouting/create': typeof AuthenticatedScoutingCreateRoute
@@ -438,12 +455,14 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/depth-charts/$id': typeof AuthenticatedDepthChartsIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
   '/_authenticated/players/create': typeof AuthenticatedPlayersCreateRoute
   '/_authenticated/prospects/$id': typeof AuthenticatedProspectsIdRoute
+  '/_authenticated/prospects/create': typeof AuthenticatedProspectsCreateRoute
   '/_authenticated/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
   '/_authenticated/scouting/$id': typeof AuthenticatedScoutingIdRoute
   '/_authenticated/scouting/create': typeof AuthenticatedScoutingCreateRoute
@@ -490,11 +509,13 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/dashboard'
     | '/depth-charts/$id'
     | '/errors/$error'
     | '/players/$id'
     | '/players/create'
     | '/prospects/$id'
+    | '/prospects/create'
     | '/reports/analytics'
     | '/scouting/$id'
     | '/scouting/create'
@@ -537,12 +558,14 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/dashboard'
     | '/'
     | '/depth-charts/$id'
     | '/errors/$error'
     | '/players/$id'
     | '/players/create'
     | '/prospects/$id'
+    | '/prospects/create'
     | '/reports/analytics'
     | '/scouting/$id'
     | '/scouting/create'
@@ -587,12 +610,14 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/dashboard'
     | '/_authenticated/'
     | '/_authenticated/depth-charts/$id'
     | '/_authenticated/errors/$error'
     | '/_authenticated/players/$id'
     | '/_authenticated/players/create'
     | '/_authenticated/prospects/$id'
+    | '/_authenticated/prospects/create'
     | '/_authenticated/reports/analytics'
     | '/_authenticated/scouting/$id'
     | '/_authenticated/scouting/create'
@@ -653,6 +678,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(errors)/503': {
@@ -942,6 +974,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/prospects/create': {
+      id: '/_authenticated/prospects/create'
+      path: '/prospects/create'
+      fullPath: '/prospects/create'
+      preLoaderRoute: typeof AuthenticatedProspectsCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prospects/$id': {
       id: '/_authenticated/prospects/$id'
       path: '/prospects/$id'
@@ -1005,12 +1044,14 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedDepthChartsIdRoute: typeof AuthenticatedDepthChartsIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedPlayersIdRoute: typeof AuthenticatedPlayersIdRoute
   AuthenticatedPlayersCreateRoute: typeof AuthenticatedPlayersCreateRoute
   AuthenticatedProspectsIdRoute: typeof AuthenticatedProspectsIdRoute
+  AuthenticatedProspectsCreateRoute: typeof AuthenticatedProspectsCreateRoute
   AuthenticatedReportsAnalyticsRoute: typeof AuthenticatedReportsAnalyticsRoute
   AuthenticatedScoutingIdRoute: typeof AuthenticatedScoutingIdRoute
   AuthenticatedScoutingCreateRoute: typeof AuthenticatedScoutingCreateRoute
@@ -1038,12 +1079,14 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedDepthChartsIdRoute: AuthenticatedDepthChartsIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedPlayersIdRoute: AuthenticatedPlayersIdRoute,
   AuthenticatedPlayersCreateRoute: AuthenticatedPlayersCreateRoute,
   AuthenticatedProspectsIdRoute: AuthenticatedProspectsIdRoute,
+  AuthenticatedProspectsCreateRoute: AuthenticatedProspectsCreateRoute,
   AuthenticatedReportsAnalyticsRoute: AuthenticatedReportsAnalyticsRoute,
   AuthenticatedScoutingIdRoute: AuthenticatedScoutingIdRoute,
   AuthenticatedScoutingCreateRoute: AuthenticatedScoutingCreateRoute,

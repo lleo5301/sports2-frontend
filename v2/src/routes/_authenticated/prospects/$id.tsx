@@ -1,16 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PlaceholderPage } from '@/components/placeholder-page'
+import { ProspectDetail } from '@/features/prospects/prospect-detail'
 
 export const Route = createFileRoute('/_authenticated/prospects/$id')({
-  component: ProspectDetail,
+  component: ProspectDetailPage,
 })
 
-function ProspectDetail() {
+function ProspectDetailPage() {
   const { id } = Route.useParams()
-  return (
-    <PlaceholderPage
-      title={`Prospect #${id}`}
-      description='Prospect detail and scouting'
-    />
-  )
+  return <ProspectDetail id={id} />
 }

@@ -48,6 +48,7 @@ export const sidebarData: SidebarData = {
           icon: UserPlus,
           items: [
             { title: 'Prospects', url: '/prospects', icon: Users },
+            { title: 'Create Prospect', url: '/prospects/create', icon: UserPlus },
             { title: 'Recruiting Board', url: '/recruiting', icon: ClipboardList },
             { title: 'Preference Lists', url: '/preference-lists', icon: ClipboardList },
           ],

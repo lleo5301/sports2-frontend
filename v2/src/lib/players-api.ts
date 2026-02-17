@@ -20,6 +20,8 @@ export interface Player {
   graduation_year?: number
   status?: string
   team_id?: number
+  email?: string
+  phone?: string
   created_at?: string
   updated_at?: string
 }
