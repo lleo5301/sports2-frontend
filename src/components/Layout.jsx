@@ -137,111 +137,106 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   return (
-    <div
-      className={`drawer lg:drawer-open ${isDrawerCollapsed ? 'lg:drawer-collapsed' : ''}`}
-    >
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-
-      {/* Page content */}
-      <div className="drawer-content flex flex-col">
-        {/* Mobile menu toggle - only visible on mobile */}
-        <div className="lg:hidden p-4 border-b border-divider">
-          <Button as="label" htmlFor="my-drawer" isIconOnly variant="light">
-            <Menu className="w-6 h-6" />
-          </Button>
-        </div>
-
-        {/* Page content */}
-        <div className="flex-1 p-4">{children}</div>
-      </div>
+    <div className="flex min-h-screen">
+      {/* Mobile overlay */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+          aria-label="close sidebar"
+        />
+      )}
 
       {/* Sidebar */}
-      <div className="drawer-side z-50">
-        <label
-          htmlFor="my-drawer"
-          aria-label="close sidebar"
-          className="drawer-overlay"
-        ></label>
-        <aside
-          className={`min-h-full flex flex-col bg-content1 border-r border-divider transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isDrawerCollapsed ? 'w-[72px]' : 'w-72'}`}
-        >
-          {/* Sidebar Header - Monolithic precision */}
-          <div className="h-20 flex items-center px-6 relative overflow-hidden group">
-            {/* Subtle atmospheric glow behind logo */}
-            <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <aside
+        className={`
+          fixed top-0 left-0 z-50 min-h-screen flex flex-col bg-content1 border-r border-divider
+          transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]
+          ${isDrawerCollapsed ? 'lg:w-[72px]' : 'lg:w-72'}
+          ${isMobileOpen ? 'w-72 translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:sticky
+        `}
+      >
+        {/* Sidebar Header - Monolithic precision */}
+        <div className="h-20 flex items-center px-6 relative overflow-hidden group">
+          {/* Subtle atmospheric glow behind logo */}
+          <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
-            <Link to="/" className="flex items-center gap-3 min-w-0 z-10">
-              <div className="relative flex-shrink-0">
-                <div className="absolute -inset-1 bg-brand opacity-20 blur-sm rounded-lg" />
-                {fullLogoUrl ? (
-                  <img
-                    src={fullLogoUrl}
-                    alt={programName || name || 'Logo'}
-                    className="w-9 h-9 object-contain rounded-lg relative bg-content2 p-1 border border-base-content/10"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center relative">
-                    <span className="text-primary-content text-xs font-black tracking-tighter">
+          <Link to="/" className="flex items-center gap-3 min-w-0 z-10">
+            <div className="relative flex-shrink-0">
+              <div className="absolute -inset-1 bg-brand opacity-20 blur-sm rounded-lg" />
+              {fullLogoUrl ? (
+                <img
+                  src={fullLogoUrl}
+                  alt={programName || name || 'Logo'}
+                  className="w-9 h-9 object-contain rounded-lg relative bg-content2 p-1 border border-base-content/10"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center relative">
+                  <span className="text-primary-content text-xs font-black tracking-tighter">
                       CB
-                    </span>
-                  </div>
-                )}
-              </div>
-              {!isDrawerCollapsed && (
-                <div className="flex flex-col min-w-0">
-                  <span className="text-foreground font-bold leading-tight truncate tracking-tight">
-                    {programName || name || 'The Program'}
-                  </span>
-                  <span className="text-[10px] text-foreground/40 uppercase font-black tracking-[0.2em] leading-none">
-                    Management
                   </span>
                 </div>
               )}
-            </Link>
-
+            </div>
             {!isDrawerCollapsed && (
-              <button
-                onClick={toggleDrawer}
-                className="ml-auto p-1.5 rounded-lg text-foreground/40 hover:text-foreground hover:bg-content2/50 transition-all z-10"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
+              <div className="flex flex-col min-w-0">
+                <span className="text-foreground font-bold leading-tight truncate tracking-tight">
+                  {programName || name || 'The Program'}
+                </span>
+                <span className="text-[10px] text-foreground/40 uppercase font-black tracking-[0.2em] leading-none">
+                    Management
+                </span>
+              </div>
             )}
-            {isDrawerCollapsed && (
-              <button
-                onClick={toggleDrawer}
-                className="absolute inset-0 w-full h-full flex items-center justify-center opacity-0 hover:opacity-100 bg-brand/10 transition-opacity duration-300 z-20"
-              >
-                <ChevronRight className="w-5 h-5 text-brand" />
-              </button>
-            )}
-          </div>
+          </Link>
 
-          {/* Navigation Area */}
-          <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-hide space-y-8">
-            {navSections.map((section) => (
-              <div key={section.title} className="space-y-4">
-                {/* Section header - High precision tracking */}
-                {!isDrawerCollapsed && (
-                  <h3 className="px-4 text-[11px] font-bold text-foreground/40 uppercase tracking-[0.25em]">
-                    {section.title}
-                  </h3>
-                )}
+          {!isDrawerCollapsed && (
+            <button
+              onClick={toggleDrawer}
+              className="ml-auto p-1.5 rounded-lg text-foreground/40 hover:text-foreground hover:bg-content2/50 transition-all z-10"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
+          {isDrawerCollapsed && (
+            <button
+              onClick={toggleDrawer}
+              className="absolute inset-0 w-full h-full flex items-center justify-center opacity-0 hover:opacity-100 bg-brand/10 transition-opacity duration-300 z-20"
+            >
+              <ChevronRight className="w-5 h-5 text-brand" />
+            </button>
+          )}
+        </div>
 
-                {/* Section items */}
-                <ul className="space-y-1">
-                  {section.items.map((item) => {
-                    const IconComponent = item.icon;
-                    const isActive = location.pathname === item.path;
-                    return (
-                      <li key={item.path}>
-                        <Link
-                          to={item.path}
-                          className={`
+        {/* Navigation Area */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-hide space-y-8">
+          {navSections.map((section) => (
+            <div key={section.title} className="space-y-4">
+              {/* Section header - High precision tracking */}
+              {!isDrawerCollapsed && (
+                <h3 className="px-4 text-[11px] font-bold text-foreground/40 uppercase tracking-[0.25em]">
+                  {section.title}
+                </h3>
+              )}
+
+              {/* Section items */}
+              <ul className="space-y-1">
+                {section.items.map((item) => {
+                  const IconComponent = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <li key={item.path}>
+                      <Link
+                        to={item.path}
+                        onClick={() => setIsMobileOpen(false)}
+                        className={`
                             relative flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all duration-300 group
                             ${
                               isActive
@@ -250,73 +245,85 @@ const Layout = ({ children }) => {
                             }
                             ${isDrawerCollapsed ? 'justify-center' : ''}
                           `}
-                        >
-                          {/* Active Indicator Bar */}
-                          {isActive && !isDrawerCollapsed && (
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-brand rounded-r-full animate-fade-in" />
-                          )}
+                      >
+                        {/* Active Indicator Bar */}
+                        {isActive && !isDrawerCollapsed && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-brand rounded-r-full animate-fade-in" />
+                        )}
 
-                          <IconComponent
-                            className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}
-                          />
+                        <IconComponent
+                          className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}
+                        />
 
-                          {!isDrawerCollapsed && (
-                            <span className="text-[14px] tracking-tight">
-                              {item.label}
-                            </span>
-                          )}
+                        {!isDrawerCollapsed && (
+                          <span className="text-[14px] tracking-tight">
+                            {item.label}
+                          </span>
+                        )}
 
-                          {/* Tooltip for collapsed state */}
-                          {isDrawerCollapsed && (
-                            <div className="absolute left-full ml-4 px-3 py-1.5 bg-content2 text-foreground text-xs font-bold rounded-lg border border-base-content/10 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 -translate-x-2 group-hover:translate-x-0 whitespace-nowrap z-50">
-                              {item.label}
-                            </div>
-                          )}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
+                        {/* Tooltip for collapsed state */}
+                        {isDrawerCollapsed && (
+                          <div className="absolute left-full ml-4 px-3 py-1.5 bg-content2 text-foreground text-xs font-bold rounded-lg border border-base-content/10 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 -translate-x-2 group-hover:translate-x-0 whitespace-nowrap z-50">
+                            {item.label}
+                          </div>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Theme Toggle - Simple mode control */}
+        <ThemeToggle isCollapsed={isDrawerCollapsed} />
+
+        {/* User & Footer Area */}
+        <div className="p-4 bg-content2/20 border-t border-divider">
+          {user && !isDrawerCollapsed && (
+            <div className="flex items-center gap-3 px-4 py-4 mb-2 bg-content2/30 rounded-2xl border border-base-content/5">
+              <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center border border-brand/20">
+                <UserCheck className="w-5 h-5 text-brand" />
               </div>
-            ))}
-          </div>
-
-          {/* Theme Toggle - Simple mode control */}
-          <ThemeToggle isCollapsed={isDrawerCollapsed} />
-
-          {/* User & Footer Area */}
-          <div className="p-4 bg-content2/20 border-t border-divider">
-            {user && !isDrawerCollapsed && (
-              <div className="flex items-center gap-3 px-4 py-4 mb-2 bg-content2/30 rounded-2xl border border-base-content/5">
-                <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center border border-brand/20">
-                  <UserCheck className="w-5 h-5 text-brand" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-foreground truncate leading-none mb-1">
-                    {user.first_name || 'Admin'}
-                  </p>
-                  <p className="text-[11px] text-foreground/40 truncate uppercase tracking-tighter">
-                    {user.role || 'Staff Member'}
-                  </p>
-                </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-foreground truncate leading-none mb-1">
+                  {user.first_name || 'Admin'}
+                </p>
+                <p className="text-[11px] text-foreground/40 truncate uppercase tracking-tighter">
+                  {user.role || 'Staff Member'}
+                </p>
               </div>
-            )}
+            </div>
+          )}
 
-            <button
-              onClick={handleLogout}
-              className={`
+          <button
+            onClick={handleLogout}
+            className={`
                 w-full flex items-center gap-4 px-4 py-3 rounded-xl text-foreground/40 hover:text-red-400 hover:bg-red-500/5 transition-all duration-300 group
                 ${isDrawerCollapsed ? 'justify-center' : ''}
               `}
-              title={isDrawerCollapsed ? 'Logout' : ''}
-            >
-              <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
-              {!isDrawerCollapsed && (
-                <span className="text-sm font-bold">Logout session</span>
-              )}
-            </button>
-          </div>
-        </aside>
+            title={isDrawerCollapsed ? 'Logout' : ''}
+          >
+            <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+            {!isDrawerCollapsed && (
+              <span className="text-sm font-bold">Logout session</span>
+            )}
+          </button>
+        </div>
+      </aside>
+
+      {/* Page content */}
+      <div className={`drawer-content flex-1 flex flex-col min-w-0 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]`}>
+        {/* Mobile menu toggle - only visible on mobile */}
+        <div className="lg:hidden p-4 border-b border-divider">
+          <Button onPress={() => setIsMobileOpen(true)} isIconOnly variant="light">
+            <Menu className="w-6 h-6" />
+          </Button>
+        </div>
+
+        {/* Page content */}
+        <div className="flex-1 p-4">{children}</div>
       </div>
     </div>
   );

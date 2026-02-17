@@ -225,7 +225,7 @@ const TeamStatistics = () => {
               </Card.Content>
             </Card>
 
-            <Card className="bg-gradient-to-br from-neutral-bg-bg4 to-neutral-bg-bg2 border-white/5 text-white shadow-lg">
+            <Card className="bg-content1 border-divider text-foreground shadow-lg">
               <Card.Content className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
