@@ -290,5 +290,31 @@ export const teamsService = {
   getTeamRoster: async () => {
     const response = await api.get('/teams/roster');
     return response.data;
+  },
+
+  /**
+   * Get recent (past) schedule events for the current user's team
+   *
+   * @param {number} [limit=5] - Max number of events to return
+   * @returns {Promise<Object>} Response with flattened event list
+   */
+  getRecentSchedules: async (limit = 5) => {
+    const response = await api.get('/teams/recent-schedules', {
+      params: { limit }
+    });
+    return response.data;
+  },
+
+  /**
+   * Get upcoming schedule events for the current user's team
+   *
+   * @param {number} [limit=5] - Max number of events to return
+   * @returns {Promise<Object>} Response with flattened event list
+   */
+  getUpcomingSchedules: async (limit = 5) => {
+    const response = await api.get('/teams/upcoming-schedules', {
+      params: { limit }
+    });
+    return response.data;
   }
 };

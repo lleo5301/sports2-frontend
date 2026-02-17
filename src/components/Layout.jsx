@@ -56,73 +56,41 @@ const Layout = ({ children }) => {
     ? 'text-gray-900'
     : 'text-white';
 
+  // Simplified nav per frontend-build-spec. Old routes retained but not in nav (Option B).
   const navSections = [
     {
       title: 'Overview',
       items: [{ path: '/', label: 'Dashboard', icon: Home }]
     },
     {
-      title: 'Player Management',
+      title: 'Roster',
       items: [
-        { path: '/players', label: 'Roster Players', icon: Users },
-        { path: '/performance', label: 'Performance Rankings', icon: Trophy },
-        { path: '/scouting', label: 'Scouting Reports', icon: Target },
+        { path: '/players', label: 'Players', icon: Users },
         { path: '/depth-chart', label: 'Depth Chart', icon: BarChart3 }
       ]
     },
     {
-      title: 'Contacts & Networks',
-      items: [
-        { path: '/coaches', label: 'Coaches', icon: School },
-        { path: '/scouts', label: 'Scouts', icon: Eye },
-        { path: '/vendors', label: 'Vendors', icon: Building2 },
-        {
-          path: '/high-school-coaches',
-          label: 'High School Coaches',
-          icon: GraduationCap
-        }
-      ]
-    },
-    {
-      title: 'Prospect Pipelines',
+      title: 'Recruiting',
       items: [
         { path: '/recruiting', label: 'Recruiting Board', icon: UserCheck },
-        {
-          path: '/pref-list/new-players',
-          label: 'New Players',
-          icon: UserPlus
-        },
+        { path: '/pref-list/new-players', label: 'New Players', icon: UserPlus },
         { path: '/pref-list/overall', label: 'Overall Pref List', icon: Star },
-        {
-          path: '/pref-list/high-school',
-          label: 'HS Pref List',
-          icon: GraduationCap
-        },
-        {
-          path: '/pref-list/college-portal',
-          label: 'College Portal/transfers',
-          icon: ArrowRightLeft
-        }
+        { path: '/pref-list/high-school', label: 'HS Pref List', icon: GraduationCap },
+        { path: '/pref-list/college-portal', label: 'College Portal', icon: ArrowRightLeft }
       ]
     },
     {
-      title: 'Team Management',
+      title: 'Operations',
       items: [
-        { path: '/teams', label: 'Teams', icon: Building2 },
-        { path: '/team-settings', label: 'Team Settings', icon: Settings },
-        { path: '/games', label: 'Games', icon: Trophy },
-        { path: '/team-schedule', label: 'Team Schedule', icon: Calendar },
-        {
-          path: '/schedule-templates',
-          label: 'Schedule Templates',
-          icon: FileText
-        }
+        { path: '/team-schedule', label: 'Schedule', icon: Calendar },
+        { path: '/games', label: 'Games', icon: Trophy }
       ]
     },
     {
       title: 'Reports & Settings',
       items: [
         { path: '/reports', label: 'Reports', icon: FileText },
+        { path: '/team-settings', label: 'Team Settings', icon: Settings },
         { path: '/settings', label: 'Settings', icon: Settings }
       ]
     }

@@ -1,0 +1,2589 @@
+openapi: 3.0.3
+info:
+  title: Sports2 API
+  description: |
+    REST API for the Sports2 collegiate baseball scouting and team management platform.
+
+    ## Authentication
+    All endpoints (except public ones) require:
+    - `Authorization: Bearer <JWT>` header
+    - `x-csrf-token` header on state-changing requests (POST, PUT, PATCH, DELETE)
+
+    Get a CSRF token first: `GET /api/v1/auth/csrf-token`
+
+    ## Response Format
+    Success: `{ "success": true, "data": {...} }`
+    Error: `{ "success": false, "error": "..." }`
+
+    ## Scouting System
+    See `docs/api/scouting-system-api.md` for the scouting system redesign including Prospects,
+    20-80 grading scale, present/future grades, and recruiting pipeline.
+  version: 1.0.0
+  contact:
+    name: Sports2 Team
+
+servers:
+  - url: http://localhost:5000
+    description: Local development (reference only; each deployment has its own endpoint)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: OK }
+                  timestamp: { type: string, format: date-time }
+                  environment: { type: string }
+
+  /api/v1/health:
+    get:
+      summary: API health check
+      security: []
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  timestamp: { type: string, format: date-time }
+                  environment: { type: string }
+                  version: { type: string, example: v1 }
+
+  # ---- Auth ----
+  /api/v1/auth/csrf-token:
+    get:
+      summary: Get CSRF token
+      description: Required before any POST/PUT/DELETE. Include token in x-csrf-token header.
+      security: []
+      responses:
+        '200':
+          description: CSRF token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+
+  /api/v1/auth/login:
+    post:
+      summary: User login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+        '401':
+          description: Invalid credentials or account locked/deactivated
+
+  /api/v1/auth/register:
+    post:
+      summary: User registration
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, first_name, last_name, role]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string, enum: [head_coach, assistant_coach] }
+                phone: { type: string }
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Validation error
+
+  /api/v1/auth/logout:
+    post:
+      summary: User logout
+      responses:
+        '200':
+          description: Logout successful
+
+  /api/v1/auth/me:
+    get:
+      summary: Get current user profile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { $ref: '#/components/schemas/User' }
+    put:
+      summary: Update current user profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                phone: { type: string }
+      responses:
+        '200':
+          description: Profile updated
+
+  /api/v1/auth/change-password:
+    put:
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string }
+                new_password: { type: string }
+      responses:
+        '200':
+          description: Password changed
+        '400':
+          description: Validation failed
+
+  /api/v1/auth/permissions:
+    get:
+      summary: Get current user permissions
+      responses:
+        '200':
+          description: User permissions
+
+  /api/v1/auth/admin/users:
+    get:
+      summary: List users (super_admin only)
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Paginated user list
+    post:
+      summary: Create user (super_admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, first_name, last_name, role]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string, enum: [super_admin, head_coach, assistant_coach] }
+                phone: { type: string }
+      responses:
+        '201':
+          description: User created
+
+  /api/v1/auth/admin/users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Get user by ID (super_admin only)
+      responses:
+        '200':
+          description: User details
+    put:
+      summary: Update user (super_admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string }
+                phone: { type: string }
+      responses:
+        '200':
+          description: User updated
+    delete:
+      summary: Delete user (super_admin only)
+      responses:
+        '200':
+          description: User deleted
+
+  /api/v1/auth/admin/users/{userId}/reset-password:
+    put:
+      summary: Reset user password (super_admin only)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: { type: string }
+      responses:
+        '200':
+          description: Password reset
+
+  /api/v1/auth/revoke-all-sessions:
+    post:
+      summary: Revoke all sessions for current user
+      responses:
+        '200':
+          description: Sessions revoked
+
+  # ---- Players ----
+  /api/v1/players:
+    get:
+      summary: List players
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: school_type
+          in: query
+          schema: { type: string, enum: [HS, COLL] }
+        - name: position
+          in: query
+          schema: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH] }
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, inactive, graduated, transferred] }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: orderBy
+          in: query
+          schema: { type: string }
+        - name: sortDirection
+          in: query
+          schema: { type: string, enum: [ASC, DESC] }
+      responses:
+        '200':
+          description: Paginated player list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: array, items: { $ref: '#/components/schemas/Player' } }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+    post:
+      summary: Create player
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/PlayerCreateInput' }
+          application/json:
+            schema: { $ref: '#/components/schemas/PlayerCreateInput' }
+      responses:
+        '201':
+          description: Player created
+
+  /api/v1/players/byId/{id}:
+    get:
+      summary: Get player by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player details
+        '404':
+          description: Player not found
+    put:
+      summary: Update player
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/PlayerUpdateInput' }
+          application/json:
+            schema: { $ref: '#/components/schemas/PlayerUpdateInput' }
+      responses:
+        '200':
+          description: Player updated
+    delete:
+      summary: Delete player
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player deleted
+
+  /api/v1/players/byId/{id}/stats:
+    get:
+      summary: Get player statistics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player stats
+
+  /api/v1/players/stats/summary:
+    get:
+      summary: Get players stats summary
+      responses:
+        '200':
+          description: Stats summary
+
+  /api/v1/players/performance:
+    get:
+      summary: Get player performance data
+      responses:
+        '200':
+          description: Performance data
+
+  /api/v1/players/bulk-delete:
+    post:
+      summary: Bulk delete players
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [player_ids]
+              properties:
+                player_ids: { type: array, items: { type: integer } }
+      responses:
+        '200':
+          description: Players deleted
+
+  # ---- Prospects (Scouting System) ----
+  /api/v1/prospects:
+    get:
+      summary: List prospects
+      description: Filter by school_type, primary_position, status, search. See docs/api/scouting-system-api.md
+      parameters:
+        - name: school_type
+          in: query
+          schema: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        - name: primary_position
+          in: query
+          schema: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [identified, evaluating, contacted, visiting, offered, committed, signed, passed]
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Paginated prospect list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: array, items: { $ref: '#/components/schemas/Prospect' } }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+    post:
+      summary: Create prospect
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProspectCreateInput' }
+      responses:
+        '201':
+          description: Prospect created
+
+  /api/v1/prospects/{id}:
+    get:
+      summary: Get prospect by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Prospect with media
+        '404':
+          description: Prospect not found
+    put:
+      summary: Update prospect (partial)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProspectUpdateInput' }
+      responses:
+        '200':
+          description: Prospect updated
+    delete:
+      summary: Delete prospect
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Prospect deleted
+
+  /api/v1/prospects/{id}/scouting-reports:
+    get:
+      summary: List scouting reports for prospect
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scouting reports (newest first)
+    post:
+      summary: Create scouting report for prospect
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScoutingReportProspectInput' }
+      responses:
+        '201':
+          description: Scouting report created
+
+  /api/v1/prospects/{id}/media:
+    post:
+      summary: Upload media or add external URL
+      description: |
+        Two modes:
+        1. File upload (multipart/form-data): file, title?, description?
+        2. External URL (application/json): url, media_type (video|photo|document), title?, description?
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                title: { type: string }
+                description: { type: string }
+          application/json:
+            schema:
+              type: object
+              required: [url, media_type]
+              properties:
+                url: { type: string }
+                media_type: { type: string, enum: [video, photo, document] }
+                title: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Media created
+
+  /api/v1/prospects/{id}/media/{mediaId}:
+    delete:
+      summary: Delete prospect media
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: mediaId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Media deleted
+
+  # ---- Recruits (Recruiting Board & Preference Lists) ----
+  /api/v1/recruits:
+    get:
+      summary: Recruiting board - list prospects
+      parameters:
+        - name: school_type
+          in: query
+          schema: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        - name: position
+          in: query
+          schema: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Prospects for recruiting board
+
+  /api/v1/recruits/preference-lists:
+    get:
+      summary: List preference lists
+      parameters:
+        - name: list_type
+          in: query
+          schema:
+            type: string
+            enum: [new_players, overall_pref_list, hs_pref_list, college_transfers, pitchers_pref_list]
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Preference list entries (Player or Prospect)
+    post:
+      summary: Add to preference list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              oneOf:
+                - required: [prospect_id]
+                  properties:
+                    prospect_id: { type: integer }
+                    list_type: { type: string }
+                    priority: { type: integer }
+                    notes: { type: string }
+                - required: [player_id]
+                  properties:
+                    player_id: { type: integer }
+                    list_type: { type: string }
+                    priority: { type: integer }
+                    notes: { type: string }
+      responses:
+        '201':
+          description: Added to preference list
+
+  /api/v1/recruits/preference-lists/{id}:
+    put:
+      summary: Update preference list entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority: { type: integer }
+                status: { type: string }
+                notes: { type: string }
+      responses:
+        '200':
+          description: Entry updated
+    delete:
+      summary: Remove from preference list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Entry removed
+
+  # ---- Reports ----
+  /api/v1/reports:
+    get:
+      summary: List custom reports
+      responses:
+        '200':
+          description: Custom reports list
+    post:
+      summary: Create custom report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, type]
+              properties:
+                title: { type: string }
+                type: { type: string }
+                description: { type: string }
+                status: { type: string, enum: [draft, published, archived] }
+                data_sources: { type: array }
+                sections: { type: array }
+                filters: { type: object }
+      responses:
+        '201':
+          description: Report created
+
+  /api/v1/reports/custom/{id}:
+    get:
+      summary: Get custom report by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Report details
+        '404':
+          description: Report not found
+
+  /api/v1/reports/byId/{id}:
+    get:
+      summary: Get report by ID (reports_view permission)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Report details
+    put:
+      summary: Update report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { type: string }
+                data_sources: { type: array }
+                sections: { type: array }
+                filters: { type: object }
+      responses:
+        '200':
+          description: Report updated
+    delete:
+      summary: Delete report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Report deleted
+
+  /api/v1/reports/scouting:
+    get:
+      summary: List scouting reports
+      description: Supports player_id or prospect_id filter. Returns reports for both players and prospects.
+      parameters:
+        - name: player_id
+          in: query
+          schema: { type: integer }
+        - name: prospect_id
+          in: query
+          schema: { type: integer }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated scouting reports
+    post:
+      summary: Create scouting report
+      description: Provide exactly one of player_id or prospect_id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id: { type: integer }
+                prospect_id: { type: integer }
+                report_date: { type: string, format: date }
+                event_type: { type: string, enum: [game, showcase, practice, workout, video] }
+                overall_present: { type: [integer, string] }
+                overall_future: { type: [integer, string] }
+                hitting_present: { type: [integer, string] }
+                hitting_future: { type: [integer, string] }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Scouting report created
+
+  /api/v1/reports/scouting/{id}:
+    get:
+      summary: Get scouting report by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scouting report details
+    put:
+      summary: Update scouting report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScoutingReportUpdateInput' }
+      responses:
+        '200':
+          description: Scouting report updated
+
+  /api/v1/reports/player-performance:
+    get:
+      summary: Player performance analytics
+      responses:
+        '200':
+          description: Performance data
+
+  /api/v1/reports/team-statistics:
+    get:
+      summary: Team statistics analytics
+      responses:
+        '200':
+          description: Team stats
+
+  /api/v1/reports/scouting-analysis:
+    get:
+      summary: Scouting analysis analytics
+      responses:
+        '200':
+          description: Scouting analysis
+
+  /api/v1/reports/recruitment-pipeline:
+    get:
+      summary: Recruitment pipeline analytics
+      responses:
+        '200':
+          description: Pipeline data
+
+  /api/v1/reports/generate-pdf:
+    post:
+      summary: Generate PDF report
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_id: { type: string }
+                report_type: { type: string }
+      responses:
+        '200':
+          description: PDF generated
+
+  /api/v1/reports/export-excel:
+    post:
+      summary: Export to Excel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_id: { type: string }
+                report_type: { type: string }
+      responses:
+        '200':
+          description: Excel file
+
+  # ---- Teams ----
+  /api/v1/teams:
+    get:
+      summary: List teams (public - for registration)
+      security: []
+      responses:
+        '200':
+          description: All teams
+    post:
+      summary: Create team (team_management permission)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                program_name: { type: string }
+                conference: { type: string }
+                division: { type: string, enum: [D1, D2, D3, NAIA, JUCO] }
+                city: { type: string }
+                state: { type: string }
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '201':
+          description: Team created
+
+  /api/v1/teams/me:
+    get:
+      summary: Get current user's team
+      responses:
+        '200':
+          description: Team details
+    put:
+      summary: Update current user's team
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                program_name: { type: string }
+                conference: { type: string }
+                division: { type: string }
+                city: { type: string }
+                state: { type: string }
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '200':
+          description: Team updated
+
+  /api/v1/teams/byId/{id}:
+    get:
+      summary: Get team by ID with users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Team with users
+
+  /api/v1/teams/recent-schedules:
+    get:
+      summary: Recent past schedule events
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+      responses:
+        '200':
+          description: Flattened event list
+
+  /api/v1/teams/upcoming-schedules:
+    get:
+      summary: Upcoming schedule events
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+      responses:
+        '200':
+          description: Flattened event list
+
+  /api/v1/teams/logo:
+    post:
+      summary: Upload team logo
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Logo uploaded
+    delete:
+      summary: Remove team logo
+      responses:
+        '200':
+          description: Logo removed
+
+  /api/v1/teams/branding:
+    get:
+      summary: Get team branding
+      responses:
+        '200':
+          description: Name, logo, colors
+    put:
+      summary: Update brand colors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '200':
+          description: Branding updated
+
+  /api/v1/teams/users:
+    get:
+      summary: Get team users
+      responses:
+        '200':
+          description: Team members
+
+  /api/v1/teams/permissions:
+    get:
+      summary: Get team permissions
+      responses:
+        '200':
+          description: User permissions
+    post:
+      summary: Grant permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, permission_type]
+              properties:
+                user_id: { type: integer }
+                permission_type: { type: string }
+                is_granted: { type: boolean }
+                expires_at: { type: string, format: date-time }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Permission granted
+
+  /api/v1/teams/permissions/{id}:
+    put:
+      summary: Update permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_granted: { type: boolean }
+                expires_at: { type: string }
+                notes: { type: string }
+      responses:
+        '200':
+          description: Permission updated
+    delete:
+      summary: Revoke permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Permission revoked
+
+  /api/v1/teams/stats:
+    get:
+      summary: Team statistics
+      responses:
+        '200':
+          description: Player counts, reports, schedules, games, wins/losses
+
+  /api/v1/teams/roster:
+    get:
+      summary: Roster by position group
+      responses:
+        '200':
+          description: Pitchers, catchers, infielders, outfielders, DH
+
+  /api/v1/teams/{id}:
+    get:
+      summary: Get team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Team details
+    put:
+      summary: Update team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                program_name: { type: string }
+                conference: { type: string }
+                division: { type: string }
+                city: { type: string }
+                state: { type: string }
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '200':
+          description: Team updated
+
+  # ---- Schedules ----
+  /api/v1/schedules:
+    get:
+      summary: List schedules
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Paginated schedules
+    post:
+      summary: Create schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [team_name, program_name, date, sections]
+              properties:
+                team_name: { type: string }
+                program_name: { type: string }
+                date: { type: string, format: date }
+                sections: { type: array }
+      responses:
+        '201':
+          description: Schedule created
+
+  /api/v1/schedules/stats:
+    get:
+      summary: Schedule statistics
+      responses:
+        '200':
+          description: Schedule stats
+
+  /api/v1/schedules/byId/{id}:
+    get:
+      summary: Get schedule by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedule with sections and activities
+    put:
+      summary: Update schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                team_name: { type: string }
+                program_name: { type: string }
+                date: { type: string }
+                sections: { type: array }
+      responses:
+        '200':
+          description: Schedule updated
+    delete:
+      summary: Delete (soft) schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedule deleted
+
+  /api/v1/schedules/{id}/sections:
+    post:
+      summary: Add schedule section
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, title]
+              properties:
+                type: { type: string, enum: [general, position_players, pitchers, grinder_performance, grinder_hitting, grinder_defensive, bullpen, live_bp] }
+                title: { type: string }
+      responses:
+        '201':
+          description: Section created
+
+  /api/v1/schedules/sections/{sectionId}/activities:
+    post:
+      summary: Add activity to section
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [time, activity]
+              properties:
+                time: { type: string }
+                activity: { type: string }
+                location: { type: string }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Activity created
+
+  /api/v1/schedules/sections/{sectionId}:
+    delete:
+      summary: Delete section (and activities)
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Section deleted
+
+  /api/v1/schedules/activities/{activityId}:
+    delete:
+      summary: Delete activity
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Activity deleted
+
+  /api/v1/schedules/export-pdf:
+    get:
+      summary: Export schedule PDF
+      responses:
+        '200':
+          description: PDF file
+
+  # ---- Schedule Templates ----
+  /api/v1/schedule-templates:
+    get:
+      summary: List schedule templates
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedule templates
+    post:
+      summary: Create schedule template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Template created
+
+  /api/v1/schedule-templates/{id}:
+    get:
+      summary: Get schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Template details
+    put:
+      summary: Update schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+      responses:
+        '200':
+          description: Template updated
+    delete:
+      summary: Delete schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Template deleted
+
+  /api/v1/schedule-templates/{id}/duplicate:
+    post:
+      summary: Duplicate schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '201':
+          description: Template duplicated
+
+  # ---- Schedule Events ----
+  /api/v1/schedule-events:
+    get:
+      summary: List schedule events
+      parameters:
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Schedule events
+    post:
+      summary: Create schedule event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                location_id: { type: integer }
+      responses:
+        '201':
+          description: Event created
+
+  /api/v1/schedule-events/{id}:
+    get:
+      summary: Get schedule event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Event details
+    put:
+      summary: Update schedule event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Event updated
+    delete:
+      summary: Delete schedule event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Event deleted
+
+  # ---- Locations ----
+  /api/v1/locations:
+    get:
+      summary: List locations
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated locations
+    post:
+      summary: Create location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                address: { type: string }
+                city: { type: string }
+                state: { type: string }
+                zip_code: { type: string }
+                location_type: { type: string }
+                capacity: { type: integer }
+      responses:
+        '201':
+          description: Location created
+
+  /api/v1/locations/{id}:
+    get:
+      summary: Get location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Location details
+    put:
+      summary: Update location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Location updated
+    delete:
+      summary: Delete location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Location deleted
+
+  # ---- Depth Charts ----
+  /api/v1/depth-charts:
+    get:
+      summary: List depth charts
+      responses:
+        '200':
+          description: Depth charts
+    post:
+      summary: Create depth chart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        '201':
+          description: Depth chart created
+
+  /api/v1/depth-charts/byId/{id}:
+    get:
+      summary: Get depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Depth chart details
+    put:
+      summary: Update depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Depth chart updated
+    delete:
+      summary: Delete depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Depth chart deleted
+
+  /api/v1/depth-charts/{id}/positions:
+    post:
+      summary: Add position to depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Position added
+
+  /api/v1/depth-charts/positions/{positionId}:
+    put:
+      summary: Update position
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Position updated
+    delete:
+      summary: Delete position
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Position deleted
+
+  /api/v1/depth-charts/positions/{positionId}/players:
+    post:
+      summary: Assign player to position
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id: { type: integer }
+                rank: { type: integer }
+      responses:
+        '201':
+          description: Player assigned
+
+  /api/v1/depth-charts/players/{assignmentId}:
+    delete:
+      summary: Remove player from position
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player removed
+
+  /api/v1/depth-charts/{id}/available-players:
+    get:
+      summary: Get available players for depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Available players
+
+  /api/v1/depth-charts/{id}/recommended-players/{positionId}:
+    get:
+      summary: Get recommended players for position
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Recommended players
+
+  /api/v1/depth-charts/{id}/duplicate:
+    post:
+      summary: Duplicate depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '201':
+          description: Depth chart duplicated
+
+  /api/v1/depth-charts/{id}/history:
+    get:
+      summary: Get depth chart history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: History
+
+  # ---- Games ----
+  /api/v1/games:
+    get:
+      summary: List games
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated games
+    post:
+      summary: Create game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                opponent: { type: string }
+                date: { type: string, format: date }
+                location_id: { type: integer }
+      responses:
+        '201':
+          description: Game created
+
+  /api/v1/games/byId/{id}:
+    get:
+      summary: Get game by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Game details
+    put:
+      summary: Update game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Game updated
+    delete:
+      summary: Delete game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Game deleted
+
+  /api/v1/games/log:
+    get:
+      summary: Game log
+      responses:
+        '200':
+          description: Game log
+
+  /api/v1/games/team-stats:
+    get:
+      summary: Team stats
+      responses:
+        '200':
+          description: Team statistics
+
+  /api/v1/games/upcoming:
+    get:
+      summary: Upcoming games
+      responses:
+        '200':
+          description: Upcoming games
+
+  /api/v1/games/season-stats:
+    get:
+      summary: Season statistics
+      responses:
+        '200':
+          description: Season stats
+
+  /api/v1/games/player-stats/{playerId}:
+    get:
+      summary: Player stats
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player statistics
+
+  /api/v1/games/{gameId}/stats:
+    get:
+      summary: Game statistics
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Game stats
+
+  # ---- Coaches, Scouts, Vendors, High School Coaches ----
+  /api/v1/coaches:
+    get:
+      summary: List coaches
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Coaches list
+    post:
+      summary: Create coach
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, school_name]
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                school_name: { type: string }
+                position: { type: string }
+                email: { type: string }
+                phone: { type: string }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Coach created
+
+  /api/v1/coaches/{id}:
+    get:
+      summary: Get coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach details
+    put:
+      summary: Update coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Coach updated
+    delete:
+      summary: Delete coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach deleted
+
+  /api/v1/scouts:
+    get:
+      summary: List scouts
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scouts list
+    post:
+      summary: Create scout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Scout created
+
+  /api/v1/scouts/{id}:
+    get:
+      summary: Get scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scout details
+    put:
+      summary: Update scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Scout updated
+    delete:
+      summary: Delete scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scout deleted
+
+  /api/v1/vendors:
+    get:
+      summary: List vendors
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vendors list
+    post:
+      summary: Create vendor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Vendor created
+
+  /api/v1/vendors/{id}:
+    get:
+      summary: Get vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vendor details
+    put:
+      summary: Update vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Vendor updated
+    delete:
+      summary: Delete vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vendor deleted
+
+  /api/v1/high-school-coaches:
+    get:
+      summary: List high school coaches
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: High school coaches list
+    post:
+      summary: Create high school coach
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, school_name]
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                school_name: { type: string }
+                position: { type: string }
+                email: { type: string }
+                phone: { type: string }
+      responses:
+        '201':
+          description: High school coach created
+
+  /api/v1/high-school-coaches/{id}:
+    get:
+      summary: Get high school coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach details
+    put:
+      summary: Update high school coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Coach updated
+    delete:
+      summary: Delete high school coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach deleted
+
+  # ---- Integrations (PrestoSports) ----
+  /api/v1/integrations/presto/status:
+    get:
+      summary: Get Presto integration status
+      responses:
+        '200':
+          description: Integration status
+
+  /api/v1/integrations/presto/configure:
+    post:
+      summary: Configure Presto integration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                credentials: { type: object }
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/v1/integrations/presto/test:
+    post:
+      summary: Test Presto connection
+      responses:
+        '200':
+          description: Connection test result
+
+  /api/v1/integrations/presto/disconnect:
+    delete:
+      summary: Disconnect Presto integration
+      responses:
+        '200':
+          description: Disconnected
+
+  /api/v1/integrations/presto/seasons:
+    get:
+      summary: List Presto seasons
+      responses:
+        '200':
+          description: Available seasons
+
+  /api/v1/integrations/presto/teams:
+    get:
+      summary: List Presto teams
+      responses:
+        '200':
+          description: Available teams
+
+  /api/v1/integrations/presto/settings:
+    put:
+      summary: Update Presto settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Settings updated
+
+  /api/v1/integrations/presto/sync/schedule:
+    post:
+      summary: Sync schedule from Presto
+      responses:
+        '200':
+          description: Sync initiated
+
+  /api/v1/integrations/presto/sync/roster:
+    post:
+      summary: Sync roster from Presto
+      responses:
+        '200':
+          description: Sync initiated
+
+  /api/v1/integrations/presto/sync/stats:
+    post:
+      summary: Sync stats from Presto
+      responses:
+        '200':
+          description: Sync initiated
+
+  /api/v1/integrations/presto/sync/all:
+    post:
+      summary: Full sync from Presto
+      responses:
+        '200':
+          description: Sync initiated
+
+  # ---- Settings ----
+  /api/v1/settings:
+    get:
+      summary: Get all settings
+      responses:
+        '200':
+          description: User settings
+
+  /api/v1/settings/general:
+    put:
+      summary: Update general settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Settings updated
+
+  /api/v1/settings/account:
+    put:
+      summary: Update account settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Account updated
+    delete:
+      summary: Delete account
+      responses:
+        '200':
+          description: Account deleted
+
+  /api/v1/settings/notifications:
+    put:
+      summary: Update notification settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Notifications updated
+
+  /api/v1/settings/security:
+    put:
+      summary: Update security settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Security updated
+
+  /api/v1/settings/change-password:
+    put:
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string }
+                new_password: { type: string }
+      responses:
+        '200':
+          description: Password changed
+
+  /api/v1/settings/two-factor:
+    put:
+      summary: Enable/disable two-factor auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: 2FA updated
+
+  /api/v1/settings/two-factor/qr:
+    get:
+      summary: Get 2FA QR code
+      responses:
+        '200':
+          description: QR code for authenticator
+
+  /api/v1/settings/two-factor/verify:
+    post:
+      summary: Verify 2FA code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+      responses:
+        '200':
+          description: 2FA verified
+
+  /api/v1/settings/login-history:
+    get:
+      summary: Get login history
+      responses:
+        '200':
+          description: Login history
+
+  /api/v1/settings/sessions:
+    get:
+      summary: Get active sessions
+      responses:
+        '200':
+          description: Active sessions
+
+  /api/v1/settings/export-data:
+    get:
+      summary: Export user data
+      responses:
+        '200':
+          description: Data export
+
+  /api/v1/settings/profile-picture:
+    put:
+      summary: Update profile picture
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Profile picture updated
+
+  /api/v1/settings/privacy:
+    get:
+      summary: Get privacy settings
+      responses:
+        '200':
+          description: Privacy settings
+    put:
+      summary: Update privacy settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Privacy updated
+
+  /api/v1/settings/notifications/preferences:
+    get:
+      summary: Get notification preferences
+      responses:
+        '200':
+          description: Preferences
+    put:
+      summary: Update notification preferences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Preferences updated
+
+  /api/v1/settings/notifications/test-email:
+    post:
+      summary: Send test email
+      responses:
+        '200':
+          description: Test email sent
+
+components:
+  parameters:
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: integer }
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    csrfToken:
+      type: apiKey
+      in: header
+      name: x-csrf-token
+      description: Required for POST, PUT, PATCH, DELETE
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data: {}
+        error: { type: string }
+
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        pages: { type: integer }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        email: { type: string, format: email }
+        first_name: { type: string }
+        last_name: { type: string }
+        role: { type: string, enum: [super_admin, head_coach, assistant_coach] }
+        team_id: { type: integer }
+        phone: { type: string }
+        avatar_url: { type: string }
+        is_active: { type: boolean }
+        last_login: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Player:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        position: { type: string }
+        school_type: { type: string }
+        school: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        status: { type: string }
+        team_id: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    PlayerCreateInput:
+      type: object
+      required: [first_name, last_name, position]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH] }
+        school_type: { type: string, enum: [HS, COLL] }
+        school: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        weight: { type: integer }
+        height: { type: string }
+        email: { type: string }
+        phone: { type: string }
+
+    PlayerUpdateInput:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        position: { type: string }
+        school_type: { type: string }
+        school: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        weight: { type: integer }
+        height: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        status: { type: string }
+
+    Prospect:
+      type: object
+      description: Someone you're recruiting (vs Player on roster). See docs/api/scouting-system-api.md
+      properties:
+        id: { type: integer }
+        team_id: { type: integer }
+        created_by: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        primary_position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        secondary_position: { type: string }
+        school_type: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        school_name: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        class_year: { type: string, enum: [FR, SO, JR, SR, GR] }
+        bats: { type: string, enum: [L, R, S] }
+        throws: { type: string, enum: [L, R] }
+        status:
+          type: string
+          enum: [identified, evaluating, contacted, visiting, offered, committed, signed, passed]
+        notes: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    ProspectCreateInput:
+      type: object
+      required: [first_name, last_name, primary_position]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        primary_position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        secondary_position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        school_type: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        school_name: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer, minimum: 2020, maximum: 2035 }
+        class_year: { type: string, enum: [FR, SO, JR, SR, GR] }
+        bats: { type: string, enum: [L, R, S] }
+        throws: { type: string, enum: [L, R] }
+        height: { type: string }
+        weight: { type: integer, minimum: 100, maximum: 350 }
+        sixty_yard_dash: { type: number }
+        fastball_velocity: { type: integer, minimum: 40, maximum: 110 }
+        exit_velocity: { type: integer, minimum: 40, maximum: 130 }
+        gpa: { type: number, minimum: 0, maximum: 4 }
+        sat_score: { type: integer, minimum: 400, maximum: 1600 }
+        act_score: { type: integer, minimum: 1, maximum: 36 }
+        status:
+          type: string
+          enum: [identified, evaluating, contacted, visiting, offered, committed, signed, passed]
+        notes: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+
+    ProspectUpdateInput:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        primary_position: { type: string }
+        secondary_position: { type: string }
+        school_type: { type: string }
+        school_name: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        class_year: { type: string }
+        bats: { type: string }
+        throws: { type: string }
+        height: { type: string }
+        weight: { type: integer }
+        status: { type: string }
+        notes: { type: string }
+        email: { type: string }
+        phone: { type: string }
+
+    ScoutingReportProspectInput:
+      type: object
+      description: |
+        Grades can be numeric (20-80) or letter (B+, A, etc). Event types: game, showcase, practice, workout, video.
+        Present/future grade pairs for each skill. See docs/api/scouting-system-api.md.
+      properties:
+        report_date: { type: string, format: date }
+        event_type: { type: string, enum: [game, showcase, practice, workout, video] }
+        overall_present: { type: [integer, string] }
+        overall_future: { type: [integer, string] }
+        hitting_present: { type: [integer, string] }
+        hitting_future: { type: [integer, string] }
+        pitching_present: { type: [integer, string] }
+        pitching_future: { type: [integer, string] }
+        fielding_present: { type: [integer, string] }
+        fielding_future: { type: [integer, string] }
+        speed_present: { type: [integer, string] }
+        speed_future: { type: [integer, string] }
+        sixty_yard_dash: { type: number }
+        mlb_comparison: { type: string }
+        notes: { type: string }
+
+    ScoutingReportUpdateInput:
+      type: object
+      properties:
+        report_date: { type: string, format: date }
+        event_type: { type: string }
+        overall_present: { type: [integer, string] }
+        overall_future: { type: [integer, string] }
+        notes: { type: string }
