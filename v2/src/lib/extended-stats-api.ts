@@ -183,6 +183,84 @@ export interface PlayerGameLogData {
   games: PlayerGameLogEntry[]
 }
 
+// --- Lineup derivation from game stats ---
+
+const POSITION_CODES = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'] as const
+const POSITION_ALIASES: Record<string, string> = {
+  SP: 'P', RP: 'P', '1': '1B', '2': '2B', '3': '3B', '4': '4',
+}
+
+function normalizePosition(pos: unknown): string | null {
+  if (!pos || typeof pos !== 'string') return null
+  const s = pos.trim().toUpperCase()
+  const mapped = POSITION_ALIASES[s] ?? s
+  return POSITION_CODES.includes(mapped as (typeof POSITION_CODES)[number]) ? mapped : null
+}
+
+function deriveLineupFromGameStats(stats: Record<string, unknown>): LineupPlayer[] {
+  const seen = new Set<string>()
+  const result: LineupPlayer[] = []
+
+  const add = (playerId: string | null, name: string, jersey: string, position: string) => {
+    const pos = normalizePosition(position)
+    if (!pos || !playerId) return
+    const key = `${playerId}:${pos}`
+    if (seen.has(key)) return
+    seen.add(key)
+    result.push({ player_id: playerId, name, jersey_number: jersey, position: pos })
+  }
+
+  const playerStats = stats.player_stats as Array<Record<string, unknown>> | undefined
+  if (Array.isArray(playerStats) && playerStats.length > 0) {
+    for (const row of playerStats) {
+      const pid = row.player_id ?? row.playerId
+      const pos = row.position
+      const p = row.player as Record<string, unknown> | undefined
+      const name = p
+        ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
+          (p.name as string) ||
+          '—'
+        : (row.player_name ?? row.name ?? '—') as string
+      const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
+      add(pid != null ? String(pid) : null, name, jersey, String(pos ?? ''))
+    }
+  }
+
+  const fielding = stats.fielding as Array<Record<string, unknown>> | undefined
+  const batting = stats.batting as Array<Record<string, unknown>> | undefined
+  if (Array.isArray(fielding) && fielding.length > 0) {
+    for (const row of fielding) {
+      const pid = row.player_id ?? row.playerId
+      const pos = row.position ?? row.fielding_position
+      const p = row.player as Record<string, unknown> | undefined
+      const name = p
+        ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
+          (p.name as string) ||
+          '—'
+        : (row.player_name ?? row.name ?? '—') as string
+      const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
+      add(pid != null ? String(pid) : null, name, jersey, String(pos ?? ''))
+    }
+  }
+
+  if (Array.isArray(batting) && batting.length > 0 && result.length === 0) {
+    for (const row of batting) {
+      const pid = row.player_id ?? row.playerId
+      const p = row.player as Record<string, unknown> | undefined
+      const pos = row.position ?? p?.position ?? (p?.primary_position as string)
+      const name = p
+        ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
+          (p.name as string) ||
+          '—'
+        : (row.player_name ?? row.name ?? '—') as string
+      const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
+      add(pid != null ? String(pid) : null, name, jersey, String(pos ?? ''))
+    }
+  }
+
+  return result
+}
+
 // --- API exports ---
 
 export const extendedStatsApi = {
@@ -218,6 +296,33 @@ export const extendedStatsApi = {
       '/teams/lineup'
     )
     return getData(r.data as { success?: boolean; data?: TeamLineupData })
+  },
+
+  /** Lineup for a specific game (for depth chart backfill).
+   * Tries GET /teams/lineup?game_id=X; falls back to deriving from GET /games/X/stats. */
+  getGameLineup: async (gameId: number): Promise<TeamLineupData | null> => {
+    try {
+      const r = await api.get<{ success?: boolean; data?: TeamLineupData }>(
+        '/teams/lineup',
+        { params: { game_id: gameId } }
+      )
+      const data = getData(r.data as { success?: boolean; data?: TeamLineupData })
+      if (data?.players?.length) return data
+    } catch {
+      /* fall through to game stats */
+    }
+    const r = await api.get<{ success?: boolean; data?: Record<string, unknown> }>(
+      `/games/${gameId}/stats`
+    )
+    const stats = getData(r.data as { success?: boolean; data?: Record<string, unknown> }) as Record<string, unknown> | undefined
+    if (!stats) return null
+    const players = deriveLineupFromGameStats(stats)
+    if (players.length === 0) return null
+    return {
+      source: 'last_game',
+      game_id: String(gameId),
+      players,
+    }
   },
 
   /** Player split stats (home/away, vs LHP/RHP, situational) */

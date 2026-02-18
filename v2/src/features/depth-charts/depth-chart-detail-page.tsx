@@ -12,6 +12,7 @@ import {
   Trash2,
   UserMinus,
   UserPlus,
+  Download,
 } from 'lucide-react'
 import { formatDateTime } from '@/lib/format-date'
 import {
@@ -35,6 +36,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EnhancedBaseballFieldView } from '@/components/depth-chart/enhanced-baseball-field-view'
 import { AssignPlayerModal } from './assign-player-modal'
+import { BackfillFromGameDialog } from './backfill-from-game-dialog'
 import { DepthChartPositionManager } from './depth-chart-position-manager'
 import { DepthChartSheetView } from './depth-chart-sheet-view'
 import { toast } from 'sonner'
@@ -192,6 +194,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
   )
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [assignModalOpen, setAssignModalOpen] = useState(false)
+  const [backfillDialogOpen, setBackfillDialogOpen] = useState(false)
   const [selectedPosition, setSelectedPosition] =
     useState<DepthChartPosition | null>(null)
 
@@ -315,6 +318,16 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
                 Delete
               </Button>
             )}
+            {canAssign && (
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setBackfillDialogOpen(true)}
+              >
+                <Download className='size-4' />
+                Backfill from game
+              </Button>
+            )}
             <Button
               variant='outline'
               size='sm'
@@ -326,6 +339,14 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
             </Button>
           </div>
         </div>
+
+        <BackfillFromGameDialog
+          open={backfillDialogOpen}
+          onOpenChange={setBackfillDialogOpen}
+          chartId={chartId}
+          existingPositionCodes={positions.map((p) => p.position_code)}
+          onBackfilled={() => queryClient.invalidateQueries({ queryKey: ['depth-chart', chartId] })}
+        />
 
         <Card>
           <CardHeader>
