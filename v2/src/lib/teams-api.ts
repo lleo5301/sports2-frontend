@@ -78,7 +78,7 @@ export const teamsApi = {
 
   uploadLogo: async (file: File) => {
     const form = new FormData()
-    form.append('file', file)
+    form.append('logo', file)
     const r = await api.post<{ success?: boolean; data?: unknown }>(
       '/teams/logo',
       form
