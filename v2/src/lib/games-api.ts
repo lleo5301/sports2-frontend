@@ -2,86 +2,89 @@
  * Games API
  */
 
-import { format, parse, parseISO } from 'date-fns'
+import { parseISO } from 'date-fns'
 import api from './api'
+import { formatDate, formatDateTime } from './format-date'
 
 function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
   return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
 }
 
-/** Format game date for display. Handles date, game_date, ISO strings. */
-export function formatGameDate(
-  game: { date?: string; game_date?: string },
-  pattern = 'MMM d, yyyy'
-): string {
+/** Format game date for display. Handles date, game_date, ISO strings. Locale-aware. */
+export function formatGameDate(game: {
+  date?: string
+  game_date?: string
+}): string {
   const d = game?.date ?? game?.game_date
   if (!d || typeof d !== 'string') return ''
+  return formatDate(d)
+}
+
+/** Format game date short (MMM d) for compact lists. Locale-aware. */
+export function formatGameDateShort(game: {
+  date?: string
+  game_date?: string
+  gameDate?: string
+  scheduled_at?: string
+  start_date?: string
+}): string {
+  const d =
+    game?.date ??
+    game?.game_date ??
+    game?.gameDate ??
+    game?.scheduled_at ??
+    game?.start_date
+  if (!d || typeof d !== 'string') return ''
   try {
-    const date = parseISO(d)
-    return format(date, pattern)
+    const parsed = parseISO(d)
+    return parsed.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    })
   } catch {
-    return d
+    return formatDate(d)
   }
 }
 
-/** Format time string to 12-hour (e.g., 2:00 PM). Handles 24h (14:00, 14:00:00) or 12h passthrough. */
-function formatTime12h(timeStr: string): string {
+/** Parse time string (HH:mm or HH:mm:ss) into minutes since midnight. */
+function parseTimeToMinutes(timeStr: string): number | null {
   const t = timeStr.trim()
-  if (!t) return ''
-  const m = t.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i)
-  if (m) {
-    if (m[4]) return t
-    const h = parseInt(m[1], 10)
-    const min = m[2]
-    if (h >= 0 && h <= 23) {
-      const period = h >= 12 ? 'PM' : 'AM'
-      const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h
-      return `${h12}:${min} ${period}`
-    }
+  if (!t) return null
+  const m = t.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+  if (!m) return null
+  const h = parseInt(m[1], 10)
+  const min = parseInt(m[2], 10)
+  if (h >= 0 && h <= 23 && min >= 0 && min <= 59) {
+    return h * 60 + min
   }
-  try {
-    const parsed = parse(t, 'HH:mm', new Date())
-    return format(parsed, 'h:mm a')
-  } catch {
-    try {
-      const parsed = parse(t, 'HH:mm:ss', new Date())
-      return format(parsed, 'h:mm a')
-    } catch {
-      return t
-    }
-  }
+  return null
 }
 
-/** Format game date and time. Uses 12-hour time. Uses game_time if present, else extracts from ISO datetime. */
-export function formatGameDateTime(
-  game: {
-    date?: string
-    game_date?: string
-    game_time?: string
-    [k: string]: unknown
-  }
-): string {
+/** Format game date and time. Locale-aware (MM/dd/yyyy HH:mm). */
+export function formatGameDateTime(game: {
+  date?: string
+  game_date?: string
+  game_time?: string
+}): string {
   const d = game?.date ?? game?.game_date
-  const timeOnly = game?.game_time as string | undefined
+  const timeOnly = (game?.game_time as string)?.trim()
   if (!d || typeof d !== 'string') {
-    return timeOnly ? formatTime12h(timeOnly) : '—'
+    return timeOnly ? timeOnly : '—'
   }
   try {
     const parsed = parseISO(d)
-    const dateStr = format(parsed, 'MMM d, yyyy')
-    if (timeOnly && typeof timeOnly === 'string') {
-      const time12 = formatTime12h(timeOnly)
-      return time12 ? `${dateStr} · ${time12}` : dateStr
-    }
+    const mins = timeOnly ? parseTimeToMinutes(timeOnly) : null
     const hasTime =
-      d.includes('T') &&
-      !/T00:00:00(\.000)?Z?$/i.test(d)
-    if (hasTime) {
-      return `${dateStr} · ${format(parsed, 'h:mm a')}`
+      d.includes('T') && !/T00:00:00(\.000)?Z?$/i.test(d)
+    if (mins != null) {
+      const withTime = new Date(parsed)
+      withTime.setHours(Math.floor(mins / 60), mins % 60, 0, 0)
+      return formatDateTime(withTime)
     }
-    return dateStr
+    if (hasTime) return formatDateTime(parsed)
+    return formatDate(parsed)
   } catch {
-    return timeOnly ? `${d} · ${formatTime12h(timeOnly)}` : d
+    return formatDate(d) || d
   }
 }
 
@@ -221,6 +224,7 @@ export const gamesApi = {
 export interface LeaderboardResponse {
   stat: string
   season: string | null
+  season_name?: string | null
   leaders: LeaderEntry[]
 }
 

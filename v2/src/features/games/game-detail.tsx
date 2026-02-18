@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, BarChart3, Loader2 } from 'lucide-react'
-import { gamesApi, formatGameDate } from '@/lib/games-api'
+import { gamesApi, formatGameDateTime } from '@/lib/games-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -66,7 +66,7 @@ export function GameDetail({ id }: GameDetailProps) {
     )
   }
 
-  const dateStr = formatGameDate(game)
+  const dateStr = formatGameDateTime(game)
 
   return (
     <Main>

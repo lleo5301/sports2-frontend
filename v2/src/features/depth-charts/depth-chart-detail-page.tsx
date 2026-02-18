@@ -13,6 +13,7 @@ import {
   UserMinus,
   UserPlus,
 } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-date'
 import {
   depthChartsApi,
   type DepthChart,
@@ -460,7 +461,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
                         <div className='mb-2 flex items-center justify-between'>
                           <span className='font-medium'>{entry.action}</span>
                           <span className='text-sm text-muted-foreground'>
-                            {new Date(entry.created_at).toLocaleString()}
+                            {formatDateTime(entry.created_at)}
                           </span>
                         </div>
                         {entry.description && (

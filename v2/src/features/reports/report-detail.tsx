@@ -8,6 +8,7 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-date'
 import { reportsApi } from '@/lib/reports-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
@@ -216,13 +217,13 @@ export function ReportDetail({ id }: ReportDetailProps) {
               {report.created_at && (
                 <div>
                   <dt className='font-medium text-muted-foreground'>Created</dt>
-                  <dd>{new Date(report.created_at).toLocaleString()}</dd>
+                  <dd>{formatDateTime(report.created_at)}</dd>
                 </div>
               )}
               {report.updated_at && (
                 <div>
                   <dt className='font-medium text-muted-foreground'>Updated</dt>
-                  <dd>{new Date(report.updated_at).toLocaleString()}</dd>
+                  <dd>{formatDateTime(report.updated_at)}</dd>
                 </div>
               )}
             </dl>

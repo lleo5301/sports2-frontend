@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { formatDate } from '@/lib/format-date'
 import {
   rostersApi,
   ROSTER_TYPES,
@@ -178,7 +179,7 @@ export function CreateRosterForm() {
                         {gamesData?.data?.map((g) => (
                           <SelectItem key={g.id} value={String(g.id)}>
                             {g.opponent
-                              ? `vs ${g.opponent} (${g.game_date ?? g.date ?? ''})`
+                              ? `vs ${g.opponent} (${formatDate(g.game_date ?? g.date)})`
                               : `Game #${g.id}`}
                           </SelectItem>
                         ))}

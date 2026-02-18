@@ -175,7 +175,7 @@ export function TeamSettingsPage() {
 
   return (
     <Main fixed>
-      <div className='space-y-6'>
+      <div className='min-h-0 flex-1 space-y-6 overflow-y-auto'>
         <div>
           <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
             Team Settings

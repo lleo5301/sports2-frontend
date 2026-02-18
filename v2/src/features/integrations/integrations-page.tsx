@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2, Plug, RefreshCw, Unplug } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-date'
 import { integrationsApi } from '@/lib/integrations-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
@@ -224,7 +225,7 @@ export function IntegrationsPage() {
               <>
                 {lastSync && (
                   <p className='text-sm text-muted-foreground'>
-                    Last sync: {new Date(lastSync).toLocaleString()}
+                    Last sync: {formatDateTime(lastSync)}
                   </p>
                 )}
                 {connected && (

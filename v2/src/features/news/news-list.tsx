@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { format, parseISO } from 'date-fns'
+import { formatDate } from '@/lib/format-date'
 import { newsApi } from '@/lib/news-api'
 import { Main } from '@/components/layout/main'
 import {
@@ -16,15 +16,6 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
-
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return ''
-  try {
-    return format(parseISO(dateStr), 'MMM d, yyyy')
-  } catch {
-    return dateStr
-  }
-}
 
 export function NewsList() {
   const [search, setSearch] = useState('')

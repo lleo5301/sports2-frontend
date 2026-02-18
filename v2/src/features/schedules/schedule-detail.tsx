@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react'
+import { formatDate } from '@/lib/format-date'
 import {
   schedulesApi,
   type Schedule,
@@ -139,7 +140,7 @@ export function ScheduleDetail({ id }: ScheduleDetailProps) {
                 {schedule.program_name || schedule.team_name || `Schedule #${id}`}
               </h2>
               <CardDescription>
-                {schedule.date} • {schedule.team_name}
+                {formatDate(schedule.date)} • {schedule.team_name}
               </CardDescription>
             </div>
           </div>
@@ -156,7 +157,7 @@ export function ScheduleDetail({ id }: ScheduleDetailProps) {
           <CardContent className='space-y-4'>
             <div>
               <p className='text-sm text-muted-foreground'>Date</p>
-              <p className='font-medium'>{schedule.date}</p>
+              <p className='font-medium'>{formatDate(schedule.date)}</p>
             </div>
             {schedule.team_name && (
               <div>

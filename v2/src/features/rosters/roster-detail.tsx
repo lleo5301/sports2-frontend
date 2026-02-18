@@ -7,6 +7,7 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { ArrowLeft, Pencil, Plus, Trash2 } from 'lucide-react'
+import { formatDate } from '@/lib/format-date'
 import {
   rostersApi,
   type Roster,
@@ -210,12 +211,12 @@ export function RosterDetail({ id }: RosterDetailProps) {
                   <CardTitle>Details</CardTitle>
                   <div className='mt-2 space-y-1 text-sm text-muted-foreground'>
                     {roster.effective_date && (
-                      <p>Effective: {roster.effective_date}</p>
+                      <p>Effective: {formatDate(roster.effective_date)}</p>
                     )}
                     {roster.Game && (
                       <p>
                         Game: vs {roster.Game.opponent} (
-                        {roster.Game.game_date})
+                        {formatDate(roster.Game.game_date)})
                       </p>
                     )}
                     {roster.description && (

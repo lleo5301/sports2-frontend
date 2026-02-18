@@ -1,11 +1,14 @@
 /**
  * Stat leaderboard — ranked player leaders by stat.
+ * One card per stat with top 3; "View more" expands to full list.
  */
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { gamesApi, type LeaderEntry } from '@/lib/games-api'
 import { Main } from '@/components/layout/main'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -13,14 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
 
 const STAT_GROUPS = {
   Batting: [
@@ -52,13 +47,25 @@ const STAT_GROUPS = {
 
 const ALL_STATS = Object.values(STAT_GROUPS).flat()
 
-export function LeaderboardPage() {
-  const [stat, setStat] = useState('batting_average')
+const TOP_N = 3
+const FULL_LIMIT = 20
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['leaderboard', stat],
-    queryFn: () => gamesApi.getLeaderboard({ stat, limit: 20 }),
+export function LeaderboardPage() {
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+
+  const queries = useQueries({
+    queries: ALL_STATS.map((s) => ({
+      queryKey: ['leaderboard', s.value],
+      queryFn: () => gamesApi.getLeaderboard({ stat: s.value, limit: FULL_LIMIT }),
+    })),
   })
+
+  const isInitialLoad = queries.every((q) => q.isLoading)
+  const hasAnyData = queries.some((q) => q.data?.leaders?.length)
+
+  const toggleExpand = (stat: string) => {
+    setExpanded((p) => ({ ...p, [stat]: !p[stat] }))
+  }
 
   return (
     <Main>
@@ -70,89 +77,142 @@ export function LeaderboardPage() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Stat leaders</CardTitle>
-            <CardDescription>
-              Select a stat to see ranked leaders
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <Select value={stat} onValueChange={setStat}>
-              <SelectTrigger className='w-full max-w-sm'>
-                <SelectValue placeholder='Select stat' />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(STAT_GROUPS).map(([group, stats]) => (
-                  <div key={group}>
-                    <div className='px-2 py-1.5 text-xs font-medium text-muted-foreground'>
-                      {group}
-                    </div>
-                    {stats.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </div>
-                ))}
-              </SelectContent>
-            </Select>
+        {isInitialLoad ? (
+          <div className='flex justify-center py-16'>
+            <Loader2 className='size-8 animate-spin text-muted-foreground' />
+          </div>
+        ) : !hasAnyData ? (
+          <Card>
+            <CardContent className='py-12 text-center text-muted-foreground'>
+              No leaderboard data. Run PrestoSports sync to populate stats.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className='space-y-6'>
+            {Object.entries(STAT_GROUPS).map(([group, stats]) => (
+              <div key={group}>
+                <h3 className='mb-4 text-lg font-semibold text-muted-foreground'>
+                  {group}
+                </h3>
+                <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                  {stats.map((s) => {
+                    const idx = ALL_STATS.findIndex((a) => a.value === s.value)
+                    const q = queries[idx]
+                    const data = q?.data
+                    const leaders = data?.leaders ?? []
+                    const top3 = leaders.slice(0, TOP_N)
+                    const hasMore = leaders.length > TOP_N
+                    const isExpanded = expanded[s.value]
 
-            {isLoading ? (
-              <div className='flex items-center justify-center py-12'>
-                <Loader2 className='size-8 animate-spin text-muted-foreground' />
+                    return (
+                      <LeaderboardCard
+                        key={s.value}
+                        statLabel={s.label}
+                        season={data?.season_name ?? data?.season ?? null}
+                        leaders={leaders}
+                        topN={top3}
+                        hasMore={hasMore}
+                        isExpanded={isExpanded}
+                        onToggleExpand={() => toggleExpand(s.value)}
+                        isLoading={q?.isLoading}
+                      />
+                    )
+                  })}
+                </div>
               </div>
-            ) : error ? (
-              <div className='py-8 text-center text-destructive'>
-                {(error as Error).message}
-              </div>
-            ) : data ? (
-              <LeaderboardList
-                stat={data.stat}
-                season={data.season}
-                leaders={data.leaders}
-              />
-            ) : (
-              <div className='rounded-lg border border-dashed p-8 text-center text-muted-foreground'>
-                No leaderboard data. Run PrestoSports sync to populate stats.
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        )}
       </div>
     </Main>
   )
 }
 
-function LeaderboardList({
-  stat,
+function LeaderboardCard({
+  statLabel,
   season,
   leaders,
+  topN,
+  hasMore,
+  isExpanded,
+  onToggleExpand,
+  isLoading,
 }: {
-  stat: string
+  statLabel: string
   season: string | null
   leaders: LeaderEntry[]
+  topN: LeaderEntry[]
+  hasMore: boolean
+  isExpanded: boolean
+  onToggleExpand: () => void
+  isLoading?: boolean
 }) {
-  const statLabel = ALL_STATS.find((s) => s.value === stat)?.label ?? stat
-  if (leaders.length === 0) {
+  if (isLoading) {
     return (
-      <div className='rounded-lg border border-dashed p-8 text-center text-muted-foreground'>
-        No leaders found for {statLabel}
-        {season && ` (${season})`}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{statLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className='flex justify-center py-8'>
+            <Loader2 className='size-5 animate-spin text-muted-foreground' />
+          </div>
+        </CardContent>
+      </Card>
     )
   }
+
   return (
-    <div className='space-y-2'>
-      {season && (
-        <p className='text-sm text-muted-foreground'>Season: {season}</p>
-      )}
-      <div className='space-y-1'>
-        {leaders.map((entry) => (
-          <LeaderRow key={entry.player.id} entry={entry} />
-        ))}
-      </div>
-    </div>
+    <Card>
+      <CardHeader className='pb-2'>
+        <CardTitle className='text-base'>{statLabel}</CardTitle>
+        {season && (
+          <CardDescription>{season}</CardDescription>
+        )}
+      </CardHeader>
+      <CardContent className='space-y-2'>
+        {topN.length === 0 ? (
+          <p className='py-4 text-center text-sm text-muted-foreground'>
+            No data
+          </p>
+        ) : (
+          <>
+            <div className='space-y-1'>
+              {topN.map((entry) => (
+                <LeaderRow key={entry.player.id} entry={entry} />
+              ))}
+            </div>
+            {isExpanded && hasMore && (
+              <div className='space-y-1 border-t pt-2'>
+                {leaders.slice(TOP_N).map((entry) => (
+                  <LeaderRow key={entry.player.id} entry={entry} />
+                ))}
+              </div>
+            )}
+            {hasMore && (
+              <Button
+                variant='ghost'
+                size='sm'
+                className='w-full text-muted-foreground'
+                onClick={onToggleExpand}
+              >
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className='mr-1 size-4' />
+                    Show less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className='mr-1 size-4' />
+                    View more ({leaders.length - TOP_N} more)
+                  </>
+                )}
+              </Button>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

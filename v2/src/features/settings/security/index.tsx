@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Loader2, Monitor, Smartphone } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-date'
 import { settingsApi } from '@/lib/settings-api'
 import { ContentSection } from '../components/content-section'
 import {
@@ -23,16 +24,6 @@ export function SettingsSecurity() {
   })
 
   const isLoading = historyLoading || sessionsLoading
-
-  const formatDate = (s: string | undefined) => {
-    if (!s) return '-'
-    try {
-      const d = new Date(s)
-      return d.toLocaleString()
-    } catch {
-      return s
-    }
-  }
 
   return (
     <ContentSection
@@ -73,7 +64,7 @@ export function SettingsSecurity() {
                           {entry.ip_address ?? 'Unknown IP'}
                         </p>
                         <p className='text-xs text-muted-foreground'>
-                          {formatDate(entry.created_at)}
+                          {formatDateTime(entry.created_at) || '-'}
                         </p>
                       </div>
                     </div>
@@ -118,7 +109,7 @@ export function SettingsSecurity() {
                         </p>
                         <p className='text-xs text-muted-foreground'>
                           {session.ip_address ?? ''} • Last active:{' '}
-                          {formatDate(session.last_active)}
+                          {formatDateTime(session.last_active)}
                         </p>
                       </div>
                     </div>

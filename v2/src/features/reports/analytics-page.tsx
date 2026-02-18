@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   Cell,
@@ -11,6 +14,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { formatDateTime } from '@/lib/format-date'
+import { extendedStatsApi, type CoachDashboardData, type DashboardRecentGame } from '@/lib/extended-stats-api'
 import { playersApi } from '@/lib/players-api'
 import { reportsApi } from '@/lib/reports-api'
 import { Main } from '@/components/layout/main'
@@ -93,7 +98,60 @@ const PIPELINE_COLORS = [
   'var(--muted-foreground)',
 ]
 
+/** Parse "15-8" or "15-8-1" to { wins, losses, ties } */
+function parseRecord(s: string): { wins: number; losses: number } | null {
+  const m = s.match(/^(\d+)-(\d+)(?:-(\d+))?$/)
+  if (!m) return null
+  return { wins: parseInt(m[1], 10), losses: parseInt(m[2], 10) }
+}
+
+/** Build record progression from recent games (newest first) for chart (oldest first) */
+function buildRecordProgression(games: DashboardRecentGame[]) {
+  const reversed = [...games].reverse()
+  return reversed
+    .map((g, i) => {
+      const r = parseRecord(g.running_record)
+      if (!r) return null
+      return {
+        index: i + 1,
+        date: g.date,
+        opponent: g.opponent,
+        result: g.result,
+        wins: r.wins,
+        losses: r.losses,
+        label: `Game ${i + 1}`,
+      }
+    })
+    .filter(Boolean) as Array<{
+    index: number
+    date: string
+    opponent: string
+    result: string | null
+    wins: number
+    losses: number
+    label: string
+  }>
+}
+
+const LEADER_CATEGORIES = [
+  { key: 'batting_avg', label: 'Batting Avg', lowerBetter: false },
+  { key: 'home_runs', label: 'HR', lowerBetter: false },
+  { key: 'rbi', label: 'RBI', lowerBetter: false },
+  { key: 'stolen_bases', label: 'SB', lowerBetter: false },
+  { key: 'era', label: 'ERA', lowerBetter: true },
+  { key: 'strikeouts', label: 'SO', lowerBetter: false },
+] as const
+
 export function AnalyticsPage() {
+  const { data: dashboard } = useQuery({
+    queryKey: ['coach-dashboard'],
+    queryFn: () => extendedStatsApi.getCoachDashboard(),
+  })
+
+  const { data: aggregateStats } = useQuery({
+    queryKey: ['team-aggregate-stats'],
+    queryFn: () => extendedStatsApi.getTeamAggregateStats(),
+  })
   const { data: playerPerf, isLoading: loadingPerf } = useQuery({
     queryKey: ['reports', 'player-performance'],
     queryFn: () => reportsApi.getPlayerPerformance(),
@@ -151,9 +209,133 @@ export function AnalyticsPage() {
         <div>
           <h2 className='text-2xl font-bold tracking-tight'>Analytics</h2>
           <p className='text-muted-foreground'>
-            Player performance and recruitment pipeline
+            Team stats, record progression, stat leaders, and performance insights
           </p>
         </div>
+
+        {/* Record Progression — from extended stats */}
+        {dashboard?.recent_games?.length ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Record progression</CardTitle>
+              <CardDescription>
+                Wins over the season (last {dashboard.recent_games.length} games)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const chartData = buildRecordProgression(dashboard.recent_games)
+                if (chartData.length === 0) return <p className='text-muted-foreground'>No record data</p>
+                return (
+                  <ResponsiveContainer width='100%' height={220}>
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient id='winsGrad' x1='0' y1='0' x2='0' y2='1'>
+                          <stop offset='0%' stopColor='var(--primary)' stopOpacity={0.4} />
+                          <stop offset='100%' stopColor='var(--primary)' stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis
+                        dataKey='index'
+                        stroke='var(--muted-foreground)'
+                        fontSize={11}
+                        tickLine={false}
+                        tickFormatter={(i) => `G${i}`}
+                      />
+                      <YAxis stroke='var(--muted-foreground)' fontSize={11} tickLine={false} width={28} />
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (!active || !payload?.[0]) return null
+                          const d = payload[0].payload
+                          return (
+                            <div className='rounded-lg border bg-background p-3 shadow-md'>
+                              <p className='text-sm font-medium'>
+                                {d.opponent} · {d.result ?? '—'}
+                              </p>
+                              <p className='text-xs text-muted-foreground'>
+                                {d.wins}-{d.losses}
+                              </p>
+                            </div>
+                          )
+                        }}
+                      />
+                      <Area
+                        type='monotone'
+                        dataKey='wins'
+                        stroke='var(--primary)'
+                        fill='url(#winsGrad)'
+                        strokeWidth={2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )
+              })()}
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {/* Stat Leaders — from extended stats */}
+        {dashboard?.leaders && Object.keys(dashboard.leaders).length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Stat leaders</CardTitle>
+              <CardDescription>Top performers in key categories</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                {LEADER_CATEGORIES.map(({ key, label }) => {
+                  const arr = dashboard.leaders[key as keyof CoachDashboardData['leaders']]
+                  if (!arr?.length) return null
+                  return (
+                    <div key={key} className='rounded-lg border p-3'>
+                      <p className='mb-2 text-xs font-medium text-muted-foreground'>{label}</p>
+                      <ol className='space-y-1'>
+                        {arr.map((l, i) => (
+                          <li key={l.player_id} className='flex justify-between text-sm'>
+                            <Link
+                              to='/players/$id'
+                              params={{ id: l.player_id }}
+                              className='font-medium hover:underline'
+                            >
+                              {i + 1}. {l.name}
+                            </Link>
+                            <span className='tabular-nums'>{l.value}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {/* Team aggregate stats — extended stats API */}
+        {aggregateStats &&
+        (Object.keys(aggregateStats.batting ?? {}).length > 0 ||
+          Object.keys(aggregateStats.pitching ?? {}).length > 0 ||
+          Object.keys(aggregateStats.fielding ?? {}).length > 0) ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Team statistics</CardTitle>
+              <CardDescription>
+                Season batting, pitching, and fielding totals · Last synced {formatDateTime(aggregateStats.last_synced_at) || '—'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TeamStatsGrid
+                stats={
+                  {
+                    ...aggregateStats.batting,
+                    ...aggregateStats.pitching,
+                    ...aggregateStats.fielding,
+                  } as Record<string, unknown>
+                }
+              />
+            </CardContent>
+          </Card>
+        ) : null}
 
         {isLoading ? (
           <div className='flex items-center justify-center py-16'>
@@ -161,13 +343,13 @@ export function AnalyticsPage() {
           </div>
         ) : (
           <div className='space-y-6'>
-            {hasTeamStats ? (
+            {/* Fallback Team Stats — when extended stats unavailable */}
+            {!aggregateStats &&
+            hasTeamStats ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Team Statistics</CardTitle>
-                  <CardDescription>
-                    Aggregated team stats (batting, pitching)
-                  </CardDescription>
+                  <CardTitle>Team statistics</CardTitle>
+                  <CardDescription>Aggregated team stats (batting, pitching)</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <TeamStatsGrid

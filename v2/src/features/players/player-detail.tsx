@@ -21,9 +21,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { EditPlayerForm } from './edit-player-form'
+import { PlayerSplitsTab } from './player-splits-tab'
+import { PlayerRawStatsTab } from './player-raw-stats-tab'
+import { PlayerGameLogTab } from './player-game-log-tab'
 
 interface PlayerDetailProps {
   id: string
@@ -180,63 +184,96 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
           </CardContent>
         </Card>
 
-        {statsResp && hasStats(statsResp) && (
-          <Card>
-            <CardHeader>
-              <div className='flex items-center gap-2'>
-                <BarChart3 className='size-5 text-muted-foreground' />
-                <CardTitle>Statistics</CardTitle>
-              </div>
-              <CardDescription>
-                Season and career stats from PrestoSports
-              </CardDescription>
-            </CardHeader>
-            <CardContent className='space-y-6'>
-              {statsResp.current_season && (
-                <div>
-                  <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-                    Current season{' '}
-                    {(statsResp.current_season as { season_name?: string }).season_name ??
-                      statsResp.current_season.season ??
-                      ''}
-                  </h4>
-                  <SeasonStatsGrid season={statsResp.current_season} />
-                </div>
-              )}
-              {statsResp.seasons && statsResp.seasons.length > 1 && (
-                <div>
-                  <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-                    Season history
-                  </h4>
-                  <SeasonsTable seasons={statsResp.seasons} />
-                </div>
-              )}
-              {statsResp.career && (
-                <div>
-                  <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-                    Career totals
-                  </h4>
-                  <CareerStatsGrid career={statsResp.career} />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {videosResp && videosResp.data.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className='flex items-center gap-2'>
-                <Video className='size-5 text-muted-foreground' />
-                <CardTitle>Videos</CardTitle>
-              </div>
-              <CardDescription>Highlight reels and game footage</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PlayerVideosGrid videos={videosResp.data} />
-            </CardContent>
-          </Card>
-        )}
+        <Tabs defaultValue='stats' className='space-y-4'>
+          <TabsList className='flex-wrap'>
+            <TabsTrigger value='stats'>Stats</TabsTrigger>
+            <TabsTrigger value='splits'>Splits</TabsTrigger>
+            <TabsTrigger value='raw'>Raw stats</TabsTrigger>
+            <TabsTrigger value='game-log'>Game log</TabsTrigger>
+            <TabsTrigger value='videos'>Videos</TabsTrigger>
+          </TabsList>
+          <TabsContent value='stats' className='space-y-4'>
+            {statsResp && hasStats(statsResp) ? (
+              <Card>
+                <CardHeader>
+                  <div className='flex items-center gap-2'>
+                    <BarChart3 className='size-5 text-muted-foreground' />
+                    <CardTitle>Statistics</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Season and career stats from PrestoSports
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                  {statsResp.current_season && (
+                    <div>
+                      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+                        Current season{' '}
+                        {(statsResp.current_season as { season_name?: string }).season_name ??
+                          statsResp.current_season.season ??
+                          ''}
+                      </h4>
+                      <SeasonStatsGrid season={statsResp.current_season} />
+                    </div>
+                  )}
+                  {statsResp.seasons && statsResp.seasons.length > 1 && (
+                    <div>
+                      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+                        Season history
+                      </h4>
+                      <SeasonsTable seasons={statsResp.seasons} />
+                    </div>
+                  )}
+                  {statsResp.career && (
+                    <div>
+                      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+                        Career totals
+                      </h4>
+                      <CareerStatsGrid career={statsResp.career} />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className='py-8 text-center text-muted-foreground'>
+                  No stats available. Sync with PrestoSports.
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          <TabsContent value='splits'>
+            <PlayerSplitsTab playerId={playerId} />
+          </TabsContent>
+          <TabsContent value='raw'>
+            <PlayerRawStatsTab playerId={playerId} />
+          </TabsContent>
+          <TabsContent value='game-log'>
+            <PlayerGameLogTab playerId={playerId} />
+          </TabsContent>
+          <TabsContent value='videos'>
+            {videosResp && videosResp.data.length > 0 ? (
+              <Card>
+                <CardHeader>
+                  <div className='flex items-center gap-2'>
+                    <Video className='size-5 text-muted-foreground' />
+                    <CardTitle>Videos</CardTitle>
+                  </div>
+                  <CardDescription>Highlight reels and game footage</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PlayerVideosGrid videos={videosResp.data} />
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className='py-8 text-center text-muted-foreground'>
+                  No videos
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </Main>
   )

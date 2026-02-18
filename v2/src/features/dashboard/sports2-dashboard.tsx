@@ -36,7 +36,7 @@ import {
   CardHeader,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatGameDate, type Game } from '@/lib/games-api'
+import { formatGameDateShort, type Game } from '@/lib/games-api'
 
 function formatGameLabel(game: Game) {
   const opp = game.opponent ?? 'Opponent'
@@ -357,7 +357,7 @@ export function Sports2Dashboard() {
                     >
                       <Link to='/games/$id' params={{ id: String(game.id) }}>
                         <span className='float-left w-24 shrink-0 text-sm text-muted-foreground'>
-                          {formatGameDate(game, 'MMM d')}
+                          {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>
                           <p className='truncate font-medium'>
@@ -410,7 +410,7 @@ export function Sports2Dashboard() {
                     >
                       <Link to='/games/$id' params={{ id: String(game.id) }}>
                         <span className='float-left w-24 shrink-0 text-sm text-muted-foreground'>
-                          {formatGameDate(game, 'MMM d')}
+                          {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>
                           <p className='truncate font-medium'>

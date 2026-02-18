@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCoachDashboardRouteImport } from './routes/_authenticated/coach-dashboard'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -27,6 +28,7 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedTeamStatsIndexRouteImport } from './routes/_authenticated/team-stats/index'
 import { Route as AuthenticatedTeamSettingsIndexRouteImport } from './routes/_authenticated/team-settings/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -50,6 +52,9 @@ import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedVendorsCreateRouteImport } from './routes/_authenticated/vendors/create'
 import { Route as AuthenticatedVendorsIdRouteImport } from './routes/_authenticated/vendors/$id'
+import { Route as AuthenticatedTeamStatsTeamLineupRouteImport } from './routes/_authenticated/team-stats/team-lineup'
+import { Route as AuthenticatedTeamStatsTeamGameLogRouteImport } from './routes/_authenticated/team-stats/team-game-log'
+import { Route as AuthenticatedTeamStatsTeamAggregateStatsRouteImport } from './routes/_authenticated/team-stats/team-aggregate-stats'
 import { Route as AuthenticatedSettingsSecurityRouteImport } from './routes/_authenticated/settings/security'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
@@ -95,6 +100,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCoachDashboardRoute =
+  AuthenticatedCoachDashboardRouteImport.update({
+    id: '/coach-dashboard',
+    path: '/coach-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
   path: '/503',
@@ -172,6 +183,12 @@ const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamStatsIndexRoute =
+  AuthenticatedTeamStatsIndexRouteImport.update({
+    id: '/team-stats/',
+    path: '/team-stats/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeamSettingsIndexRoute =
   AuthenticatedTeamSettingsIndexRouteImport.update({
     id: '/team-settings/',
@@ -304,6 +321,24 @@ const AuthenticatedVendorsIdRoute = AuthenticatedVendorsIdRouteImport.update({
   path: '/vendors/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamStatsTeamLineupRoute =
+  AuthenticatedTeamStatsTeamLineupRouteImport.update({
+    id: '/team-stats/team-lineup',
+    path: '/team-stats/team-lineup',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeamStatsTeamGameLogRoute =
+  AuthenticatedTeamStatsTeamGameLogRouteImport.update({
+    id: '/team-stats/team-game-log',
+    path: '/team-stats/team-game-log',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeamStatsTeamAggregateStatsRoute =
+  AuthenticatedTeamStatsTeamAggregateStatsRouteImport.update({
+    id: '/team-stats/team-aggregate-stats',
+    path: '/team-stats/team-aggregate-stats',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsSecurityRoute =
   AuthenticatedSettingsSecurityRouteImport.update({
     id: '/security',
@@ -492,6 +527,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/coaches/$id': typeof AuthenticatedCoachesIdRoute
   '/coaches/create': typeof AuthenticatedCoachesCreateRoute
@@ -523,6 +559,9 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings/security': typeof AuthenticatedSettingsSecurityRoute
+  '/team-stats/team-aggregate-stats': typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
+  '/team-stats/team-game-log': typeof AuthenticatedTeamStatsTeamGameLogRoute
+  '/team-stats/team-lineup': typeof AuthenticatedTeamStatsTeamLineupRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
@@ -546,6 +585,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/team-settings/': typeof AuthenticatedTeamSettingsIndexRoute
+  '/team-stats/': typeof AuthenticatedTeamStatsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
 }
@@ -562,6 +602,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthenticatedIndexRoute
   '/coaches/$id': typeof AuthenticatedCoachesIdRoute
@@ -594,6 +635,9 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings/security': typeof AuthenticatedSettingsSecurityRoute
+  '/team-stats/team-aggregate-stats': typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
+  '/team-stats/team-game-log': typeof AuthenticatedTeamStatsTeamGameLogRoute
+  '/team-stats/team-lineup': typeof AuthenticatedTeamStatsTeamLineupRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
@@ -617,6 +661,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/team-settings': typeof AuthenticatedTeamSettingsIndexRoute
+  '/team-stats': typeof AuthenticatedTeamStatsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
 }
@@ -636,6 +681,7 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/coaches/$id': typeof AuthenticatedCoachesIdRoute
@@ -668,6 +714,9 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/settings/security': typeof AuthenticatedSettingsSecurityRoute
+  '/_authenticated/team-stats/team-aggregate-stats': typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
+  '/_authenticated/team-stats/team-game-log': typeof AuthenticatedTeamStatsTeamGameLogRoute
+  '/_authenticated/team-stats/team-lineup': typeof AuthenticatedTeamStatsTeamLineupRoute
   '/_authenticated/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/_authenticated/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
@@ -691,6 +740,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/team-settings/': typeof AuthenticatedTeamSettingsIndexRoute
+  '/_authenticated/team-stats/': typeof AuthenticatedTeamStatsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
 }
@@ -711,6 +761,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/coach-dashboard'
     | '/dashboard'
     | '/coaches/$id'
     | '/coaches/create'
@@ -742,6 +793,9 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/settings/security'
+    | '/team-stats/team-aggregate-stats'
+    | '/team-stats/team-game-log'
+    | '/team-stats/team-lineup'
     | '/vendors/$id'
     | '/vendors/create'
     | '/apps/'
@@ -765,6 +819,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/tasks/'
     | '/team-settings/'
+    | '/team-stats/'
     | '/users/'
     | '/vendors/'
   fileRoutesByTo: FileRoutesByTo
@@ -781,6 +836,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/coach-dashboard'
     | '/dashboard'
     | '/'
     | '/coaches/$id'
@@ -813,6 +869,9 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/settings/security'
+    | '/team-stats/team-aggregate-stats'
+    | '/team-stats/team-game-log'
+    | '/team-stats/team-lineup'
     | '/vendors/$id'
     | '/vendors/create'
     | '/apps'
@@ -836,6 +895,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/team-settings'
+    | '/team-stats'
     | '/users'
     | '/vendors'
   id:
@@ -854,6 +914,7 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/coach-dashboard'
     | '/_authenticated/dashboard'
     | '/_authenticated/'
     | '/_authenticated/coaches/$id'
@@ -886,6 +947,9 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/settings/security'
+    | '/_authenticated/team-stats/team-aggregate-stats'
+    | '/_authenticated/team-stats/team-game-log'
+    | '/_authenticated/team-stats/team-lineup'
     | '/_authenticated/vendors/$id'
     | '/_authenticated/vendors/create'
     | '/_authenticated/apps/'
@@ -909,6 +973,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/team-settings/'
+    | '/_authenticated/team-stats/'
     | '/_authenticated/users/'
     | '/_authenticated/vendors/'
   fileRoutesById: FileRoutesById
@@ -950,6 +1015,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/coach-dashboard': {
+      id: '/_authenticated/coach-dashboard'
+      path: '/coach-dashboard'
+      fullPath: '/coach-dashboard'
+      preLoaderRoute: typeof AuthenticatedCoachDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(errors)/503': {
@@ -1055,6 +1127,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users/'
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team-stats/': {
+      id: '/_authenticated/team-stats/'
+      path: '/team-stats'
+      fullPath: '/team-stats/'
+      preLoaderRoute: typeof AuthenticatedTeamStatsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/team-settings/': {
@@ -1216,6 +1295,27 @@ declare module '@tanstack/react-router' {
       path: '/vendors/$id'
       fullPath: '/vendors/$id'
       preLoaderRoute: typeof AuthenticatedVendorsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team-stats/team-lineup': {
+      id: '/_authenticated/team-stats/team-lineup'
+      path: '/team-stats/team-lineup'
+      fullPath: '/team-stats/team-lineup'
+      preLoaderRoute: typeof AuthenticatedTeamStatsTeamLineupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team-stats/team-game-log': {
+      id: '/_authenticated/team-stats/team-game-log'
+      path: '/team-stats/team-game-log'
+      fullPath: '/team-stats/team-game-log'
+      preLoaderRoute: typeof AuthenticatedTeamStatsTeamGameLogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team-stats/team-aggregate-stats': {
+      id: '/_authenticated/team-stats/team-aggregate-stats'
+      path: '/team-stats/team-aggregate-stats'
+      fullPath: '/team-stats/team-aggregate-stats'
+      preLoaderRoute: typeof AuthenticatedTeamStatsTeamAggregateStatsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings/security': {
@@ -1458,6 +1558,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedCoachDashboardRoute: typeof AuthenticatedCoachDashboardRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCoachesIdRoute: typeof AuthenticatedCoachesIdRoute
@@ -1485,6 +1586,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedScoutingCreateRoute: typeof AuthenticatedScoutingCreateRoute
   AuthenticatedScoutsIdRoute: typeof AuthenticatedScoutsIdRoute
   AuthenticatedScoutsCreateRoute: typeof AuthenticatedScoutsCreateRoute
+  AuthenticatedTeamStatsTeamAggregateStatsRoute: typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
+  AuthenticatedTeamStatsTeamGameLogRoute: typeof AuthenticatedTeamStatsTeamGameLogRoute
+  AuthenticatedTeamStatsTeamLineupRoute: typeof AuthenticatedTeamStatsTeamLineupRoute
   AuthenticatedVendorsIdRoute: typeof AuthenticatedVendorsIdRoute
   AuthenticatedVendorsCreateRoute: typeof AuthenticatedVendorsCreateRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
@@ -1507,12 +1611,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedScoutsIndexRoute: typeof AuthenticatedScoutsIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTeamSettingsIndexRoute: typeof AuthenticatedTeamSettingsIndexRoute
+  AuthenticatedTeamStatsIndexRoute: typeof AuthenticatedTeamStatsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedCoachDashboardRoute: AuthenticatedCoachDashboardRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCoachesIdRoute: AuthenticatedCoachesIdRoute,
@@ -1541,6 +1647,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedScoutingCreateRoute: AuthenticatedScoutingCreateRoute,
   AuthenticatedScoutsIdRoute: AuthenticatedScoutsIdRoute,
   AuthenticatedScoutsCreateRoute: AuthenticatedScoutsCreateRoute,
+  AuthenticatedTeamStatsTeamAggregateStatsRoute:
+    AuthenticatedTeamStatsTeamAggregateStatsRoute,
+  AuthenticatedTeamStatsTeamGameLogRoute:
+    AuthenticatedTeamStatsTeamGameLogRoute,
+  AuthenticatedTeamStatsTeamLineupRoute: AuthenticatedTeamStatsTeamLineupRoute,
   AuthenticatedVendorsIdRoute: AuthenticatedVendorsIdRoute,
   AuthenticatedVendorsCreateRoute: AuthenticatedVendorsCreateRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
@@ -1565,6 +1676,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedScoutsIndexRoute: AuthenticatedScoutsIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTeamSettingsIndexRoute: AuthenticatedTeamSettingsIndexRoute,
+  AuthenticatedTeamStatsIndexRoute: AuthenticatedTeamStatsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
 }

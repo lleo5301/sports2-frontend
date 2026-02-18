@@ -3,7 +3,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { format, parseISO } from 'date-fns'
+import { formatDate } from '@/lib/format-date'
 import { ArrowLeft } from 'lucide-react'
 import { newsApi } from '@/lib/news-api'
 import { Main } from '@/components/layout/main'
@@ -16,15 +16,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
-
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return ''
-  try {
-    return format(parseISO(dateStr), 'MMMM d, yyyy')
-  } catch {
-    return dateStr
-  }
-}
 
 interface NewsDetailProps {
   id: string
@@ -118,8 +109,24 @@ export function NewsDetail({ id }: NewsDetailProps) {
                 dangerouslySetInnerHTML={{ __html: item.content }}
                 className='news-content'
               />
+            ) : item.summary ? (
+              <p className='text-base leading-relaxed'>{item.summary}</p>
             ) : (
-              <p className='text-muted-foreground'>No content available.</p>
+              <p className='text-muted-foreground'>
+                No content available.
+                {item.source_url && (
+                  <span className='block mt-2'>
+                    <a
+                      href={item.source_url}
+                      target='_blank'
+                      rel='noreferrer noopener'
+                      className='text-primary hover:underline'
+                    >
+                      Read the full article on PrestoSports
+                    </a>
+                  </span>
+                )}
+              </p>
             )}
           </CardContent>
         </Card>

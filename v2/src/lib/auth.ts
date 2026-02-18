@@ -33,13 +33,15 @@ export interface RegisterData {
 }
 
 export async function login(credentials: LoginCredentials): Promise<User> {
-  // Prevent following redirects (backend should return 200 JSON, not 302)
-  const response = await api.post<{ success: boolean; data: User }>(
-    '/auth/login',
-    credentials,
-    { maxRedirects: 0 }
-  )
-  return response.data.data
+  const response = await api.post<{
+    success?: boolean
+    data?: User | { user: User }
+  }>('/auth/login', credentials, { maxRedirects: 0 })
+  const data = response.data?.data
+  if (!data) throw new Error('Invalid login response')
+  const user = (data as { user?: User }).user ?? (data as User)
+  if (!user?.email) throw new Error('Invalid login response')
+  return { ...user, id: String((user as User).id ?? (user as { id?: number }).id ?? '') }
 }
 
 export async function register(data: RegisterData): Promise<User> {

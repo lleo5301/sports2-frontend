@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AxiosError } from 'axios'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -55,12 +56,26 @@ export function LoginForm({
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
+    form.clearErrors()
     try {
       const user = await authLogin(data)
       login(user)
       navigate({ to: sanitizeRedirect(redirectTo), replace: true })
-    } catch {
-      // Error toast handled by api interceptor
+    } catch (err) {
+      const msg =
+        err instanceof AxiosError
+          ? (err.response?.data as { error?: string })?.error ??
+            (err.response?.status === 401
+              ? 'Invalid email or password'
+              : err.response?.status === 403
+                ? 'Session expired. Please refresh and try again.'
+                : err.response?.status === 0 || err.code === 'ERR_NETWORK'
+                  ? 'Cannot reach server. Is the API running?'
+                  : err.message)
+          : err instanceof Error
+            ? err.message
+            : 'Invalid email or password'
+      form.setError('root', { message: msg })
     } finally {
       setIsLoading(false)
     }
@@ -105,6 +120,11 @@ export function LoginForm({
             </FormItem>
           )}
         />
+        {form.formState.errors.root && (
+          <p className='text-sm text-destructive'>
+            {form.formState.errors.root.message}
+          </p>
+        )}
         <Button className='mt-2' type='submit' disabled={isLoading}>
           {isLoading ? <Loader2 className='size-4 animate-spin' /> : <LogIn />}
           Sign in
