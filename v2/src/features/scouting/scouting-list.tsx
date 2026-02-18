@@ -54,7 +54,7 @@ function subjectName(report: ScoutingReport) {
 
 export function ScoutingList() {
   const [page, setPage] = useState(1)
-  const [prospectFilter, setProspectFilter] = useState<string>('')
+  const [prospectFilter, setProspectFilter] = useState<string>('all')
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['scouting-reports', page, prospectFilter],
@@ -62,13 +62,16 @@ export function ScoutingList() {
       scoutingApi.list({
         page,
         limit: 20,
-        prospect_id: prospectFilter ? parseInt(prospectFilter, 10) : undefined,
+        prospect_id:
+          prospectFilter && prospectFilter !== 'all'
+            ? parseInt(prospectFilter, 10)
+            : undefined,
       }),
   })
 
   const { data: prospectsData } = useQuery({
     queryKey: ['prospects-simple'],
-    queryFn: () => prospectsApi.list({ limit: 200 }),
+    queryFn: () => prospectsApi.list({ limit: 100 }),
   })
 
   const columns: ColumnDef<ScoutingReport>[] = [
@@ -150,7 +153,7 @@ export function ScoutingList() {
                   <SelectValue placeholder='Filter by prospect' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=''>All prospects</SelectItem>
+                  <SelectItem value='all'>All prospects</SelectItem>
                   {prospectsData?.data?.map((p) => (
                     <SelectItem key={p.id} value={String(p.id)}>
                       {[p.first_name, p.last_name].filter(Boolean).join(' ')}

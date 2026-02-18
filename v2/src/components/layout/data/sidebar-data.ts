@@ -10,6 +10,8 @@ import {
   Contact,
   Settings,
   Plug,
+  Award,
+  Newspaper,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -41,6 +43,8 @@ export const sidebarData: SidebarData = {
           items: [
             { title: 'Players', url: '/players', icon: Users },
             { title: 'Create Player', url: '/players/create', icon: UserPlus },
+            { title: 'Rosters', url: '/rosters', icon: ClipboardList },
+            { title: 'Create Roster', url: '/rosters/create', icon: ClipboardList },
           ],
         },
         {
@@ -69,8 +73,9 @@ export const sidebarData: SidebarData = {
             { title: 'Calendar', url: '/schedules/calendar', icon: Calendar, permission: 'schedule_view' },
             { title: 'Create Schedule', url: '/schedules/create', icon: Calendar, permission: 'schedule_create' },
             { title: 'Games', url: '/games', icon: Trophy },
-            { title: 'Add Game', url: '/games/create', icon: Trophy },
+            { title: 'Leaderboard', url: '/games/leaderboard', icon: Award },
             { title: 'Depth Charts', url: '/depth-charts', icon: ClipboardList, permission: 'depth_chart_view' },
+            { title: 'News', url: '/news', icon: Newspaper },
           ],
         },
         {

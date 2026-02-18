@@ -1,11 +1,12 @@
 /**
- * Depth Charts API
+ * Depth Charts API.
+ * Backend may return { data } with or without success flag.
  */
 
 import api from './api'
 
-function unwrap<T>(res: { success?: boolean; data?: T }): T | undefined {
-  return res?.success ? res.data : undefined
+function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
+  return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
 }
 
 export interface DepthChartPosition {
@@ -75,7 +76,7 @@ export const depthChartsApi = {
     const r = await api.get<{ success?: boolean; data?: DepthChart[] }>(
       '/depth-charts'
     )
-    const data = unwrap(r.data as { success?: boolean; data?: DepthChart[] })
+    const data = getData<DepthChart[]>(r.data as { success?: boolean; data?: DepthChart[] })
     return Array.isArray(data) ? data : []
   },
 
@@ -83,7 +84,7 @@ export const depthChartsApi = {
     const r = await api.get<{ success?: boolean; data?: DepthChart }>(
       `/depth-charts/byId/${id}`
     )
-    return unwrap(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
   },
 
   create: async (name: string) => {
@@ -91,7 +92,7 @@ export const depthChartsApi = {
       '/depth-charts',
       { name }
     )
-    return unwrap(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
   },
 
   update: async (id: number, data: { name?: string; description?: string }) => {
@@ -99,7 +100,7 @@ export const depthChartsApi = {
       `/depth-charts/byId/${id}`,
       data
     )
-    return unwrap(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
   },
 
   delete: async (id: number) => {
@@ -110,14 +111,14 @@ export const depthChartsApi = {
     const r = await api.post<{ success?: boolean; data?: DepthChart }>(
       `/depth-charts/${id}/duplicate`
     )
-    return unwrap(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
   },
 
   getAvailablePlayers: async (chartId: number) => {
     const r = await api.get<{ success?: boolean; data?: unknown[] }>(
       `/depth-charts/${chartId}/available-players`
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
   },
 
@@ -125,7 +126,7 @@ export const depthChartsApi = {
     const r = await api.get<{ success?: boolean; data?: unknown[] }>(
       `/depth-charts/${chartId}/recommended-players/${positionId}`
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
   },
 
@@ -133,7 +134,7 @@ export const depthChartsApi = {
     const r = await api.get<{ success?: boolean; data?: DepthChartHistoryEntry[] }>(
       `/depth-charts/${chartId}/history`
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
   },
 
@@ -152,7 +153,7 @@ export const depthChartsApi = {
       `/depth-charts/${chartId}/positions`,
       data
     )
-    return unwrap(r.data)
+    return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   updatePosition: async (
@@ -170,7 +171,7 @@ export const depthChartsApi = {
       `/depth-charts/positions/${positionId}`,
       data
     )
-    return unwrap(r.data)
+    return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   deletePosition: async (positionId: number) => {
@@ -185,7 +186,7 @@ export const depthChartsApi = {
       `/depth-charts/positions/${positionId}/players`,
       { player_id: data.player_id, rank: data.depth_order ?? data.rank }
     )
-    return unwrap(r.data)
+    return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   unassignPlayer: async (assignmentId: number) => {

@@ -1,13 +1,15 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { Plus, Trash2 } from 'lucide-react'
-import { gamesApi, type Game } from '@/lib/games-api'
+import { parseISO } from 'date-fns'
+import { Trash2 } from 'lucide-react'
+import { gamesApi, formatGameDateTime, type Game } from '@/lib/games-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +17,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from '@/components/ui/card'
 import {
   Table,
@@ -32,17 +35,51 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
 import { toast } from 'sonner'
 
+function getGameDate(game: Game): Date | null {
+  const d = game.date ?? game.game_date
+  if (!d || typeof d !== 'string') return null
+  try {
+    return parseISO(d)
+  } catch {
+    return null
+  }
+}
+
 export function GamesList() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [page, setPage] = useState(1)
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['games', page],
-    queryFn: () => gamesApi.list({ page, limit: 20 }),
+    queryKey: ['games'],
+    queryFn: () => gamesApi.list({ limit: 200 }),
   })
+
+  const { upcoming, previous } = useMemo(() => {
+    const list = data?.data ?? []
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const up: Game[] = []
+    const prev: Game[] = []
+    for (const g of list) {
+      const d = getGameDate(g)
+      if (!d) prev.push(g)
+      else if (d >= now) up.push(g)
+      else prev.push(g)
+    }
+    up.sort((a, b) => {
+      const da = getGameDate(a)?.getTime() ?? 0
+      const db = getGameDate(b)?.getTime() ?? 0
+      return da - db
+    })
+    prev.sort((a, b) => {
+      const da = getGameDate(a)?.getTime() ?? 0
+      const db = getGameDate(b)?.getTime() ?? 0
+      return da - db
+    })
+    return { upcoming: up, previous: prev }
+  }, [data?.data])
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => gamesApi.delete(id),
@@ -71,10 +108,11 @@ export function GamesList() {
     },
     { accessorKey: 'opponent', header: 'Opponent' },
     {
-      accessorKey: 'date',
-      header: 'Date',
-      cell: ({ row }) =>
-        row.original.date ?? row.original.game_date ?? '—',
+      id: 'date-time',
+      header: 'Date & Time',
+      cell: ({ row }) => (
+        <span className='whitespace-normal'>{formatGameDateTime(row.original)}</span>
+      ),
     },
     {
       id: 'score',
@@ -126,113 +164,121 @@ export function GamesList() {
     },
   ]
 
-  const table = useReactTable({
-    data: data?.data ?? [],
+  const upcomingTable = useReactTable({
+    data: upcoming,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const pagination = data?.pagination
+  const previousTable = useReactTable({
+    data: previous,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  const renderTableBody = (table: ReturnType<typeof useReactTable>) => (
+    <>
+      {table.getRowModel().rows.length ? (
+        table.getRowModel().rows.map((row) => (
+          <TableRow
+            key={row.id}
+            className='cursor-pointer'
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest('[data-row-actions]')) return
+              navigate({
+                to: '/games/$id',
+                params: { id: String(row.original.id) },
+              })
+            }}
+          >
+            {row.getVisibleCells().map((cell) => (
+              <TableCell key={cell.id}>
+                {cell.column.id === 'actions' ? (
+                  <div data-row-actions>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                ) : (
+                  flexRender(cell.column.columnDef.cell, cell.getContext())
+                )}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell
+            colSpan={columns.length}
+            className='py-6 text-center text-muted-foreground'
+          >
+            No games
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  )
+
+  const tableHeader = (
+    <TableHeader>
+      {upcomingTable.getHeaderGroups().map((hg) => (
+        <TableRow key={hg.id}>
+          {hg.headers.map((h) => (
+            <TableHead key={h.id}>
+              {flexRender(h.column.columnDef.header, h.getContext())}
+            </TableHead>
+          ))}
+        </TableRow>
+      ))}
+    </TableHeader>
+  )
 
   return (
     <Main>
       <div className='space-y-6'>
-        <div className='flex flex-wrap items-end justify-between gap-4'>
-          <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Games</h2>
-            <CardDescription>Games and results</CardDescription>
-          </div>
-          <Button asChild>
-            <Link to='/games/create'>
-              <Plus className='size-4' />
-              Add Game
-            </Link>
-          </Button>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight'>Games</h2>
+          <CardDescription>Games and results</CardDescription>
         </div>
 
-        <Card>
-          <CardContent className='pt-6'>
-            {isLoading ? (
-              <div className='py-8 text-center text-muted-foreground'>
-                Loading...
-              </div>
-            ) : error ? (
-              <div className='py-8 text-center text-destructive'>
-                {(error as Error).message}
-              </div>
-            ) : (
-              <>
+        {isLoading ? (
+          <Card>
+            <CardContent className='py-8 text-center text-muted-foreground'>
+              Loading...
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card>
+            <CardContent className='py-8 text-center text-destructive'>
+              {(error as Error).message}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className='space-y-8'>
+            <Card>
+              <CardHeader className='pb-2'>
+                <CardTitle>Upcoming</CardTitle>
+                <CardDescription>Soonest first (ascending by date)</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((hg) => (
-                      <TableRow key={hg.id}>
-                        {hg.headers.map((h) => (
-                          <TableHead key={h.id}>
-                            {flexRender(
-                              h.column.columnDef.header,
-                              h.getContext()
-                            )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className='py-8 text-center text-muted-foreground'
-                        >
-                          No games found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
+                  {tableHeader}
+                  <TableBody>{renderTableBody(upcomingTable)}</TableBody>
                 </Table>
-                {pagination && pagination.pages > 1 && (
-                  <div className='mt-4 flex items-center justify-between'>
-                    <p className='text-sm text-muted-foreground'>
-                      Page {pagination.page} of {pagination.pages} (
-                      {pagination.total} total)
-                    </p>
-                    <div className='flex gap-2'>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        disabled={page <= 1}
-                        onClick={() => setPage((p) => p - 1)}
-                      >
-                        Previous
-                      </Button>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        disabled={page >= pagination.pages}
-                        onClick={() => setPage((p) => p + 1)}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className='pb-2'>
+                <CardTitle>Previous</CardTitle>
+                <CardDescription>Oldest first (ascending by date)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  {tableHeader}
+                  <TableBody>{renderTableBody(previousTable)}</TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </Main>
   )

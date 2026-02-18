@@ -3,8 +3,8 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Loader2, Pencil, Trash2 } from 'lucide-react'
-import { playersApi, type Player } from '@/lib/players-api'
+import { ArrowLeft, BarChart3, Loader2, Pencil, Play, Trash2, Video } from 'lucide-react'
+import { playersApi, type Player, type PlayerStatsResponse } from '@/lib/players-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,6 +12,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from '@/components/ui/card'
 import {
   DropdownMenu,
@@ -38,6 +39,18 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
     queryKey: ['player', playerId],
     queryFn: () => playersApi.getById(playerId),
     enabled: !Number.isNaN(playerId),
+  })
+
+  const { data: statsResp } = useQuery({
+    queryKey: ['player', playerId, 'stats'],
+    queryFn: () => playersApi.getStats(playerId),
+    enabled: !Number.isNaN(playerId) && !!player,
+  })
+
+  const { data: videosResp } = useQuery({
+    queryKey: ['player', playerId, 'videos'],
+    queryFn: () => playersApi.getVideos(playerId, { limit: 12 }),
+    enabled: !Number.isNaN(playerId) && !!player,
   })
 
   const deleteMutation = useMutation({
@@ -166,17 +179,468 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
             <DetailRow label='Phone' value={player.phone} />
           </CardContent>
         </Card>
+
+        {statsResp && hasStats(statsResp) && (
+          <Card>
+            <CardHeader>
+              <div className='flex items-center gap-2'>
+                <BarChart3 className='size-5 text-muted-foreground' />
+                <CardTitle>Statistics</CardTitle>
+              </div>
+              <CardDescription>
+                Season and career stats from PrestoSports
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              {statsResp.current_season && (
+                <div>
+                  <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+                    Current season{' '}
+                    {(statsResp.current_season as { season_name?: string }).season_name ??
+                      statsResp.current_season.season ??
+                      ''}
+                  </h4>
+                  <SeasonStatsGrid season={statsResp.current_season} />
+                </div>
+              )}
+              {statsResp.seasons && statsResp.seasons.length > 1 && (
+                <div>
+                  <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+                    Season history
+                  </h4>
+                  <SeasonsTable seasons={statsResp.seasons} />
+                </div>
+              )}
+              {statsResp.career && (
+                <div>
+                  <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+                    Career totals
+                  </h4>
+                  <CareerStatsGrid career={statsResp.career} />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {videosResp && videosResp.data.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className='flex items-center gap-2'>
+                <Video className='size-5 text-muted-foreground' />
+                <CardTitle>Videos</CardTitle>
+              </div>
+              <CardDescription>Highlight reels and game footage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PlayerVideosGrid videos={videosResp.data} />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </Main>
   )
 }
 
-function DetailRow({ label, value }: { label: string; value?: string | null }) {
-  if (!value) return null
+function DetailRow({ label, value }: { label: string; value?: string | number | null }) {
+  if (value === undefined || value === null || value === '') return null
   return (
     <div>
       <p className='text-sm text-muted-foreground'>{label}</p>
       <p className='font-medium'>{value}</p>
+    </div>
+  )
+}
+
+// Per player-stats-reference.md — all season stats
+const BATTING_SEASON_KEYS = [
+  'games_played',
+  'games_started',
+  'at_bats',
+  'runs',
+  'hits',
+  'doubles',
+  'triples',
+  'home_runs',
+  'rbi',
+  'walks',
+  'strikeouts',
+  'stolen_bases',
+  'caught_stealing',
+  'hit_by_pitch',
+  'sacrifice_flies',
+  'sacrifice_bunts',
+  'batting_average',
+  'on_base_percentage',
+  'slugging_percentage',
+  'ops',
+] as const
+const PITCHING_SEASON_KEYS = [
+  'pitching_appearances',
+  'pitching_starts',
+  'innings_pitched',
+  'pitching_wins',
+  'pitching_losses',
+  'saves',
+  'holds',
+  'hits_allowed',
+  'runs_allowed',
+  'earned_runs',
+  'walks_allowed',
+  'strikeouts_pitching',
+  'home_runs_allowed',
+  'era',
+  'whip',
+  'k_per_9',
+  'bb_per_9',
+] as const
+const FIELDING_SEASON_KEYS = [
+  'fielding_games',
+  'putouts',
+  'assists',
+  'errors',
+  'fielding_percentage',
+] as const
+
+const STAT_LABELS: Record<string, string> = {
+  games_played: 'GP',
+  games_started: 'GS',
+  at_bats: 'AB',
+  runs: 'R',
+  hits: 'H',
+  doubles: '2B',
+  triples: '3B',
+  home_runs: 'HR',
+  rbi: 'RBI',
+  walks: 'BB',
+  strikeouts: 'K',
+  stolen_bases: 'SB',
+  caught_stealing: 'CS',
+  hit_by_pitch: 'HBP',
+  sacrifice_flies: 'SF',
+  sacrifice_bunts: 'SH',
+  batting_average: 'AVG',
+  on_base_percentage: 'OBP',
+  slugging_percentage: 'SLG',
+  ops: 'OPS',
+  pitching_appearances: 'APP',
+  pitching_starts: 'GS',
+  innings_pitched: 'IP',
+  pitching_wins: 'W',
+  pitching_losses: 'L',
+  saves: 'SV',
+  holds: 'HD',
+  hits_allowed: 'H',
+  runs_allowed: 'R',
+  earned_runs: 'ER',
+  walks_allowed: 'BB',
+  strikeouts_pitching: 'K',
+  home_runs_allowed: 'HR',
+  era: 'ERA',
+  whip: 'WHIP',
+  k_per_9: 'K/9',
+  bb_per_9: 'BB/9',
+  fielding_games: 'G',
+  putouts: 'PO',
+  assists: 'A',
+  errors: 'E',
+  fielding_percentage: 'FLD%',
+  season: 'Season',
+  season_name: 'Season',
+  // Career
+  career_games: 'G',
+  career_at_bats: 'AB',
+  career_runs: 'R',
+  career_hits: 'H',
+  career_doubles: '2B',
+  career_triples: '3B',
+  career_home_runs: 'HR',
+  career_rbi: 'RBI',
+  career_walks: 'BB',
+  career_strikeouts: 'K',
+  career_stolen_bases: 'SB',
+  career_batting_average: 'AVG',
+  career_obp: 'OBP',
+  career_slg: 'SLG',
+  career_ops: 'OPS',
+  career_pitching_appearances: 'APP',
+  career_innings_pitched: 'IP',
+  career_wins: 'W',
+  career_losses: 'L',
+  career_saves: 'SV',
+  career_earned_runs: 'ER',
+  career_strikeouts_pitching: 'K',
+  career_era: 'ERA',
+  career_whip: 'WHIP',
+  seasons_played: 'Seasons',
+}
+
+function hasStats(resp: PlayerStatsResponse): boolean {
+  return !!(
+    (resp.current_season && Object.keys(resp.current_season).length > 1) ||
+    (resp.seasons && resp.seasons.length > 0) ||
+    (resp.career && Object.keys(resp.career).length > 1)
+  )
+}
+
+function formatStatValue(value: unknown): string {
+  if (value == null || value === '') return '—'
+  const s = String(value)
+  const n = parseFloat(s)
+  if (Number.isNaN(n)) return s
+  if (Number.isInteger(n)) return String(n)
+  return s
+}
+
+function StatSection({
+  title,
+  keys,
+  data,
+}: {
+  title: string
+  keys: readonly string[]
+  data: Record<string, unknown>
+}) {
+  const entries = keys
+    .filter((k) => {
+      const v = data[k]
+      return v !== undefined && v !== null && v !== ''
+    })
+    .map((k) => [k, data[k]] as [string, unknown])
+  if (entries.length === 0) return null
+  return (
+    <div>
+      <h5 className='mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground'>
+        {title}
+      </h5>
+      <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
+        {entries.map(([key, value]) => (
+          <div key={key} className='rounded-lg border bg-muted/30 p-2'>
+            <p className='text-xs text-muted-foreground'>
+              {STAT_LABELS[key] ?? key.replace(/_/g, ' ')}
+            </p>
+            <p className='font-semibold'>{formatStatValue(value)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SeasonStatsGrid({
+  season,
+}: {
+  season: PlayerStatsResponse['current_season']
+}) {
+  if (!season) return null
+  const data = season as Record<string, unknown>
+  const hasBatting = BATTING_SEASON_KEYS.some(
+    (k) => data[k] !== undefined && data[k] !== null && data[k] !== ''
+  )
+  const hasPitching = PITCHING_SEASON_KEYS.some(
+    (k) => data[k] !== undefined && data[k] !== null && data[k] !== ''
+  )
+  const hasFielding = FIELDING_SEASON_KEYS.some(
+    (k) => data[k] !== undefined && data[k] !== null && data[k] !== ''
+  )
+  if (!hasBatting && !hasPitching && !hasFielding) return null
+  return (
+    <div className='space-y-4'>
+      {hasBatting && (
+        <StatSection title='Batting' keys={[...BATTING_SEASON_KEYS]} data={data} />
+      )}
+      {hasPitching && (
+        <StatSection title='Pitching' keys={[...PITCHING_SEASON_KEYS]} data={data} />
+      )}
+      {hasFielding && (
+        <StatSection title='Fielding' keys={[...FIELDING_SEASON_KEYS]} data={data} />
+      )}
+    </div>
+  )
+}
+
+const SEASONS_TABLE_COLS = [
+  'season_name',
+  'season',
+  'games_played',
+  'at_bats',
+  'batting_average',
+  'hits',
+  'home_runs',
+  'rbi',
+  'stolen_bases',
+  'innings_pitched',
+  'era',
+  'pitching_wins',
+  'pitching_losses',
+  'strikeouts_pitching',
+  'fielding_percentage',
+] as const
+
+function SeasonsTable({
+  seasons,
+}: {
+  seasons: PlayerStatsResponse['seasons']
+}) {
+  if (!seasons || seasons.length === 0) return null
+  const data = seasons as Array<Record<string, unknown>>
+  const colsWithData = SEASONS_TABLE_COLS.filter((c) =>
+    data.some((s) => s[c] != null && s[c] !== '')
+  )
+  if (colsWithData.length === 0) return null
+  return (
+    <div className='overflow-x-auto'>
+      <table className='w-full text-sm'>
+        <thead>
+          <tr className='border-b'>
+            {colsWithData.map((c) => (
+              <th key={c} className='px-2 py-1.5 text-left text-muted-foreground'>
+                {STAT_LABELS[c] ?? c.replace(/_/g, ' ')}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((s, i) => (
+            <tr key={(s.id as number) ?? i} className='border-b last:border-0'>
+              {colsWithData.map((c) => {
+                const val = s[c]
+                const display =
+                  c === 'season_name' && !val && s.season
+                    ? String(s.season)
+                    : val
+                return (
+                  <td key={c} className='px-2 py-1.5'>
+                    {display != null && display !== ''
+                      ? formatStatValue(display)
+                      : '—'}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+const CAREER_BATTING_KEYS = [
+  'seasons_played',
+  'career_games',
+  'career_at_bats',
+  'career_runs',
+  'career_hits',
+  'career_doubles',
+  'career_triples',
+  'career_home_runs',
+  'career_rbi',
+  'career_walks',
+  'career_strikeouts',
+  'career_stolen_bases',
+  'career_batting_average',
+  'career_obp',
+  'career_slg',
+  'career_ops',
+] as const
+const CAREER_PITCHING_KEYS = [
+  'career_pitching_appearances',
+  'career_innings_pitched',
+  'career_wins',
+  'career_losses',
+  'career_saves',
+  'career_earned_runs',
+  'career_strikeouts_pitching',
+  'career_era',
+  'career_whip',
+] as const
+
+function CareerStatsGrid({
+  career,
+}: {
+  career: PlayerStatsResponse['career']
+}) {
+  if (!career) return null
+  const data = career as Record<string, unknown>
+  const hasBatting = CAREER_BATTING_KEYS.some(
+    (k) => data[k] !== undefined && data[k] !== null && data[k] !== ''
+  )
+  const hasPitching = CAREER_PITCHING_KEYS.some(
+    (k) => data[k] !== undefined && data[k] !== null && data[k] !== ''
+  )
+  if (!hasBatting && !hasPitching) return null
+  return (
+    <div className='space-y-4'>
+      {hasBatting && (
+        <StatSection
+          title='Career batting'
+          keys={[...CAREER_BATTING_KEYS]}
+          data={data}
+        />
+      )}
+      {hasPitching && (
+        <StatSection
+          title='Career pitching'
+          keys={[...CAREER_PITCHING_KEYS]}
+          data={data}
+        />
+      )}
+    </div>
+  )
+}
+
+function formatDuration(sec: number | null | undefined): string {
+  if (sec == null || sec < 0) return ''
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
+function PlayerVideosGrid({
+  videos,
+}: {
+  videos: import('@/lib/players-api').PlayerVideo[]
+}) {
+  return (
+    <div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3'>
+      {videos.map((v) => (
+        <a
+          key={v.id}
+          href={v.embed_url ?? v.url}
+          target='_blank'
+          rel='noreferrer noopener'
+          className='group flex flex-col overflow-hidden rounded-lg border transition-colors hover:border-primary/50'
+        >
+          <div className='relative aspect-video bg-muted'>
+            {v.thumbnail_url ? (
+              <img
+                src={v.thumbnail_url}
+                alt={v.title ?? 'Video'}
+                className='h-full w-full object-cover'
+              />
+            ) : (
+              <div className='flex h-full w-full items-center justify-center'>
+                <Play className='size-8 text-muted-foreground' />
+              </div>
+            )}
+            {v.duration != null && v.duration > 0 && (
+              <span className='absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-xs text-white'>
+                {formatDuration(v.duration)}
+              </span>
+            )}
+          </div>
+          <div className='p-2'>
+            <p className='font-medium line-clamp-2 group-hover:text-primary'>
+              {v.title ?? 'Untitled'}
+            </p>
+            {v.video_type && (
+              <p className='text-xs text-muted-foreground capitalize'>
+                {v.video_type.replace(/_/g, ' ')}
+              </p>
+            )}
+          </div>
+        </a>
+      ))}
     </div>
   )
 }

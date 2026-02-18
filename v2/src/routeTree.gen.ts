@@ -33,11 +33,13 @@ import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedScoutsIndexRouteImport } from './routes/_authenticated/scouts/index'
 import { Route as AuthenticatedScoutingIndexRouteImport } from './routes/_authenticated/scouting/index'
 import { Route as AuthenticatedSchedulesIndexRouteImport } from './routes/_authenticated/schedules/index'
+import { Route as AuthenticatedRostersIndexRouteImport } from './routes/_authenticated/rosters/index'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedRecruitingIndexRouteImport } from './routes/_authenticated/recruiting/index'
 import { Route as AuthenticatedProspectsIndexRouteImport } from './routes/_authenticated/prospects/index'
 import { Route as AuthenticatedPreferenceListsIndexRouteImport } from './routes/_authenticated/preference-lists/index'
 import { Route as AuthenticatedPlayersIndexRouteImport } from './routes/_authenticated/players/index'
+import { Route as AuthenticatedNewsIndexRouteImport } from './routes/_authenticated/news/index'
 import { Route as AuthenticatedIntegrationsIndexRouteImport } from './routes/_authenticated/integrations/index'
 import { Route as AuthenticatedHighSchoolCoachesIndexRouteImport } from './routes/_authenticated/high-school-coaches/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
@@ -48,6 +50,7 @@ import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedVendorsCreateRouteImport } from './routes/_authenticated/vendors/create'
 import { Route as AuthenticatedVendorsIdRouteImport } from './routes/_authenticated/vendors/$id'
+import { Route as AuthenticatedSettingsSecurityRouteImport } from './routes/_authenticated/settings/security'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
@@ -59,13 +62,18 @@ import { Route as AuthenticatedScoutingIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSchedulesCreateRouteImport } from './routes/_authenticated/schedules/create'
 import { Route as AuthenticatedSchedulesCalendarRouteImport } from './routes/_authenticated/schedules/calendar'
 import { Route as AuthenticatedSchedulesIdRouteImport } from './routes/_authenticated/schedules/$id'
+import { Route as AuthenticatedRostersCreateRouteImport } from './routes/_authenticated/rosters/create'
+import { Route as AuthenticatedRostersIdRouteImport } from './routes/_authenticated/rosters/$id'
 import { Route as AuthenticatedReportsAnalyticsRouteImport } from './routes/_authenticated/reports/analytics'
+import { Route as AuthenticatedReportsIdRouteImport } from './routes/_authenticated/reports/$id'
 import { Route as AuthenticatedProspectsCreateRouteImport } from './routes/_authenticated/prospects/create'
 import { Route as AuthenticatedProspectsIdRouteImport } from './routes/_authenticated/prospects/$id'
 import { Route as AuthenticatedPlayersCreateRouteImport } from './routes/_authenticated/players/create'
 import { Route as AuthenticatedPlayersIdRouteImport } from './routes/_authenticated/players/$id'
+import { Route as AuthenticatedNewsIdRouteImport } from './routes/_authenticated/news/$id'
 import { Route as AuthenticatedHighSchoolCoachesCreateRouteImport } from './routes/_authenticated/high-school-coaches/create'
 import { Route as AuthenticatedHighSchoolCoachesIdRouteImport } from './routes/_authenticated/high-school-coaches/$id'
+import { Route as AuthenticatedGamesLeaderboardRouteImport } from './routes/_authenticated/games/leaderboard'
 import { Route as AuthenticatedGamesCreateRouteImport } from './routes/_authenticated/games/create'
 import { Route as AuthenticatedGamesIdRouteImport } from './routes/_authenticated/games/$id'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
@@ -199,6 +207,12 @@ const AuthenticatedSchedulesIndexRoute =
     path: '/schedules/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRostersIndexRoute =
+  AuthenticatedRostersIndexRouteImport.update({
+    id: '/rosters/',
+    path: '/rosters/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReportsIndexRoute =
   AuthenticatedReportsIndexRouteImport.update({
     id: '/reports/',
@@ -229,6 +243,11 @@ const AuthenticatedPlayersIndexRoute =
     path: '/players/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedNewsIndexRoute = AuthenticatedNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIntegrationsIndexRoute =
   AuthenticatedIntegrationsIndexRouteImport.update({
     id: '/integrations/',
@@ -285,6 +304,12 @@ const AuthenticatedVendorsIdRoute = AuthenticatedVendorsIdRouteImport.update({
   path: '/vendors/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsSecurityRoute =
+  AuthenticatedSettingsSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -349,12 +374,28 @@ const AuthenticatedSchedulesIdRoute =
     path: '/schedules/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRostersCreateRoute =
+  AuthenticatedRostersCreateRouteImport.update({
+    id: '/rosters/create',
+    path: '/rosters/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRostersIdRoute = AuthenticatedRostersIdRouteImport.update({
+  id: '/rosters/$id',
+  path: '/rosters/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReportsAnalyticsRoute =
   AuthenticatedReportsAnalyticsRouteImport.update({
     id: '/reports/analytics',
     path: '/reports/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReportsIdRoute = AuthenticatedReportsIdRouteImport.update({
+  id: '/reports/$id',
+  path: '/reports/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProspectsCreateRoute =
   AuthenticatedProspectsCreateRouteImport.update({
     id: '/prospects/create',
@@ -378,6 +419,11 @@ const AuthenticatedPlayersIdRoute = AuthenticatedPlayersIdRouteImport.update({
   path: '/players/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNewsIdRoute = AuthenticatedNewsIdRouteImport.update({
+  id: '/news/$id',
+  path: '/news/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHighSchoolCoachesCreateRoute =
   AuthenticatedHighSchoolCoachesCreateRouteImport.update({
     id: '/high-school-coaches/create',
@@ -388,6 +434,12 @@ const AuthenticatedHighSchoolCoachesIdRoute =
   AuthenticatedHighSchoolCoachesIdRouteImport.update({
     id: '/high-school-coaches/$id',
     path: '/high-school-coaches/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGamesLeaderboardRoute =
+  AuthenticatedGamesLeaderboardRouteImport.update({
+    id: '/games/leaderboard',
+    path: '/games/leaderboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedGamesCreateRoute =
@@ -447,13 +499,18 @@ export interface FileRoutesByFullPath {
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/games/$id': typeof AuthenticatedGamesIdRoute
   '/games/create': typeof AuthenticatedGamesCreateRoute
+  '/games/leaderboard': typeof AuthenticatedGamesLeaderboardRoute
   '/high-school-coaches/$id': typeof AuthenticatedHighSchoolCoachesIdRoute
   '/high-school-coaches/create': typeof AuthenticatedHighSchoolCoachesCreateRoute
+  '/news/$id': typeof AuthenticatedNewsIdRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
   '/players/create': typeof AuthenticatedPlayersCreateRoute
   '/prospects/$id': typeof AuthenticatedProspectsIdRoute
   '/prospects/create': typeof AuthenticatedProspectsCreateRoute
+  '/reports/$id': typeof AuthenticatedReportsIdRoute
   '/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
+  '/rosters/$id': typeof AuthenticatedRostersIdRoute
+  '/rosters/create': typeof AuthenticatedRostersCreateRoute
   '/schedules/$id': typeof AuthenticatedSchedulesIdRoute
   '/schedules/calendar': typeof AuthenticatedSchedulesCalendarRoute
   '/schedules/create': typeof AuthenticatedSchedulesCreateRoute
@@ -465,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/settings/security': typeof AuthenticatedSettingsSecurityRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
@@ -475,11 +533,13 @@ export interface FileRoutesByFullPath {
   '/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/high-school-coaches/': typeof AuthenticatedHighSchoolCoachesIndexRoute
   '/integrations/': typeof AuthenticatedIntegrationsIndexRoute
+  '/news/': typeof AuthenticatedNewsIndexRoute
   '/players/': typeof AuthenticatedPlayersIndexRoute
   '/preference-lists/': typeof AuthenticatedPreferenceListsIndexRoute
   '/prospects/': typeof AuthenticatedProspectsIndexRoute
   '/recruiting/': typeof AuthenticatedRecruitingIndexRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
+  '/rosters/': typeof AuthenticatedRostersIndexRoute
   '/schedules/': typeof AuthenticatedSchedulesIndexRoute
   '/scouting/': typeof AuthenticatedScoutingIndexRoute
   '/scouts/': typeof AuthenticatedScoutsIndexRoute
@@ -510,13 +570,18 @@ export interface FileRoutesByTo {
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/games/$id': typeof AuthenticatedGamesIdRoute
   '/games/create': typeof AuthenticatedGamesCreateRoute
+  '/games/leaderboard': typeof AuthenticatedGamesLeaderboardRoute
   '/high-school-coaches/$id': typeof AuthenticatedHighSchoolCoachesIdRoute
   '/high-school-coaches/create': typeof AuthenticatedHighSchoolCoachesCreateRoute
+  '/news/$id': typeof AuthenticatedNewsIdRoute
   '/players/$id': typeof AuthenticatedPlayersIdRoute
   '/players/create': typeof AuthenticatedPlayersCreateRoute
   '/prospects/$id': typeof AuthenticatedProspectsIdRoute
   '/prospects/create': typeof AuthenticatedProspectsCreateRoute
+  '/reports/$id': typeof AuthenticatedReportsIdRoute
   '/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
+  '/rosters/$id': typeof AuthenticatedRostersIdRoute
+  '/rosters/create': typeof AuthenticatedRostersCreateRoute
   '/schedules/$id': typeof AuthenticatedSchedulesIdRoute
   '/schedules/calendar': typeof AuthenticatedSchedulesCalendarRoute
   '/schedules/create': typeof AuthenticatedSchedulesCreateRoute
@@ -528,6 +593,7 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/settings/security': typeof AuthenticatedSettingsSecurityRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
@@ -538,11 +604,13 @@ export interface FileRoutesByTo {
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/high-school-coaches': typeof AuthenticatedHighSchoolCoachesIndexRoute
   '/integrations': typeof AuthenticatedIntegrationsIndexRoute
+  '/news': typeof AuthenticatedNewsIndexRoute
   '/players': typeof AuthenticatedPlayersIndexRoute
   '/preference-lists': typeof AuthenticatedPreferenceListsIndexRoute
   '/prospects': typeof AuthenticatedProspectsIndexRoute
   '/recruiting': typeof AuthenticatedRecruitingIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
+  '/rosters': typeof AuthenticatedRostersIndexRoute
   '/schedules': typeof AuthenticatedSchedulesIndexRoute
   '/scouting': typeof AuthenticatedScoutingIndexRoute
   '/scouts': typeof AuthenticatedScoutsIndexRoute
@@ -576,13 +644,18 @@ export interface FileRoutesById {
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/games/$id': typeof AuthenticatedGamesIdRoute
   '/_authenticated/games/create': typeof AuthenticatedGamesCreateRoute
+  '/_authenticated/games/leaderboard': typeof AuthenticatedGamesLeaderboardRoute
   '/_authenticated/high-school-coaches/$id': typeof AuthenticatedHighSchoolCoachesIdRoute
   '/_authenticated/high-school-coaches/create': typeof AuthenticatedHighSchoolCoachesCreateRoute
+  '/_authenticated/news/$id': typeof AuthenticatedNewsIdRoute
   '/_authenticated/players/$id': typeof AuthenticatedPlayersIdRoute
   '/_authenticated/players/create': typeof AuthenticatedPlayersCreateRoute
   '/_authenticated/prospects/$id': typeof AuthenticatedProspectsIdRoute
   '/_authenticated/prospects/create': typeof AuthenticatedProspectsCreateRoute
+  '/_authenticated/reports/$id': typeof AuthenticatedReportsIdRoute
   '/_authenticated/reports/analytics': typeof AuthenticatedReportsAnalyticsRoute
+  '/_authenticated/rosters/$id': typeof AuthenticatedRostersIdRoute
+  '/_authenticated/rosters/create': typeof AuthenticatedRostersCreateRoute
   '/_authenticated/schedules/$id': typeof AuthenticatedSchedulesIdRoute
   '/_authenticated/schedules/calendar': typeof AuthenticatedSchedulesCalendarRoute
   '/_authenticated/schedules/create': typeof AuthenticatedSchedulesCreateRoute
@@ -594,6 +667,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/settings/security': typeof AuthenticatedSettingsSecurityRoute
   '/_authenticated/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/_authenticated/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
@@ -604,11 +678,13 @@ export interface FileRoutesById {
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/high-school-coaches/': typeof AuthenticatedHighSchoolCoachesIndexRoute
   '/_authenticated/integrations/': typeof AuthenticatedIntegrationsIndexRoute
+  '/_authenticated/news/': typeof AuthenticatedNewsIndexRoute
   '/_authenticated/players/': typeof AuthenticatedPlayersIndexRoute
   '/_authenticated/preference-lists/': typeof AuthenticatedPreferenceListsIndexRoute
   '/_authenticated/prospects/': typeof AuthenticatedProspectsIndexRoute
   '/_authenticated/recruiting/': typeof AuthenticatedRecruitingIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
+  '/_authenticated/rosters/': typeof AuthenticatedRostersIndexRoute
   '/_authenticated/schedules/': typeof AuthenticatedSchedulesIndexRoute
   '/_authenticated/scouting/': typeof AuthenticatedScoutingIndexRoute
   '/_authenticated/scouts/': typeof AuthenticatedScoutsIndexRoute
@@ -642,13 +718,18 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/games/$id'
     | '/games/create'
+    | '/games/leaderboard'
     | '/high-school-coaches/$id'
     | '/high-school-coaches/create'
+    | '/news/$id'
     | '/players/$id'
     | '/players/create'
     | '/prospects/$id'
     | '/prospects/create'
+    | '/reports/$id'
     | '/reports/analytics'
+    | '/rosters/$id'
+    | '/rosters/create'
     | '/schedules/$id'
     | '/schedules/calendar'
     | '/schedules/create'
@@ -660,6 +741,7 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/settings/security'
     | '/vendors/$id'
     | '/vendors/create'
     | '/apps/'
@@ -670,11 +752,13 @@ export interface FileRouteTypes {
     | '/help-center/'
     | '/high-school-coaches/'
     | '/integrations/'
+    | '/news/'
     | '/players/'
     | '/preference-lists/'
     | '/prospects/'
     | '/recruiting/'
     | '/reports/'
+    | '/rosters/'
     | '/schedules/'
     | '/scouting/'
     | '/scouts/'
@@ -705,13 +789,18 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/games/$id'
     | '/games/create'
+    | '/games/leaderboard'
     | '/high-school-coaches/$id'
     | '/high-school-coaches/create'
+    | '/news/$id'
     | '/players/$id'
     | '/players/create'
     | '/prospects/$id'
     | '/prospects/create'
+    | '/reports/$id'
     | '/reports/analytics'
+    | '/rosters/$id'
+    | '/rosters/create'
     | '/schedules/$id'
     | '/schedules/calendar'
     | '/schedules/create'
@@ -723,6 +812,7 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/settings/security'
     | '/vendors/$id'
     | '/vendors/create'
     | '/apps'
@@ -733,11 +823,13 @@ export interface FileRouteTypes {
     | '/help-center'
     | '/high-school-coaches'
     | '/integrations'
+    | '/news'
     | '/players'
     | '/preference-lists'
     | '/prospects'
     | '/recruiting'
     | '/reports'
+    | '/rosters'
     | '/schedules'
     | '/scouting'
     | '/scouts'
@@ -770,13 +862,18 @@ export interface FileRouteTypes {
     | '/_authenticated/errors/$error'
     | '/_authenticated/games/$id'
     | '/_authenticated/games/create'
+    | '/_authenticated/games/leaderboard'
     | '/_authenticated/high-school-coaches/$id'
     | '/_authenticated/high-school-coaches/create'
+    | '/_authenticated/news/$id'
     | '/_authenticated/players/$id'
     | '/_authenticated/players/create'
     | '/_authenticated/prospects/$id'
     | '/_authenticated/prospects/create'
+    | '/_authenticated/reports/$id'
     | '/_authenticated/reports/analytics'
+    | '/_authenticated/rosters/$id'
+    | '/_authenticated/rosters/create'
     | '/_authenticated/schedules/$id'
     | '/_authenticated/schedules/calendar'
     | '/_authenticated/schedules/create'
@@ -788,6 +885,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/settings/security'
     | '/_authenticated/vendors/$id'
     | '/_authenticated/vendors/create'
     | '/_authenticated/apps/'
@@ -798,11 +896,13 @@ export interface FileRouteTypes {
     | '/_authenticated/help-center/'
     | '/_authenticated/high-school-coaches/'
     | '/_authenticated/integrations/'
+    | '/_authenticated/news/'
     | '/_authenticated/players/'
     | '/_authenticated/preference-lists/'
     | '/_authenticated/prospects/'
     | '/_authenticated/recruiting/'
     | '/_authenticated/reports/'
+    | '/_authenticated/rosters/'
     | '/_authenticated/schedules/'
     | '/_authenticated/scouting/'
     | '/_authenticated/scouts/'
@@ -999,6 +1099,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchedulesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rosters/': {
+      id: '/_authenticated/rosters/'
+      path: '/rosters'
+      fullPath: '/rosters/'
+      preLoaderRoute: typeof AuthenticatedRostersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reports/': {
       id: '/_authenticated/reports/'
       path: '/reports'
@@ -1032,6 +1139,13 @@ declare module '@tanstack/react-router' {
       path: '/players'
       fullPath: '/players/'
       preLoaderRoute: typeof AuthenticatedPlayersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/news/': {
+      id: '/_authenticated/news/'
+      path: '/news'
+      fullPath: '/news/'
+      preLoaderRoute: typeof AuthenticatedNewsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/integrations/': {
@@ -1103,6 +1217,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/vendors/$id'
       preLoaderRoute: typeof AuthenticatedVendorsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings/security': {
+      id: '/_authenticated/settings/security'
+      path: '/security'
+      fullPath: '/settings/security'
+      preLoaderRoute: typeof AuthenticatedSettingsSecurityRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
@@ -1181,11 +1302,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchedulesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rosters/create': {
+      id: '/_authenticated/rosters/create'
+      path: '/rosters/create'
+      fullPath: '/rosters/create'
+      preLoaderRoute: typeof AuthenticatedRostersCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rosters/$id': {
+      id: '/_authenticated/rosters/$id'
+      path: '/rosters/$id'
+      fullPath: '/rosters/$id'
+      preLoaderRoute: typeof AuthenticatedRostersIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reports/analytics': {
       id: '/_authenticated/reports/analytics'
       path: '/reports/analytics'
       fullPath: '/reports/analytics'
       preLoaderRoute: typeof AuthenticatedReportsAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports/$id': {
+      id: '/_authenticated/reports/$id'
+      path: '/reports/$id'
+      fullPath: '/reports/$id'
+      preLoaderRoute: typeof AuthenticatedReportsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospects/create': {
@@ -1216,6 +1358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlayersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/news/$id': {
+      id: '/_authenticated/news/$id'
+      path: '/news/$id'
+      fullPath: '/news/$id'
+      preLoaderRoute: typeof AuthenticatedNewsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/high-school-coaches/create': {
       id: '/_authenticated/high-school-coaches/create'
       path: '/high-school-coaches/create'
@@ -1228,6 +1377,13 @@ declare module '@tanstack/react-router' {
       path: '/high-school-coaches/$id'
       fullPath: '/high-school-coaches/$id'
       preLoaderRoute: typeof AuthenticatedHighSchoolCoachesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/games/leaderboard': {
+      id: '/_authenticated/games/leaderboard'
+      path: '/games/leaderboard'
+      fullPath: '/games/leaderboard'
+      preLoaderRoute: typeof AuthenticatedGamesLeaderboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/games/create': {
@@ -1280,6 +1436,7 @@ interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
   AuthenticatedSettingsDisplayRoute: typeof AuthenticatedSettingsDisplayRoute
   AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
+  AuthenticatedSettingsSecurityRoute: typeof AuthenticatedSettingsSecurityRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
 }
 
@@ -1290,6 +1447,7 @@ const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteCh
     AuthenticatedSettingsDisplayRoute: AuthenticatedSettingsDisplayRoute,
     AuthenticatedSettingsNotificationsRoute:
       AuthenticatedSettingsNotificationsRoute,
+    AuthenticatedSettingsSecurityRoute: AuthenticatedSettingsSecurityRoute,
     AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
   }
 
@@ -1308,13 +1466,18 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedGamesIdRoute: typeof AuthenticatedGamesIdRoute
   AuthenticatedGamesCreateRoute: typeof AuthenticatedGamesCreateRoute
+  AuthenticatedGamesLeaderboardRoute: typeof AuthenticatedGamesLeaderboardRoute
   AuthenticatedHighSchoolCoachesIdRoute: typeof AuthenticatedHighSchoolCoachesIdRoute
   AuthenticatedHighSchoolCoachesCreateRoute: typeof AuthenticatedHighSchoolCoachesCreateRoute
+  AuthenticatedNewsIdRoute: typeof AuthenticatedNewsIdRoute
   AuthenticatedPlayersIdRoute: typeof AuthenticatedPlayersIdRoute
   AuthenticatedPlayersCreateRoute: typeof AuthenticatedPlayersCreateRoute
   AuthenticatedProspectsIdRoute: typeof AuthenticatedProspectsIdRoute
   AuthenticatedProspectsCreateRoute: typeof AuthenticatedProspectsCreateRoute
+  AuthenticatedReportsIdRoute: typeof AuthenticatedReportsIdRoute
   AuthenticatedReportsAnalyticsRoute: typeof AuthenticatedReportsAnalyticsRoute
+  AuthenticatedRostersIdRoute: typeof AuthenticatedRostersIdRoute
+  AuthenticatedRostersCreateRoute: typeof AuthenticatedRostersCreateRoute
   AuthenticatedSchedulesIdRoute: typeof AuthenticatedSchedulesIdRoute
   AuthenticatedSchedulesCalendarRoute: typeof AuthenticatedSchedulesCalendarRoute
   AuthenticatedSchedulesCreateRoute: typeof AuthenticatedSchedulesCreateRoute
@@ -1332,11 +1495,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedHighSchoolCoachesIndexRoute: typeof AuthenticatedHighSchoolCoachesIndexRoute
   AuthenticatedIntegrationsIndexRoute: typeof AuthenticatedIntegrationsIndexRoute
+  AuthenticatedNewsIndexRoute: typeof AuthenticatedNewsIndexRoute
   AuthenticatedPlayersIndexRoute: typeof AuthenticatedPlayersIndexRoute
   AuthenticatedPreferenceListsIndexRoute: typeof AuthenticatedPreferenceListsIndexRoute
   AuthenticatedProspectsIndexRoute: typeof AuthenticatedProspectsIndexRoute
   AuthenticatedRecruitingIndexRoute: typeof AuthenticatedRecruitingIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
+  AuthenticatedRostersIndexRoute: typeof AuthenticatedRostersIndexRoute
   AuthenticatedSchedulesIndexRoute: typeof AuthenticatedSchedulesIndexRoute
   AuthenticatedScoutingIndexRoute: typeof AuthenticatedScoutingIndexRoute
   AuthenticatedScoutsIndexRoute: typeof AuthenticatedScoutsIndexRoute
@@ -1356,14 +1521,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedGamesIdRoute: AuthenticatedGamesIdRoute,
   AuthenticatedGamesCreateRoute: AuthenticatedGamesCreateRoute,
+  AuthenticatedGamesLeaderboardRoute: AuthenticatedGamesLeaderboardRoute,
   AuthenticatedHighSchoolCoachesIdRoute: AuthenticatedHighSchoolCoachesIdRoute,
   AuthenticatedHighSchoolCoachesCreateRoute:
     AuthenticatedHighSchoolCoachesCreateRoute,
+  AuthenticatedNewsIdRoute: AuthenticatedNewsIdRoute,
   AuthenticatedPlayersIdRoute: AuthenticatedPlayersIdRoute,
   AuthenticatedPlayersCreateRoute: AuthenticatedPlayersCreateRoute,
   AuthenticatedProspectsIdRoute: AuthenticatedProspectsIdRoute,
   AuthenticatedProspectsCreateRoute: AuthenticatedProspectsCreateRoute,
+  AuthenticatedReportsIdRoute: AuthenticatedReportsIdRoute,
   AuthenticatedReportsAnalyticsRoute: AuthenticatedReportsAnalyticsRoute,
+  AuthenticatedRostersIdRoute: AuthenticatedRostersIdRoute,
+  AuthenticatedRostersCreateRoute: AuthenticatedRostersCreateRoute,
   AuthenticatedSchedulesIdRoute: AuthenticatedSchedulesIdRoute,
   AuthenticatedSchedulesCalendarRoute: AuthenticatedSchedulesCalendarRoute,
   AuthenticatedSchedulesCreateRoute: AuthenticatedSchedulesCreateRoute,
@@ -1382,12 +1552,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHighSchoolCoachesIndexRoute:
     AuthenticatedHighSchoolCoachesIndexRoute,
   AuthenticatedIntegrationsIndexRoute: AuthenticatedIntegrationsIndexRoute,
+  AuthenticatedNewsIndexRoute: AuthenticatedNewsIndexRoute,
   AuthenticatedPlayersIndexRoute: AuthenticatedPlayersIndexRoute,
   AuthenticatedPreferenceListsIndexRoute:
     AuthenticatedPreferenceListsIndexRoute,
   AuthenticatedProspectsIndexRoute: AuthenticatedProspectsIndexRoute,
   AuthenticatedRecruitingIndexRoute: AuthenticatedRecruitingIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
+  AuthenticatedRostersIndexRoute: AuthenticatedRostersIndexRoute,
   AuthenticatedSchedulesIndexRoute: AuthenticatedSchedulesIndexRoute,
   AuthenticatedScoutingIndexRoute: AuthenticatedScoutingIndexRoute,
   AuthenticatedScoutsIndexRoute: AuthenticatedScoutsIndexRoute,

@@ -1,11 +1,12 @@
 /**
  * Scouting Reports API.
+ * Backend may return { data } or { data, pagination } with or without success flag.
  */
 
 import api from './api'
 
-function unwrap<T>(res: { success?: boolean; data?: T }): T | undefined {
-  return res?.success ? res.data : undefined
+function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
+  return (res?.success !== false && res?.data !== undefined) ? res.data as T : undefined
 }
 
 export const EVENT_TYPES = ['game', 'showcase', 'practice', 'workout', 'video'] as const
@@ -81,17 +82,29 @@ export const scoutingApi = {
       data?: ScoutingReport[]
       pagination?: { page: number; limit: number; total: number; pages: number }
     }>('/reports/scouting', { params })
-    const data = unwrap(r.data as { success?: boolean; data?: ScoutingReport[] })
-    const pagination = (r.data as { pagination?: PaginatedResponse<ScoutingReport>['pagination'] })
-      ?.pagination ?? { page: 1, limit: 20, total: 0, pages: 0 }
-    return { data: data ?? [], pagination } as PaginatedResponse<ScoutingReport>
+    const payload = r.data as {
+      success?: boolean
+      data?: ScoutingReport[]
+      pagination?: PaginatedResponse<ScoutingReport>['pagination']
+    }
+    const data = getData<ScoutingReport[]>(payload) ?? []
+    const pagination = payload?.pagination ?? {
+      page: 1,
+      limit: 20,
+      total: 0,
+      pages: 0,
+    }
+    return {
+      data: Array.isArray(data) ? data : [],
+      pagination,
+    } as PaginatedResponse<ScoutingReport>
   },
 
   getById: async (id: number) => {
     const r = await api.get<{ success?: boolean; data?: ScoutingReport }>(
       `/reports/scouting/${id}`
     )
-    return unwrap(r.data as { success?: boolean; data?: ScoutingReport })
+    return getData<ScoutingReport>(r.data as { success?: boolean; data?: ScoutingReport })
   },
 
   create: async (data: ScoutingReportCreateInput) => {
@@ -99,7 +112,7 @@ export const scoutingApi = {
       '/reports/scouting',
       data
     )
-    return unwrap(r.data as { success?: boolean; data?: ScoutingReport })
+    return getData<ScoutingReport>(r.data as { success?: boolean; data?: ScoutingReport })
   },
 
   update: async (id: number, data: Partial<ScoutingReportCreateInput>) => {
@@ -107,6 +120,6 @@ export const scoutingApi = {
       `/reports/scouting/${id}`,
       data
     )
-    return unwrap(r.data as { success?: boolean; data?: ScoutingReport })
+    return getData<ScoutingReport>(r.data as { success?: boolean; data?: ScoutingReport })
   },
 }

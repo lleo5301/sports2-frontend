@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import {
   scoutingApi,
   EVENT_TYPES,
@@ -30,6 +31,7 @@ import {
 import { Main } from '@/components/layout/main'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { CreateProspectModal } from './create-prospect-modal'
 
 const schema = z.object({
   prospect_id: z.number().optional(),
@@ -71,10 +73,11 @@ interface CreateScoutingFormProps {
 export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingFormProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [createProspectOpen, setCreateProspectOpen] = useState(false)
 
   const { data: prospectsData } = useQuery({
     queryKey: ['prospects-simple'],
-    queryFn: () => prospectsApi.list({ limit: 200 }),
+    queryFn: () => prospectsApi.list({ limit: 100 }),
   })
 
   const prospectIdNum = preselectedProspectId
@@ -189,33 +192,61 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Prospect (required)</FormLabel>
-                      <Select
-                        onValueChange={(v) =>
-                          field.onChange(v ? parseInt(v, 10) : undefined)
-                        }
-                        value={field.value ? String(field.value) : ''}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select prospect' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {prospectsData?.data?.map((p: Prospect) => (
-                            <SelectItem key={p.id} value={String(p.id)}>
-                              {[p.first_name, p.last_name]
-                                .filter(Boolean)
-                                .join(' ')}{' '}
-                              ({p.primary_position})
+                      <div className='flex gap-2'>
+                        <Select
+                          onValueChange={(v) =>
+                            field.onChange(
+                              v && v !== 'all' ? parseInt(v, 10) : undefined
+                            )
+                          }
+                          value={
+                            field.value
+                              ? String(field.value)
+                              : 'all'
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className='flex-1'>
+                              <SelectValue placeholder='Select prospect' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='all'>
+                              Select prospect...
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                            {prospectsData?.data?.map((p: Prospect) => (
+                              <SelectItem key={p.id} value={String(p.id)}>
+                                {[p.first_name, p.last_name]
+                                  .filter(Boolean)
+                                  .join(' ')}{' '}
+                                ({p.primary_position})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='icon'
+                          title='Create new prospect'
+                          onClick={() => setCreateProspectOpen(true)}
+                        >
+                          <Plus className='size-4' />
+                        </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               )}
+
+              <CreateProspectModal
+                open={createProspectOpen}
+                onOpenChange={setCreateProspectOpen}
+                onCreated={(prospect) => {
+                  form.setValue('prospect_id', prospect.id)
+                }}
+              />
 
               <div className='grid gap-4 sm:grid-cols-2'>
                 <FormField

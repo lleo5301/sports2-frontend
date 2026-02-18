@@ -1,13 +1,13 @@
 /**
  * Teams API - mirrors parent teamsService.
  * Uses axios (lib/api) for credentials + CSRF.
- * API returns { success, data }; we unwrap to data.
+ * Backend may return { data } with or without success flag.
  */
 
 import api from './api'
 
-function unwrap<T>(res: { success?: boolean; data?: T }): T | undefined {
-  return res?.success ? res.data : undefined
+function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
+  return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
 }
 
 export interface TeamUpdateInput {
@@ -40,7 +40,7 @@ export interface TeamPermission {
 export const teamsApi = {
   getMyTeam: async () => {
     const r = await api.get<{ success?: boolean; data?: unknown }>('/teams/me')
-    return unwrap(r.data) ?? r.data
+    return getData(r.data) ?? r.data
   },
 
   updateMyTeam: async (data: TeamUpdateInput) => {
@@ -48,14 +48,14 @@ export const teamsApi = {
       '/teams/me',
       data
     )
-    return unwrap(r.data) ?? r.data
+    return getData(r.data) ?? r.data
   },
 
   getTeamStats: async () => {
     const r = await api.get<{ success?: boolean; data?: unknown }>(
       '/teams/stats'
     )
-    return unwrap(r.data) ?? r.data
+    return getData(r.data) ?? r.data
   },
 
   getRecentSchedules: async (limit = 5) => {
@@ -63,7 +63,7 @@ export const teamsApi = {
       '/teams/recent-schedules',
       { params: { limit } }
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data)
     return Array.isArray(data) ? data : []
   },
 
@@ -72,7 +72,7 @@ export const teamsApi = {
       '/teams/upcoming-schedules',
       { params: { limit } }
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data)
     return Array.isArray(data) ? data : []
   },
 
@@ -83,7 +83,7 @@ export const teamsApi = {
       '/teams/logo',
       form
     )
-    return unwrap(r.data) ?? r.data
+    return getData(r.data) ?? r.data
   },
 
   deleteLogo: async () => {
@@ -94,7 +94,7 @@ export const teamsApi = {
     const r = await api.get<{ success?: boolean; data?: TeamUser[] }>(
       '/teams/users'
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data)
     return Array.isArray(data) ? data : []
   },
 
@@ -102,7 +102,7 @@ export const teamsApi = {
     const r = await api.get<{ success?: boolean; data?: TeamPermission[] }>(
       '/teams/permissions'
     )
-    const data = unwrap(r.data)
+    const data = getData(r.data)
     return Array.isArray(data) ? data : []
   },
 
@@ -117,7 +117,7 @@ export const teamsApi = {
       '/teams/permissions',
       payload
     )
-    return unwrap(r.data)
+    return getData(r.data)
   },
 
   updatePermission: async (
@@ -128,7 +128,7 @@ export const teamsApi = {
       `/teams/permissions/${id}`,
       payload
     )
-    return unwrap(r.data)
+    return getData(r.data)
   },
 
   revokePermission: async (id: number) => {

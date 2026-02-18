@@ -1,11 +1,12 @@
 /**
- * User permissions API
+ * User permissions API.
+ * Backend may return { data } with or without success flag.
  */
 
 import api from './api'
 
-function unwrap<T>(res: { success?: boolean; data?: T }): T | undefined {
-  return res?.success ? res.data : undefined
+function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
+  return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
 }
 
 export const permissionsApi = {
@@ -13,7 +14,7 @@ export const permissionsApi = {
     const r = await api.get<{ success?: boolean; data?: string[] }>(
       '/auth/permissions'
     )
-    const data = unwrap(r.data as { success?: boolean; data?: string[] })
+    const data = getData<string[]>(r.data as { success?: boolean; data?: string[] })
     return Array.isArray(data) ? data : []
   },
 }

@@ -1,10 +1,11 @@
 /**
  * Sports2 Dashboard — Overview per frontend-build-spec §6.1
  * Data: teams/me, teams/stats, teams/recent-schedules, teams/upcoming-schedules
+ * Supplemental: schedules/stats, games/team-stats, depth-charts, prospects, rosters
  */
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { format, parseISO } from 'date-fns'
+import { parseISO, endOfDay } from 'date-fns'
 import {
   Users,
   FileText,
@@ -16,9 +17,16 @@ import {
   TrendingUp,
   BarChart3,
   ChevronRight,
+  UserPlus,
+  List,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { teamsApi } from '@/lib/teams-api'
+import { schedulesApi } from '@/lib/schedules-api'
+import { gamesApi } from '@/lib/games-api'
+import { depthChartsApi } from '@/lib/depth-charts-api'
+import { prospectsApi } from '@/lib/prospects-api'
+import { playersApi } from '@/lib/players-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,31 +36,20 @@ import {
   CardHeader,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { formatGameDate, type Game } from '@/lib/games-api'
 
-function formatEventDate(ev: {
-  date?: string
-  start_date?: string
-  scheduled_at?: string
-  created_at?: string
-}) {
-  const d = ev?.date ?? ev?.start_date ?? ev?.scheduled_at ?? ev?.created_at
-  if (!d) return ''
-  try {
-    const date = typeof d === 'string' ? parseISO(d) : d
-    return format(date, 'MMM d, h:mm a')
-  } catch {
-    return String(d)
+function formatGameLabel(game: Game) {
+  const opp = game.opponent ?? 'Opponent'
+  return game.result ? `vs ${opp}` : `vs ${opp}`
+}
+
+function formatGameResult(game: Game) {
+  if (game.result) return game.result
+  if (game.team_score != null && game.opponent_score != null) {
+    const w = game.team_score > game.opponent_score
+    return `${w ? 'W' : 'L'} ${game.team_score}-${game.opponent_score}`
   }
-}
-
-function formatEventName(ev: Record<string, unknown>) {
-  return String(
-    ev?.name ?? ev?.title ?? ev?.activity_name ?? 'Event'
-  )
-}
-
-function formatEventLocation(ev: Record<string, unknown>) {
-  return String(ev?.location ?? ev?.venue ?? '')
+  return ''
 }
 
 export function Sports2Dashboard() {
@@ -69,30 +66,122 @@ export function Sports2Dashboard() {
     queryFn: () => teamsApi.getTeamStats(),
   })
 
-  const { data: recentEvents = [] } = useQuery({
-    queryKey: ['team-recent-schedules', 5],
-    queryFn: () => teamsApi.getRecentSchedules(5),
+  const { data: recentGamesFromLog = [] } = useQuery({
+    queryKey: ['games-log', 5],
+    queryFn: () => gamesApi.getGameLog(5),
   })
 
-  const { data: upcomingEvents = [] } = useQuery({
-    queryKey: ['team-upcoming-schedules', 5],
-    queryFn: () => teamsApi.getUpcomingSchedules(5),
+  const { data: gamesListData } = useQuery({
+    queryKey: ['games-list-dashboard'],
+    queryFn: () => gamesApi.list({ limit: 30 }),
+  })
+
+  const recentGames = (() => {
+    const now = new Date()
+    const endOfToday = endOfDay(now)
+
+    const getGameDate = (g: Game | Record<string, unknown>) => {
+      const r = g as Record<string, unknown>
+      return (
+        (g as Game).date ??
+        (g as Game).game_date ??
+        r.gameDate ??
+        r.scheduled_at ??
+        r.start_date
+      )
+    }
+
+    const isPastOrToday = (g: Game | Record<string, unknown>) => {
+      const d = getGameDate(g)
+      if (!d) return false
+      try {
+        const parsed = typeof d === 'string' ? parseISO(d) : d
+        return parsed <= endOfToday
+      } catch {
+        return false
+      }
+    }
+
+    const sortByDateDesc = (a: Game | Record<string, unknown>, b: Game | Record<string, unknown>) => {
+      const da = getGameDate(a) ?? ''
+      const db = getGameDate(b) ?? ''
+      return String(db).localeCompare(String(da))
+    }
+
+    const fromLog = Array.isArray(recentGamesFromLog) ? recentGamesFromLog : []
+    const pastFromLog = fromLog.filter((g) => isPastOrToday(g)).sort(sortByDateDesc)
+    if (pastFromLog.length > 0) return pastFromLog.slice(0, 5)
+
+    const list = gamesListData?.data ?? []
+    return list
+      .filter((g) => isPastOrToday(g))
+      .sort(sortByDateDesc)
+      .slice(0, 5)
+  })()
+
+  const { data: upcomingGames = [] } = useQuery({
+    queryKey: ['games-upcoming'],
+    queryFn: () => gamesApi.getUpcoming(),
+  })
+
+  const { data: scheduleStats } = useQuery({
+    queryKey: ['schedules-stats'],
+    queryFn: () => schedulesApi.getStats(),
+  })
+
+  const { data: gamesTeamStats } = useQuery({
+    queryKey: ['games-team-stats'],
+    queryFn: () => gamesApi.getTeamStats(),
+  })
+
+  const { data: gamesSeasonStats } = useQuery({
+    queryKey: ['games-season-stats'],
+    queryFn: () => gamesApi.getSeasonStats(),
+  })
+
+  const { data: depthCharts = [] } = useQuery({
+    queryKey: ['depth-charts'],
+    queryFn: () => depthChartsApi.list(),
+  })
+
+  const { data: prospectsList } = useQuery({
+    queryKey: ['prospects-dashboard-count'],
+    queryFn: () => prospectsApi.list({ limit: 1 }),
+  })
+
+  const { data: playersList } = useQuery({
+    queryKey: ['players-dashboard-count'],
+    queryFn: () => playersApi.list({ limit: 1 }),
   })
 
   const isLoading = teamLoading || statsLoading
   const error = teamError || statsError
 
+  const teamStats = stats as Record<string, unknown> | undefined
+  const gamesStats = (gamesTeamStats ?? gamesSeasonStats) as Record<string, unknown> | undefined
+
+  const teamPlayers = Number(teamStats?.players ?? teamStats?.player_count ?? teamStats?.total_players ?? 0) || 0
+
   const statsData = {
-    players: (stats as { players?: number; player_count?: number })?.players ?? (stats as { player_count?: number })?.player_count ?? 0,
-    reports: (stats as { reports?: number; report_count?: number })?.reports ?? (stats as { report_count?: number })?.report_count ?? 0,
-    schedules: (stats as { schedules?: number; schedule_count?: number })?.schedules ?? (stats as { schedule_count?: number })?.schedule_count ?? 0,
-    wins: (stats as { wins?: number })?.wins ?? 0,
-    losses: (stats as { losses?: number })?.losses ?? 0,
+    players:
+      teamPlayers > 0 ? teamPlayers : (playersList?.pagination?.total ?? 0),
+    reports:
+      Number(teamStats?.reports ?? teamStats?.report_count ?? 0) || 0,
+    schedules:
+      Number(teamStats?.schedules ?? teamStats?.schedule_count ?? 0) || 0,
+    wins:
+      Number(teamStats?.wins ?? gamesStats?.wins ?? 0) || 0,
+    losses:
+      Number(teamStats?.losses ?? gamesStats?.losses ?? 0) || 0,
+    scheduleThisWeek: Number(scheduleStats?.thisWeek ?? 0) || 0,
+    scheduleThisMonth: Number(scheduleStats?.thisMonth ?? 0) || 0,
+    depthCharts: Array.isArray(depthCharts) ? depthCharts.length : 0,
+    prospects: prospectsList?.pagination?.total ?? 0,
   }
 
   const teamName = (team as { name?: string })?.name ?? 'Team'
-  const events = Array.isArray(recentEvents) ? recentEvents : []
-  const upcoming = Array.isArray(upcomingEvents) ? upcomingEvents : []
+  const recent = Array.isArray(recentGames) ? recentGames : []
+  const upcoming = Array.isArray(upcomingGames) ? upcomingGames : []
 
   if (isLoading) {
     return (
@@ -144,7 +233,7 @@ export function Sports2Dashboard() {
         </header>
 
         {/* Stats cards */}
-        <section className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+        <section className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'>
           <Link to='/players'>
             <Card className='transition-all hover:shadow-md'>
               <CardContent className='p-6'>
@@ -187,7 +276,11 @@ export function Sports2Dashboard() {
                   <Badge variant='outline'>Schedule</Badge>
                 </div>
                 <p className='mt-4 text-3xl font-bold'>{statsData.schedules}</p>
-                <p className='mt-1 text-sm text-muted-foreground'>Schedules</p>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  {statsData.scheduleThisWeek > 0 || statsData.scheduleThisMonth > 0
+                    ? `Schedules • ${statsData.scheduleThisWeek} this week, ${statsData.scheduleThisMonth} this month`
+                    : 'Schedules'}
+                </p>
               </CardContent>
             </Card>
           </Link>
@@ -208,42 +301,77 @@ export function Sports2Dashboard() {
               </CardContent>
             </Card>
           </Link>
+
+          <Link to='/depth-charts'>
+            <Card className='transition-all hover:shadow-md'>
+              <CardContent className='p-6'>
+                <div className='flex items-center justify-between'>
+                  <div className='rounded-xl bg-blue-500/10 p-3'>
+                    <List className='size-6 text-blue-600' />
+                  </div>
+                  <Badge variant='outline'>Operations</Badge>
+                </div>
+                <p className='mt-4 text-3xl font-bold'>{statsData.depthCharts}</p>
+                <p className='mt-1 text-sm text-muted-foreground'>Depth Charts</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to='/prospects'>
+            <Card className='transition-all hover:shadow-md'>
+              <CardContent className='p-6'>
+                <div className='flex items-center justify-between'>
+                  <div className='rounded-xl bg-violet-500/10 p-3'>
+                    <UserPlus className='size-6 text-violet-600' />
+                  </div>
+                  <Badge variant='outline'>Recruiting</Badge>
+                </div>
+                <p className='mt-4 text-3xl font-bold'>{statsData.prospects}</p>
+                <p className='mt-1 text-sm text-muted-foreground'>Prospects</p>
+              </CardContent>
+            </Card>
+          </Link>
         </section>
 
-        {/* Recent & Upcoming */}
+        {/* Recent & Upcoming Games */}
         <section className='grid gap-6 lg:grid-cols-2'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between px-6 pb-2 pt-6'>
               <h2 className='flex items-center gap-2 text-lg font-bold'>
-                <Calendar className='size-5 text-muted-foreground' />
-                Recent Events
+                <Trophy className='size-5 text-muted-foreground' />
+                Recent Games
               </h2>
               <Button variant='ghost' size='sm' asChild>
-                <Link to='/schedules'>
+                <Link to='/games'>
                   View all <ChevronRight className='size-4' />
                 </Link>
               </Button>
             </CardHeader>
             <CardContent className='px-6 pb-6'>
-              {events.length > 0 ? (
+              {recent.length > 0 ? (
                 <ul className='space-y-3'>
-                  {events.slice(0, 5).map((ev: Record<string, unknown>, i) => (
+                  {recent.slice(0, 5).map((game, i) => (
                     <li
-                      key={String(ev.id ?? i)}
+                      key={game.id ?? i}
                       className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
                     >
-                      <Link to='/schedules'>
+                      <Link to='/games/$id' params={{ id: String(game.id) }}>
                         <span className='float-left w-24 shrink-0 text-sm text-muted-foreground'>
-                          {formatEventDate(ev)}
+                          {formatGameDate(game, 'MMM d')}
                         </span>
                         <div className='min-w-0 flex-1'>
                           <p className='truncate font-medium'>
-                            {formatEventName(ev)}
+                            {formatGameLabel(game)}
+                            {formatGameResult(game) && (
+                              <span className='ms-2 text-muted-foreground'>
+                                {formatGameResult(game)}
+                              </span>
+                            )}
                           </p>
-                          {formatEventLocation(ev) && (
+                          {game.location && (
                             <p className='flex items-center gap-1 text-sm text-muted-foreground'>
                               <MapPin className='size-3.5' />
-                              {formatEventLocation(ev)}
+                              {game.location}
                             </p>
                           )}
                         </div>
@@ -253,8 +381,8 @@ export function Sports2Dashboard() {
                 </ul>
               ) : (
                 <div className='py-8 text-center text-muted-foreground'>
-                  <Calendar className='mx-auto mb-3 size-12 opacity-50' />
-                  <p>No recent events</p>
+                  <Trophy className='mx-auto mb-3 size-12 opacity-50' />
+                  <p>No recent games</p>
                 </div>
               )}
             </CardContent>
@@ -263,11 +391,11 @@ export function Sports2Dashboard() {
           <Card>
             <CardHeader className='flex flex-row items-center justify-between px-6 pb-2 pt-6'>
               <h2 className='flex items-center gap-2 text-lg font-bold'>
-                <Calendar className='size-5 text-muted-foreground' />
-                Upcoming
+                <Trophy className='size-5 text-muted-foreground' />
+                Upcoming Games
               </h2>
               <Button variant='ghost' size='sm' asChild>
-                <Link to='/schedules'>
+                <Link to='/games'>
                   View all <ChevronRight className='size-4' />
                 </Link>
               </Button>
@@ -275,23 +403,23 @@ export function Sports2Dashboard() {
             <CardContent className='px-6 pb-6'>
               {upcoming.length > 0 ? (
                 <ul className='space-y-3'>
-                  {upcoming.slice(0, 5).map((ev: Record<string, unknown>, i) => (
+                  {upcoming.slice(0, 5).map((game, i) => (
                     <li
-                      key={String(ev.id ?? i)}
+                      key={game.id ?? i}
                       className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
                     >
-                      <Link to='/schedules'>
+                      <Link to='/games/$id' params={{ id: String(game.id) }}>
                         <span className='float-left w-24 shrink-0 text-sm text-muted-foreground'>
-                          {formatEventDate(ev)}
+                          {formatGameDate(game, 'MMM d')}
                         </span>
                         <div className='min-w-0 flex-1'>
                           <p className='truncate font-medium'>
-                            {formatEventName(ev)}
+                            {formatGameLabel(game)}
                           </p>
-                          {formatEventLocation(ev) && (
+                          {game.location && (
                             <p className='flex items-center gap-1 text-sm text-muted-foreground'>
                               <MapPin className='size-3.5' />
-                              {formatEventLocation(ev)}
+                              {game.location}
                             </p>
                           )}
                         </div>
@@ -301,8 +429,8 @@ export function Sports2Dashboard() {
                 </ul>
               ) : (
                 <div className='py-8 text-center text-muted-foreground'>
-                  <Calendar className='mx-auto mb-3 size-12 opacity-50' />
-                  <p>No upcoming events</p>
+                  <Trophy className='mx-auto mb-3 size-12 opacity-50' />
+                  <p>No upcoming games</p>
                 </div>
               )}
             </CardContent>

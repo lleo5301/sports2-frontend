@@ -62,7 +62,8 @@ Prospects list, create, edit, pipeline view.
 - [x] Create prospect form
 - [x] Prospect detail view + edit form
 - [x] Delete prospect
-- [ ] Recruiting Board (retain pref list pages) — future
+- [x] Recruiting Board — browse prospects, add to preference lists
+- [x] Preference Lists — tabbed view by list type, remove from list
 
 ### Status: Complete
 
@@ -174,10 +175,41 @@ Depth chart list, detail with List/Field/Sheet views, assign players, position m
 
 ---
 
+## Phase 8: Reports — **Complete**
+
+### Goal
+Custom reports list, create, edit, delete, and export.
+
+### Tasks
+- [x] reports-api: list, getById, create, update, delete, generatePdf, exportExcel
+- [x] Reports list page (table, create modal, delete)
+- [x] Report detail page (view, edit form, PDF/Excel export)
+- [x] Routes: /reports, /reports/$id, /reports/analytics
+
+### Status: Complete
+
+---
+
+## Named Rosters — **Complete**
+
+### Goal
+Named rosters (game-day, travel, practice, season, custom) per `docs/api/roster-api.md`.
+
+### Tasks
+- [x] rosters-api.ts: list, getById, create, update, delete, addPlayers, updateEntry, removePlayer, backfill
+- [x] Rosters list with filters (type, source, active), Backfill from Presto button
+- [x] Create roster form (name, type, game, effective date, description)
+- [x] Roster detail with entries table, Add Players modal, Edit Entry modal, Remove
+- [x] Routes: /rosters, /rosters/create, /rosters/$id
+- [x] Sidebar: Rosters, Create Roster under Roster section
+
+### Status: Complete
+
+---
+
 ## Future Phases
 
-### Phase 8: Reports, User Settings
-- Reports list (custom reports)
+### Phase 9: User Settings
 - User Settings (profile, notifications, security) — wire to API
 
 ## Integrations — **Complete**

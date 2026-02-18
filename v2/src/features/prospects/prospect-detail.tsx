@@ -3,8 +3,9 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, ClipboardList, Loader2, Pencil, Trash2 } from 'lucide-react'
-import { prospectsApi, type Prospect } from '@/lib/prospects-api'
+import { ArrowLeft, ClipboardList, Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
+import { prospectsApi } from '@/lib/prospects-api'
+import { AddToPreferenceListModal } from '@/features/preference-lists/add-to-preference-list-modal'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,6 +33,7 @@ export function ProspectDetail({ id }: ProspectDetailProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState(false)
+  const [addToListOpen, setAddToListOpen] = useState(false)
 
   const prospectId = parseInt(id, 10)
   const { data: prospect, isLoading, error } = useQuery({
@@ -118,6 +120,10 @@ export function ProspectDetail({ id }: ProspectDetailProps) {
             </div>
           </div>
           <div className='flex gap-2'>
+            <Button variant='outline' onClick={() => setAddToListOpen(true)}>
+              <Plus className='size-4' />
+              Add to List
+            </Button>
             <Button variant='outline' asChild>
               <Link
                 to='/scouting/create'
@@ -192,6 +198,13 @@ export function ProspectDetail({ id }: ProspectDetailProps) {
           </CardContent>
         </Card>
       </div>
+
+      <AddToPreferenceListModal
+        open={addToListOpen}
+        onOpenChange={setAddToListOpen}
+        prospectId={prospect.id}
+        prospectName={[prospect.first_name, prospect.last_name].filter(Boolean).join(' ')}
+      />
     </Main>
   )
 }
