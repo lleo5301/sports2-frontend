@@ -207,12 +207,14 @@
 
 ## 7. Phased Implementation Plan
 
-### Phase 1: Foundation (Weeks 1–2)
-- [ ] Choose hosting platform
-- [ ] Set up docs site structure
-- [ ] Write Getting Started (overview, login, dashboard)
-- [ ] Record 1 hero video (2–3 min)
-- [ ] Publish initial 5–7 pages
+### Phase 1: Foundation (Weeks 1–2) ✅
+- [x] Choose hosting platform (Docusaurus)
+- [x] Set up docs site structure (`docs-site/`)
+- [x] Write Getting Started (overview, login, dashboard, team-context)
+- [x] Add Reference (roles-permissions, FAQ)
+- [x] Hero video script (`docs-site/HERO_VIDEO_SCRIPT.md`)
+- [ ] Record 1 hero video (2–3 min) — *user*
+- [ ] Publish initial 5–7 pages — *deploy to docs.sports2.com or similar*
 
 ### Phase 2: Core Features (Weeks 3–4)
 - [ ] Roster docs + 1 video (create player)

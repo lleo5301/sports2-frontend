@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatGameDateShort, type Game } from '@/lib/games-api'
+import { OpponentLogo } from '@/components/opponent-logo'
 
 function formatGameLabel(game: Game) {
   const opp = game.opponent ?? 'Opponent'
@@ -355,8 +356,17 @@ export function Sports2Dashboard() {
                       key={game.id ?? i}
                       className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
                     >
-                      <Link to='/games/$id' params={{ id: String(game.id) }}>
-                        <span className='float-left w-24 shrink-0 text-sm text-muted-foreground'>
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(game.id) }}
+                        className='flex items-center gap-3'
+                      >
+                        <OpponentLogo
+                          opponent={(game as Game).opponent}
+                          size={32}
+                          reserveSpace
+                        />
+                        <span className='w-20 shrink-0 text-sm text-muted-foreground'>
                           {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>
@@ -408,8 +418,17 @@ export function Sports2Dashboard() {
                       key={game.id ?? i}
                       className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
                     >
-                      <Link to='/games/$id' params={{ id: String(game.id) }}>
-                        <span className='float-left w-24 shrink-0 text-sm text-muted-foreground'>
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(game.id) }}
+                        className='flex items-center gap-3'
+                      >
+                        <OpponentLogo
+                          opponent={(game as Game).opponent}
+                          size={32}
+                          reserveSpace
+                        />
+                        <span className='w-20 shrink-0 text-sm text-muted-foreground'>
                           {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>

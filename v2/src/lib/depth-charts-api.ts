@@ -109,14 +109,14 @@ export const depthChartsApi = {
 
   duplicate: async (id: number) => {
     const r = await api.post<{ success?: boolean; data?: DepthChart }>(
-      `/depth-charts/${id}/duplicate`
+      `/depth-charts/byId/${id}/duplicate`
     )
     return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
   },
 
   getAvailablePlayers: async (chartId: number) => {
     const r = await api.get<{ success?: boolean; data?: unknown[] }>(
-      `/depth-charts/${chartId}/available-players`
+      `/depth-charts/byId/${chartId}/available-players`
     )
     const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
@@ -124,7 +124,7 @@ export const depthChartsApi = {
 
   getRecommendedPlayers: async (chartId: number, positionId: number) => {
     const r = await api.get<{ success?: boolean; data?: unknown[] }>(
-      `/depth-charts/${chartId}/recommended-players/${positionId}`
+      `/depth-charts/byId/${chartId}/recommended-players/${positionId}`
     )
     const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
@@ -132,7 +132,7 @@ export const depthChartsApi = {
 
   getHistory: async (chartId: number) => {
     const r = await api.get<{ success?: boolean; data?: DepthChartHistoryEntry[] }>(
-      `/depth-charts/${chartId}/history`
+      `/depth-charts/byId/${chartId}/history`
     )
     const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
@@ -150,7 +150,7 @@ export const depthChartsApi = {
     }
   ) => {
     const r = await api.post<{ success?: boolean; data?: unknown }>(
-      `/depth-charts/${chartId}/positions`,
+      `/depth-charts/byId/${chartId}/positions`,
       data
     )
     return getData(r.data as { success?: boolean; data?: unknown })
@@ -168,28 +168,29 @@ export const depthChartsApi = {
     }>
   ) => {
     const r = await api.put<{ success?: boolean; data?: unknown }>(
-      `/depth-charts/positions/${positionId}`,
+      `/depth-charts/positions/byId/${positionId}`,
       data
     )
     return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   deletePosition: async (positionId: number) => {
-    await api.delete(`/depth-charts/positions/${positionId}`)
+    await api.delete(`/depth-charts/positions/byId/${positionId}`)
   },
 
   assignPlayer: async (
     positionId: number,
     data: { player_id: number; rank?: number; depth_order?: number; notes?: string }
   ) => {
+    const rank = Math.max(1, Math.floor(Number(data.rank ?? data.depth_order ?? 1)))
     const r = await api.post<{ success?: boolean; data?: unknown }>(
-      `/depth-charts/positions/${positionId}/players`,
-      { player_id: data.player_id, rank: data.depth_order ?? data.rank }
+      `/depth-charts/positions/byId/${positionId}/players`,
+      { player_id: Number(data.player_id), rank }
     )
     return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   unassignPlayer: async (assignmentId: number) => {
-    await api.delete(`/depth-charts/players/${assignmentId}`)
+    await api.delete(`/depth-charts/players/byId/${assignmentId}`)
   },
 }

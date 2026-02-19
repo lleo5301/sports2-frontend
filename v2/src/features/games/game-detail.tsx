@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { extendedStatsApi } from '@/lib/extended-stats-api'
+import { OpponentLogo } from '@/components/opponent-logo'
 import { depthChartsApi } from '@/lib/depth-charts-api'
 import { defaultPositions } from '@/lib/depth-chart-constants'
 import { toast } from 'sonner'
@@ -40,7 +41,11 @@ export function GameDetail({ id }: GameDetailProps) {
   const createFromGameMutation = useMutation({
     mutationFn: async () => {
       const lineup = await extendedStatsApi.getGameLineup(gameId)
-      if (!lineup?.players?.length) throw new Error('No lineup data for this game')
+      if (!lineup?.players?.length) {
+        throw new Error(
+          'No lineup data for this game. Sync PrestoSports stats (Stats sync) to populate game box scores.'
+        )
+      }
       const chart = await depthChartsApi.create(
         `vs ${game?.opponent ?? 'Opponent'} — ${game?.date ?? game?.game_date ?? 'Game'}`
       )
@@ -58,18 +63,38 @@ export function GameDetail({ id }: GameDetailProps) {
       const updated = await depthChartsApi.getById(chart.id)
       const positions = updated?.DepthChartPositions ?? []
       const positionByCode = Object.fromEntries(positions.map((p) => [p.position_code, p]))
+      let assigned = 0
       for (const lp of lineup.players) {
-        const pid = lp.player_id ? parseInt(lp.player_id, 10) : NaN
+        const pid =
+          lp.player_id != null
+            ? typeof lp.player_id === 'number'
+              ? lp.player_id
+              : parseInt(String(lp.player_id), 10)
+            : NaN
         if (Number.isNaN(pid) || !lp.position) continue
         const pos = positionByCode[lp.position]
         if (!pos) continue
-        await depthChartsApi.assignPlayer(pos.id, { player_id: pid, depth_order: 1 })
+        try {
+          await depthChartsApi.assignPlayer(pos.id, { player_id: pid, depth_order: 1, rank: 1 })
+          assigned++
+        } catch {
+          // Skip failed assigns; continue with others
+        }
       }
-      return chart.id
+      if (assigned === 0 && lineup.players.length > 0) {
+        throw new Error(
+          'Could not assign players. Player IDs from game stats may not match roster. Ensure PrestoSports roster sync has run.'
+        )
+      }
+      return { chartId: chart.id, assigned }
     },
-    onSuccess: (chartId) => {
+    onSuccess: ({ chartId, assigned }) => {
       queryClient.invalidateQueries({ queryKey: ['depth-charts'] })
-      toast.success('Depth chart created from game lineup')
+      const msg =
+        assigned > 0
+          ? `Depth chart created with ${assigned} players from game lineup`
+          : 'Depth chart created from game lineup'
+      toast.success(msg)
       navigate({ to: '/depth-charts/$id', params: { id: String(chartId) } })
     },
     onError: (err) => toast.error((err as Error).message),
@@ -121,13 +146,16 @@ export function GameDetail({ id }: GameDetailProps) {
               <ArrowLeft className='size-4' />
             </Link>
           </Button>
-          <div>
-            <h2 className='text-2xl font-bold tracking-tight'>
-              vs {game.opponent || `Game #${id}`}
-            </h2>
-            <CardDescription>
-              {dateStr} {game.location && `• ${game.location}`}
-            </CardDescription>
+          <div className="flex items-center gap-4">
+            <OpponentLogo opponent={game.opponent} size={56} reserveSpace />
+            <div>
+              <h2 className='text-2xl font-bold tracking-tight'>
+                vs {game.opponent || `Game #${id}`}
+              </h2>
+              <CardDescription>
+                {dateStr} {game.location && `• ${game.location}`}
+              </CardDescription>
+            </div>
           </div>
           <Button
             variant='outline'
@@ -160,9 +188,12 @@ export function GameDetail({ id }: GameDetailProps) {
             </div>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <div>
-              <p className='text-sm text-muted-foreground'>Opponent</p>
-              <p className='font-medium'>{game.opponent}</p>
+            <div className="flex items-center gap-3">
+              <OpponentLogo opponent={game.opponent} size={48} reserveSpace />
+              <div>
+                <p className='text-sm text-muted-foreground'>Opponent</p>
+                <p className='font-medium'>{game.opponent || '—'}</p>
+              </div>
             </div>
             {dateStr && (
               <div>

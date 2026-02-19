@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { OpponentLogo } from '@/components/opponent-logo'
 
 function GameStatsChips({ stats }: { stats?: TeamGameLogGame['team_stats'] }) {
   if (!stats) return null
@@ -102,14 +103,17 @@ export function TeamGameLogPage() {
                     className='block rounded-lg border p-4 transition-colors hover:bg-muted/50'
                   >
                     <div className='flex flex-wrap items-start justify-between gap-4'>
-                      <div>
-                        <span className='font-medium'>
-                          {g.home_away === 'home' ? 'vs' : '@'} {g.opponent}
-                        </span>
-                        <p className='text-sm text-muted-foreground'>
-                          {formatDate(g.date)}
-                          {g.location && ` · ${g.location}`}
-                        </p>
+                      <div className='flex items-center gap-3'>
+                        <OpponentLogo opponent={g.opponent} size={40} reserveSpace />
+                        <div>
+                          <span className='font-medium'>
+                            {g.home_away === 'home' ? 'vs' : '@'} {g.opponent}
+                          </span>
+                          <p className='text-sm text-muted-foreground'>
+                            {formatDate(g.date)}
+                            {g.location && ` · ${g.location}`}
+                          </p>
+                        </div>
                       </div>
                       <div className='text-right'>
                         <Badge

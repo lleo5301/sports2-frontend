@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { OpponentLogo } from '@/components/opponent-logo'
 import { toast } from 'sonner'
 
 function getGameDate(game: Game): Date | null {
@@ -106,7 +107,16 @@ export function GamesList() {
         </Link>
       ),
     },
-    { accessorKey: 'opponent', header: 'Opponent' },
+    {
+      id: 'opponent',
+      header: 'Opponent',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <OpponentLogo opponent={row.original.opponent} size={24} reserveSpace />
+          <span>{row.original.opponent || '—'}</span>
+        </div>
+      ),
+    },
     {
       id: 'date-time',
       header: 'Date & Time',
@@ -164,19 +174,19 @@ export function GamesList() {
     },
   ]
 
-  const upcomingTable = useReactTable({
+  const upcomingTable = useReactTable<Game>({
     data: upcoming,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const previousTable = useReactTable({
+  const previousTable = useReactTable<Game>({
     data: previous,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const renderTableBody = (table: ReturnType<typeof useReactTable>) => (
+  const renderTableBody = (table: ReturnType<typeof useReactTable<Game>>) => (
     <>
       {table.getRowModel().rows.length ? (
         table.getRowModel().rows.map((row) => (

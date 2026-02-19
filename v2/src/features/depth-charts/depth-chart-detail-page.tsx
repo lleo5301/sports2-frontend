@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Copy,
@@ -224,11 +224,13 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
     onError: (err) => toast.error((err as Error).message),
   })
 
+  const navigate = useNavigate()
   const deleteMutation = useMutation({
     mutationFn: () => depthChartsApi.delete(chartId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['depth-charts'] })
       toast.success('Depth chart deleted')
+      navigate({ to: '/depth-charts' })
     },
     onError: (err) => toast.error((err as Error).message),
   })

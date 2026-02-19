@@ -3,8 +3,9 @@
  * Fetches lineup (from dedicated endpoint or derived from game stats),
  * then assigns players to matching positions.
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { endOfDay, parseISO } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import { extendedStatsApi, type TeamLineupData } from '@/lib/extended-stats-api'
 import { depthChartsApi } from '@/lib/depth-charts-api'
@@ -52,6 +53,19 @@ export function BackfillFromGameDialog({
     enabled: open,
   })
 
+  const pastGames = useMemo(() => {
+    const now = endOfDay(new Date())
+    return games.filter((g: Game) => {
+      const d = g.date ?? g.game_date
+      if (!d || typeof d !== 'string') return false
+      try {
+        return parseISO(d) <= now
+      } catch {
+        return false
+      }
+    })
+  }, [games])
+
   const { data: lineup, isLoading: lineupLoading } = useQuery({
     queryKey: ['game-lineup', selectedGameId],
     queryFn: () => extendedStatsApi.getGameLineup(parseInt(selectedGameId, 10)),
@@ -94,7 +108,12 @@ export function BackfillFromGameDialog({
       )
       let assigned = 0
       for (const lp of lineup.players) {
-        const pid = lp.player_id ? parseInt(lp.player_id, 10) : NaN
+        const pid =
+          lp.player_id != null
+            ? typeof lp.player_id === 'number'
+              ? lp.player_id
+              : parseInt(String(lp.player_id), 10)
+            : NaN
         if (Number.isNaN(pid) || !lp.position) continue
         const pos = positionByCode[lp.position]
         if (!pos) continue
@@ -115,7 +134,7 @@ export function BackfillFromGameDialog({
     onError: (err) => toast.error((err as Error).message),
   })
 
-  const hasLineup = lineup?.players?.length > 0
+  const hasLineup = (lineup?.players?.length ?? 0) > 0
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -138,7 +157,7 @@ export function BackfillFromGameDialog({
                 <SelectValue placeholder='Choose a game...' />
               </SelectTrigger>
               <SelectContent>
-                {games.slice(0, 30).map((g: Game) => (
+                {pastGames.slice(0, 30).map((g: Game) => (
                   <SelectItem key={g.id} value={String(g.id)}>
                     vs {g.opponent ?? 'Opponent'} — {formatGameDateShort(g)}
                   </SelectItem>

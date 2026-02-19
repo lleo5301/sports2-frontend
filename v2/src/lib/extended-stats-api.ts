@@ -187,7 +187,9 @@ export interface PlayerGameLogData {
 
 const POSITION_CODES = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'] as const
 const POSITION_ALIASES: Record<string, string> = {
-  SP: 'P', RP: 'P', '1': '1B', '2': '2B', '3': '3B', '4': '4',
+  SP: 'P', RP: 'P', RHP: 'P', LHP: 'P',
+  '1': '1B', '2': '2B', '3': '3B', '4': '4',
+  OF: 'LF', // generic OF → LF for grouping
 }
 
 function normalizePosition(pos: unknown): string | null {
@@ -197,7 +199,24 @@ function normalizePosition(pos: unknown): string | null {
   return POSITION_CODES.includes(mapped as (typeof POSITION_CODES)[number]) ? mapped : null
 }
 
+function toPlayerId(v: unknown): string | null {
+  if (v == null) return null
+  if (typeof v === 'number') return String(v)
+  if (typeof v === 'string' && /^\d+$/.test(v)) return v
+  return null
+}
+
+function getPlayerFromRow(row: Record<string, unknown>): Record<string, unknown> | undefined {
+  return (row.Player ?? row.player) as Record<string, unknown> | undefined
+}
+
 function deriveLineupFromGameStats(stats: Record<string, unknown>): LineupPlayer[] {
+  // Unwrap nested { data: { ... } } if present
+  const raw =
+    stats?.data != null && typeof stats.data === 'object' && !Array.isArray(stats.data)
+      ? (stats.data as Record<string, unknown>)
+      : stats
+
   const seen = new Set<string>()
   const result: LineupPlayer[] = []
 
@@ -210,51 +229,66 @@ function deriveLineupFromGameStats(stats: Record<string, unknown>): LineupPlayer
     result.push({ player_id: playerId, name, jersey_number: jersey, position: pos })
   }
 
-  const playerStats = stats.player_stats as Array<Record<string, unknown>> | undefined
-  if (Array.isArray(playerStats) && playerStats.length > 0) {
-    for (const row of playerStats) {
-      const pid = row.player_id ?? row.playerId
-      const pos = row.position
-      const p = row.player as Record<string, unknown> | undefined
-      const name = p
-        ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
-          (p.name as string) ||
-          '—'
-        : (row.player_name ?? row.name ?? '—') as string
-      const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
-      add(pid != null ? String(pid) : null, name, jersey, String(pos ?? ''))
+  const processRow = (row: Record<string, unknown>) => {
+    const p = getPlayerFromRow(row)
+    const pid = toPlayerId(
+      row.player_id ?? row.playerId ?? p?.id ?? (p && 'id' in p ? p.id : null)
+    )
+    const pos = row.position ?? row.fielding_position ?? row.position_abbrev ?? row.batting_order
+    const name = p
+      ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
+        (p.name as string) ||
+        '—'
+      : (row.player_name ?? row.name ?? '—') as string
+    const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
+    add(pid, name, jersey, String(pos ?? ''))
+  }
+
+  const tryArray = (arr: unknown): boolean => {
+    if (!Array.isArray(arr) || arr.length === 0) return false
+    const first = arr[0] as Record<string, unknown> | undefined
+    if (!first || typeof first !== 'object') return false
+    const hasPlayer =
+      first.player_id != null || first.playerId != null || first.Player != null || first.player != null
+    if (!hasPlayer) return false
+    for (const item of arr) processRow(item as Record<string, unknown>)
+    return true
+  }
+
+  tryArray(
+    raw.player_stats ??
+      raw.playerStats ??
+      raw.game_statistics ??
+      raw.GameStatistics
+  )
+  tryArray(raw.fielding ?? raw.Fielding)
+  if (result.length === 0) tryArray(raw.batting ?? raw.Batting)
+  if (result.length === 0) tryArray(raw.pitching ?? raw.Pitching)
+  if (result.length === 0) tryArray(raw.players ?? raw.Players)
+
+  if (result.length === 0) {
+    for (const v of Object.values(raw)) {
+      if (!Array.isArray(v) || v.length === 0) continue
+      const first = v[0] as Record<string, unknown> | undefined
+      if (!first || typeof first !== 'object') continue
+      if (
+        first.player_id == null &&
+        first.playerId == null &&
+        first.Player == null &&
+        first.player == null
+      )
+        continue
+      for (const item of v) processRow(item as Record<string, unknown>)
+      if (result.length > 0) break
     }
   }
 
-  const fielding = stats.fielding as Array<Record<string, unknown>> | undefined
-  const batting = stats.batting as Array<Record<string, unknown>> | undefined
-  if (Array.isArray(fielding) && fielding.length > 0) {
-    for (const row of fielding) {
-      const pid = row.player_id ?? row.playerId
-      const pos = row.position ?? row.fielding_position
-      const p = row.player as Record<string, unknown> | undefined
-      const name = p
-        ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
-          (p.name as string) ||
-          '—'
-        : (row.player_name ?? row.name ?? '—') as string
-      const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
-      add(pid != null ? String(pid) : null, name, jersey, String(pos ?? ''))
-    }
-  }
-
-  if (Array.isArray(batting) && batting.length > 0 && result.length === 0) {
-    for (const row of batting) {
-      const pid = row.player_id ?? row.playerId
-      const p = row.player as Record<string, unknown> | undefined
-      const pos = row.position ?? p?.position ?? (p?.primary_position as string)
-      const name = p
-        ? `${(p.first_name ?? p.firstName ?? '')} ${(p.last_name ?? p.lastName ?? '')}`.trim() ||
-          (p.name as string) ||
-          '—'
-        : (row.player_name ?? row.name ?? '—') as string
-      const jersey = String(p?.jersey_number ?? row.jersey_number ?? row.jersey ?? '')
-      add(pid != null ? String(pid) : null, name, jersey, String(pos ?? ''))
+  if (import.meta.env.DEV && result.length === 0) {
+    console.debug('[getGameLineup] deriveLineupFromGameStats got 0 players. Stats keys:', Object.keys(raw))
+    const sample =
+      raw.batting ?? raw.fielding ?? raw.player_stats ?? raw.playerStats ?? raw.game_statistics
+    if (Array.isArray(sample) && sample[0]) {
+      console.debug('[getGameLineup] sample row keys:', Object.keys(sample[0] as object))
     }
   }
 
@@ -299,7 +333,8 @@ export const extendedStatsApi = {
   },
 
   /** Lineup for a specific game (for depth chart backfill).
-   * Tries GET /teams/lineup?game_id=X; falls back to deriving from GET /games/X/stats. */
+   * Tries GET /teams/lineup?game_id=X; falls back to deriving from GET /games/X/stats
+   * (or /games/byId/X/stats if the primary path fails). */
   getGameLineup: async (gameId: number): Promise<TeamLineupData | null> => {
     try {
       const r = await api.get<{ success?: boolean; data?: TeamLineupData }>(
@@ -311,10 +346,19 @@ export const extendedStatsApi = {
     } catch {
       /* fall through to game stats */
     }
-    const r = await api.get<{ success?: boolean; data?: Record<string, unknown> }>(
-      `/games/${gameId}/stats`
-    )
-    const stats = getData(r.data as { success?: boolean; data?: Record<string, unknown> }) as Record<string, unknown> | undefined
+
+    let stats: Record<string, unknown> | undefined
+    const paths = [`/games/${gameId}/stats`, `/games/byId/${gameId}/stats`]
+    for (const path of paths) {
+      try {
+        const r = await api.get<{ success?: boolean; data?: Record<string, unknown> }>(path)
+        const body = r.data as Record<string, unknown>
+        stats = (getData(body) ?? body) as Record<string, unknown> | undefined
+        break
+      } catch {
+        continue
+      }
+    }
     if (!stats) return null
     const players = deriveLineupFromGameStats(stats)
     if (players.length === 0) return null

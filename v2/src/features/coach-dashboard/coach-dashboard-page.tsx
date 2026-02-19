@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { OpponentLogo } from '@/components/opponent-logo'
 
 const BAT_KEY_LABELS: Record<string, string> = {
   avg: 'AVG',
@@ -264,11 +265,14 @@ export function CoachDashboardPage() {
                     params={{ id: g.id }}
                     className='flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50'
                   >
-                    <div>
-                      <span className='font-medium'>
-                        {g.home_away === 'home' ? 'vs' : '@'} {g.opponent}
-                      </span>
-                      <p className='text-sm text-muted-foreground'>{formatDate(g.date)}</p>
+                    <div className="flex items-center gap-3">
+                      <OpponentLogo opponent={g.opponent} size={40} reserveSpace />
+                      <div>
+                        <span className='font-medium'>
+                          {g.home_away === 'home' ? 'vs' : '@'} {g.opponent}
+                        </span>
+                        <p className='text-sm text-muted-foreground'>{formatDate(g.date)}</p>
+                      </div>
                     </div>
                     <div className='text-right'>
                       <Badge variant={g.result === 'W' ? 'default' : g.result === 'L' ? 'secondary' : 'outline'}>

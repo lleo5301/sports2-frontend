@@ -39,6 +39,16 @@ export interface PrestoTeam {
   [key: string]: unknown
 }
 
+/** NJCAA league team from Presto — teamId, name, logo (CDN, use in <img>) */
+export interface PrestoLeagueTeam {
+  teamId: string
+  name: string
+  logo?: string | null
+  logo_url?: string | null
+  logoUrl?: string | null
+  teamName?: string
+}
+
 export const integrationsApi = {
   /** Get Presto integration status */
   getPrestoStatus: async () => {
@@ -58,12 +68,10 @@ export const integrationsApi = {
     const r = await api.post<{ success?: boolean }>(
       '/integrations/presto/configure',
       {
-        credentials: {
-          username: params.username,
-          password: params.password,
-          prestoTeamId: params.prestoTeamId ?? undefined,
-          prestoSeasonId: params.prestoSeasonId ?? undefined,
-        },
+        username: params.username,
+        password: params.password,
+        prestoTeamId: params.prestoTeamId ?? undefined,
+        prestoSeasonId: params.prestoSeasonId ?? undefined,
       }
     )
     return getData(r.data as { success?: boolean })
@@ -72,7 +80,7 @@ export const integrationsApi = {
   /** Test Presto connection with credentials */
   testPrestoConnection: async (params?: { username: string; password: string }) => {
     const body = params
-      ? { credentials: { username: params.username, password: params.password } }
+      ? { username: params.username, password: params.password }
       : {}
     const r = await api.post<{ success?: boolean; data?: { ok?: boolean } }>(
       '/integrations/presto/test',
@@ -102,6 +110,26 @@ export const integrationsApi = {
     )
     const data = getData(r.data as { success?: boolean; data?: PrestoTeam[] })
     return Array.isArray(data) ? data : []
+  },
+
+  /**
+   * NJCAA league teams — teamId, name, logo_url.
+   * Auto-detects Presto season; pass ?seasonId= to override.
+   * Logo URLs are static.prestosports.com CDN links, use directly in <img>.
+   */
+  getPrestoLeagueTeams: async (seasonId?: string) => {
+    const r = await api.get<{
+      success?: boolean
+      data?: PrestoLeagueTeam[] | { teams?: PrestoLeagueTeam[] }
+      teams?: PrestoLeagueTeam[]
+    }>('/integrations/presto/league-teams', seasonId ? { params: { seasonId } } : undefined)
+    const body = r.data as Record<string, unknown>
+    let arr: PrestoLeagueTeam[] | undefined
+    if (Array.isArray(body?.data)) arr = body.data as PrestoLeagueTeam[]
+    else if (Array.isArray((body?.data as Record<string, unknown>)?.teams))
+      arr = (body.data as { teams: PrestoLeagueTeam[] }).teams
+    else if (Array.isArray(body?.teams)) arr = body.teams
+    return Array.isArray(arr) ? arr : []
   },
 
   /** Update Presto settings */
