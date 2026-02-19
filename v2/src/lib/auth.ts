@@ -41,7 +41,8 @@ export async function login(credentials: LoginCredentials): Promise<User> {
   if (!data) throw new Error('Invalid login response')
   const user = (data as { user?: User }).user ?? (data as User)
   if (!user?.email) throw new Error('Invalid login response')
-  return { ...user, id: String((user as User).id ?? (user as { id?: number }).id ?? '') }
+  const id = (user as unknown as { id?: number | string }).id
+  return { ...user, id: String(id ?? '') }
 }
 
 export async function register(data: RegisterData): Promise<User> {

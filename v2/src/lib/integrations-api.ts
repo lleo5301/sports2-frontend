@@ -122,7 +122,12 @@ export const integrationsApi = {
       success?: boolean
       data?: PrestoLeagueTeam[] | { teams?: PrestoLeagueTeam[] }
       teams?: PrestoLeagueTeam[]
-    }>('/integrations/presto/league-teams', seasonId ? { params: { seasonId } } : undefined)
+    }>(
+      '/integrations/presto/league-teams',
+      seasonId
+        ? { params: { seasonId }, skipErrorToast: true }
+        : { skipErrorToast: true }
+    )
     const body = r.data as Record<string, unknown>
     let arr: PrestoLeagueTeam[] | undefined
     if (Array.isArray(body?.data)) arr = body.data as PrestoLeagueTeam[]

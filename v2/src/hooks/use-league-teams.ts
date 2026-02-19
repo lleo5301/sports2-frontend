@@ -37,7 +37,8 @@ export function useLeagueTeams(seasonId?: string) {
       }
       return result
     },
-    retry: 1,
+    retry: 0,
+    staleTime: 5 * 60 * 1000,
   })
   const { data: teams, isLoading, error } = result
 

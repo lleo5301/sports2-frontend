@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
-import { ChevronRight } from 'lucide-react'
+import { AlertCircle, ChevronRight } from 'lucide-react'
 import {
   Collapsible,
   CollapsibleContent,
@@ -32,6 +32,7 @@ import {
   type NavLink,
   type NavGroup as NavGroupProps,
 } from './types'
+import { useLeagueTeams } from '@/hooks/use-league-teams'
 
 export function NavGroup({ title, items }: NavGroupProps) {
   const { state, isMobile } = useSidebar()
@@ -41,10 +42,16 @@ export function NavGroup({ title, items }: NavGroupProps) {
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          const key = `${item.title}-${item.url}`
+          const key = `${item.title}-${(item as NavLink).url ?? 'collapsible'}`
 
-          if (!item.items)
-            return <SidebarMenuLink key={key} item={item} href={href} />
+          if (!item.items) {
+            const linkItem = item as NavLink
+            if (linkItem.url === '/integrations')
+              return (
+                <IntegrationsNavLink key={key} item={linkItem} href={href} />
+              )
+            return <SidebarMenuLink key={key} item={linkItem} href={href} />
+          }
 
           if (state === 'collapsed' && !isMobile)
             return (
@@ -60,6 +67,41 @@ export function NavGroup({ title, items }: NavGroupProps) {
 
 function NavBadge({ children }: { children: ReactNode }) {
   return <Badge className='rounded-full px-1 py-0 text-xs'>{children}</Badge>
+}
+
+function IntegrationsNavLink({ item, href }: { item: NavLink; href: string }) {
+  const { setOpenMobile } = useSidebar()
+  const { error: leagueTeamsError } = useLeagueTeams()
+  const tooltip =
+    leagueTeamsError
+      ? {
+          children: (
+            <span className='flex items-center gap-2'>
+              <AlertCircle className='size-3.5 shrink-0' />
+              Opponent logos failed to load. Check PrestoSports integration.
+            </span>
+          ),
+        }
+      : item.title
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        asChild
+        isActive={checkIsActive(href, item)}
+        tooltip={tooltip}
+      >
+        <Link to={item.url} onClick={() => setOpenMobile(false)}>
+          {item.icon && <item.icon />}
+          <span>{item.title}</span>
+          {item.badge && <NavBadge>{item.badge}</NavBadge>}
+          {leagueTeamsError && (
+            <AlertCircle className='ms-auto size-3.5 text-destructive shrink-0' />
+          )}
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  )
 }
 
 function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
