@@ -1,7 +1,9 @@
+import { useQuery } from '@tanstack/react-query'
 import { useLayout } from '@/context/layout-provider'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBranding } from '@/contexts/BrandingContext'
 import { usePermissions } from '@/hooks/use-permissions'
+import { teamsApi } from '@/lib/teams-api'
 import {
   Sidebar,
   SidebarContent,
@@ -9,7 +11,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-// import { AppTitle } from './app-title'
 import { sidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
@@ -18,8 +19,13 @@ import { TeamSwitcher } from './team-switcher'
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { user } = useAuth()
-  const { name: brandName } = useBranding()
+  const { name: brandName, logoUrl: brandLogoUrl } = useBranding()
   const { has } = usePermissions()
+
+  const { data: teamData } = useQuery({
+    queryKey: ['teams', 'me'],
+    queryFn: () => teamsApi.getMyTeam() as Promise<Record<string, unknown>>,
+  })
 
   const filterByPermission = (items: { permission?: string }[]) =>
     items.filter((item) => !item.permission || has(item.permission))
@@ -39,10 +45,25 @@ export function AppSidebar() {
       .filter(Boolean) as (typeof group.items)[number][],
   }))
 
+  // Priority: team name → program name → branding name → fallback
+  const teamName =
+    (teamData?.name as string) ||
+    (teamData?.program_name as string) ||
+    brandName ||
+    sidebarData.teams[0].name
+
+  // Use program_name as the subtitle if we have a team name, otherwise fallback
+  const teamPlan =
+    (teamData?.name && teamData?.program_name)
+      ? String(teamData.program_name)
+      : sidebarData.teams[0].plan
+
   const teams = [
     {
       ...sidebarData.teams[0],
-      name: brandName || sidebarData.teams[0].name,
+      name: teamName,
+      plan: teamPlan,
+      logoUrl: brandLogoUrl || undefined,
     },
   ]
 
@@ -58,10 +79,6 @@ export function AppSidebar() {
     <Sidebar collapsible={collapsible} variant={variant}>
       <SidebarHeader>
         <TeamSwitcher teams={teams} />
-
-        {/* Replace <TeamSwitch /> with the following <AppTitle />
-         /* if you want to use the normal app title instead of TeamSwitch dropdown */}
-        {/* <AppTitle /> */}
       </SidebarHeader>
       <SidebarContent>
         {navGroups.map((props) => (

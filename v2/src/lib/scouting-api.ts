@@ -6,7 +6,14 @@
 import api from './api'
 
 function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
-  return (res?.success !== false && res?.data !== undefined) ? res.data as T : undefined
+  if (!res) return undefined
+  // Standard envelope: { success: true, data: ... }
+  if (res.success !== false && res.data !== undefined) return res.data as T
+  // Fallback: response itself might be the data (no envelope)
+  if (res.success === undefined && res.data === undefined && typeof res === 'object') {
+    return res as unknown as T
+  }
+  return undefined
 }
 
 export const EVENT_TYPES = ['game', 'showcase', 'practice', 'workout', 'video'] as const

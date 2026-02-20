@@ -134,4 +134,19 @@ export const teamsApi = {
   revokePermission: async (id: number) => {
     await api.delete(`/teams/permissions/${id}`)
   },
+
+  addUser: async (data: {
+    email: string
+    password: string
+    first_name: string
+    last_name: string
+    role: string
+    phone?: string
+  }) => {
+    const r = await api.post<{ success?: boolean; data?: TeamUser }>(
+      '/auth/register',
+      data
+    )
+    return getData(r.data) ?? r.data
+  },
 }

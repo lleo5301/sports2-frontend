@@ -108,8 +108,8 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
   })
 
   const mutation = useMutation({
-    mutationFn: (data: FormValues) =>
-      scoutingApi.create({
+    mutationFn: async (data: FormValues) => {
+      const result = await scoutingApi.create({
         prospect_id: data.prospect_id,
         player_id: data.player_id,
         report_date: data.report_date,
@@ -127,17 +127,32 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
         sixty_yard_dash: data.sixty_yard_dash,
         mlb_comparison: data.mlb_comparison || undefined,
         notes: data.notes || undefined,
-      }),
+      })
+      if (!result) {
+        throw new Error('No data returned from server')
+      }
+      return result
+    },
     onSuccess: (report) => {
       queryClient.invalidateQueries({ queryKey: ['scouting-reports'] })
       toast.success('Scouting report created')
-      navigate({
-        to: report?.id ? '/scouting/$id' : '/scouting',
-        params: report?.id ? { id: String(report.id) } : undefined,
-      })
+      if (report.id) {
+        navigate({
+          to: '/scouting/$id',
+          params: { id: String(report.id) },
+        })
+      } else {
+        navigate({ to: '/scouting' })
+      }
     },
-    onError: (err) => {
-      toast.error((err as Error).message || 'Failed to create report')
+    onError: (err: unknown) => {
+      const axiosErr = err as { response?: { data?: { error?: string; message?: string } }; message?: string }
+      const message =
+        axiosErr?.response?.data?.error ??
+        axiosErr?.response?.data?.message ??
+        (err as Error)?.message ??
+        'Failed to create report'
+      toast.error(message)
     },
   })
 
@@ -244,7 +259,10 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
                 open={createProspectOpen}
                 onOpenChange={setCreateProspectOpen}
                 onCreated={(prospect) => {
-                  form.setValue('prospect_id', prospect.id)
+                  form.setValue('prospect_id', prospect.id, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
                 }}
               />
 

@@ -1,9 +1,20 @@
 /**
  * Scouting report detail view with edit.
  */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft, Loader2, Pencil } from 'lucide-react'
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Loader2,
+  Pencil,
+  User,
+  MapPin,
+  Zap,
+  FileText,
+  Target,
+} from 'lucide-react'
 import { scoutingApi, type ScoutingReport } from '@/lib/scouting-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
@@ -12,9 +23,10 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
+import { Separator } from '@/components/ui/separator'
 import { useState } from 'react'
 import { EditScoutingForm } from './edit-scouting-form'
 
@@ -40,9 +52,54 @@ function subjectName(report: ScoutingReport) {
       : '—'
 }
 
-function GradeDisplay({ value }: { value?: unknown }) {
-  if (value === undefined || value === null) return null
-  return <span>{String(value)}</span>
+function subjectPosition(report: ScoutingReport) {
+  return report.Prospect?.primary_position ?? report.Player?.position ?? null
+}
+
+function formatDate(dateStr?: string) {
+  if (!dateStr) return '—'
+  try {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+function formatDateTime(dateStr?: string) {
+  if (!dateStr) return '—'
+  try {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+function GradeBadge({ value, label }: { value?: unknown; label?: string }) {
+  if (value === undefined || value === null || value === '') return <span className='text-muted-foreground'>—</span>
+  const display = String(value)
+  // Determine color intensity based on grade type
+  const numVal = Number(display)
+  let variant: 'default' | 'secondary' | 'outline' = 'secondary'
+  if (!Number.isNaN(numVal)) {
+    if (numVal >= 60) variant = 'default'
+    else if (numVal >= 40) variant = 'secondary'
+    else variant = 'outline'
+  }
+  return (
+    <Badge variant={variant} className='min-w-[2.5rem] justify-center text-sm font-semibold'>
+      {display}
+    </Badge>
+  )
 }
 
 export function ScoutingDetail({ id }: ScoutingDetailProps) {
@@ -102,9 +159,24 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
     )
   }
 
+  const position = subjectPosition(report)
+  const hasGrades =
+    report.overall_present != null ||
+    report.overall_future != null ||
+    report.hitting_present != null ||
+    report.hitting_future != null ||
+    report.pitching_present != null ||
+    report.pitching_future != null ||
+    report.fielding_present != null ||
+    report.fielding_future != null ||
+    report.speed_present != null ||
+    report.speed_future != null
+  const hasAthleticism = report.sixty_yard_dash != null || !!report.mlb_comparison
+
   return (
     <Main>
-      <div className='space-y-6'>
+      <div className='mx-auto max-w-4xl space-y-6'>
+        {/* Header */}
         <div className='flex flex-wrap items-center justify-between gap-4'>
           <div className='flex items-center gap-4'>
             <Button variant='ghost' size='icon' asChild>
@@ -117,7 +189,7 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
                 Report #{id} — {subjectName(report)}
               </h2>
               <CardDescription>
-                {report.report_date} • {report.event_type || '—'}
+                {formatDate(report.report_date)} • {report.event_type || '—'}
               </CardDescription>
             </div>
           </div>
@@ -127,78 +199,209 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
           </Button>
         </div>
 
+        {/* Subject & Event Info Card */}
         <Card>
-          <CardHeader>
-            <div className='flex flex-wrap gap-2'>
-              {report.event_type && (
-                <Badge variant='secondary'>{report.event_type}</Badge>
-              )}
-              {report.report_date && (
-                <Badge variant='outline'>{report.report_date}</Badge>
-              )}
+          <CardHeader className='pb-3'>
+            <CardTitle className='text-base'>Report Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+              <div className='flex items-start gap-3'>
+                <User className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
+                <div>
+                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                    Subject
+                  </p>
+                  <p className='font-medium'>{subjectName(report)}</p>
+                  {position && (
+                    <Badge variant='outline' className='mt-1'>
+                      {position}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <div className='flex items-start gap-3'>
+                <Calendar className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
+                <div>
+                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                    Report Date
+                  </p>
+                  <p className='font-medium'>{formatDate(report.report_date)}</p>
+                </div>
+              </div>
+              <div className='flex items-start gap-3'>
+                <MapPin className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
+                <div>
+                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                    Event Type
+                  </p>
+                  <p className='font-medium capitalize'>
+                    {report.event_type || '—'}
+                  </p>
+                </div>
+              </div>
+              <div className='flex items-start gap-3'>
+                <Target className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
+                <div>
+                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                    Report ID
+                  </p>
+                  <p className='font-medium'>#{report.id}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Grades Card */}
+        <Card>
+          <CardHeader className='pb-3'>
+            <CardTitle className='text-base'>Grades</CardTitle>
+            <CardDescription>
+              20–80 scale or letter grades (Present / Future)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {hasGrades ? (
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm'>
+                  <thead>
+                    <tr className='border-b'>
+                      <th className='pb-2 text-left font-medium text-muted-foreground'>
+                        Skill
+                      </th>
+                      <th className='pb-2 text-center font-medium text-muted-foreground'>
+                        Present
+                      </th>
+                      <th className='pb-2 text-center font-medium text-muted-foreground'>
+                        Future
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className='divide-y'>
+                    <GradeRow
+                      label='Overall'
+                      present={report.overall_present}
+                      future={report.overall_future}
+                    />
+                    <GradeRow
+                      label='Hitting'
+                      present={report.hitting_present}
+                      future={report.hitting_future}
+                    />
+                    <GradeRow
+                      label='Pitching'
+                      present={report.pitching_present}
+                      future={report.pitching_future}
+                    />
+                    <GradeRow
+                      label='Fielding'
+                      present={report.fielding_present}
+                      future={report.fielding_future}
+                    />
+                    <GradeRow
+                      label='Speed'
+                      present={report.speed_present}
+                      future={report.speed_future}
+                    />
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className='text-sm text-muted-foreground'>No grades recorded</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Athleticism Card */}
+        <Card>
+          <CardHeader className='pb-3'>
+            <div className='flex items-center gap-2'>
+              <Zap className='size-4 text-muted-foreground' />
+              <CardTitle className='text-base'>Athleticism & Comparison</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className='space-y-6'>
-            <div>
-              <h3 className='mb-3 font-semibold'>Grades (Present / Future)</h3>
-              <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-                <DetailRow
-                  label='Overall'
-                  present={report.overall_present}
-                  future={report.overall_future}
-                />
-                <DetailRow
-                  label='Hitting'
-                  present={report.hitting_present}
-                  future={report.hitting_future}
-                />
-                <DetailRow
-                  label='Pitching'
-                  present={report.pitching_present}
-                  future={report.pitching_future}
-                />
-                <DetailRow
-                  label='Fielding'
-                  present={report.fielding_present}
-                  future={report.fielding_future}
-                />
-                <DetailRow
-                  label='Speed'
-                  present={report.speed_present}
-                  future={report.speed_future}
-                />
+          <CardContent>
+            {hasAthleticism ? (
+              <div className='grid gap-6 sm:grid-cols-2'>
+                <div>
+                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                    60-Yard Dash
+                  </p>
+                  <p className='mt-1 text-2xl font-bold tabular-nums'>
+                    {report.sixty_yard_dash != null
+                      ? `${report.sixty_yard_dash}s`
+                      : '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                    MLB Comparison
+                  </p>
+                  <p className='mt-1 text-lg font-medium'>
+                    {report.mlb_comparison || '—'}
+                  </p>
+                </div>
               </div>
+            ) : (
+              <p className='text-sm text-muted-foreground'>
+                No athleticism data recorded
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Notes Card */}
+        <Card>
+          <CardHeader className='pb-3'>
+            <div className='flex items-center gap-2'>
+              <FileText className='size-4 text-muted-foreground' />
+              <CardTitle className='text-base'>Scouting Notes</CardTitle>
             </div>
-            {(report.sixty_yard_dash != null || report.mlb_comparison) && (
-              <div className='grid gap-4 sm:grid-cols-2'>
-                {report.sixty_yard_dash != null && (
-                  <div>
-                    <p className='text-sm text-muted-foreground'>60-yard dash</p>
-                    <p className='font-medium'>{report.sixty_yard_dash}s</p>
-                  </div>
-                )}
-                {report.mlb_comparison && (
-                  <div>
-                    <p className='text-sm text-muted-foreground'>MLB comparison</p>
-                    <p className='font-medium'>{report.mlb_comparison}</p>
-                  </div>
-                )}
-              </div>
+          </CardHeader>
+          <CardContent>
+            {report.notes ? (
+              <p className='whitespace-pre-wrap leading-relaxed text-foreground'>
+                {report.notes}
+              </p>
+            ) : (
+              <p className='text-sm italic text-muted-foreground'>
+                No notes recorded for this report.
+              </p>
             )}
-            {report.notes && (
-              <div>
-                <p className='text-sm text-muted-foreground'>Notes</p>
-                <p className='whitespace-pre-wrap'>{report.notes}</p>
-              </div>
-            )}
-            {report.User && (
-              <div className='border-t pt-4 text-sm text-muted-foreground'>
-                Created by{' '}
-                {[report.User.first_name, report.User.last_name]
-                  .filter(Boolean)
-                  .join(' ') || 'Unknown'}
-              </div>
-            )}
+          </CardContent>
+        </Card>
+
+        {/* Metadata Footer */}
+        <Card>
+          <CardContent className='pt-6'>
+            <div className='flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground'>
+              {report.User && (
+                <div className='flex items-center gap-1.5'>
+                  <User className='size-3.5' />
+                  <span>
+                    Created by{' '}
+                    <span className='font-medium text-foreground'>
+                      {[report.User.first_name, report.User.last_name]
+                        .filter(Boolean)
+                        .join(' ') || 'Unknown'}
+                    </span>
+                  </span>
+                </div>
+              )}
+              {report.created_at && (
+                <div className='flex items-center gap-1.5'>
+                  <Clock className='size-3.5' />
+                  <span>Created {formatDateTime(report.created_at)}</span>
+                </div>
+              )}
+              {report.updated_at && report.updated_at !== report.created_at && (
+                <div className='flex items-center gap-1.5'>
+                  <Clock className='size-3.5' />
+                  <span>Updated {formatDateTime(report.updated_at)}</span>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -206,7 +409,7 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
   )
 }
 
-function DetailRow({
+function GradeRow({
   label,
   present,
   future,
@@ -215,13 +418,15 @@ function DetailRow({
   present?: unknown
   future?: unknown
 }) {
-  if (present == null && future == null) return null
   return (
-    <div>
-      <p className='text-sm text-muted-foreground'>{label}</p>
-      <p className='font-medium'>
-        <GradeDisplay value={present} /> / <GradeDisplay value={future} />
-      </p>
-    </div>
+    <tr>
+      <td className='py-3 font-medium'>{label}</td>
+      <td className='py-3 text-center'>
+        <GradeBadge value={present} />
+      </td>
+      <td className='py-3 text-center'>
+        <GradeBadge value={future} />
+      </td>
+    </tr>
   )
 }
