@@ -3,7 +3,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, BarChart3, Loader2, Pencil, Play, Trash2, Video } from 'lucide-react'
+import { ArrowLeft, BarChart3, Loader2, Mail, Pencil, Phone, Play, Trash2, User, Video } from 'lucide-react'
 import { playersApi, type Player, type PlayerStatsResponse } from '@/lib/players-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
@@ -20,10 +20,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatDateShort } from '@/lib/format-date'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import { extendedStatsApi } from '@/lib/extended-stats-api'
 import { EditPlayerForm } from './edit-player-form'
 import { PlayerSplitsTab } from './player-splits-tab'
 import { PlayerRawStatsTab } from './player-raw-stats-tab'
@@ -54,6 +57,12 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
   const { data: videosResp } = useQuery({
     queryKey: ['player', playerId, 'videos'],
     queryFn: () => playersApi.getVideos(playerId, { limit: 12 }),
+    enabled: !Number.isNaN(playerId) && !!player,
+  })
+
+  const { data: gameLogData } = useQuery({
+    queryKey: ['player', playerId, 'game-log'],
+    queryFn: () => extendedStatsApi.getPlayerGameLog(playerId),
     enabled: !Number.isNaN(playerId) && !!player,
   })
 
@@ -157,30 +166,167 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
         </div>
 
         <Card>
-          <CardHeader>
-            <div className='flex flex-wrap gap-2'>
-              {player.position && (
-                <Badge variant='secondary'>{player.position}</Badge>
-              )}
-              {player.school_type && (
-                <Badge variant='outline'>{player.school_type}</Badge>
-              )}
-              {player.status && (
-                <Badge variant={player.status === 'active' ? 'default' : 'secondary'}>
-                  {player.status}
-                </Badge>
-              )}
+          <CardContent className='pt-6'>
+            <div className='flex flex-col gap-6 lg:flex-row lg:items-start'>
+              <div className='flex flex-col items-center gap-4 sm:flex-row lg:flex-col lg:items-center lg:shrink-0'>
+                <div className='relative'>
+                  <Avatar className='size-36 shrink-0 shadow-lg ring-2 ring-border sm:size-44 lg:size-52'>
+                    <AvatarImage
+                      src={(statsResp?.player?.photo_url ?? player.photo_url) ?? undefined}
+                      alt={[player.first_name, player.last_name].filter(Boolean).join(' ')}
+                      className='object-cover'
+                    />
+                    <AvatarFallback className='bg-muted text-3xl font-medium sm:text-4xl'>
+                      {[player.first_name?.[0], player.last_name?.[0]]
+                        .filter(Boolean)
+                        .join('')
+                        .toUpperCase() || <User className='size-16' />}
+                    </AvatarFallback>
+                  </Avatar>
+                  {(statsResp?.player?.jersey_number ?? player.jersey_number) != null && (
+                    <div className='absolute -bottom-2 -right-2 flex size-10 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-md'>
+                      #{String(statsResp?.player?.jersey_number ?? player.jersey_number)}
+                    </div>
+                  )}
+                </div>
+                <div className='text-center sm:text-left lg:text-center'>
+                  <h3 className='text-lg font-semibold'>
+                    {player.position || 'Player'}
+                  </h3>
+                  <p className='text-sm text-muted-foreground'>
+                    {[statsResp?.player?.bats ?? player.bats, statsResp?.player?.throws ?? player.throws]
+                      .filter(Boolean)
+                      .join(' / ') || '—'}
+                  </p>
+                  {(statsResp?.player?.class_year ?? player.class_year) && (
+                    <p className='text-sm text-muted-foreground'>
+                      {statsResp?.player?.class_year ?? player.class_year}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className='min-w-0 flex-1 space-y-4'>
+                <div className='flex flex-wrap items-center gap-2'>
+                  {player.position && (
+                    <Badge variant='secondary'>{player.position}</Badge>
+                  )}
+                  {player.school_type && (
+                    <Badge variant='outline'>{player.school_type}</Badge>
+                  )}
+                  {player.status && (
+                    <Badge variant={player.status === 'active' ? 'default' : 'secondary'}>
+                      {player.status}
+                    </Badge>
+                  )}
+                </div>
+                <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                  <DetailRow label='Position' value={player.position} />
+                  <DetailRow label='Jersey' value={statsResp?.player?.jersey_number ?? player.jersey_number ?? undefined} />
+                  <DetailRow label='Bats / Throws' value={[statsResp?.player?.bats ?? player.bats, statsResp?.player?.throws ?? player.throws].filter(Boolean).join(' / ') || undefined} />
+                  <DetailRow label='Class' value={statsResp?.player?.class_year ?? player.class_year ?? undefined} />
+                  <DetailRow label='Height' value={player.height ?? undefined} />
+                  <DetailRow label='Weight' value={player.weight != null ? `${player.weight} lbs` : undefined} />
+                  <DetailRow label='School' value={player.school} />
+                  <DetailRow label='City' value={player.city} />
+                  <DetailRow label='State' value={player.state} />
+                  <DetailRow label='Graduation year' value={player.graduation_year?.toString()} />
+                </div>
+                <div className='flex flex-wrap gap-4 border-t pt-4'>
+                  {player.email && (
+                    <a
+                      href={`mailto:${player.email}`}
+                      className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
+                    >
+                      <Mail className='size-4' />
+                      {player.email}
+                    </a>
+                  )}
+                  {player.phone && (
+                    <a
+                      href={`tel:${player.phone}`}
+                      className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
+                    >
+                      <Phone className='size-4' />
+                      {player.phone}
+                    </a>
+                  )}
+                </div>
+                {statsResp?.current_season && (() => {
+                  const s = statsResp.current_season as Record<string, unknown>
+                  const hasBatting = Number(s.at_bats ?? 0) > 0
+                  const hasPitching = Number(s.innings_pitched ?? s.pitching_appearances ?? 0) > 0
+                  const gp = s.games_played ?? s.games_started
+                  const lastGame = gameLogData?.games?.[0]
+                  if (!hasBatting && !hasPitching && !gp && !lastGame) return null
+                  return (
+                    <div className='rounded-lg border bg-muted/30 p-4 space-y-4'>
+                      <p className='text-xs font-medium uppercase tracking-wide text-muted-foreground'>
+                        This season
+                      </p>
+                      <div className='flex flex-wrap gap-4 text-sm'>
+                        {gp != null && (gp as number) > 0 && (
+                          <span><strong>GP</strong> {formatStatValue(gp)}</span>
+                        )}
+                        {hasBatting && (
+                          <>
+                            <span><strong>AVG</strong> {formatStatValue(s.batting_average)}</span>
+                            <span><strong>AB</strong> {formatStatValue(s.at_bats)}</span>
+                            <span><strong>H</strong> {formatStatValue(s.hits)}</span>
+                            <span><strong>HR</strong> {formatStatValue(s.home_runs)}</span>
+                            <span><strong>RBI</strong> {formatStatValue(s.rbi)}</span>
+                            <span><strong>OBP</strong> {formatStatValue(s.on_base_percentage)}</span>
+                          </>
+                        )}
+                        {hasPitching && (
+                          <>
+                            <span><strong>ERA</strong> {formatStatValue(s.era)}</span>
+                            <span><strong>IP</strong> {formatStatValue(s.innings_pitched)}</span>
+                            <span><strong>W-L</strong> {formatStatValue(s.pitching_wins)}-{formatStatValue(s.pitching_losses)}</span>
+                            <span><strong>K</strong> {formatStatValue(s.strikeouts_pitching)}</span>
+                          </>
+                        )}
+                      </div>
+                      {lastGame && (
+                        <div className='border-t pt-3'>
+                          <p className='mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground'>
+                            Last game
+                          </p>
+                          <Link
+                            to='/games/$id'
+                            params={{ id: lastGame.game.id }}
+                            className='group flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm hover:underline'
+                          >
+                            <span className='font-medium'>
+                              vs {lastGame.game.opponent}
+                            </span>
+                            <span className='text-muted-foreground'>
+                              {formatDateShort(lastGame.game.date)}
+                            </span>
+                            <span className='text-muted-foreground'>
+                              · {lastGame.game.game_summary || lastGame.game.score}
+                            </span>
+                            {lastGame.batting?.ab != null && lastGame.batting.ab > 0 && (
+                              <span>
+                                {lastGame.batting.h}-{lastGame.batting.ab}
+                                {lastGame.batting.rbi != null && lastGame.batting.rbi > 0 && `, ${lastGame.batting.rbi} RBI`}
+                                {lastGame.batting.hr != null && lastGame.batting.hr > 0 && `, ${lastGame.batting.hr} HR`}
+                              </span>
+                            )}
+                            {lastGame.pitching && (lastGame.pitching.ip > 0 || lastGame.pitching.so > 0) && (
+                              <span>
+                                {lastGame.pitching.ip} IP
+                                {lastGame.pitching.er != null && lastGame.pitching.er > 0 && `, ${lastGame.pitching.er} ER`}
+                                {lastGame.pitching.so > 0 && `, ${lastGame.pitching.so} K`}
+                              </span>
+                            )}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <DetailRow label='Position' value={player.position} />
-            <DetailRow label='School type' value={player.school_type} />
-            <DetailRow label='School' value={player.school} />
-            <DetailRow label='City' value={player.city} />
-            <DetailRow label='State' value={player.state} />
-            <DetailRow label='Graduation year' value={player.graduation_year?.toString()} />
-            <DetailRow label='Email' value={player.email} />
-            <DetailRow label='Phone' value={player.phone} />
           </CardContent>
         </Card>
 
@@ -209,9 +355,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
                     <div>
                       <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
                         Current season{' '}
-                        {(statsResp.current_season as { season_name?: string }).season_name ??
-                          statsResp.current_season.season ??
-                          ''}
+                        {(statsResp.current_season as { season_name?: string }).season_name ?? ''}
                       </h4>
                       <SeasonStatsGrid season={statsResp.current_season} />
                     </div>
@@ -246,7 +390,11 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
             <PlayerSplitsTab playerId={playerId} />
           </TabsContent>
           <TabsContent value='raw'>
-            <PlayerRawStatsTab playerId={playerId} />
+            <PlayerRawStatsTab
+              playerId={playerId}
+              rawStats={statsResp?.current_season?.raw_stats ?? undefined}
+              seasonName={statsResp?.current_season?.season_name}
+            />
           </TabsContent>
           <TabsContent value='game-log'>
             <PlayerGameLogTab playerId={playerId} />
@@ -498,7 +646,6 @@ function SeasonStatsGrid({
 
 const SEASONS_TABLE_COLS = [
   'season_name',
-  'season',
   'games_played',
   'at_bats',
   'batting_average',
@@ -542,10 +689,7 @@ function SeasonsTable({
             <tr key={(s.id as number) ?? i} className='border-b last:border-0'>
               {colsWithData.map((c) => {
                 const val = s[c]
-                const display =
-                  c === 'season_name' && !val && s.season
-                    ? String(s.season)
-                    : val
+                const display = val
                 return (
                   <td key={c} className='px-2 py-1.5'>
                     {display != null && display !== ''

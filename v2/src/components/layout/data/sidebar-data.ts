@@ -73,6 +73,7 @@ export const sidebarData: SidebarData = {
             { title: 'Calendar', url: '/schedules/calendar', icon: Calendar, permission: 'schedule_view' },
             { title: 'Create Schedule', url: '/schedules/create', icon: Calendar, permission: 'schedule_create' },
             { title: 'Games', url: '/games', icon: Trophy },
+            { title: 'Tournaments', url: '/tournaments', icon: Award },
             { title: "Coach's Dashboard", url: '/coach-dashboard', icon: LayoutDashboard },
             { title: 'Team Stats', url: '/team-stats', icon: BarChart3 },
             { title: 'Leaderboard', url: '/games/leaderboard', icon: Award },

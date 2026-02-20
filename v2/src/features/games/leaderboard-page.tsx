@@ -108,7 +108,7 @@ export function LeaderboardPage() {
                       <LeaderboardCard
                         key={s.value}
                         statLabel={s.label}
-                        season={data?.season_name ?? data?.season ?? null}
+                        season={data?.season_name ?? null}
                         leaders={leaders}
                         topN={top3}
                         hasMore={hasMore}

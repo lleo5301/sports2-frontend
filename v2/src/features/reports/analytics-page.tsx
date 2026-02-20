@@ -1,10 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   Cell,
   Legend,
   Pie,
@@ -15,7 +13,12 @@ import {
   YAxis,
 } from 'recharts'
 import { formatDateTime } from '@/lib/format-date'
-import { extendedStatsApi, type CoachDashboardData, type DashboardRecentGame } from '@/lib/extended-stats-api'
+import {
+  extendedStatsApi,
+  type DashboardRecentGame,
+  type PlayerGameLogEntry,
+} from '@/lib/extended-stats-api'
+import { gamesApi, type LeaderEntry } from '@/lib/games-api'
 import { playersApi } from '@/lib/players-api'
 import { reportsApi } from '@/lib/reports-api'
 import { Main } from '@/components/layout/main'
@@ -26,7 +29,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Loader2, User } from 'lucide-react'
 
 const STAT_LABELS: Record<string, string> = {
   avg: 'AVG',
@@ -99,7 +104,8 @@ const PIPELINE_COLORS = [
 ]
 
 /** Parse "15-8" or "15-8-1" to { wins, losses, ties } */
-function parseRecord(s: string): { wins: number; losses: number } | null {
+function parseRecord(s: string | null): { wins: number; losses: number } | null {
+  if (!s) return null
   const m = s.match(/^(\d+)-(\d+)(?:-(\d+))?$/)
   if (!m) return null
   return { wins: parseInt(m[1], 10), losses: parseInt(m[2], 10) }
@@ -133,14 +139,85 @@ function buildRecordProgression(games: DashboardRecentGame[]) {
   }>
 }
 
-const LEADER_CATEGORIES = [
-  { key: 'batting_avg', label: 'Batting Avg', lowerBetter: false },
-  { key: 'home_runs', label: 'HR', lowerBetter: false },
-  { key: 'rbi', label: 'RBI', lowerBetter: false },
-  { key: 'stolen_bases', label: 'SB', lowerBetter: false },
-  { key: 'era', label: 'ERA', lowerBetter: true },
-  { key: 'strikeouts', label: 'SO', lowerBetter: false },
+const STAT_LEADER_CATEGORIES = [
+  { stat: 'batting_average', label: 'Batting Avg' },
+  { stat: 'home_runs', label: 'HR' },
+  { stat: 'rbi', label: 'RBI' },
+  { stat: 'stolen_bases', label: 'SB' },
+  { stat: 'era', label: 'ERA' },
+  { stat: 'strikeouts_pitching', label: 'SO' },
 ] as const
+
+/** Rolling AVG per game (newest first → chronological for chart) */
+function rollingAvgFromGameLog(games: PlayerGameLogEntry[], maxGames: number): Array<{ game: number; avg: number; opponent: string }> {
+  const withBatting = games
+    .filter((g) => g.batting?.ab != null && g.batting.ab > 0)
+    .slice(0, maxGames)
+  let cumH = 0
+  let cumAB = 0
+  return withBatting
+    .map((g, i) => {
+      cumH += g.batting?.h ?? 0
+      cumAB += g.batting?.ab ?? 0
+      return {
+        game: i + 1,
+        avg: cumAB > 0 ? Math.round((cumH / cumAB) * 1000) / 1000 : 0,
+        opponent: g.game?.opponent ?? `G${i + 1}`,
+      }
+    })
+}
+
+function StatLeaderCard({
+  label,
+  leaders,
+}: {
+  label: string
+  leaders: LeaderEntry[]
+}) {
+  if (!leaders.length)
+    return (
+      <div className='rounded-xl border border-dashed p-4 text-center text-sm text-muted-foreground'>
+        No leaders yet
+      </div>
+    )
+  return (
+    <div className='rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md'>
+      <p className='mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+        {label}
+      </p>
+      <div className='space-y-3'>
+        {leaders.slice(0, 3).map((l, i) => {
+          const name = [l.player.first_name, l.player.last_name].filter(Boolean).join(' ') || `Player ${l.player.id}`
+          const initials = [l.player.first_name?.[0], l.player.last_name?.[0]].filter(Boolean).join('').toUpperCase() || '?'
+          return (
+            <Link
+              key={l.player.id}
+              to='/players/$id'
+              params={{ id: String(l.player.id) }}
+              className='flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50'
+            >
+              <Avatar className='size-10 shrink-0'>
+                <AvatarImage src={l.player.photo_url ?? undefined} alt={name} />
+                <AvatarFallback className='bg-muted text-xs font-medium'>
+                  {initials || <User className='size-5' />}
+                </AvatarFallback>
+              </Avatar>
+              <div className='min-w-0 flex-1'>
+                <p className='truncate font-medium'>{name}</p>
+                {l.player.position && (
+                  <p className='text-xs text-muted-foreground'>{l.player.position}</p>
+                )}
+              </div>
+              <span className='shrink-0 text-lg font-bold tabular-nums'>
+                {String(l.value)}
+              </span>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export function AnalyticsPage() {
   const { data: dashboard } = useQuery({
@@ -152,10 +229,27 @@ export function AnalyticsPage() {
     queryKey: ['team-aggregate-stats'],
     queryFn: () => extendedStatsApi.getTeamAggregateStats(),
   })
-  const { data: playerPerf, isLoading: loadingPerf } = useQuery({
-    queryKey: ['reports', 'player-performance'],
-    queryFn: () => reportsApi.getPlayerPerformance(),
+  const leaderboardQueries = useQueries({
+    queries: STAT_LEADER_CATEGORIES.map(({ stat }) => ({
+      queryKey: ['leaderboard', stat],
+      queryFn: () => gamesApi.getLeaderboard({ stat, limit: 3 }),
+    })),
   })
+  const leaderboards = leaderboardQueries.map((q) => q.data)
+
+  const { data: battingLeaders } = useQuery({
+    queryKey: ['leaderboard', 'batting_average', 5],
+    queryFn: () => gamesApi.getLeaderboard({ stat: 'batting_average', limit: 5 }),
+  })
+  const topBatterIds = (battingLeaders?.leaders ?? []).map((l) => l.player.id)
+  const gameLogQueries = useQueries({
+    queries: topBatterIds.slice(0, 3).map((playerId) => ({
+      queryKey: ['player', playerId, 'game-log'],
+      queryFn: () => extendedStatsApi.getPlayerGameLog(playerId),
+      enabled: !!playerId,
+    })),
+  })
+  const gameLogs = gameLogQueries.map((q) => q.data)
 
   const { data: pipeline, isLoading: loadingPipeline } = useQuery({
     queryKey: ['reports', 'recruitment-pipeline'],
@@ -172,7 +266,7 @@ export function AnalyticsPage() {
     queryFn: () => reportsApi.getTeamStatistics(),
   })
 
-  const isLoading = loadingPerf || loadingPipeline
+  const isLoading = loadingPipeline
   const hasTeamStats =
     (teamStats && typeof teamStats === 'object' && Object.keys(teamStats).length > 0) ||
     (teamReportStats &&
@@ -188,19 +282,6 @@ export function AnalyticsPage() {
           value: Number(p.count) || 0,
         }))
         .filter((p) => p.value > 0)
-    : []
-
-  // Normalize player performance - expect { period, value } or { metric, value } or similar
-  const perfChartData = Array.isArray(playerPerf)
-    ? playerPerf
-        .filter((p) => p != null)
-        .map((p) => {
-          const label =
-            p.period ?? p.metric ?? p.player_name ?? String(p.metric ?? '')
-          const val = Number(p.value ?? p.count ?? p.avg ?? 0)
-          return { name: label, value: val }
-        })
-        .slice(0, 12)
     : []
 
   return (
@@ -274,42 +355,35 @@ export function AnalyticsPage() {
           </Card>
         ) : null}
 
-        {/* Stat Leaders — from extended stats */}
-        {dashboard?.leaders && Object.keys(dashboard.leaders).length > 0 ? (
-          <Card>
-            <CardHeader>
+        {/* Stat Leaders — from leaderboard API with headshots */}
+        <Card>
+          <CardHeader className='flex flex-row items-start justify-between space-y-0'>
+            <div>
               <CardTitle>Stat leaders</CardTitle>
               <CardDescription>Top performers in key categories</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-                {LEADER_CATEGORIES.map(({ key, label }) => {
-                  const arr = dashboard.leaders[key as keyof CoachDashboardData['leaders']]
-                  if (!arr?.length) return null
-                  return (
-                    <div key={key} className='rounded-lg border p-3'>
-                      <p className='mb-2 text-xs font-medium text-muted-foreground'>{label}</p>
-                      <ol className='space-y-1'>
-                        {arr.map((l, i) => (
-                          <li key={l.player_id} className='flex justify-between text-sm'>
-                            <Link
-                              to='/players/$id'
-                              params={{ id: l.player_id }}
-                              className='font-medium hover:underline'
-                            >
-                              {i + 1}. {l.name}
-                            </Link>
-                            <span className='tabular-nums'>{l.value}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )
-                })}
+            </div>
+            <Button variant='ghost' size='sm' asChild>
+              <Link to='/games/leaderboard'>Full leaderboard</Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {leaderboardQueries.some((q) => q.isLoading) ? (
+              <div className='flex justify-center py-12'>
+                <Loader2 className='size-8 animate-spin text-muted-foreground' />
               </div>
-            </CardContent>
-          </Card>
-        ) : null}
+            ) : (
+              <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                {STAT_LEADER_CATEGORIES.map(({ stat, label }, i) => (
+                  <StatLeaderCard
+                    key={stat}
+                    label={label}
+                    leaders={leaderboards[i]?.leaders ?? []}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Team aggregate stats — extended stats API */}
         {aggregateStats &&
@@ -406,41 +480,118 @@ export function AnalyticsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Player Performance</CardTitle>
+                <CardTitle>Batting trends</CardTitle>
                 <CardDescription>
-                  Performance metrics over time or by category
+                  Cumulative batting average over last 10 games — top 3 AVG leaders
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {perfChartData.length > 0 ? (
-                  <ResponsiveContainer width='100%' height={300}>
-                    <BarChart data={perfChartData}>
-                      <XAxis
-                        dataKey='name'
-                        stroke='var(--muted-foreground)'
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis
-                        stroke='var(--muted-foreground)'
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <Tooltip />
-                      <Bar
-                        dataKey='value'
-                        fill='var(--primary)'
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className='flex h-[300px] items-center justify-center text-muted-foreground'>
-                    No performance data
+                {gameLogQueries.some((q) => q.isLoading) ? (
+                  <div className='flex h-[280px] items-center justify-center'>
+                    <Loader2 className='size-8 animate-spin text-muted-foreground' />
                   </div>
-                )}
+                ) : (() => {
+                  const playerSeries: Array<{ key: string; name: string; points: Array<{ game: number; avg: number; opponent: string }> }> = []
+                  topBatterIds.slice(0, 3).forEach((id, i) => {
+                    const log = gameLogs[i]
+                    const leaders = battingLeaders?.leaders ?? []
+                    const leader = leaders.find((l) => l.player.id === id)
+                    const name = leader
+                      ? [leader.player.first_name, leader.player.last_name].filter(Boolean).join(' ') || `Player ${id}`
+                      : `Player ${id}`
+                    const points = log?.games?.length ? rollingAvgFromGameLog(log.games, 10) : []
+                    if (points.length > 0) playerSeries.push({ key: `p${id}`, name, points })
+                  })
+                  if (playerSeries.length === 0)
+                    return (
+                      <div className='flex h-[280px] items-center justify-center text-muted-foreground'>
+                        No game log data. Sync with PrestoSports.
+                      </div>
+                    )
+                  const maxGames = Math.max(...playerSeries.map((s) => s.points.length), 1)
+                  const chartData = Array.from({ length: maxGames }, (_, i) => {
+                    const game = i + 1
+                    const row: Record<string, number | string> = { game }
+                    playerSeries.forEach((s) => {
+                      const pt = s.points[i]
+                      row[s.key] = pt ? pt.avg : 0
+                    })
+                    return row
+                  })
+                  const chartColors = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)']
+                  return (
+                    <ResponsiveContainer width='100%' height={280}>
+                      <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+                        <defs>
+                          {playerSeries.map((_, i) => (
+                            <linearGradient
+                              key={i}
+                              id={`avgGrad-${i}`}
+                              x1='0'
+                              y1='0'
+                              x2='0'
+                              y2='1'
+                            >
+                              <stop offset='0%' stopColor={chartColors[i]} stopOpacity={0.4} />
+                              <stop offset='100%' stopColor={chartColors[i]} stopOpacity={0} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <XAxis
+                          dataKey='game'
+                          stroke='var(--muted-foreground)'
+                          fontSize={11}
+                          tickLine={false}
+                          tickFormatter={(g) => `G${g}`}
+                        />
+                        <YAxis
+                          stroke='var(--muted-foreground)'
+                          fontSize={11}
+                          tickLine={false}
+                          width={36}
+                          tickFormatter={(v) => (typeof v === 'number' ? v.toFixed(2) : String(v))}
+                          domain={[0, 0.5]}
+                        />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (!active || !payload?.length) return null
+                            const gameIdx = (payload[0]?.payload?.game as number) ?? 0
+                            const p0 = playerSeries[0]?.points[gameIdx - 1]
+                            return (
+                              <div className='rounded-lg border bg-background p-3 shadow-md'>
+                                <p className='mb-2 text-xs text-muted-foreground'>
+                                  Game {gameIdx}{p0?.opponent ? ` · vs ${p0.opponent}` : ''}
+                                </p>
+                                {payload
+                                  .filter((p) => p.value != null)
+                                  .map((p) => (
+                                    <div key={p.dataKey} className='flex justify-between gap-4 text-sm'>
+                                      <span className='font-medium'>{p.name}</span>
+                                      <span className='tabular-nums'>
+                                        {(p.value as number).toFixed(3)}
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            )
+                          }}
+                        />
+                        <Legend />
+                        {playerSeries.map((s, i) => (
+                          <Area
+                            key={s.key}
+                            type='monotone'
+                            dataKey={s.key}
+                            name={s.name}
+                            stroke={chartColors[i]}
+                            fill={`url(#avgGrad-${i})`}
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )
+                })()}
               </CardContent>
             </Card>
             </div>

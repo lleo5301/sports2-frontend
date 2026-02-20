@@ -28,6 +28,7 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedTournamentsIndexRouteImport } from './routes/_authenticated/tournaments/index'
 import { Route as AuthenticatedTeamStatsIndexRouteImport } from './routes/_authenticated/team-stats/index'
 import { Route as AuthenticatedTeamSettingsIndexRouteImport } from './routes/_authenticated/team-settings/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
@@ -52,6 +53,7 @@ import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedVendorsCreateRouteImport } from './routes/_authenticated/vendors/create'
 import { Route as AuthenticatedVendorsIdRouteImport } from './routes/_authenticated/vendors/$id'
+import { Route as AuthenticatedTournamentsIdRouteImport } from './routes/_authenticated/tournaments/$id'
 import { Route as AuthenticatedTeamStatsTeamLineupRouteImport } from './routes/_authenticated/team-stats/team-lineup'
 import { Route as AuthenticatedTeamStatsTeamGameLogRouteImport } from './routes/_authenticated/team-stats/team-game-log'
 import { Route as AuthenticatedTeamStatsTeamAggregateStatsRouteImport } from './routes/_authenticated/team-stats/team-aggregate-stats'
@@ -183,6 +185,12 @@ const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTournamentsIndexRoute =
+  AuthenticatedTournamentsIndexRouteImport.update({
+    id: '/tournaments/',
+    path: '/tournaments/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeamStatsIndexRoute =
   AuthenticatedTeamStatsIndexRouteImport.update({
     id: '/team-stats/',
@@ -321,6 +329,12 @@ const AuthenticatedVendorsIdRoute = AuthenticatedVendorsIdRouteImport.update({
   path: '/vendors/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTournamentsIdRoute =
+  AuthenticatedTournamentsIdRouteImport.update({
+    id: '/tournaments/$id',
+    path: '/tournaments/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeamStatsTeamLineupRoute =
   AuthenticatedTeamStatsTeamLineupRouteImport.update({
     id: '/team-stats/team-lineup',
@@ -562,6 +576,7 @@ export interface FileRoutesByFullPath {
   '/team-stats/team-aggregate-stats': typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
   '/team-stats/team-game-log': typeof AuthenticatedTeamStatsTeamGameLogRoute
   '/team-stats/team-lineup': typeof AuthenticatedTeamStatsTeamLineupRoute
+  '/tournaments/$id': typeof AuthenticatedTournamentsIdRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
@@ -586,6 +601,7 @@ export interface FileRoutesByFullPath {
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/team-settings/': typeof AuthenticatedTeamSettingsIndexRoute
   '/team-stats/': typeof AuthenticatedTeamStatsIndexRoute
+  '/tournaments/': typeof AuthenticatedTournamentsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
 }
@@ -638,6 +654,7 @@ export interface FileRoutesByTo {
   '/team-stats/team-aggregate-stats': typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
   '/team-stats/team-game-log': typeof AuthenticatedTeamStatsTeamGameLogRoute
   '/team-stats/team-lineup': typeof AuthenticatedTeamStatsTeamLineupRoute
+  '/tournaments/$id': typeof AuthenticatedTournamentsIdRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
@@ -662,6 +679,7 @@ export interface FileRoutesByTo {
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/team-settings': typeof AuthenticatedTeamSettingsIndexRoute
   '/team-stats': typeof AuthenticatedTeamStatsIndexRoute
+  '/tournaments': typeof AuthenticatedTournamentsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
 }
@@ -717,6 +735,7 @@ export interface FileRoutesById {
   '/_authenticated/team-stats/team-aggregate-stats': typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
   '/_authenticated/team-stats/team-game-log': typeof AuthenticatedTeamStatsTeamGameLogRoute
   '/_authenticated/team-stats/team-lineup': typeof AuthenticatedTeamStatsTeamLineupRoute
+  '/_authenticated/tournaments/$id': typeof AuthenticatedTournamentsIdRoute
   '/_authenticated/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/_authenticated/vendors/create': typeof AuthenticatedVendorsCreateRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
@@ -741,6 +760,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/team-settings/': typeof AuthenticatedTeamSettingsIndexRoute
   '/_authenticated/team-stats/': typeof AuthenticatedTeamStatsIndexRoute
+  '/_authenticated/tournaments/': typeof AuthenticatedTournamentsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
 }
@@ -796,6 +816,7 @@ export interface FileRouteTypes {
     | '/team-stats/team-aggregate-stats'
     | '/team-stats/team-game-log'
     | '/team-stats/team-lineup'
+    | '/tournaments/$id'
     | '/vendors/$id'
     | '/vendors/create'
     | '/apps/'
@@ -820,6 +841,7 @@ export interface FileRouteTypes {
     | '/tasks/'
     | '/team-settings/'
     | '/team-stats/'
+    | '/tournaments/'
     | '/users/'
     | '/vendors/'
   fileRoutesByTo: FileRoutesByTo
@@ -872,6 +894,7 @@ export interface FileRouteTypes {
     | '/team-stats/team-aggregate-stats'
     | '/team-stats/team-game-log'
     | '/team-stats/team-lineup'
+    | '/tournaments/$id'
     | '/vendors/$id'
     | '/vendors/create'
     | '/apps'
@@ -896,6 +919,7 @@ export interface FileRouteTypes {
     | '/tasks'
     | '/team-settings'
     | '/team-stats'
+    | '/tournaments'
     | '/users'
     | '/vendors'
   id:
@@ -950,6 +974,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team-stats/team-aggregate-stats'
     | '/_authenticated/team-stats/team-game-log'
     | '/_authenticated/team-stats/team-lineup'
+    | '/_authenticated/tournaments/$id'
     | '/_authenticated/vendors/$id'
     | '/_authenticated/vendors/create'
     | '/_authenticated/apps/'
@@ -974,6 +999,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/'
     | '/_authenticated/team-settings/'
     | '/_authenticated/team-stats/'
+    | '/_authenticated/tournaments/'
     | '/_authenticated/users/'
     | '/_authenticated/vendors/'
   fileRoutesById: FileRoutesById
@@ -1127,6 +1153,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users/'
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tournaments/': {
+      id: '/_authenticated/tournaments/'
+      path: '/tournaments'
+      fullPath: '/tournaments/'
+      preLoaderRoute: typeof AuthenticatedTournamentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/team-stats/': {
@@ -1295,6 +1328,13 @@ declare module '@tanstack/react-router' {
       path: '/vendors/$id'
       fullPath: '/vendors/$id'
       preLoaderRoute: typeof AuthenticatedVendorsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tournaments/$id': {
+      id: '/_authenticated/tournaments/$id'
+      path: '/tournaments/$id'
+      fullPath: '/tournaments/$id'
+      preLoaderRoute: typeof AuthenticatedTournamentsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/team-stats/team-lineup': {
@@ -1589,6 +1629,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeamStatsTeamAggregateStatsRoute: typeof AuthenticatedTeamStatsTeamAggregateStatsRoute
   AuthenticatedTeamStatsTeamGameLogRoute: typeof AuthenticatedTeamStatsTeamGameLogRoute
   AuthenticatedTeamStatsTeamLineupRoute: typeof AuthenticatedTeamStatsTeamLineupRoute
+  AuthenticatedTournamentsIdRoute: typeof AuthenticatedTournamentsIdRoute
   AuthenticatedVendorsIdRoute: typeof AuthenticatedVendorsIdRoute
   AuthenticatedVendorsCreateRoute: typeof AuthenticatedVendorsCreateRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
@@ -1612,6 +1653,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTeamSettingsIndexRoute: typeof AuthenticatedTeamSettingsIndexRoute
   AuthenticatedTeamStatsIndexRoute: typeof AuthenticatedTeamStatsIndexRoute
+  AuthenticatedTournamentsIndexRoute: typeof AuthenticatedTournamentsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
 }
@@ -1652,6 +1694,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeamStatsTeamGameLogRoute:
     AuthenticatedTeamStatsTeamGameLogRoute,
   AuthenticatedTeamStatsTeamLineupRoute: AuthenticatedTeamStatsTeamLineupRoute,
+  AuthenticatedTournamentsIdRoute: AuthenticatedTournamentsIdRoute,
   AuthenticatedVendorsIdRoute: AuthenticatedVendorsIdRoute,
   AuthenticatedVendorsCreateRoute: AuthenticatedVendorsCreateRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
@@ -1677,6 +1720,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTeamSettingsIndexRoute: AuthenticatedTeamSettingsIndexRoute,
   AuthenticatedTeamStatsIndexRoute: AuthenticatedTeamStatsIndexRoute,
+  AuthenticatedTournamentsIndexRoute: AuthenticatedTournamentsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
 }

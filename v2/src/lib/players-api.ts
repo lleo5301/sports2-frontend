@@ -13,6 +13,7 @@ export interface Player {
   first_name?: string
   last_name?: string
   position?: string
+  jersey_number?: number | string | null
   school_type?: string
   school?: string
   city?: string
@@ -22,6 +23,12 @@ export interface Player {
   team_id?: number
   email?: string
   phone?: string
+  height?: string | null
+  weight?: number | null
+  class_year?: string | null
+  bats?: string | null
+  throws?: string | null
+  photo_url?: string | null
   created_at?: string
   updated_at?: string
 }
@@ -167,6 +174,7 @@ export interface PlayerSeasonStats {
   player_id?: number
   team_id?: number
   season?: string
+  season_name?: string
   games_played?: number
   games_started?: number
   at_bats?: number
@@ -211,6 +219,9 @@ export interface PlayerSeasonStats {
   fielding_percentage?: string | null
   source_system?: string
   last_synced_at?: string | null
+  /** Raw Presto stats (short keys: gp, ab, ip, era, etc.) */
+  raw_stats?: Record<string, string> | null
+  split_stats?: Record<string, Record<string, string>> | null
   [key: string]: unknown
 }
 

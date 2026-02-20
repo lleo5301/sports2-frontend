@@ -24,12 +24,15 @@ export interface DashboardRecentGame {
   id: string
   date: string
   opponent: string
+  opponent_logo_url?: string | null
   home_away: 'home' | 'away'
   result: 'W' | 'L' | 'T' | null
   score: string | null
   game_summary: string
-  running_record: string
+  running_record: string | null
   running_conference_record?: string
+  location?: string | null
+  venue_name?: string | null
 }
 
 export interface DashboardLeader {
@@ -61,16 +64,18 @@ export interface TeamGameLogGame {
   id: string
   date: string
   opponent: string
+  opponent_logo_url?: string | null
   home_away: 'home' | 'away'
   result: 'W' | 'L' | 'T'
   score: string
   location?: string | null
+  venue_name?: string | null
   team_stats?: {
     batting?: Record<string, string | number>
     pitching?: Record<string, string | number>
   }
   game_summary: string
-  running_record: string
+  running_record: string | null
   running_conference_record?: string
 }
 
@@ -134,14 +139,15 @@ export interface PlayerRawStatsData {
 
 export interface PlayerGameLogEntry {
   game: {
-    id: string
+    id: string | number
     opponent: string
+    opponent_logo_url?: string | null
     date: string
     home_away: string
     result: string
     score: string
     game_summary: string
-    running_record: string
+    running_record: string | null
   }
   batting: {
     ab: number
@@ -157,7 +163,7 @@ export interface PlayerGameLogEntry {
     hbp?: number
   }
   pitching?: {
-    ip: number
+    ip: number | string
     h: number
     r: number
     er: number

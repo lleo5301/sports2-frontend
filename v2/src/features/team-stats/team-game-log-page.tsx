@@ -104,7 +104,7 @@ export function TeamGameLogPage() {
                   >
                     <div className='flex flex-wrap items-start justify-between gap-4'>
                       <div className='flex items-center gap-3'>
-                        <OpponentLogo opponent={g.opponent} size={40} reserveSpace />
+                        <OpponentLogo opponent={g.opponent} logoUrl={g.opponent_logo_url} size={40} reserveSpace />
                         <div>
                           <span className='font-medium'>
                             {g.home_away === 'home' ? 'vs' : '@'} {g.opponent}

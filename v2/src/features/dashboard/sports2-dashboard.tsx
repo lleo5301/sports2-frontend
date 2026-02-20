@@ -24,6 +24,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { teamsApi } from '@/lib/teams-api'
 import { schedulesApi } from '@/lib/schedules-api'
 import { gamesApi } from '@/lib/games-api'
+import { extendedStatsApi } from '@/lib/extended-stats-api'
 import { depthChartsApi } from '@/lib/depth-charts-api'
 import { prospectsApi } from '@/lib/prospects-api'
 import { playersApi } from '@/lib/players-api'
@@ -36,7 +37,7 @@ import {
   CardHeader,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatGameDateShort, type Game } from '@/lib/games-api'
+import { formatGameDateShort, formatGameLocation, type Game } from '@/lib/games-api'
 import { OpponentLogo } from '@/components/opponent-logo'
 
 function formatGameLabel(game: Game) {
@@ -44,13 +45,55 @@ function formatGameLabel(game: Game) {
   return game.result ? `vs ${opp}` : `vs ${opp}`
 }
 
-function formatGameResult(game: Game) {
+function formatGameResult(game: Game & { game_summary?: string | null }) {
+  if (game.game_summary) return game.game_summary
   if (game.result) return game.result
   if (game.team_score != null && game.opponent_score != null) {
     const w = game.team_score > game.opponent_score
     return `${w ? 'W' : 'L'} ${game.team_score}-${game.opponent_score}`
   }
   return ''
+}
+
+/** Normalize extended-stats game (recent_games / game-log) to Game shape */
+function fromExtendedStats(
+  g: {
+    id: string | number
+    date: string
+    opponent: string
+    home_away?: string
+    result?: string | null
+    score?: string | null
+    game_summary?: string
+    running_record?: string | null
+    location?: string | null
+    venue_name?: string | null
+    opponent_logo_url?: string | null
+  }
+): Game {
+  let teamScore: number | undefined
+  let oppScore: number | undefined
+  if (g.score) {
+    const [a, b] = g.score.split('-').map((x) => parseInt(x.trim(), 10))
+    if (!Number.isNaN(a) && !Number.isNaN(b)) {
+      teamScore = a
+      oppScore = b
+    }
+  }
+  return {
+    id: typeof g.id === 'number' ? g.id : (parseInt(String(g.id), 10) || g.id) as number,
+    opponent: g.opponent,
+    opponent_logo_url: g.opponent_logo_url,
+    date: g.date,
+    game_date: g.date,
+    home_away: g.home_away,
+    result: g.result ?? undefined,
+    team_score: teamScore,
+    opponent_score: oppScore,
+    game_summary: g.game_summary,
+    location: g.location ?? undefined,
+    venue_name: g.venue_name ?? undefined,
+  } as Game
 }
 
 export function Sports2Dashboard() {
@@ -75,6 +118,16 @@ export function Sports2Dashboard() {
   const { data: gamesListData } = useQuery({
     queryKey: ['games-list-dashboard'],
     queryFn: () => gamesApi.list({ limit: 30 }),
+  })
+
+  const { data: coachDashboard } = useQuery({
+    queryKey: ['coach-dashboard'],
+    queryFn: () => extendedStatsApi.getCoachDashboard(),
+  })
+
+  const { data: teamGameLog } = useQuery({
+    queryKey: ['teams-game-log'],
+    queryFn: () => extendedStatsApi.getTeamGameLog(),
   })
 
   const recentGames = (() => {
@@ -114,10 +167,34 @@ export function Sports2Dashboard() {
     if (pastFromLog.length > 0) return pastFromLog.slice(0, 5)
 
     const list = gamesListData?.data ?? []
-    return list
-      .filter((g) => isPastOrToday(g))
-      .sort(sortByDateDesc)
-      .slice(0, 5)
+    const pastFromList = list.filter((g) => isPastOrToday(g)).sort(sortByDateDesc)
+    if (pastFromList.length > 0) return pastFromList.slice(0, 5)
+
+    const fromDashboard = coachDashboard?.recent_games ?? []
+    if (fromDashboard.length > 0) {
+      return fromDashboard.slice(0, 5).map(fromExtendedStats)
+    }
+
+    const fromGameLog = Array.isArray(teamGameLog) ? teamGameLog : []
+    if (fromGameLog.length > 0) {
+      return fromGameLog.slice(0, 5).map((g) =>
+        fromExtendedStats({
+          id: g.id,
+          date: g.date,
+          opponent: g.opponent,
+          opponent_logo_url: g.opponent_logo_url,
+          home_away: g.home_away,
+          result: g.result,
+          score: g.score,
+          game_summary: g.game_summary,
+          running_record: g.running_record,
+          location: g.location,
+          venue_name: g.venue_name,
+        })
+      )
+    }
+
+    return []
   })()
 
   const { data: upcomingGames = [] } = useQuery({
@@ -363,6 +440,7 @@ export function Sports2Dashboard() {
                       >
                         <OpponentLogo
                           opponent={(game as Game).opponent}
+                          logoUrl={(game as Game).opponent_logo_url}
                           size={32}
                           reserveSpace
                         />
@@ -378,10 +456,10 @@ export function Sports2Dashboard() {
                               </span>
                             )}
                           </p>
-                          {game.location && (
+                          {(formatGameLocation(game) || (game as Game).tournament?.name) && (
                             <p className='flex items-center gap-1 text-sm text-muted-foreground'>
-                              <MapPin className='size-3.5' />
-                              {game.location}
+                              <MapPin className='size-3.5 shrink-0' />
+                              {formatGameLocation(game) || (game as Game).tournament?.name}
                             </p>
                           )}
                         </div>
@@ -425,6 +503,7 @@ export function Sports2Dashboard() {
                       >
                         <OpponentLogo
                           opponent={(game as Game).opponent}
+                          logoUrl={(game as Game).opponent_logo_url}
                           size={32}
                           reserveSpace
                         />
@@ -435,10 +514,10 @@ export function Sports2Dashboard() {
                           <p className='truncate font-medium'>
                             {formatGameLabel(game)}
                           </p>
-                          {game.location && (
+                          {(formatGameLocation(game) || (game as Game).tournament?.name) && (
                             <p className='flex items-center gap-1 text-sm text-muted-foreground'>
-                              <MapPin className='size-3.5' />
-                              {game.location}
+                              <MapPin className='size-3.5 shrink-0' />
+                              {formatGameLocation(game) || (game as Game).tournament?.name}
                             </p>
                           )}
                         </div>

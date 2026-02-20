@@ -3,6 +3,12 @@
  */
 
 import axios from 'axios'
+
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    skipErrorToast?: boolean
+  }
+}
 import { toast } from 'sonner'
 import csrfService from './csrf'
 

@@ -70,7 +70,8 @@ const BATTING_KEYS = ['avg', 'runs', 'hits', 'doubles', 'triples', 'home_runs', 
 const PITCHING_KEYS = ['era', 'innings_pitched', 'wins', 'losses', 'saves', 'strikeouts', 'walks', 'hits_allowed', 'earned_runs', 'whip']
 const FIELDING_KEYS = ['fielding_pct', 'errors', 'putouts', 'assists', 'double_plays']
 
-function parseRecord(s: string): { wins: number; losses: number } | null {
+function parseRecord(s: string | null): { wins: number; losses: number } | null {
+  if (!s) return null
   const m = s.match(/^(\d+)-(\d+)(?:-(\d+))?$/)
   if (!m) return null
   return { wins: parseInt(m[1], 10), losses: parseInt(m[2], 10) }

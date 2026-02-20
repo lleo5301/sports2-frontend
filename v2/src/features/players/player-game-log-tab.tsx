@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { formatDate } from '@/lib/format-date'
 import { extendedStatsApi, type PlayerGameLogEntry } from '@/lib/extended-stats-api'
+import { OpponentLogo } from '@/components/opponent-logo'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -150,50 +151,73 @@ export function PlayerGameLogTab({ playerId }: { playerId: number }) {
                 <TableHead>Date</TableHead>
                 <TableHead>Opponent</TableHead>
                 <TableHead>Pos</TableHead>
-                <TableHead>AB</TableHead>
+                <TableHead className='whitespace-nowrap'>AB</TableHead>
                 <TableHead>R</TableHead>
                 <TableHead>H</TableHead>
                 <TableHead>RBI</TableHead>
                 <TableHead>BB</TableHead>
                 <TableHead>SO</TableHead>
-                <TableHead>PO-A-E</TableHead>
+                <TableHead className='whitespace-nowrap'>IP</TableHead>
+                <TableHead>ER</TableHead>
+                <TableHead className='whitespace-nowrap'>P BB</TableHead>
+                <TableHead className='whitespace-nowrap'>P SO</TableHead>
+                <TableHead>W-L</TableHead>
+                <TableHead className='whitespace-nowrap'>PO-A-E</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.games.map((entry, i) => (
-                <TableRow key={entry.game.id ?? i}>
-                  <TableCell>
-                    <Link
-                      to='/games/$id'
-                      params={{ id: entry.game.id }}
-                      className='font-medium hover:underline'
-                    >
-                      {formatDate(entry.game.date)}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      to='/games/$id'
-                      params={{ id: entry.game.id }}
-                      className='hover:underline'
-                    >
-                      {entry.game.home_away === 'home' ? 'vs' : '@'} {entry.game.opponent}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{entry.position}</TableCell>
-                  <TableCell>{entry.batting?.ab ?? '—'}</TableCell>
-                  <TableCell>{entry.batting?.r ?? '—'}</TableCell>
-                  <TableCell>{entry.batting?.h ?? '—'}</TableCell>
-                  <TableCell>{entry.batting?.rbi ?? '—'}</TableCell>
-                  <TableCell>{entry.batting?.bb ?? '—'}</TableCell>
-                  <TableCell>{entry.batting?.so ?? '—'}</TableCell>
-                  <TableCell>
-                    {entry.fielding
-                      ? `${entry.fielding.po}-${entry.fielding.a}-${entry.fielding.e}`
-                      : '—'}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.games.map((entry, i) => {
+                const pitch = entry.pitching
+                const hasPitching = pitch && (pitch.ip != null && Number(pitch.ip) > 0 || pitch.so != null && pitch.so > 0)
+                const wls = hasPitching && pitch
+                  ? [pitch.win ? 'W' : null, pitch.loss ? 'L' : null, pitch.save ? 'SV' : null].filter(Boolean).join('-') || '—'
+                  : '—'
+                return (
+                  <TableRow key={entry.game.id ?? i}>
+                    <TableCell>
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(entry.game.id) }}
+                        className='font-medium hover:underline'
+                      >
+                        {formatDate(entry.game.date)}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(entry.game.id) }}
+                        className='flex items-center gap-2 hover:underline'
+                      >
+                        <OpponentLogo
+                          opponent={entry.game.opponent}
+                          logoUrl={entry.game.opponent_logo_url}
+                          size={24}
+                          reserveSpace
+                        />
+                        {entry.game.home_away === 'home' ? 'vs' : '@'} {entry.game.opponent}
+                      </Link>
+                    </TableCell>
+                    <TableCell className='uppercase'>{entry.position}</TableCell>
+                    <TableCell>{entry.batting?.ab ?? '—'}</TableCell>
+                    <TableCell>{entry.batting?.r ?? '—'}</TableCell>
+                    <TableCell>{entry.batting?.h ?? '—'}</TableCell>
+                    <TableCell>{entry.batting?.rbi ?? '—'}</TableCell>
+                    <TableCell>{entry.batting?.bb ?? '—'}</TableCell>
+                    <TableCell>{entry.batting?.so ?? '—'}</TableCell>
+                    <TableCell>{hasPitching ? pitch?.ip : '—'}</TableCell>
+                    <TableCell>{hasPitching ? pitch?.er : '—'}</TableCell>
+                    <TableCell>{hasPitching ? pitch?.bb : '—'}</TableCell>
+                    <TableCell>{hasPitching ? pitch?.so : '—'}</TableCell>
+                    <TableCell>{wls}</TableCell>
+                    <TableCell>
+                      {entry.fielding
+                        ? `${entry.fielding.po}-${entry.fielding.a}-${entry.fielding.e}`
+                        : '—'}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

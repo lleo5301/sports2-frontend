@@ -4,10 +4,22 @@
 
 import { parseISO } from 'date-fns'
 import api from './api'
-import { formatDate, formatDateTime } from './format-date'
+import { formatDate } from './format-date'
 
 function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
   return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
+}
+
+/** Location: venue_name (stadium) preferred, else location (geographic). */
+export function formatGameLocation(game: {
+  location?: string
+  venue_name?: string
+}): string {
+  const venue = game?.venue_name?.trim()
+  const loc = game?.location?.trim()
+  if (venue) return venue
+  if (loc) return loc
+  return ''
 }
 
 /** Format game date for display. Handles date, game_date, ISO strings. Locale-aware. */
@@ -60,7 +72,7 @@ function parseTimeToMinutes(timeStr: string): number | null {
   return null
 }
 
-/** Format game date and time. Locale-aware (MM/dd/yyyy HH:mm). */
+/** Format game date and time. Locale-aware (MM/dd/yyyy h:mm a, 12-hour). */
 export function formatGameDateTime(game: {
   date?: string
   game_date?: string
@@ -69,7 +81,7 @@ export function formatGameDateTime(game: {
   const d = game?.date ?? game?.game_date
   const timeOnly = (game?.game_time as string)?.trim()
   if (!d || typeof d !== 'string') {
-    return timeOnly ? timeOnly : '—'
+    return timeOnly ? formatTime12h(timeOnly) : '—'
   }
   try {
     const parsed = parseISO(d)
@@ -79,30 +91,86 @@ export function formatGameDateTime(game: {
     if (mins != null) {
       const withTime = new Date(parsed)
       withTime.setHours(Math.floor(mins / 60), mins % 60, 0, 0)
-      return formatDateTime(withTime)
+      return withTime.toLocaleString(undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      })
     }
-    if (hasTime) return formatDateTime(parsed)
+    if (hasTime) {
+      return parsed.toLocaleString(undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      })
+    }
     return formatDate(parsed)
   } catch {
     return formatDate(d) || d
   }
 }
 
+/** Format 24h time string (HH:mm or HH:mm:ss) to 12-hour format (e.g., "6:30 PM"). */
+function formatTime12h(timeStr: string): string {
+  const mins = parseTimeToMinutes(timeStr)
+  if (mins == null) return timeStr
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  const pm = h >= 12
+  const h12 = h % 12 || 12
+  return `${h12}:${String(m).padStart(2, '0')} ${pm ? 'PM' : 'AM'}`
+}
+
+/** Location prefers geographic data; venue_name holds stadium name (backend update) */
+export interface GameTournament {
+  id: number
+  name: string
+  season?: string
+}
+
 export interface Game {
   id: number
   opponent?: string
+  opponent_logo_url?: string | null
   date?: string
   game_date?: string
   game_time?: string
   location?: string
+  venue_name?: string
   location_id?: number
   home_away?: string
   result?: string
   team_score?: number
   opponent_score?: number
   team_id?: number
+  tournament_id?: number | null
+  tournament?: GameTournament | null
+  event_type?: string
+  is_conference?: boolean
+  is_neutral?: boolean
+  is_post_season?: boolean
+  season?: string | null
+  season_name?: string | null
+  notes?: string | null
+  game_status?: 'scheduled' | 'completed' | 'cancelled' | 'postponed'
+  game_summary?: string | null
+  running_record?: string | null
+  running_conference_record?: string | null
+  source_system?: 'manual' | 'presto'
   created_at?: string
   updated_at?: string
+  /** Per-game team stats (Presto keys) - from game detail/stats when available */
+  team_stats?: Record<string, string | number>
+  /** Per-game opponent stats - from game detail/stats when available */
+  opponent_stats?: Record<string, string | number>
+  /** Game duration (e.g., "2:45" for 2h 45m) */
+  game_duration?: string | null
 }
 
 export interface GameCreateInput {
@@ -198,12 +266,46 @@ export const gamesApi = {
     return getData(r.data as { success?: boolean; data?: Record<string, unknown> })
   },
 
-  /** Single game statistics */
-  getGameStats: async (gameId: number) => {
-    const r = await api.get<{ success?: boolean; data?: Record<string, unknown> }>(
-      `/games/${gameId}/stats`
+  /** Presto live box score (both teams) — for games with presto_event_id */
+  getBoxScore: async (gameId: number) => {
+    const r = await api.get<{ success?: boolean; data?: { box_score?: Record<string, unknown> } }>(
+      `/games/${gameId}/box-score`
     )
-    return getData(r.data as { success?: boolean; data?: Record<string, unknown> })
+    return getData(r.data as { success?: boolean; data?: { box_score?: Record<string, unknown> } })
+  },
+
+  /** Single game statistics (box score: batting, pitching, fielding) */
+  getGameStats: async (gameId: number) => {
+    const paths = [`/games/${gameId}/stats`, `/games/byId/${gameId}/stats`]
+    for (const path of paths) {
+      try {
+        const r = await api.get<{ success?: boolean; data?: Record<string, unknown> }>(path)
+        const payload = r.data as { success?: boolean; data?: Record<string, unknown> }
+        const data = getData(payload)
+        if (data) return data
+      } catch {
+        continue
+      }
+    }
+    return undefined
+  },
+
+  /** Aggregated opponent team stats across all games */
+  getOpponentStats: async (params?: { opponent?: string; season?: string }) => {
+    const r = await api.get<{ success?: boolean; data?: Record<string, unknown>[] }>(
+      '/games/opponent-stats',
+      { params }
+    )
+    return getData(r.data as { success?: boolean; data?: Record<string, unknown>[] }) ?? []
+  },
+
+  /** Per-player stats for a specific opponent */
+  getOpponentPlayerStats: async (opponent: string, params?: { season?: string }) => {
+    const r = await api.get<{ success?: boolean; data?: { opponent?: string; players?: Record<string, unknown>[] } }>(
+      `/games/opponent-stats/${encodeURIComponent(opponent)}/players`,
+      { params }
+    )
+    return getData(r.data as { success?: boolean; data?: { opponent?: string; players?: Record<string, unknown>[] } })
   },
 
   /** Player stat leaderboard (ranked by stat from PlayerSeasonStats) */

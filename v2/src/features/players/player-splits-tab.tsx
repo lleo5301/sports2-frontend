@@ -20,15 +20,16 @@ const SPLIT_LABELS: Record<string, string> = {
   with_runners: 'W/ Runners',
 }
 
-const PRESTO_BAT_KEYS = ['hittingab', 'hittingavg', 'hittingruns', 'hittinghits', 'hittinghr', 'hittingrbi', 'hittingbb', 'hittingso', 'hittingsb', 'hittingobpct', 'hittingslgpct']
-const PRESTO_LABELS: Record<string, string> = {
-  hittingab: 'AB', hittingavg: 'AVG', hittingruns: 'R', hittinghits: 'H',
-  hittinghr: 'HR', hittingrbi: 'RBI', hittingbb: 'BB', hittingso: 'K',
-  hittingsb: 'SB', hittingobpct: 'OBP', hittingslgpct: 'SLG',
+/** Batting keys returned by Presto splits API (ab, h, k, avg, etc.) */
+const BAT_KEYS = ['gp', 'ab', 'pa', 'h', 'r', 'hr', 'rbi', 'bb', 'k', 'sb', 'avg', 'obp', 'slg', 'ops']
+const BAT_LABELS: Record<string, string> = {
+  gp: 'GP', ab: 'AB', pa: 'PA', h: 'H', r: 'R', hr: 'HR', rbi: 'RBI',
+  bb: 'BB', k: 'K', sb: 'SB', avg: 'AVG', obp: 'OBP', slg: 'SLG', ops: 'OPS',
 }
-const SITUATIONAL_KEYS = ['ab', 'h', 'avg', 'hr', 'rbi', 'bb', 'so', 'obp']
+/** Situational keys (API uses k for strikeouts, not so) */
+const SITUATIONAL_KEYS = ['ab', 'h', 'avg', 'hr', 'rbi', 'bb', 'k', 'obp']
 const SITUATIONAL_LABELS: Record<string, string> = {
-  ab: 'AB', h: 'H', avg: 'AVG', hr: 'HR', rbi: 'RBI', bb: 'BB', so: 'K', obp: 'OBP',
+  ab: 'AB', h: 'H', avg: 'AVG', hr: 'HR', rbi: 'RBI', bb: 'BB', k: 'K', obp: 'OBP',
 }
 
 function SplitGrid({ title, stats, keys, labels }: {
@@ -38,7 +39,10 @@ function SplitGrid({ title, stats, keys, labels }: {
   labels: Record<string, string>
 }) {
   if (!stats || Object.keys(stats).length === 0) return null
-  const entries = keys.filter((k) => stats[k] != null && stats[k] !== '' && stats[k] !== '--')
+  const entries = keys.filter((k) => {
+    const v = stats[k]
+    return v != null && v !== '' && v !== '--' && v !== '-'
+  })
   if (entries.length === 0) return null
   return (
     <div>
@@ -161,7 +165,7 @@ export function PlayerSplitsTab({ playerId }: { playerId: number }) {
         <CardHeader>
           <CardTitle>All splits</CardTitle>
           <CardDescription>
-            {data.season_name ?? data.season ?? ''} · {data.player_name}
+            {data.season_name ?? ''} · {data.player_name}
           </CardDescription>
         </CardHeader>
         <CardContent className='space-y-6'>
@@ -172,8 +176,8 @@ export function PlayerSplitsTab({ playerId }: { playerId: number }) {
                 key={key}
                 title={SPLIT_LABELS[key] ?? key}
                 stats={splits[key]}
-                keys={PRESTO_BAT_KEYS}
-                labels={PRESTO_LABELS}
+                keys={BAT_KEYS}
+                labels={BAT_LABELS}
               />
             )
         )}

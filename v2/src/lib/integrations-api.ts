@@ -167,9 +167,10 @@ export const integrationsApi = {
     return getData(r.data as { success?: boolean })
   },
 
-  syncAll: async () => {
+  syncAll: async (force = false) => {
     const r = await api.post<{ success?: boolean }>(
-      '/integrations/presto/sync/all'
+      '/integrations/presto/sync/all',
+      force ? { force: true } : undefined
     )
     return getData(r.data as { success?: boolean })
   },
@@ -178,4 +179,49 @@ export const integrationsApi = {
   disconnect: async () => {
     await api.delete('/integrations/presto/disconnect')
   },
+
+  /** Sync history — paginated list of sync runs */
+  getSyncHistory: async (params?: {
+    page?: number
+    limit?: number
+    sync_type?: string
+    status?: string
+  }) => {
+    const r = await api.get<{
+      success?: boolean
+      data?: SyncHistoryEntry[]
+      pagination?: { page: number; limit: number; total: number; pages: number }
+    }>('/integrations/presto/sync/history', { params })
+    const body = r.data as {
+      success?: boolean
+      data?: SyncHistoryEntry[]
+      pagination?: { page: number; limit: number; total: number; pages: number }
+    }
+    const data = Array.isArray(body?.data) ? body.data : []
+    const pagination = body?.pagination ?? {
+      page: 1,
+      limit: 25,
+      total: 0,
+      pages: 0,
+    }
+    return { data, pagination }
+  },
+}
+
+/** Sync history entry from GET /integrations/presto/sync/history */
+export interface SyncHistoryEntry {
+  id: string
+  sync_type: string
+  status: string
+  trigger: string
+  triggered_by: string | null
+  started_at: string
+  completed_at: string | null
+  duration_ms: number | null
+  items_created: number | null
+  items_updated: number | null
+  items_skipped: number | null
+  items_failed: number | null
+  error_message: string | null
+  response_summary?: Record<string, unknown>
 }

@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table'
 import { parseISO } from 'date-fns'
 import { Trash2 } from 'lucide-react'
-import { gamesApi, formatGameDateTime, type Game } from '@/lib/games-api'
+import { gamesApi, formatGameDateTime, formatGameLocation, type Game } from '@/lib/games-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -112,7 +112,7 @@ export function GamesList() {
       header: 'Opponent',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <OpponentLogo opponent={row.original.opponent} size={24} reserveSpace />
+          <OpponentLogo opponent={row.original.opponent} logoUrl={row.original.opponent_logo_url} size={24} reserveSpace />
           <span>{row.original.opponent || '—'}</span>
         </div>
       ),
@@ -123,6 +123,22 @@ export function GamesList() {
       cell: ({ row }) => (
         <span className='whitespace-normal'>{formatGameDateTime(row.original)}</span>
       ),
+    },
+    {
+      id: 'venue',
+      header: 'Venue',
+      cell: ({ row }) => {
+        const loc = formatGameLocation(row.original)
+        const tournament = row.original.tournament?.name
+        if (!loc && !tournament) return '—'
+        return (
+          <span className='whitespace-normal'>
+            {loc || '—'}
+            {tournament && loc && ' · '}
+            {tournament && <span className='text-muted-foreground'>{tournament}</span>}
+          </span>
+        )
+      },
     },
     {
       id: 'score',
@@ -139,10 +155,16 @@ export function GamesList() {
       accessorKey: 'result',
       header: 'Result',
       cell: ({ row }) => {
-        const r = row.original.result
-        if (!r) return '—'
+        const g = row.original
+        const r = g.result
         return (
-          <Badge variant={r === 'Win' ? 'default' : 'secondary'}>{r}</Badge>
+          <div className='flex flex-wrap gap-1'>
+            {r && (
+              <Badge variant={r === 'Win' ? 'default' : 'secondary'}>{r}</Badge>
+            )}
+            {g.is_conference && <Badge variant='outline' className='text-xs'>Conf</Badge>}
+            {g.is_post_season && <Badge variant='outline' className='text-xs'>Post</Badge>}
+          </div>
         )
       },
     },
