@@ -1,10 +1,9 @@
 import { z } from 'zod'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -29,20 +28,12 @@ function LoginPage() {
         <CardHeader>
           <CardTitle className='text-lg tracking-tight'>Sign in</CardTitle>
           <CardDescription>
-            Enter your email and password to sign in to Sports2
+            Enter your email and password to sign in
           </CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm redirectTo={redirect} />
         </CardContent>
-        <CardFooter>
-          <p className='px-8 text-center text-sm text-muted-foreground'>
-            Don&apos;t have an account?{' '}
-            <Link to='/register' className='underline underline-offset-4 hover:text-primary'>
-              Create one
-            </Link>
-          </p>
-        </CardFooter>
       </Card>
     </AuthLayout>
   )
