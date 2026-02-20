@@ -10,6 +10,31 @@ function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }):
   return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
 }
 
+/** Map Presto fielding keys to canonical display keys. Backend may return either format. */
+function normalizeFieldingStats(raw: Record<string, string> | undefined): Record<string, string> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, string> = {}
+  const aliases: Record<string, string[]> = {
+    fielding_pct: ['fielding_pct', 'fieldingfldpct', 'fpct', 'fielding_percentage'],
+    errors: ['errors', 'fieldinge', 'e'],
+    putouts: ['putouts', 'fieldingpo', 'po'],
+    assists: ['assists', 'fieldinga', 'a'],
+    double_plays: ['double_plays', 'fieldingdp', 'dp'],
+    stolen_bases_allowed: ['stolen_bases_allowed', 'sba', 'fieldingsba'],
+    caught_stealing: ['caught_stealing', 'cs', 'fieldingcs'],
+  }
+  for (const [canonical, keys] of Object.entries(aliases)) {
+    for (const k of keys) {
+      const v = raw[k]
+      if (v != null && v !== '' && v !== '--') {
+        out[canonical] = String(v)
+        break
+      }
+    }
+  }
+  return out
+}
+
 // --- Team Dashboard ---
 
 export interface DashboardRecord {
@@ -309,7 +334,13 @@ export const extendedStatsApi = {
     const r = await api.get<{ success?: boolean; data?: CoachDashboardData }>(
       '/teams/dashboard'
     )
-    return getData(r.data as { success?: boolean; data?: CoachDashboardData })
+    const data = getData(r.data as { success?: boolean; data?: CoachDashboardData })
+    if (!data) return undefined
+    const normFielding = normalizeFieldingStats(data.team_fielding)
+    return {
+      ...data,
+      team_fielding: Object.keys(normFielding).length > 0 ? normFielding : (data.team_fielding ?? {}),
+    }
   },
 
   /** Team game log — completed games, newest first */
@@ -327,7 +358,13 @@ export const extendedStatsApi = {
     const r = await api.get<{ success?: boolean; data?: TeamAggregateStatsData }>(
       '/teams/aggregate-stats'
     )
-    return getData(r.data as { success?: boolean; data?: TeamAggregateStatsData })
+    const data = getData(r.data as { success?: boolean; data?: TeamAggregateStatsData })
+    if (!data) return undefined
+    const normFielding = normalizeFieldingStats(data.fielding)
+    return {
+      ...data,
+      fielding: Object.keys(normFielding).length > 0 ? normFielding : (data.fielding ?? {}),
+    }
   },
 
   /** Most recent lineup from last completed game */
@@ -339,20 +376,9 @@ export const extendedStatsApi = {
   },
 
   /** Lineup for a specific game (for depth chart backfill).
-   * Tries GET /teams/lineup?game_id=X; falls back to deriving from GET /games/X/stats
-   * (or /games/byId/X/stats if the primary path fails). */
+   * Prefers game stats (local integer player_ids) over teams/lineup (Presto UUIDs).
+   * Depth chart assign requires integer player IDs, so game stats work; lineup UUIDs do not. */
   getGameLineup: async (gameId: number): Promise<TeamLineupData | null> => {
-    try {
-      const r = await api.get<{ success?: boolean; data?: TeamLineupData }>(
-        '/teams/lineup',
-        { params: { game_id: gameId } }
-      )
-      const data = getData(r.data as { success?: boolean; data?: TeamLineupData })
-      if (data?.players?.length) return data
-    } catch {
-      /* fall through to game stats */
-    }
-
     let stats: Record<string, unknown> | undefined
     const paths = [`/games/${gameId}/stats`, `/games/byId/${gameId}/stats`]
     for (const path of paths) {
@@ -365,14 +391,28 @@ export const extendedStatsApi = {
         continue
       }
     }
-    if (!stats) return null
-    const players = deriveLineupFromGameStats(stats)
-    if (players.length === 0) return null
-    return {
-      source: 'last_game',
-      game_id: String(gameId),
-      players,
+    if (stats) {
+      const players = deriveLineupFromGameStats(stats)
+      if (players.length > 0) {
+        return {
+          source: 'last_game',
+          game_id: String(gameId),
+          players,
+        }
+      }
     }
+
+    try {
+      const r = await api.get<{ success?: boolean; data?: TeamLineupData }>(
+        '/teams/lineup',
+        { params: { game_id: gameId } }
+      )
+      const data = getData(r.data as { success?: boolean; data?: TeamLineupData })
+      if (data?.players?.length) return data
+    } catch {
+      /* no lineup available */
+    }
+    return null
   },
 
   /** Player split stats (home/away, vs LHP/RHP, situational) */

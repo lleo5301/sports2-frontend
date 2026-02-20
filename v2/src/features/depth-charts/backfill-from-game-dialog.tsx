@@ -104,7 +104,7 @@ export function BackfillFromGameDialog({
       }
 
       const positionByCode = Object.fromEntries(
-        positions.map((p) => [p.position_code, p])
+        positions.map((p) => [p.position_code?.toUpperCase().trim() ?? '', p])
       )
       let assigned = 0
       for (const lp of lineup.players) {
@@ -115,13 +115,23 @@ export function BackfillFromGameDialog({
               : parseInt(String(lp.player_id), 10)
             : NaN
         if (Number.isNaN(pid) || !lp.position) continue
-        const pos = positionByCode[lp.position]
+        const posCode = String(lp.position).toUpperCase().trim()
+        const pos = positionByCode[posCode]
         if (!pos) continue
-        await depthChartsApi.assignPlayer(pos.id, {
-          player_id: pid,
-          depth_order: 1,
-        })
-        assigned++
+        try {
+          await depthChartsApi.assignPlayer(pos.id, {
+            player_id: pid,
+            depth_order: 1,
+          })
+          assigned++
+        } catch {
+          /* skip failed assigns */
+        }
+      }
+      if (assigned === 0 && lineup.players.length > 0) {
+        throw new Error(
+          'Could not assign any players. Lineup may use Presto IDs instead of roster IDs. Sync PrestoSports stats first, then try backfill again.'
+        )
       }
       return { assigned }
     },

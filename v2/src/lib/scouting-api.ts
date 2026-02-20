@@ -108,9 +108,31 @@ export const scoutingApi = {
   },
 
   create: async (data: ScoutingReportCreateInput) => {
+    const payload: Record<string, unknown> = {
+      report_date: data.report_date,
+      event_type: data.event_type,
+    }
+    if (data.prospect_id != null) {
+      payload.prospect_id = data.prospect_id
+    } else if (data.player_id != null) {
+      payload.player_id = data.player_id
+    }
+    const gradeFields = [
+      'overall_present', 'overall_future', 'hitting_present', 'hitting_future',
+      'pitching_present', 'pitching_future', 'fielding_present', 'fielding_future',
+      'speed_present', 'speed_future',
+    ] as const
+    for (const k of gradeFields) {
+      const v = data[k]
+      if (v !== undefined && v !== null && v !== '') payload[k] = v
+    }
+    if (data.sixty_yard_dash != null) payload.sixty_yard_dash = data.sixty_yard_dash
+    if (data.mlb_comparison?.trim()) payload.mlb_comparison = data.mlb_comparison.trim()
+    if (data.notes?.trim()) payload.notes = data.notes.trim()
+
     const r = await api.post<{ success?: boolean; data?: ScoutingReport }>(
       '/reports/scouting',
-      data
+      payload
     )
     return getData<ScoutingReport>(r.data as { success?: boolean; data?: ScoutingReport })
   },

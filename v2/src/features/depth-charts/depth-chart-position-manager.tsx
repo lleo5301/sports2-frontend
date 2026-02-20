@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Edit, Hash, Palette, Plus, Save, Trash2 } from 'lucide-react'
 import { depthChartsApi } from '@/lib/depth-charts-api'
 import type { DepthChartPosition } from '@/lib/depth-charts-api'
+import { sectionPresets } from '@/lib/depth-chart-constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -158,14 +159,51 @@ export function DepthChartPositionManager({
     deleteMutation.mutate(positionId)
   }
 
+  const addSectionMutation = useMutation({
+    mutationFn: (preset: (typeof sectionPresets)[number]) =>
+      depthChartsApi.addPosition(chartId, {
+        position_code: preset.position_code,
+        position_name: preset.position_name,
+        color: preset.color,
+        icon: preset.icon,
+        sort_order: preset.sort_order,
+        max_players: preset.max_players,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['depth-chart', chartId] })
+      onUpdated()
+      toast.success('Section added')
+    },
+    onError: (err) => toast.error((err as Error).message),
+  })
+
+  const existingCodes = new Set(positions.map((p) => p.position_code.toUpperCase()))
+
   return (
     <div className='space-y-4'>
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-wrap items-center justify-between gap-4'>
         <h3 className='text-lg font-semibold'>Position configuration</h3>
-        <Button size='sm' onClick={() => setShowAddModal(true)}>
-          <Plus className='size-4' />
-          Add position
-        </Button>
+        <div className='flex flex-wrap items-center gap-2'>
+          {sectionPresets.map((preset) => {
+            const exists = existingCodes.has(preset.position_code)
+            return (
+              <Button
+                key={preset.position_code}
+                size='sm'
+                variant='outline'
+                onClick={() => !exists && addSectionMutation.mutate(preset)}
+                disabled={exists || addSectionMutation.isPending}
+              >
+                <Plus className='size-4' />
+                {preset.position_name}
+              </Button>
+            )
+          })}
+          <Button size='sm' onClick={() => setShowAddModal(true)}>
+            <Plus className='size-4' />
+            Add position
+          </Button>
+        </div>
       </div>
 
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>

@@ -1,7 +1,8 @@
 import { select } from 'd3-selection'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import type { DepthChartPlayerAssignment } from '@/lib/depth-charts-api'
+import { FIELD_POSITION_CODES } from '@/lib/depth-chart-constants'
 
 type AssignedPlayerWithPosition = DepthChartPlayerAssignment & {
   position_code?: string
@@ -31,7 +32,11 @@ type PositionCoords = Record<
 >
 
 type EnhancedBaseballFieldViewProps = {
-  positions: Array<{ position_code: string; color?: string }>
+  positions: Array<{
+    position_code: string
+    position_name?: string
+    color?: string
+  }>
   assignedPlayers: AssignedPlayerWithPosition[]
   onPositionClick?: (positionCode: string) => void
   selectedPosition?: string
@@ -47,9 +52,10 @@ export function EnhancedBaseballFieldView({
   const [dimensions, setDimensions] = useState({ width: 1000, height: 750 })
 
   const getPositionCoords = useCallback((width: number, height: number): PositionCoords => {
+    const margin = 55
     const centerX = width / 2
-    const bottomY = height * 0.99
-    const R = Math.min(width, height) * 0.95
+    const bottomY = height - margin
+    const R = Math.min(width, height) * 0.82
     const homeX = centerX
     const homeY = bottomY - 8
 
@@ -129,8 +135,8 @@ export function EnhancedBaseballFieldView({
         color: '#F97316',
       },
       DH: {
-        x: polar(R * 0.88, -angle).x + 30,
-        y: polar(R * 0.88, -angle).y,
+        x: polar(R * 0.82, -angle).x + 8,
+        y: polar(R * 0.82, -angle).y,
         label: 'Designated Hitter',
         color: '#06B6D4',
       },
@@ -168,11 +174,12 @@ export function EnhancedBaseballFieldView({
 
     const { width, height } = dimensions
     const positionCoords = getPositionCoords(width, height)
+    const margin = 55
     const centerX = width / 2
-    const bottomY = height * 0.99
-    const fieldRadius = Math.min(width, height) * 0.95
+    const bottomY = height - margin
+    const fieldRadius = Math.min(width, height) * 0.82
     const homeX = centerX
-    const homeY = bottomY - 8
+    const homeY = bottomY - 12
     const angle = (45 * Math.PI) / 180
     const leftPoint = [
       homeX + fieldRadius * Math.cos(-Math.PI + angle),
@@ -376,15 +383,25 @@ export function EnhancedBaseballFieldView({
   ])
 
   const posCoords = getPositionCoords(dimensions.width, dimensions.height)
-  const posEntries = Object.entries(posCoords)
+  const fieldPositions = useMemo(
+    () => positions.filter((p) => FIELD_POSITION_CODES.includes(p.position_code as (typeof FIELD_POSITION_CODES)[number])),
+    [positions]
+  )
+  const sections = useMemo(
+    () => positions.filter((p) => !FIELD_POSITION_CODES.includes(p.position_code as (typeof FIELD_POSITION_CODES)[number])),
+    [positions]
+  )
+  const posEntries = Object.entries(posCoords).filter(([code]) =>
+    fieldPositions.some((p) => p.position_code === code)
+  )
 
   return (
-    <div className='w-full' data-testid='enhanced-baseball-field'>
-      <div className='rounded-lg border bg-card p-6 shadow-sm'>
+    <div className='w-full pb-8' data-testid='enhanced-baseball-field'>
+      <div className='rounded-lg border bg-card p-6 pb-10 shadow-sm'>
         <h3 className='mb-6 text-center text-xl font-bold'>
           Baseball Field View
         </h3>
-        <div className='flex justify-center'>
+        <div className='flex justify-center px-4'>
           <svg
             ref={svgRef}
             width={dimensions.width}
@@ -396,7 +413,7 @@ export function EnhancedBaseballFieldView({
             data-testid='enhanced-field-svg'
           />
         </div>
-        <div className='mt-6 grid grid-cols-2 gap-4 md:grid-cols-5'>
+        <div className='mt-8 grid grid-cols-2 gap-4 md:grid-cols-5'>
           {posEntries.map(([code, coords]) => {
             const players = getAssignedPlayers(code)
             return (
@@ -442,6 +459,67 @@ export function EnhancedBaseballFieldView({
             )
           })}
         </div>
+        {sections.length > 0 && (
+          <div className='mt-8 border-t pt-6'>
+            <h4 className='mb-4 text-sm font-semibold text-muted-foreground'>
+              Sections
+            </h4>
+            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+              {sections.map((section) => {
+                const players = getAssignedPlayers(section.position_code)
+                return (
+                  <button
+                    key={section.position_code}
+                    type='button'
+                    onClick={() => onPositionClick?.(section.position_code)}
+                    className={`rounded-lg border-2 p-4 text-left transition-all duration-200 ${
+                      selectedPosition === section.position_code
+                        ? 'border-primary bg-primary/10 shadow-lg'
+                        : 'border-border hover:border-muted-foreground/30 hover:shadow-md'
+                    }`}
+                  >
+                    <div className='mb-2 flex items-center justify-between'>
+                      <div className='flex items-center gap-2'>
+                        <div
+                          className='size-3 rounded-full'
+                          style={{
+                            backgroundColor: section.color ?? '#6B7280',
+                          }}
+                        />
+                        <span className='font-semibold'>
+                          {section.position_name ?? section.position_code}
+                        </span>
+                      </div>
+                      {players.length > 0 && (
+                        <Badge variant='secondary' className='text-xs'>
+                          {players.length}
+                        </Badge>
+                      )}
+                    </div>
+                    {players.length > 0 ? (
+                      <div className='space-y-1 text-xs'>
+                        {players.map((a) => (
+                          <div
+                            key={a.id}
+                            className='font-medium text-foreground'
+                          >
+                            {getAssignmentPlayerName(a)}
+                            {getAssignmentJerseyNumber(a) &&
+                              ` #${getAssignmentJerseyNumber(a)}`}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className='text-xs text-muted-foreground'>
+                        No players assigned
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

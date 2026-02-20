@@ -132,7 +132,7 @@ export const depthChartsApi = {
 
   getHistory: async (chartId: number) => {
     const r = await api.get<{ success?: boolean; data?: DepthChartHistoryEntry[] }>(
-      `/depth-charts/byId/${chartId}/history`
+      `/depth-charts/${chartId}/history`
     )
     const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
@@ -150,7 +150,7 @@ export const depthChartsApi = {
     }
   ) => {
     const r = await api.post<{ success?: boolean; data?: unknown }>(
-      `/depth-charts/byId/${chartId}/positions`,
+      `/depth-charts/${chartId}/positions`,
       data
     )
     return getData(r.data as { success?: boolean; data?: unknown })
@@ -168,29 +168,29 @@ export const depthChartsApi = {
     }>
   ) => {
     const r = await api.put<{ success?: boolean; data?: unknown }>(
-      `/depth-charts/positions/byId/${positionId}`,
+      `/depth-charts/positions/${positionId}`,
       data
     )
     return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   deletePosition: async (positionId: number) => {
-    await api.delete(`/depth-charts/positions/byId/${positionId}`)
+    await api.delete(`/depth-charts/positions/${positionId}`)
   },
 
   assignPlayer: async (
     positionId: number,
     data: { player_id: number; rank?: number; depth_order?: number; notes?: string }
   ) => {
-    const rank = Math.max(1, Math.floor(Number(data.rank ?? data.depth_order ?? 1)))
+    const depth_order = Math.max(1, Math.floor(Number(data.depth_order ?? data.rank ?? 1)))
     const r = await api.post<{ success?: boolean; data?: unknown }>(
-      `/depth-charts/positions/byId/${positionId}/players`,
-      { player_id: Number(data.player_id), rank }
+      `/depth-charts/positions/${positionId}/players`,
+      { player_id: Number(data.player_id), depth_order }
     )
     return getData(r.data as { success?: boolean; data?: unknown })
   },
 
   unassignPlayer: async (assignmentId: number) => {
-    await api.delete(`/depth-charts/players/byId/${assignmentId}`)
+    await api.delete(`/depth-charts/players/${assignmentId}`)
   },
 }

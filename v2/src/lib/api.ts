@@ -42,7 +42,10 @@ api.interceptors.response.use(
   async (error) => {
     const skipToast = (error.config as { skipErrorToast?: boolean })?.skipErrorToast
     if (skipToast) return Promise.reject(error)
-    const message = error.response?.data?.error || 'An error occurred'
+    const message =
+      (error.response?.data as { error?: string; message?: string })?.error ??
+      (error.response?.data as { error?: string; message?: string })?.message ??
+      'An error occurred'
     if (error.response?.status === 401) {
       const basePath = import.meta.env.VITE_BASE_PATH || ''
       const path = window.location.pathname

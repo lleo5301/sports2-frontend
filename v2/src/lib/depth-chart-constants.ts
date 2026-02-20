@@ -2,6 +2,18 @@
  * Depth Chart Constants
  */
 
+/** Standard field positions for the diamond layout. */
+export const FIELD_POSITION_CODES = [
+  'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH',
+] as const
+
+/** Section presets for bench, bullpen, etc. Players assigned here are not on the field. */
+export const sectionPresets = [
+  { position_code: 'BENCH', position_name: 'Bench', color: '#6B7280', icon: 'Users', sort_order: 20, max_players: 99 },
+  { position_code: 'BULLPEN', position_name: 'Bullpen', color: '#8B5CF6', icon: 'Shield', sort_order: 21, max_players: 99 },
+  { position_code: 'INJURED', position_name: 'Injured', color: '#EF4444', icon: 'AlertCircle', sort_order: 22, max_players: 99 },
+] as const
+
 export const defaultPositions = [
   { position_code: 'P', position_name: 'Pitcher', color: '#EF4444', icon: 'Shield', sort_order: 1 },
   { position_code: 'C', position_name: 'Catcher', color: '#3B82F6', icon: 'Shield', sort_order: 2 },
