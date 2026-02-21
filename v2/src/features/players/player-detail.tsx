@@ -4,7 +4,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, BarChart3, Loader2, Mail, Pencil, Phone, Play, Trash2, User, Video } from 'lucide-react'
-import { playersApi, type Player, type PlayerStatsResponse } from '@/lib/players-api'
+import { playersApi, type PlayerStatsResponse } from '@/lib/players-api'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import {
@@ -293,7 +293,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
                           </p>
                           <Link
                             to='/games/$id'
-                            params={{ id: lastGame.game.id }}
+                            params={{ id: String(lastGame.game.id) }}
                             className='group flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm hover:underline'
                           >
                             <span className='font-medium'>
@@ -312,7 +312,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
                                 {lastGame.batting.hr != null && lastGame.batting.hr > 0 && `, ${lastGame.batting.hr} HR`}
                               </span>
                             )}
-                            {lastGame.pitching && (lastGame.pitching.ip > 0 || lastGame.pitching.so > 0) && (
+                            {lastGame.pitching && (Number(lastGame.pitching.ip) > 0 || Number(lastGame.pitching.so) > 0) && (
                               <span>
                                 {lastGame.pitching.ip} IP
                                 {lastGame.pitching.er != null && lastGame.pitching.er > 0 && `, ${lastGame.pitching.er} ER`}

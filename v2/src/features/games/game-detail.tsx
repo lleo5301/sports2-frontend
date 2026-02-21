@@ -285,7 +285,7 @@ export function GameDetail({ id }: GameDetailProps) {
           </CardContent>
         </Card>
 
-        {(gameStats || (game && hasGameStats(game as Record<string, unknown>))) ? (
+        {(gameStats || (game && hasGameStats(game as unknown as Record<string, unknown>))) ? (
           <Card>
             <CardHeader>
               <div className='flex items-center gap-2'>
@@ -300,7 +300,7 @@ export function GameDetail({ id }: GameDetailProps) {
             </CardHeader>
             <CardContent>
               <GameStatsDisplay
-                stats={mergeGameStatsWithGame(normalizeGameStats(gameStats ?? (game as Record<string, unknown>)) ?? {}, game)}
+                stats={mergeGameStatsWithGame(normalizeGameStats(gameStats ?? (game as unknown as Record<string, unknown>)) ?? {}, game as unknown as Record<string, unknown>)}
                 opponentName={game?.opponent}
               />
             </CardContent>
@@ -581,7 +581,7 @@ function TeamComparison({
   )
 }
 
-function GameStatsDisplay({ stats, teamName, opponentName }: { stats: Record<string, unknown>; teamName?: string; opponentName?: string }) {
+function GameStatsDisplay({ stats, teamName: _teamName, opponentName }: { stats: Record<string, unknown>; teamName?: string; opponentName?: string }) {
   const batting = stats.batting as Array<Record<string, unknown>> | undefined
   const pitching = stats.pitching as Array<Record<string, unknown>> | undefined
   const fielding = stats.fielding as Array<Record<string, unknown>> | undefined
@@ -591,7 +591,7 @@ function GameStatsDisplay({ stats, teamName, opponentName }: { stats: Record<str
   const hasTeamComparison = teamStats && opponentStats && typeof teamStats === 'object' && typeof opponentStats === 'object' &&
     Object.keys(teamStats).length > 0 && Object.keys(opponentStats).length > 0
 
-  const scalarKeys = [
+  const _scalarKeys = [
     'player_count',
     'team_runs',
     'opponent_runs',
