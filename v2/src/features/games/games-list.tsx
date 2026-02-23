@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { parseISO } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import {
@@ -7,10 +8,17 @@ import {
   useReactTable,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { parseISO } from 'date-fns'
 import { Trash2 } from 'lucide-react'
-import { gamesApi, formatGameDateTime, formatGameLocation, type Game } from '@/lib/games-api'
-import { Main } from '@/components/layout/main'
+import { MoreHorizontal } from 'lucide-react'
+import { toast } from 'sonner'
+import {
+  gamesApi,
+  formatGameDateTime,
+  formatGameLocation,
+  type Game,
+} from '@/lib/games-api'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -20,6 +28,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Table,
   TableBody,
   TableCell,
@@ -27,16 +41,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { MoreHorizontal } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { DataTableCardView } from '@/components/data-table/card-view'
+import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
-import { toast } from 'sonner'
 
 function getGameDate(game: Game): Date | null {
   const d = game.date ?? game.game_date
@@ -49,6 +56,7 @@ function getGameDate(game: Game): Date | null {
 }
 
 export function GamesList() {
+  const isMobile = useIsMobile()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -111,8 +119,13 @@ export function GamesList() {
       id: 'opponent',
       header: 'Opponent',
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <OpponentLogo opponent={row.original.opponent} logoUrl={row.original.opponent_logo_url} size={24} reserveSpace />
+        <div className='flex items-center gap-2'>
+          <OpponentLogo
+            opponent={row.original.opponent}
+            logoUrl={row.original.opponent_logo_url}
+            size={24}
+            reserveSpace
+          />
           <span>{row.original.opponent || '—'}</span>
         </div>
       ),
@@ -121,7 +134,9 @@ export function GamesList() {
       id: 'date-time',
       header: 'Date & Time',
       cell: ({ row }) => (
-        <span className='whitespace-normal'>{formatGameDateTime(row.original)}</span>
+        <span className='whitespace-normal'>
+          {formatGameDateTime(row.original)}
+        </span>
       ),
     },
     {
@@ -135,7 +150,9 @@ export function GamesList() {
           <span className='whitespace-normal'>
             {loc || '—'}
             {tournament && loc && ' · '}
-            {tournament && <span className='text-muted-foreground'>{tournament}</span>}
+            {tournament && (
+              <span className='text-muted-foreground'>{tournament}</span>
+            )}
           </span>
         )
       },
@@ -162,8 +179,16 @@ export function GamesList() {
             {r && (
               <Badge variant={r === 'Win' ? 'default' : 'secondary'}>{r}</Badge>
             )}
-            {g.is_conference && <Badge variant='outline' className='text-xs'>Conf</Badge>}
-            {g.is_post_season && <Badge variant='outline' className='text-xs'>Post</Badge>}
+            {g.is_conference && (
+              <Badge variant='outline' className='text-xs'>
+                Conf
+              </Badge>
+            )}
+            {g.is_post_season && (
+              <Badge variant='outline' className='text-xs'>
+                Post
+              </Badge>
+            )}
           </div>
         )
       },
@@ -216,7 +241,8 @@ export function GamesList() {
             key={row.id}
             className='cursor-pointer'
             onClick={(e) => {
-              if ((e.target as HTMLElement).closest('[data-row-actions]')) return
+              if ((e.target as HTMLElement).closest('[data-row-actions]'))
+                return
               navigate({
                 to: '/games/$id',
                 params: { id: String(row.original.id) },
@@ -288,25 +314,43 @@ export function GamesList() {
             <Card>
               <CardHeader className='pb-2'>
                 <CardTitle>Upcoming</CardTitle>
-                <CardDescription>Soonest first (ascending by date)</CardDescription>
+                <CardDescription>
+                  Soonest first (ascending by date)
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  {tableHeader}
-                  <TableBody>{renderTableBody(upcomingTable)}</TableBody>
-                </Table>
+                {isMobile ? (
+                  <DataTableCardView
+                    table={upcomingTable}
+                    titleColumnId='opponent'
+                  />
+                ) : (
+                  <Table>
+                    {tableHeader}
+                    <TableBody>{renderTableBody(upcomingTable)}</TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
             <Card>
               <CardHeader className='pb-2'>
                 <CardTitle>Previous</CardTitle>
-                <CardDescription>Oldest first (ascending by date)</CardDescription>
+                <CardDescription>
+                  Oldest first (ascending by date)
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  {tableHeader}
-                  <TableBody>{renderTableBody(previousTable)}</TableBody>
-                </Table>
+                {isMobile ? (
+                  <DataTableCardView
+                    table={previousTable}
+                    titleColumnId='opponent'
+                  />
+                ) : (
+                  <Table>
+                    {tableHeader}
+                    <TableBody>{renderTableBody(previousTable)}</TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </div>

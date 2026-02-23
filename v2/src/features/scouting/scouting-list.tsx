@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
@@ -7,9 +8,9 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { Plus } from 'lucide-react'
-import { scoutingApi, type ScoutingReport } from '@/lib/scouting-api'
 import { prospectsApi } from '@/lib/prospects-api'
-import { Main } from '@/components/layout/main'
+import { scoutingApi, type ScoutingReport } from '@/lib/scouting-api'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -18,6 +19,13 @@ import {
   CardHeader,
 } from '@/components/ui/card'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -25,25 +33,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { useState } from 'react'
+import { DataTableCardView } from '@/components/data-table/card-view'
+import { Main } from '@/components/layout/main'
 
 function subjectName(report: ScoutingReport) {
   if (report.Prospect) {
-    return [report.Prospect.first_name, report.Prospect.last_name]
-      .filter(Boolean)
-      .join(' ') || `Prospect #${report.prospect_id}`
+    return (
+      [report.Prospect.first_name, report.Prospect.last_name]
+        .filter(Boolean)
+        .join(' ') || `Prospect #${report.prospect_id}`
+    )
   }
   if (report.Player) {
-    return [report.Player.first_name, report.Player.last_name]
-      .filter(Boolean)
-      .join(' ') || `Player #${report.player_id}`
+    return (
+      [report.Player.first_name, report.Player.last_name]
+        .filter(Boolean)
+        .join(' ') || `Player #${report.player_id}`
+    )
   }
   return report.prospect_id
     ? `Prospect #${report.prospect_id}`
@@ -53,6 +59,7 @@ function subjectName(report: ScoutingReport) {
 }
 
 export function ScoutingList() {
+  const isMobile = useIsMobile()
   const [page, setPage] = useState(1)
   const [prospectFilter, setProspectFilter] = useState<string>('all')
 
@@ -134,7 +141,9 @@ export function ScoutingList() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-end justify-between gap-4'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Scouting Reports</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Scouting Reports
+            </h2>
             <CardDescription>Evaluations and grades</CardDescription>
           </div>
           <Button asChild>
@@ -174,51 +183,56 @@ export function ScoutingList() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((hg) => (
-                      <TableRow key={hg.id}>
-                        {hg.headers.map((h) => (
-                          <TableHead key={h.id}>
-                            {flexRender(
-                              h.column.columnDef.header,
-                              h.getContext()
-                            )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
+                {isMobile ? (
+                  <DataTableCardView table={table} titleColumnId='subject' />
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((hg) => (
+                        <TableRow key={hg.id}>
+                          {hg.headers.map((h) => (
+                            <TableHead key={h.id}>
                               {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
+                                h.column.columnDef.header,
+                                h.getContext()
                               )}
-                            </TableCell>
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className='py-8 text-center text-muted-foreground'
-                        >
-                          No scouting reports found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className='py-8 text-center text-muted-foreground'
+                          >
+                            No scouting reports found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
                 {pagination && pagination.pages > 1 && (
                   <div className='mt-4 flex items-center justify-between'>
                     <p className='text-sm text-muted-foreground'>
-                      Page {pagination.page} of {pagination.pages} ({pagination.total} total)
+                      Page {pagination.page} of {pagination.pages} (
+                      {pagination.total} total)
                     </p>
                     <div className='flex gap-2'>
                       <Button

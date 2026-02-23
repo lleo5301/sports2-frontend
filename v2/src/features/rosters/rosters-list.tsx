@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
@@ -7,32 +8,14 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { Pencil, Plus, Trash2, Download, Eye } from 'lucide-react'
-import { rostersApi, type Roster, ROSTER_TYPE_LABELS, ROSTER_SOURCES } from '@/lib/rosters-api'
-import { Main } from '@/components/layout/main'
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { useState } from 'react'
 import { toast } from 'sonner'
+import {
+  rostersApi,
+  type Roster,
+  ROSTER_TYPE_LABELS,
+  ROSTER_SOURCES,
+} from '@/lib/rosters-api'
+import { useIsMobile } from '@/hooks/use-mobile'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,8 +26,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { DataTableCardView } from '@/components/data-table/card-view'
+import { Main } from '@/components/layout/main'
 
 export function RostersList() {
+  const isMobile = useIsMobile()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [rosterTypeFilter, setRosterTypeFilter] = useState<string>('all')
@@ -53,13 +61,7 @@ export function RostersList() {
   const [deleteTarget, setDeleteTarget] = useState<Roster | null>(null)
 
   const { data, isLoading, error } = useQuery({
-    queryKey: [
-      'rosters',
-      page,
-      rosterTypeFilter,
-      sourceFilter,
-      activeFilter,
-    ],
+    queryKey: ['rosters', page, rosterTypeFilter, sourceFilter, activeFilter],
     queryFn: () =>
       rostersApi.list({
         page,
@@ -72,10 +74,7 @@ export function RostersList() {
           sourceFilter && sourceFilter !== 'all'
             ? (sourceFilter as import('@/lib/rosters-api').RosterSource)
             : undefined,
-        is_active:
-          activeFilter === 'all'
-            ? undefined
-            : activeFilter === 'true',
+        is_active: activeFilter === 'all' ? undefined : activeFilter === 'true',
       }),
   })
 
@@ -97,7 +96,9 @@ export function RostersList() {
       queryClient.invalidateQueries({ queryKey: ['rosters'] })
       const created = result?.created ?? 0
       toast.success(
-        created > 0 ? `Backfilled ${created} roster(s) from PrestoSports` : 'No new rosters to backfill'
+        created > 0
+          ? `Backfilled ${created} roster(s) from PrestoSports`
+          : 'No new rosters to backfill'
       )
     },
     onError: (err) => {
@@ -112,7 +113,8 @@ export function RostersList() {
       id: 'roster_type',
       header: 'Type',
       cell: ({ row }) =>
-        ROSTER_TYPE_LABELS[row.original.roster_type] ?? row.original.roster_type,
+        ROSTER_TYPE_LABELS[row.original.roster_type] ??
+        row.original.roster_type,
     },
     {
       id: 'source',
@@ -125,15 +127,16 @@ export function RostersList() {
       id: 'entry_count',
       header: 'Players',
       cell: ({ row }) =>
-        row.original.entry_count ?? row.original.total_entries ?? row.original.entries?.length ?? '—',
+        row.original.entry_count ??
+        row.original.total_entries ??
+        row.original.entries?.length ??
+        '—',
     },
     {
       id: 'game',
       header: 'Game',
       cell: ({ row }) =>
-        row.original.Game?.opponent
-          ? `vs ${row.original.Game.opponent}`
-          : '—',
+        row.original.Game?.opponent ? `vs ${row.original.Game.opponent}` : '—',
     },
     {
       id: 'actions',
@@ -141,19 +144,13 @@ export function RostersList() {
       cell: ({ row }) => (
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' asChild>
-            <Link
-              to='/rosters/$id'
-              params={{ id: String(row.original.id) }}
-            >
+            <Link to='/rosters/$id' params={{ id: String(row.original.id) }}>
               <Eye className='size-4' />
               View
             </Link>
           </Button>
           <Button variant='outline' size='sm' asChild>
-            <Link
-              to='/rosters/$id'
-              params={{ id: String(row.original.id) }}
-            >
+            <Link to='/rosters/$id' params={{ id: String(row.original.id) }}>
               <Pencil className='size-4' />
               Edit
             </Link>
@@ -212,7 +209,10 @@ export function RostersList() {
         <Card>
           <CardHeader>
             <div className='flex flex-wrap gap-4'>
-              <Select value={rosterTypeFilter} onValueChange={setRosterTypeFilter}>
+              <Select
+                value={rosterTypeFilter}
+                onValueChange={setRosterTypeFilter}
+              >
                 <SelectTrigger className='w-44'>
                   <SelectValue placeholder='Type' />
                 </SelectTrigger>
@@ -261,48 +261,52 @@ export function RostersList() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((hg) => (
-                      <TableRow key={hg.id}>
-                        {hg.headers.map((h) => (
-                          <TableHead key={h.id}>
-                            {flexRender(
-                              h.column.columnDef.header,
-                              h.getContext()
-                            )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
+                {isMobile ? (
+                  <DataTableCardView table={table} titleColumnId='name' />
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((hg) => (
+                        <TableRow key={hg.id}>
+                          {hg.headers.map((h) => (
+                            <TableHead key={h.id}>
                               {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
+                                h.column.columnDef.header,
+                                h.getContext()
                               )}
-                            </TableCell>
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className='py-8 text-center text-muted-foreground'
-                        >
-                          No rosters found. Create one or backfill from
-                          PrestoSports.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className='py-8 text-center text-muted-foreground'
+                          >
+                            No rosters found. Create one or backfill from
+                            PrestoSports.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
                 {pagination && pagination.pages > 1 && (
                   <div className='mt-4 flex items-center justify-between'>
                     <p className='text-sm text-muted-foreground'>
@@ -350,8 +354,10 @@ export function RostersList() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-              onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
+              className='text-destructive-foreground bg-destructive hover:bg-destructive/90'
+              onClick={() =>
+                deleteTarget && deleteMutation.mutate(deleteTarget.id)
+              }
             >
               Delete
             </AlertDialogAction>

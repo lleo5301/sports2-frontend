@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
@@ -7,14 +8,18 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { BarChart3, FileText, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { reportsApi, type Report } from '@/lib/reports-api'
-import { Main } from '@/components/layout/main'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription } from '@/components/ui/card'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-} from '@/components/ui/card'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -23,22 +28,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { DataTableCardView } from '@/components/data-table/card-view'
+import { Main } from '@/components/layout/main'
 import { CreateReportModal } from './create-report-modal'
 
 export function ReportsList() {
+  const isMobile = useIsMobile()
   const queryClient = useQueryClient()
   const [createOpen, setCreateOpen] = useState(false)
 
-  const { data: reports = [], isLoading, error } = useQuery({
+  const {
+    data: reports = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['reports', 'custom'],
     queryFn: () => reportsApi.list(),
   })
@@ -96,7 +99,11 @@ export function ReportsList() {
       cell: ({ row }) => {
         const s = row.original.status ?? 'draft'
         const variant =
-          s === 'published' ? 'default' : s === 'archived' ? 'outline' : 'secondary'
+          s === 'published'
+            ? 'default'
+            : s === 'archived'
+              ? 'outline'
+              : 'secondary'
         return (
           <Badge variant={variant} className='capitalize'>
             {s}
@@ -143,7 +150,9 @@ export function ReportsList() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-end justify-between gap-4'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Custom Reports</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Custom Reports
+            </h2>
             <CardDescription>Create and manage custom reports</CardDescription>
           </div>
           <div className='flex gap-2'>
@@ -172,58 +181,62 @@ export function ReportsList() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((hg) => (
-                      <TableRow key={hg.id}>
-                        {hg.headers.map((h) => (
-                          <TableHead key={h.id}>
-                            {flexRender(
-                              h.column.columnDef.header,
-                              h.getContext()
-                            )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
+                {isMobile ? (
+                  <DataTableCardView table={table} titleColumnId='title' />
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((hg) => (
+                        <TableRow key={hg.id}>
+                          {hg.headers.map((h) => (
+                            <TableHead key={h.id}>
                               {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
+                                h.column.columnDef.header,
+                                h.getContext()
                               )}
-                            </TableCell>
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className='py-12 text-center text-muted-foreground'
-                        >
-                          <div className='flex flex-col items-center gap-2'>
-                            <FileText className='size-10 text-muted-foreground/50' />
-                            <p>No custom reports yet</p>
-                            <Button
-                              variant='outline'
-                              size='sm'
-                              onClick={() => setCreateOpen(true)}
-                            >
-                              <Plus className='size-4' />
-                              Create your first report
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className='py-12 text-center text-muted-foreground'
+                          >
+                            <div className='flex flex-col items-center gap-2'>
+                              <FileText className='size-10 text-muted-foreground/50' />
+                              <p>No custom reports yet</p>
+                              <Button
+                                variant='outline'
+                                size='sm'
+                                onClick={() => setCreateOpen(true)}
+                              >
+                                <Plus className='size-4' />
+                                Create your first report
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
               </>
             )}
           </CardContent>

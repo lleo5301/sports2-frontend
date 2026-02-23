@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
@@ -7,6 +8,7 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   prospectsApi,
   type Prospect,
@@ -14,15 +16,29 @@ import {
   SCHOOL_TYPES,
   POSITIONS,
 } from '@/lib/prospects-api'
-import { Main } from '@/components/layout/main'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
 } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -31,24 +47,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { DataTableCardView } from '@/components/data-table/card-view'
+import { Main } from '@/components/layout/main'
 
 export function ProspectsList() {
+  const isMobile = useIsMobile()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -112,7 +115,11 @@ export function ProspectsList() {
         const s = row.original.status
         if (!s) return '—'
         return (
-          <Badge variant={s === 'committed' || s === 'signed' ? 'default' : 'secondary'}>
+          <Badge
+            variant={
+              s === 'committed' || s === 'signed' ? 'default' : 'secondary'
+            }
+          >
             {s}
           </Badge>
         )
@@ -129,7 +136,10 @@ export function ProspectsList() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuItem asChild>
-              <Link to='/prospects/$id' params={{ id: String(row.original.id) }}>
+              <Link
+                to='/prospects/$id'
+                params={{ id: String(row.original.id) }}
+              >
                 View
               </Link>
             </DropdownMenuItem>
@@ -228,51 +238,56 @@ export function ProspectsList() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((hg) => (
-                      <TableRow key={hg.id}>
-                        {hg.headers.map((h) => (
-                          <TableHead key={h.id}>
-                            {flexRender(
-                              h.column.columnDef.header,
-                              h.getContext()
-                            )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
+                {isMobile ? (
+                  <DataTableCardView table={table} titleColumnId='name' />
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((hg) => (
+                        <TableRow key={hg.id}>
+                          {hg.headers.map((h) => (
+                            <TableHead key={h.id}>
                               {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
+                                h.column.columnDef.header,
+                                h.getContext()
                               )}
-                            </TableCell>
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className='py-8 text-center text-muted-foreground'
-                        >
-                          No prospects found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className='py-8 text-center text-muted-foreground'
+                          >
+                            No prospects found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
                 {pagination && pagination.pages > 1 && (
                   <div className='mt-4 flex items-center justify-between'>
                     <p className='text-sm text-muted-foreground'>
-                      Page {pagination.page} of {pagination.pages} ({pagination.total} total)
+                      Page {pagination.page} of {pagination.pages} (
+                      {pagination.total} total)
                     </p>
                     <div className='flex gap-2'>
                       <Button
