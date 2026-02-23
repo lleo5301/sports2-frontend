@@ -37,13 +37,16 @@ export function DataTableColumnHeader<TData, TValue>({
           <Button
             variant='ghost'
             size='sm'
-            className='h-8 data-[state=open]:bg-accent'
+            className={cn(
+              'h-8 data-[state=open]:bg-accent',
+              column.getIsSorted() && 'font-bold text-foreground'
+            )}
           >
             <span>{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className='ms-2 h-4 w-4' />
+              <ArrowDownIcon className='ms-2 h-4 w-4 text-primary' />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className='ms-2 h-4 w-4' />
+              <ArrowUpIcon className='ms-2 h-4 w-4 text-primary' />
             ) : (
               <CaretSortIcon className='ms-2 h-4 w-4' />
             )}
