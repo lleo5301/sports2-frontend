@@ -37,9 +37,12 @@ export function InsightCard({
               {INSIGHT_CATEGORY_LABELS[insight.category] || insight.category}
             </Badge>
             <span className='text-xs text-muted-foreground'>
-              {formatDistanceToNow(new Date(insight.created_at), {
-                addSuffix: true,
-              })}
+              {insight.created_at &&
+              !isNaN(new Date(insight.created_at).getTime())
+                ? formatDistanceToNow(new Date(insight.created_at), {
+                    addSuffix: true,
+                  })
+                : 'just now'}
             </span>
           </div>
           <CardTitle
@@ -71,7 +74,7 @@ export function InsightCard({
       </CardHeader>
       {expanded && (
         <CardContent className='space-y-3'>
-          <div className='prose prose-sm dark:prose-invert max-w-none'>
+          <div className='prose prose-sm max-w-none dark:prose-invert'>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {insight.content}
             </ReactMarkdown>
