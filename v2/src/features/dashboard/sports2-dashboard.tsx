@@ -356,7 +356,7 @@ export function Sports2Dashboard() {
 
   return (
     <Main>
-      <div className='space-y-8 p-6 md:p-8'>
+      <div className='space-y-6 sm:space-y-8'>
         <header>
           <h1 className='text-3xl font-bold tracking-tight'>
             Welcome back{user?.first_name ? `, ${user.first_name}` : ''}
@@ -367,7 +367,7 @@ export function Sports2Dashboard() {
         </header>
 
         {/* Stats cards */}
-        <section className='grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6'>
+        <section className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6'>
           <Link to='/players'>
             <StatCard
               label='Players'
@@ -574,20 +574,20 @@ export function Sports2Dashboard() {
             </h2>
             <CardDescription>Common tasks and shortcuts</CardDescription>
           </CardHeader>
-          <CardContent className='px-6 pb-6'>
-            <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4'>
+          <CardContent className='px-4 pb-4 sm:px-6 sm:pb-6'>
+            <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4'>
               <Button
                 variant='outline'
-                className='h-auto justify-start gap-3 py-4'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
                 asChild
               >
                 <Link to='/players/create'>
-                  <div className='rounded-lg bg-muted p-2'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
                     <Plus className='size-5' />
                   </div>
-                  <div className='text-left'>
-                    <div className='font-semibold'>Add Player</div>
-                    <div className='text-xs text-muted-foreground'>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Add Player</div>
+                    <div className='truncate text-xs text-muted-foreground'>
                       Create roster entry
                     </div>
                   </div>
@@ -596,16 +596,16 @@ export function Sports2Dashboard() {
 
               <Button
                 variant='outline'
-                className='h-auto justify-start gap-3 py-4'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
                 asChild
               >
                 <Link to='/scouting/create'>
-                  <div className='rounded-lg bg-muted p-2'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
                     <ClipboardList className='size-5' />
                   </div>
-                  <div className='text-left'>
-                    <div className='font-semibold'>Create Report</div>
-                    <div className='text-xs text-muted-foreground'>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Create Report</div>
+                    <div className='truncate text-xs text-muted-foreground'>
                       New scouting report
                     </div>
                   </div>
@@ -614,16 +614,16 @@ export function Sports2Dashboard() {
 
               <Button
                 variant='outline'
-                className='h-auto justify-start gap-3 py-4'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
                 asChild
               >
                 <Link to='/reports/analytics'>
-                  <div className='rounded-lg bg-muted p-2'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
                     <TrendingUp className='size-5' />
                   </div>
-                  <div className='text-left'>
-                    <div className='font-semibold'>Analytics</div>
-                    <div className='text-xs text-muted-foreground'>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Analytics</div>
+                    <div className='truncate text-xs text-muted-foreground'>
                       View team metrics
                     </div>
                   </div>
@@ -632,16 +632,16 @@ export function Sports2Dashboard() {
 
               <Button
                 variant='outline'
-                className='h-auto justify-start gap-3 py-4'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
                 asChild
               >
                 <Link to='/reports'>
-                  <div className='rounded-lg bg-muted p-2'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
                     <BarChart3 className='size-5' />
                   </div>
-                  <div className='text-left'>
-                    <div className='font-semibold'>Reports</div>
-                    <div className='text-xs text-muted-foreground'>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Reports</div>
+                    <div className='truncate text-xs text-muted-foreground'>
                       Analytics & exports
                     </div>
                   </div>

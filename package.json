@@ -16,10 +16,14 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7"
+    "lint-staged": "^16.2.7",
+    "prettier-plugin-tailwindcss": "^0.7.2"
   },
   "lint-staged": {
-    "v2/src/**/*.{ts,tsx}": ["prettier --write"]
+    "v2/src/**/*.{ts,tsx}": [
+      "prettier --write"
+    ]
   }
 }

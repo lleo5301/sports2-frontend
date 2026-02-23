@@ -39,13 +39,20 @@ export function StatCard({
     trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus
 
   return (
-    <Card className={cn(statCardVariants({ size }), className)}>
-      <CardContent className='flex items-start justify-between'>
-        <div className='space-y-1'>
-          <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+    <Card
+      className={cn(
+        // Override card edge-to-edge on mobile — stat cards live in grids
+        'mx-0 gap-2 overflow-hidden rounded-lg border py-3 sm:gap-4 sm:rounded-xl sm:py-4',
+        statCardVariants({ size }),
+        className
+      )}
+    >
+      <CardContent className='flex min-w-0 items-start justify-between gap-2'>
+        <div className='min-w-0 space-y-0.5 sm:space-y-1'>
+          <p className='truncate text-[10px] font-medium tracking-wider text-muted-foreground uppercase sm:text-xs'>
             {label}
           </p>
-          <p className='text-2xl font-bold tracking-tight sm:text-3xl'>
+          <p className='text-xl font-bold tracking-tight sm:text-3xl'>
             {value}
           </p>
           {(change || sublabel) && (
@@ -64,13 +71,15 @@ export function StatCard({
                 </span>
               )}
               {sublabel && (
-                <span className='text-muted-foreground'>{sublabel}</span>
+                <span className='truncate text-muted-foreground'>
+                  {sublabel}
+                </span>
               )}
             </div>
           )}
         </div>
         {icon && (
-          <div className='rounded-lg bg-primary/10 p-2 text-primary'>
+          <div className='shrink-0 rounded-lg bg-primary/10 p-1.5 text-primary sm:p-2'>
             {icon}
           </div>
         )}
