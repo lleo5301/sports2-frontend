@@ -1,11 +1,34 @@
+import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { Loader2, Key, Download, Trash2 } from 'lucide-react'
-import { settingsApi } from '@/lib/settings-api'
+import { toast } from 'sonner'
 import { getProfile } from '@/lib/auth'
+import { settingsApi } from '@/lib/settings-api'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -23,29 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 
 const timezones = [
   'America/New_York',
@@ -158,60 +158,69 @@ export function AccountForm() {
           onSubmit={form.handleSubmit((d) => updateAccountMutation.mutate(d))}
           className='space-y-6'
         >
-          <FormField
-            control={form.control}
-            name='timezone'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Timezone</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value || undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Select timezone' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {timezones.map((tz) => (
-                      <SelectItem key={tz} value={tz}>
-                        {tz.replace(/_/g, ' ')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Times will be shown in this timezone across the app
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='locale'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Language</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Select language' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value='en'>English</SelectItem>
-                    <SelectItem value='es'>Spanish</SelectItem>
-                    <SelectItem value='fr'>French</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>Language for the dashboard</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type='submit' disabled={updateAccountMutation.isPending}>
+          <div className='grid gap-4 sm:grid-cols-2'>
+            <FormField
+              control={form.control}
+              name='timezone'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Timezone</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select timezone' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timezones.map((tz) => (
+                        <SelectItem key={tz} value={tz}>
+                          {tz.replace(/_/g, ' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Times will be shown in this timezone across the app
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='locale'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Language</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select language' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value='en'>English</SelectItem>
+                      <SelectItem value='es'>Spanish</SelectItem>
+                      <SelectItem value='fr'>French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Language for the dashboard</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button
+            type='submit'
+            className='w-full sm:w-auto'
+            disabled={updateAccountMutation.isPending}
+          >
             {updateAccountMutation.isPending && (
               <Loader2 className='me-2 size-4 animate-spin' />
             )}
@@ -223,7 +232,7 @@ export function AccountForm() {
       <div className='border-t pt-8'>
         <h3 className='mb-4 text-lg font-medium'>Security</h3>
         <div className='space-y-4'>
-          <div className='flex items-center justify-between rounded-lg border p-4'>
+          <div className='flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between'>
             <div>
               <p className='font-medium'>Change password</p>
               <p className='text-sm text-muted-foreground'>
@@ -235,7 +244,7 @@ export function AccountForm() {
               isPending={changePasswordMutation.isPending}
             />
           </div>
-          <div className='flex items-center justify-between rounded-lg border p-4'>
+          <div className='flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between'>
             <div>
               <p className='font-medium'>Export data</p>
               <p className='text-sm text-muted-foreground'>
@@ -245,6 +254,7 @@ export function AccountForm() {
             <Button
               variant='outline'
               size='sm'
+              className='w-full sm:w-auto'
               onClick={() => exportMutation.mutate()}
               disabled={exportMutation.isPending}
             >
@@ -256,7 +266,7 @@ export function AccountForm() {
               Export
             </Button>
           </div>
-          <div className='flex items-center justify-between rounded-lg border border-destructive/50 p-4'>
+          <div className='flex flex-col gap-3 rounded-lg border border-destructive/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
             <div>
               <p className='font-medium text-destructive'>Delete account</p>
               <p className='text-sm text-muted-foreground'>
@@ -274,14 +284,15 @@ export function AccountForm() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete account?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. All your data will be permanently removed.
+                    This action cannot be undone. All your data will be
+                    permanently removed.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => deleteAccountMutation.mutate()}
-                    className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                    className='text-destructive-foreground bg-destructive hover:bg-destructive/90'
                   >
                     {deleteAccountMutation.isPending ? (
                       <Loader2 className='size-4 animate-spin' />

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Mail } from 'lucide-react'
+import { toast } from 'sonner'
 import { settingsApi } from '@/lib/settings-api'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,7 +16,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
-import { toast } from 'sonner'
 
 const notificationsFormSchema = z.object({
   email_scouting: z.boolean(),
@@ -165,8 +165,12 @@ export function NotificationsForm() {
             )}
           />
         </div>
-        <div className='flex flex-wrap gap-3'>
-          <Button type='submit' disabled={updateMutation.isPending}>
+        <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
+          <Button
+            type='submit'
+            className='w-full sm:w-auto'
+            disabled={updateMutation.isPending}
+          >
             {updateMutation.isPending && (
               <Loader2 className='me-2 size-4 animate-spin' />
             )}
@@ -175,6 +179,7 @@ export function NotificationsForm() {
           <Button
             type='button'
             variant='outline'
+            className='w-full sm:w-auto'
             onClick={() => testEmailMutation.mutate()}
             disabled={testEmailMutation.isPending}
           >

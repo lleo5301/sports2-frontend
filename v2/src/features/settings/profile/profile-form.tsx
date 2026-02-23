@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { getProfile, updateProfile } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,7 +16,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
 
 const profileFormSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -80,32 +80,34 @@ export function ProfileForm() {
         onSubmit={form.handleSubmit((d) => updateMutation.mutate(d))}
         className='space-y-8'
       >
-        <FormField
-          control={form.control}
-          name='first_name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>First name</FormLabel>
-              <FormControl>
-                <Input placeholder='First name' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='last_name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last name</FormLabel>
-              <FormControl>
-                <Input placeholder='Last name' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <FormField
+            control={form.control}
+            name='first_name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First name</FormLabel>
+                <FormControl>
+                  <Input placeholder='First name' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='last_name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last name</FormLabel>
+                <FormControl>
+                  <Input placeholder='Last name' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name='email'
@@ -121,7 +123,8 @@ export function ProfileForm() {
                 />
               </FormControl>
               <FormDescription>
-                Email cannot be changed here. Contact your administrator if you need to update it.
+                Email cannot be changed here. Contact your administrator if you
+                need to update it.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -141,8 +144,14 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
-        <Button type='submit' disabled={updateMutation.isPending}>
-          {updateMutation.isPending && <Loader2 className='me-2 size-4 animate-spin' />}
+        <Button
+          type='submit'
+          className='w-full sm:w-auto'
+          disabled={updateMutation.isPending}
+        >
+          {updateMutation.isPending && (
+            <Loader2 className='me-2 size-4 animate-spin' />
+          )}
           Update profile
         </Button>
       </form>

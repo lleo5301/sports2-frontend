@@ -1,10 +1,12 @@
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { vendorsApi, type Vendor } from '@/lib/vendors-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -15,8 +17,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 
 const schema = z.object({
   company_name: z.string().min(1, 'Required'),
@@ -153,15 +153,24 @@ export function EditVendorForm({
                 </FormItem>
               )}
             />
-            <div className='flex gap-2 pt-4'>
-              <Button type='submit' disabled={mutation.isPending}>
+            <div className='flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end'>
+              <Button
+                variant='outline'
+                type='button'
+                onClick={onCancel}
+                className='w-full sm:w-auto'
+              >
+                Cancel
+              </Button>
+              <Button
+                type='submit'
+                disabled={mutation.isPending}
+                className='w-full sm:w-auto'
+              >
                 {mutation.isPending && (
                   <Loader2 className='size-4 animate-spin' />
                 )}
                 Save
-              </Button>
-              <Button variant='outline' type='button' onClick={onCancel}>
-                Cancel
               </Button>
             </div>
           </form>

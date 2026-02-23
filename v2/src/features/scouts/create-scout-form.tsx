@@ -1,11 +1,13 @@
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { scoutsApi } from '@/lib/scouts-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -17,8 +19,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Main } from '@/components/layout/main'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 
 const schema = z.object({
   first_name: z.string().min(1, 'Required'),
@@ -72,9 +72,7 @@ export function CreateScoutForm() {
       <Card className='max-w-2xl'>
         <CardHeader>
           <CardTitle>Add Scout</CardTitle>
-          <p className='text-sm text-muted-foreground'>
-            Add a scout contact
-          </p>
+          <p className='text-sm text-muted-foreground'>Add a scout contact</p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -164,15 +162,19 @@ export function CreateScoutForm() {
                   </FormItem>
                 )}
               />
-              <div className='flex gap-2 pt-4'>
-                <Button type='submit' disabled={mutation.isPending}>
+              <div className='flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end'>
+                <Button variant='outline' asChild className='w-full sm:w-auto'>
+                  <Link to='/scouts'>Cancel</Link>
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={mutation.isPending}
+                  className='w-full sm:w-auto'
+                >
                   {mutation.isPending && (
                     <Loader2 className='size-4 animate-spin' />
                   )}
                   Add Scout
-                </Button>
-                <Button variant='outline' asChild>
-                  <Link to='/scouts'>Cancel</Link>
                 </Button>
               </div>
             </form>

@@ -1,9 +1,10 @@
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   scoutingApi,
   type ScoutingReport,
@@ -11,6 +12,7 @@ import {
   type GradeValue,
 } from '@/lib/scouting-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -28,8 +30,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Main } from '@/components/layout/main'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 
 const schema = z.object({
   report_date: z.string().min(1, 'Required'),
@@ -114,7 +114,9 @@ export function EditScoutingForm({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scouting-reports'] })
-      queryClient.invalidateQueries({ queryKey: ['scouting-report', report.id] })
+      queryClient.invalidateQueries({
+        queryKey: ['scouting-report', report.id],
+      })
       toast.success('Report updated')
       onSuccess()
     },
@@ -158,7 +160,10 @@ export function EditScoutingForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Event type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder='Select' />
@@ -178,16 +183,52 @@ export function EditScoutingForm({
                 />
               </div>
 
-              <div className='grid gap-4 sm:grid-cols-4'>
-                <GradeField form={form} name='overall_present' label='Overall (P)' />
-                <GradeField form={form} name='overall_future' label='Overall (F)' />
-                <GradeField form={form} name='hitting_present' label='Hitting (P)' />
-                <GradeField form={form} name='hitting_future' label='Hitting (F)' />
-                <GradeField form={form} name='pitching_present' label='Pitching (P)' />
-                <GradeField form={form} name='pitching_future' label='Pitching (F)' />
-                <GradeField form={form} name='fielding_present' label='Fielding (P)' />
-                <GradeField form={form} name='fielding_future' label='Fielding (F)' />
-                <GradeField form={form} name='speed_present' label='Speed (P)' />
+              <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+                <GradeField
+                  form={form}
+                  name='overall_present'
+                  label='Overall (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='overall_future'
+                  label='Overall (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='hitting_present'
+                  label='Hitting (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='hitting_future'
+                  label='Hitting (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='pitching_present'
+                  label='Pitching (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='pitching_future'
+                  label='Pitching (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='fielding_present'
+                  label='Fielding (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='fielding_future'
+                  label='Fielding (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='speed_present'
+                  label='Speed (P)'
+                />
                 <GradeField form={form} name='speed_future' label='Speed (F)' />
               </div>
 
@@ -243,18 +284,32 @@ export function EditScoutingForm({
                 )}
               />
 
-              <div className='flex gap-2'>
-                <Button type='submit' disabled={mutation.isPending}>
+              <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  asChild
+                  className='w-full sm:w-auto'
+                >
+                  <Link to='/scouting'>Back to reports</Link>
+                </Button>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={onCancel}
+                  className='w-full sm:w-auto'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={mutation.isPending}
+                  className='w-full sm:w-auto'
+                >
                   {mutation.isPending ? (
                     <Loader2 className='size-4 animate-spin' />
                   ) : null}
                   Save changes
-                </Button>
-                <Button type='button' variant='outline' onClick={onCancel}>
-                  Cancel
-                </Button>
-                <Button type='button' variant='ghost' asChild>
-                  <Link to='/scouting'>Back to reports</Link>
                 </Button>
               </div>
             </form>

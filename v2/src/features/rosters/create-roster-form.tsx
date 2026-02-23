@@ -1,18 +1,20 @@
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { formatDate } from '@/lib/format-date'
+import { gamesApi } from '@/lib/games-api'
 import {
   rostersApi,
   ROSTER_TYPES,
   ROSTER_TYPE_LABELS,
   type RosterType,
 } from '@/lib/rosters-api'
-import { gamesApi } from '@/lib/games-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -30,8 +32,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Main } from '@/components/layout/main'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 
 const schema = z.object({
   name: z.string().min(1, 'Required'),
@@ -129,10 +129,7 @@ export function CreateRosterForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Roster type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -218,15 +215,24 @@ export function CreateRosterForm() {
                 )}
               />
 
-              <div className='flex gap-2'>
-                <Button type='submit' disabled={mutation.isPending}>
+              <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  asChild
+                  className='w-full sm:w-auto'
+                >
+                  <Link to='/rosters'>Cancel</Link>
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={mutation.isPending}
+                  className='w-full sm:w-auto'
+                >
                   {mutation.isPending ? (
                     <Loader2 className='size-4 animate-spin' />
                   ) : null}
                   Create Roster
-                </Button>
-                <Button type='button' variant='outline' asChild>
-                  <Link to='/rosters'>Cancel</Link>
                 </Button>
               </div>
             </form>

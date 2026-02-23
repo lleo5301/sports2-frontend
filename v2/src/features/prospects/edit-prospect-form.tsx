@@ -1,9 +1,10 @@
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   prospectsApi,
   type Prospect,
@@ -12,6 +13,7 @@ import {
   PROSPECT_STATUSES,
 } from '@/lib/prospects-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -29,8 +31,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Main } from '@/components/layout/main'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 
 const schema = z.object({
   first_name: z.string().min(1, 'Required'),
@@ -56,7 +56,11 @@ interface EditProspectFormProps {
   onCancel: () => void
 }
 
-export function EditProspectForm({ prospect, onSuccess, onCancel }: EditProspectFormProps) {
+export function EditProspectForm({
+  prospect,
+  onSuccess,
+  onCancel,
+}: EditProspectFormProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<FormValues>({
@@ -111,7 +115,9 @@ export function EditProspectForm({ prospect, onSuccess, onCancel }: EditProspect
       <Card className='max-w-2xl'>
         <CardHeader>
           <CardTitle>Edit Prospect</CardTitle>
-          <p className='text-sm text-muted-foreground'>Update recruiting profile</p>
+          <p className='text-sm text-muted-foreground'>
+            Update recruiting profile
+          </p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -333,18 +339,32 @@ export function EditProspectForm({ prospect, onSuccess, onCancel }: EditProspect
                   </FormItem>
                 )}
               />
-              <div className='flex gap-2'>
-                <Button type='submit' disabled={mutation.isPending}>
+              <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  asChild
+                  className='w-full sm:w-auto'
+                >
+                  <Link to='/prospects'>Back to prospects</Link>
+                </Button>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={onCancel}
+                  className='w-full sm:w-auto'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={mutation.isPending}
+                  className='w-full sm:w-auto'
+                >
                   {mutation.isPending ? (
                     <Loader2 className='size-4 animate-spin' />
                   ) : null}
                   Save changes
-                </Button>
-                <Button type='button' variant='outline' onClick={onCancel}>
-                  Cancel
-                </Button>
-                <Button type='button' variant='ghost' asChild>
-                  <Link to='/prospects'>Back to prospects</Link>
                 </Button>
               </div>
             </form>

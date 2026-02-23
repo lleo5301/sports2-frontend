@@ -1,17 +1,15 @@
 import { useState } from 'react'
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, Plus } from 'lucide-react'
-import {
-  scoutingApi,
-  EVENT_TYPES,
-  type GradeValue,
-} from '@/lib/scouting-api'
+import { toast } from 'sonner'
 import { prospectsApi, type Prospect } from '@/lib/prospects-api'
+import { scoutingApi, EVENT_TYPES, type GradeValue } from '@/lib/scouting-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -29,32 +27,32 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Main } from '@/components/layout/main'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 import { CreateProspectModal } from './create-prospect-modal'
 
-const schema = z.object({
-  prospect_id: z.number().optional(),
-  player_id: z.number().optional(),
-  report_date: z.string().min(1, 'Required'),
-  event_type: z.string().min(1, 'Required'),
-  overall_present: z.union([z.number(), z.string()]).optional(),
-  overall_future: z.union([z.number(), z.string()]).optional(),
-  hitting_present: z.union([z.number(), z.string()]).optional(),
-  hitting_future: z.union([z.number(), z.string()]).optional(),
-  pitching_present: z.union([z.number(), z.string()]).optional(),
-  pitching_future: z.union([z.number(), z.string()]).optional(),
-  fielding_present: z.union([z.number(), z.string()]).optional(),
-  fielding_future: z.union([z.number(), z.string()]).optional(),
-  speed_present: z.union([z.number(), z.string()]).optional(),
-  speed_future: z.union([z.number(), z.string()]).optional(),
-  sixty_yard_dash: z.number().optional(),
-  mlb_comparison: z.string().optional(),
-  notes: z.string().optional(),
-}).refine(
-  (data) => !!data.prospect_id,
-  { message: 'Select a prospect', path: ['prospect_id'] }
-)
+const schema = z
+  .object({
+    prospect_id: z.number().optional(),
+    player_id: z.number().optional(),
+    report_date: z.string().min(1, 'Required'),
+    event_type: z.string().min(1, 'Required'),
+    overall_present: z.union([z.number(), z.string()]).optional(),
+    overall_future: z.union([z.number(), z.string()]).optional(),
+    hitting_present: z.union([z.number(), z.string()]).optional(),
+    hitting_future: z.union([z.number(), z.string()]).optional(),
+    pitching_present: z.union([z.number(), z.string()]).optional(),
+    pitching_future: z.union([z.number(), z.string()]).optional(),
+    fielding_present: z.union([z.number(), z.string()]).optional(),
+    fielding_future: z.union([z.number(), z.string()]).optional(),
+    speed_present: z.union([z.number(), z.string()]).optional(),
+    speed_future: z.union([z.number(), z.string()]).optional(),
+    sixty_yard_dash: z.number().optional(),
+    mlb_comparison: z.string().optional(),
+    notes: z.string().optional(),
+  })
+  .refine((data) => !!data.prospect_id, {
+    message: 'Select a prospect',
+    path: ['prospect_id'],
+  })
 
 type FormValues = z.infer<typeof schema>
 
@@ -70,7 +68,9 @@ interface CreateScoutingFormProps {
   preselectedProspectId?: string
 }
 
-export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingFormProps) {
+export function CreateScoutingForm({
+  preselectedProspectId,
+}: CreateScoutingFormProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [createProspectOpen, setCreateProspectOpen] = useState(false)
@@ -146,7 +146,10 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
       }
     },
     onError: (err: unknown) => {
-      const axiosErr = err as { response?: { data?: { error?: string; message?: string } }; message?: string }
+      const axiosErr = err as {
+        response?: { data?: { error?: string; message?: string } }
+        message?: string
+      }
       const message =
         axiosErr?.response?.data?.error ??
         axiosErr?.response?.data?.message ??
@@ -214,11 +217,7 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
                               v && v !== 'all' ? parseInt(v, 10) : undefined
                             )
                           }
-                          value={
-                            field.value
-                              ? String(field.value)
-                              : 'all'
-                          }
+                          value={field.value ? String(field.value) : 'all'}
                         >
                           <FormControl>
                             <SelectTrigger className='flex-1'>
@@ -286,7 +285,10 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Event type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder='Select' />
@@ -306,16 +308,52 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
                 />
               </div>
 
-              <div className='grid gap-4 sm:grid-cols-4'>
-                <GradeField form={form} name='overall_present' label='Overall (P)' />
-                <GradeField form={form} name='overall_future' label='Overall (F)' />
-                <GradeField form={form} name='hitting_present' label='Hitting (P)' />
-                <GradeField form={form} name='hitting_future' label='Hitting (F)' />
-                <GradeField form={form} name='pitching_present' label='Pitching (P)' />
-                <GradeField form={form} name='pitching_future' label='Pitching (F)' />
-                <GradeField form={form} name='fielding_present' label='Fielding (P)' />
-                <GradeField form={form} name='fielding_future' label='Fielding (F)' />
-                <GradeField form={form} name='speed_present' label='Speed (P)' />
+              <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+                <GradeField
+                  form={form}
+                  name='overall_present'
+                  label='Overall (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='overall_future'
+                  label='Overall (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='hitting_present'
+                  label='Hitting (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='hitting_future'
+                  label='Hitting (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='pitching_present'
+                  label='Pitching (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='pitching_future'
+                  label='Pitching (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='fielding_present'
+                  label='Fielding (P)'
+                />
+                <GradeField
+                  form={form}
+                  name='fielding_future'
+                  label='Fielding (F)'
+                />
+                <GradeField
+                  form={form}
+                  name='speed_present'
+                  label='Speed (P)'
+                />
                 <GradeField form={form} name='speed_future' label='Speed (F)' />
               </div>
 
@@ -372,15 +410,24 @@ export function CreateScoutingForm({ preselectedProspectId }: CreateScoutingForm
                 )}
               />
 
-              <div className='flex gap-2'>
-                <Button type='submit' disabled={mutation.isPending}>
+              <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  asChild
+                  className='w-full sm:w-auto'
+                >
+                  <Link to='/scouting'>Cancel</Link>
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={mutation.isPending}
+                  className='w-full sm:w-auto'
+                >
                   {mutation.isPending ? (
                     <Loader2 className='size-4 animate-spin' />
                   ) : null}
                   Create Report
-                </Button>
-                <Button type='button' variant='outline' asChild>
-                  <Link to='/scouting'>Cancel</Link>
                 </Button>
               </div>
             </form>

@@ -1,19 +1,10 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Loader2 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { ArrowLeft, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { reportsApi, type Report } from '@/lib/reports-api'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Card,
   CardContent,
@@ -21,7 +12,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
 const STATUSES = [
   { value: 'draft', label: 'Draft' },
@@ -125,11 +125,20 @@ export function EditReportForm({
                 rows={3}
               />
             </div>
-            <div className='flex gap-2'>
-              <Button type='button' variant='outline' onClick={onCancel}>
+            <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                className='w-full sm:w-auto'
+              >
                 Cancel
               </Button>
-              <Button type='submit' disabled={updateMutation.isPending}>
+              <Button
+                type='submit'
+                disabled={updateMutation.isPending}
+                className='w-full sm:w-auto'
+              >
                 {updateMutation.isPending ? (
                   <Loader2 className='size-4 animate-spin' />
                 ) : (

@@ -36,11 +36,11 @@ export function Settings() {
   return (
     <>
       <Main fixed>
-        <div className='space-y-0.5'>
+        <div className='space-y-1'>
           <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
             Settings
           </h1>
-          <p className='text-muted-foreground'>
+          <p className='text-sm text-muted-foreground sm:text-base'>
             Manage your account settings and set e-mail preferences.
           </p>
         </div>
@@ -49,7 +49,7 @@ export function Settings() {
           <aside className='top-0 lg:sticky lg:w-1/5'>
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className='flex w-full overflow-y-hidden p-1'>
+          <div className='flex w-full overflow-y-hidden p-1 pr-0 sm:pr-1'>
             <Outlet />
           </div>
         </div>

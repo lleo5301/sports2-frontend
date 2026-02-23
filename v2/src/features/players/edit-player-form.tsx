@@ -1,11 +1,13 @@
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { playersApi, type Player } from '@/lib/players-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -23,8 +25,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Main } from '@/components/layout/main'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { toast } from 'sonner'
 
 const schema = z.object({
   first_name: z.string().min(1, 'Required'),
@@ -41,7 +41,19 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
-const POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'] as const
+const POSITIONS = [
+  'P',
+  'C',
+  '1B',
+  '2B',
+  '3B',
+  'SS',
+  'LF',
+  'CF',
+  'RF',
+  'OF',
+  'DH',
+] as const
 const SCHOOL_TYPES = ['HS', 'COLL'] as const
 
 interface EditPlayerFormProps {
@@ -50,7 +62,11 @@ interface EditPlayerFormProps {
   onCancel: () => void
 }
 
-export function EditPlayerForm({ player, onSuccess, onCancel }: EditPlayerFormProps) {
+export function EditPlayerForm({
+  player,
+  onSuccess,
+  onCancel,
+}: EditPlayerFormProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<FormValues>({
@@ -99,9 +115,7 @@ export function EditPlayerForm({ player, onSuccess, onCancel }: EditPlayerFormPr
       <Card className='max-w-2xl'>
         <CardHeader>
           <CardTitle>Edit Player</CardTitle>
-          <p className='text-sm text-muted-foreground'>
-            Update roster entry
-          </p>
+          <p className='text-sm text-muted-foreground'>Update roster entry</p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -265,18 +279,32 @@ export function EditPlayerForm({ player, onSuccess, onCancel }: EditPlayerFormPr
                   </FormItem>
                 )}
               />
-              <div className='flex gap-2'>
-                <Button type='submit' disabled={mutation.isPending}>
+              <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  asChild
+                  className='w-full sm:w-auto'
+                >
+                  <Link to='/players'>Back to roster</Link>
+                </Button>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={onCancel}
+                  className='w-full sm:w-auto'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={mutation.isPending}
+                  className='w-full sm:w-auto'
+                >
                   {mutation.isPending ? (
                     <Loader2 className='size-4 animate-spin' />
                   ) : null}
                   Save changes
-                </Button>
-                <Button type='button' variant='outline' onClick={onCancel}>
-                  Cancel
-                </Button>
-                <Button type='button' variant='ghost' asChild>
-                  <Link to='/players'>Back to roster</Link>
                 </Button>
               </div>
             </form>
