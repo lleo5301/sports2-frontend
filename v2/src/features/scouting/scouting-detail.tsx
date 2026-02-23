@@ -181,7 +181,11 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
     report.fielding_present != null ||
     report.fielding_future != null ||
     report.speed_present != null ||
-    report.speed_future != null
+    report.speed_future != null ||
+    report.arm_present != null ||
+    report.arm_future != null ||
+    report.power_present != null ||
+    report.power_future != null
   const hasAthleticism =
     report.sixty_yard_dash != null || !!report.mlb_comparison
 
@@ -321,6 +325,16 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
                       label='Speed'
                       present={report.speed_present}
                       future={report.speed_future}
+                    />
+                    <GradeRow
+                      label='Arm'
+                      present={report.arm_present}
+                      future={report.arm_future}
+                    />
+                    <GradeRow
+                      label='Power'
+                      present={report.power_present}
+                      future={report.power_future}
                     />
                   </tbody>
                 </table>

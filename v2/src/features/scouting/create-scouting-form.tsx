@@ -45,6 +45,10 @@ const schema = z
     fielding_future: z.union([z.number(), z.string()]).optional(),
     speed_present: z.union([z.number(), z.string()]).optional(),
     speed_future: z.union([z.number(), z.string()]).optional(),
+    arm_present: z.union([z.number(), z.string()]).optional(),
+    arm_future: z.union([z.number(), z.string()]).optional(),
+    power_present: z.union([z.number(), z.string()]).optional(),
+    power_future: z.union([z.number(), z.string()]).optional(),
     sixty_yard_dash: z.number().optional(),
     mlb_comparison: z.string().optional(),
     notes: z.string().optional(),
@@ -101,6 +105,10 @@ export function CreateScoutingForm({
       fielding_future: undefined,
       speed_present: undefined,
       speed_future: undefined,
+      arm_present: undefined,
+      arm_future: undefined,
+      power_present: undefined,
+      power_future: undefined,
       sixty_yard_dash: undefined,
       mlb_comparison: '',
       notes: '',
@@ -124,6 +132,10 @@ export function CreateScoutingForm({
         fielding_future: toGradeValue(data.fielding_future),
         speed_present: toGradeValue(data.speed_present),
         speed_future: toGradeValue(data.speed_future),
+        arm_present: toGradeValue(data.arm_present),
+        arm_future: toGradeValue(data.arm_future),
+        power_present: toGradeValue(data.power_present),
+        power_future: toGradeValue(data.power_future),
         sixty_yard_dash: data.sixty_yard_dash,
         mlb_comparison: data.mlb_comparison || undefined,
         notes: data.notes || undefined,
@@ -355,6 +367,14 @@ export function CreateScoutingForm({
                   label='Speed (P)'
                 />
                 <GradeField form={form} name='speed_future' label='Speed (F)' />
+                <GradeField form={form} name='arm_present' label='Arm (P)' />
+                <GradeField form={form} name='arm_future' label='Arm (F)' />
+                <GradeField
+                  form={form}
+                  name='power_present'
+                  label='Power (P)'
+                />
+                <GradeField form={form} name='power_future' label='Power (F)' />
               </div>
 
               <div className='grid gap-4 sm:grid-cols-2'>

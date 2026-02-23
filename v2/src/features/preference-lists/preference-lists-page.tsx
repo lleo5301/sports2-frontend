@@ -11,7 +11,7 @@ import {
   type PreferenceListEntry,
   type PrefListStatus,
 } from '@/lib/recruits-api'
-import { Main } from '@/components/layout/main'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -20,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -28,8 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { Main } from '@/components/layout/main'
 import { AddToPreferenceListModal } from './add-to-preference-list-modal'
 
 function EntryCard({
@@ -50,14 +50,16 @@ function EntryCard({
     ? [person.first_name, person.last_name].filter(Boolean).join(' ') || '—'
     : '—'
 
-  const position = prospect?.primary_position ?? (player as { primary_position?: string })?.primary_position
+  const position =
+    prospect?.primary_position ??
+    (player as { primary_position?: string })?.primary_position
   const schoolType = prospect?.school_type
   const gradYear = prospect?.graduation_year
 
   return (
     <Card className='group'>
       <CardHeader className='flex flex-row items-start justify-between space-y-0 pb-2'>
-        <div className='flex-1 min-w-0'>
+        <div className='min-w-0 flex-1'>
           <CardTitle className='text-base'>
             <Link
               to={isProspect ? '/prospects/$id' : '/players/$id'}
@@ -67,16 +69,22 @@ function EntryCard({
               {name}
             </Link>
           </CardTitle>
-          <CardDescription className='flex flex-wrap gap-1 mt-1'>
+          <CardDescription className='mt-1 flex flex-wrap items-center gap-1'>
             {position && <Badge variant='outline'>{position}</Badge>}
-            {schoolType && <span>{schoolType}</span>}
-            {gradYear && <span>'{String(gradYear).slice(-2)}</span>}
+            {schoolType && <Badge variant='outline'>{schoolType}</Badge>}
+            {gradYear && (
+              <Badge
+                variant={schoolType === 'High School' ? 'default' : 'outline'}
+              >
+                '{String(gradYear).slice(-2)}
+              </Badge>
+            )}
           </CardDescription>
         </div>
         <Button
           variant='ghost'
           size='icon'
-          className='h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive'
+          className='h-8 w-8 shrink-0 text-destructive opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive'
           onClick={onRemove}
           disabled={isRemoving}
           title='Remove from list'
@@ -86,7 +94,13 @@ function EntryCard({
       </CardHeader>
       <CardContent className='pt-0'>
         <div className='flex flex-wrap gap-1'>
-          <Badge variant={entry.status === 'committed' || entry.status === 'signed' ? 'default' : 'secondary'}>
+          <Badge
+            variant={
+              entry.status === 'committed' || entry.status === 'signed'
+                ? 'default'
+                : 'secondary'
+            }
+          >
             {entry.status}
           </Badge>
           {entry.interest_level && (
@@ -94,7 +108,7 @@ function EntryCard({
           )}
         </div>
         {entry.notes && (
-          <p className='mt-2 text-sm text-muted-foreground line-clamp-2'>
+          <p className='mt-2 line-clamp-2 text-sm text-muted-foreground'>
             {entry.notes}
           </p>
         )}
@@ -111,7 +125,9 @@ function ListColumn({
   statusFilter: string
 }) {
   const queryClient = useQueryClient()
-  const [removeTarget, setRemoveTarget] = useState<PreferenceListEntry | null>(null)
+  const [removeTarget, setRemoveTarget] = useState<PreferenceListEntry | null>(
+    null
+  )
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['preference-lists', listType, statusFilter],
@@ -154,7 +170,9 @@ function ListColumn({
               <EntryCard
                 entry={entry}
                 onRemove={() => setRemoveTarget(entry)}
-                isRemoving={removeMutation.isPending && removeTarget?.id === entry.id}
+                isRemoving={
+                  removeMutation.isPending && removeTarget?.id === entry.id
+                }
               />
             </li>
           ))}
@@ -167,12 +185,15 @@ function ListColumn({
         title='Remove from list'
         desc={
           removeTarget
-            ? `Remove ${removeTarget.Prospect?.first_name ?? ''} ${removeTarget.Prospect?.last_name ?? 'this entry'}`.trim() + ' from this list?'
+            ? `Remove ${removeTarget.Prospect?.first_name ?? ''} ${removeTarget.Prospect?.last_name ?? 'this entry'}`.trim() +
+              ' from this list?'
             : ''
         }
         destructive
         confirmText='Remove'
-        handleConfirm={() => removeTarget && removeMutation.mutate(removeTarget.id)}
+        handleConfirm={() =>
+          removeTarget && removeMutation.mutate(removeTarget.id)
+        }
         isLoading={removeMutation.isPending}
       />
     </div>
@@ -188,7 +209,9 @@ export function PreferenceListsPage() {
       <div className='space-y-6'>
         <div className='flex flex-wrap items-end justify-between gap-4'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Preference Lists</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Preference Lists
+            </h2>
             <CardDescription>
               Organize prospects by list type. Add prospects from the Recruiting
               Board or Prospects page.
@@ -212,8 +235,11 @@ export function PreferenceListsPage() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ListType)}>
-          <TabsList className='flex-wrap h-auto gap-1'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as ListType)}
+        >
+          <TabsList className='h-auto flex-wrap gap-1'>
             {LIST_TYPES.map((t) => (
               <TabsTrigger key={t} value={t}>
                 {LIST_TYPE_LABELS[t]}
