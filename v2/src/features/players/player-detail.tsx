@@ -36,6 +36,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { PositionBadge } from '@/components/ui/position-badge'
+import { StatCard } from '@/components/ui/stat-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Main } from '@/components/layout/main'
 import { EditPlayerForm } from './edit-player-form'
@@ -152,7 +154,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
               </Link>
             </Button>
             <div>
-              <h2 className='text-2xl font-bold tracking-tight'>
+              <h2 className='text-2xl font-extrabold tracking-tight sm:text-3xl'>
                 {[player.first_name, player.last_name]
                   .filter(Boolean)
                   .join(' ') || `Player #${id}`}
@@ -221,9 +223,14 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
                   )}
                 </div>
                 <div className='text-center sm:text-left lg:text-center'>
-                  <h3 className='text-lg font-semibold'>
-                    {player.position || 'Player'}
-                  </h3>
+                  {player.position ? (
+                    <PositionBadge
+                      position={player.position}
+                      className='px-2.5 py-1 text-sm'
+                    />
+                  ) : (
+                    <h3 className='text-lg font-semibold'>Player</h3>
+                  )}
                   <p className='text-sm text-muted-foreground'>
                     {[
                       statsResp?.player?.bats ?? player.bats,
@@ -242,7 +249,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
               <div className='min-w-0 flex-1 space-y-4'>
                 <div className='flex flex-wrap items-center gap-2'>
                   {player.position && (
-                    <Badge variant='secondary'>{player.position}</Badge>
+                    <PositionBadge position={player.position} />
                   )}
                   {player.school_type && (
                     <Badge variant='outline'>{player.school_type}</Badge>
@@ -343,55 +350,70 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
                         <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
                           This season
                         </p>
-                        <div className='grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 sm:gap-4 md:flex md:flex-wrap'>
+                        <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
                           {gp != null && (gp as number) > 0 && (
-                            <span>
-                              <strong>GP</strong> {formatStatValue(gp)}
-                            </span>
+                            <StatCard
+                              label='GP'
+                              value={formatStatValue(gp)}
+                              size='compact'
+                            />
                           )}
                           {hasBatting && (
                             <>
-                              <span>
-                                <strong>AVG</strong>{' '}
-                                {formatStatValue(s.batting_average)}
-                              </span>
-                              <span>
-                                <strong>AB</strong> {formatStatValue(s.at_bats)}
-                              </span>
-                              <span>
-                                <strong>H</strong> {formatStatValue(s.hits)}
-                              </span>
-                              <span>
-                                <strong>HR</strong>{' '}
-                                {formatStatValue(s.home_runs)}
-                              </span>
-                              <span>
-                                <strong>RBI</strong> {formatStatValue(s.rbi)}
-                              </span>
-                              <span>
-                                <strong>OBP</strong>{' '}
-                                {formatStatValue(s.on_base_percentage)}
-                              </span>
+                              <StatCard
+                                label='AVG'
+                                value={formatStatValue(s.batting_average)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='AB'
+                                value={formatStatValue(s.at_bats)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='H'
+                                value={formatStatValue(s.hits)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='HR'
+                                value={formatStatValue(s.home_runs)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='RBI'
+                                value={formatStatValue(s.rbi)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='OBP'
+                                value={formatStatValue(s.on_base_percentage)}
+                                size='compact'
+                              />
                             </>
                           )}
                           {hasPitching && (
                             <>
-                              <span>
-                                <strong>ERA</strong> {formatStatValue(s.era)}
-                              </span>
-                              <span>
-                                <strong>IP</strong>{' '}
-                                {formatStatValue(s.innings_pitched)}
-                              </span>
-                              <span>
-                                <strong>W-L</strong>{' '}
-                                {formatStatValue(s.pitching_wins)}-
-                                {formatStatValue(s.pitching_losses)}
-                              </span>
-                              <span>
-                                <strong>K</strong>{' '}
-                                {formatStatValue(s.strikeouts_pitching)}
-                              </span>
+                              <StatCard
+                                label='ERA'
+                                value={formatStatValue(s.era)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='IP'
+                                value={formatStatValue(s.innings_pitched)}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='W-L'
+                                value={`${formatStatValue(s.pitching_wins)}-${formatStatValue(s.pitching_losses)}`}
+                                size='compact'
+                              />
+                              <StatCard
+                                label='K'
+                                value={formatStatValue(s.strikeouts_pitching)}
+                                size='compact'
+                              />
                             </>
                           )}
                         </div>
@@ -463,10 +485,10 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
           </div>
           <TabsContent value='stats' className='space-y-4'>
             {statsResp && hasStats(statsResp) ? (
-              <Card>
+              <Card variant='sport'>
                 <CardHeader>
                   <div className='flex items-center gap-2'>
-                    <BarChart3 className='size-5 text-muted-foreground' />
+                    <BarChart3 className='size-5 text-primary' />
                     <CardTitle>Statistics</CardTitle>
                   </div>
                   <CardDescription>
