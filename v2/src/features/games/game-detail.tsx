@@ -27,6 +27,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { GameResultBadge } from '@/components/ui/game-result-badge'
+import { PositionBadge } from '@/components/ui/position-badge'
+import { StatCard } from '@/components/ui/stat-card'
 import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
 
@@ -224,7 +227,7 @@ export function GameDetail({ id }: GameDetailProps) {
             </Button>
           </div>
 
-          <Card>
+          <Card variant='sport'>
             <CardContent className='p-6'>
               {/* Row 1: Opponent | Venue | Event | Tournament | Date — vertically aligned */}
               <div className='grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'>
@@ -310,7 +313,7 @@ export function GameDetail({ id }: GameDetailProps) {
                     <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                       Final
                     </p>
-                    <p className='text-4xl font-bold tabular-nums sm:text-5xl'>
+                    <p className='text-4xl font-extrabold tabular-nums sm:text-5xl'>
                       {game.team_score ?? '—'}
                       <span className='mx-2 text-2xl text-muted-foreground sm:text-3xl'>
                         –
@@ -321,12 +324,23 @@ export function GameDetail({ id }: GameDetailProps) {
                 )}
                 <div className='flex flex-wrap gap-2'>
                   {game.result && (
-                    <Badge
-                      variant={game.result === 'Win' ? 'default' : 'secondary'}
+                    <GameResultBadge
+                      result={
+                        game.result === 'Win'
+                          ? 'W'
+                          : game.result === 'Loss'
+                            ? 'L'
+                            : game.result === 'Tie'
+                              ? 'T'
+                              : 'D'
+                      }
+                      score={
+                        game.team_score != null && game.opponent_score != null
+                          ? `${game.team_score}-${game.opponent_score}`
+                          : undefined
+                      }
                       className='text-sm'
-                    >
-                      {game.result}
-                    </Badge>
+                    />
                   )}
                   {game.home_away && (
                     <Badge variant='outline'>{game.home_away}</Badge>
@@ -348,7 +362,7 @@ export function GameDetail({ id }: GameDetailProps) {
 
           {gameStats ||
           (game && hasGameStats(game as unknown as Record<string, unknown>)) ? (
-            <Card>
+            <Card variant='sport'>
               <CardHeader>
                 <div className='flex items-center gap-2'>
                   <BarChart3 className='size-5 text-muted-foreground' />
@@ -433,9 +447,9 @@ export function GameDetail({ id }: GameDetailProps) {
                             <span className='text-muted-foreground'>
                               #{p.jersey_number}
                             </span>
-                            <span className='rounded bg-muted px-1.5 py-0.5 text-xs font-medium'>
-                              {p.position}
-                            </span>
+                            {p.position && (
+                              <PositionBadge position={p.position} />
+                            )}
                           </div>
                           {p.batting && (
                             <p className='mt-1 text-sm text-muted-foreground'>
@@ -849,12 +863,12 @@ function GameStatsDisplay({
       {hasScalars && (
         <div className='grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'>
           {scalarEntries.map(([key, value]) => (
-            <div key={key} className='rounded-lg border bg-muted/30 p-2'>
-              <p className='text-xs text-muted-foreground'>
-                {STAT_LABELS[key] ?? key.replace(/_/g, ' ')}
-              </p>
-              <p className='font-semibold'>{String(value)}</p>
-            </div>
+            <StatCard
+              key={key}
+              label={STAT_LABELS[key] ?? key.replace(/_/g, ' ')}
+              value={String(value)}
+              size='compact'
+            />
           ))}
         </div>
       )}
