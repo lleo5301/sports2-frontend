@@ -1,20 +1,18 @@
 /**
- * Scouting report detail view with edit.
+ * Scouting report detail — single cohesive "report sheet" view.
  */
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowLeft,
-  Calendar,
-  Clock,
   Loader2,
   Pencil,
   User,
   MapPin,
-  Zap,
+  Calendar,
+  Clock,
   FileText,
-  Target,
 } from 'lucide-react'
 import { scoutingApi, type ScoutingReport } from '@/lib/scouting-api'
 import { Badge } from '@/components/ui/badge'
@@ -24,8 +22,8 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { Main } from '@/components/layout/main'
 import { EditScoutingForm } from './edit-scouting-form'
 
@@ -87,7 +85,6 @@ function GradeBadge({ value }: { value?: unknown }) {
   if (value === undefined || value === null || value === '')
     return <span className='text-muted-foreground'>—</span>
   const display = String(value)
-  // Determine color intensity based on grade type
   const numVal = Number(display)
   let variant: 'default' | 'secondary' | 'outline' = 'secondary'
   if (!Number.isNaN(numVal)) {
@@ -171,30 +168,57 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
   }
 
   const position = subjectPosition(report)
-  const hasGrades =
-    report.overall_present != null ||
-    report.overall_future != null ||
-    report.hitting_present != null ||
-    report.hitting_future != null ||
-    report.pitching_present != null ||
-    report.pitching_future != null ||
-    report.fielding_present != null ||
-    report.fielding_future != null ||
-    report.speed_present != null ||
-    report.speed_future != null ||
-    report.arm_present != null ||
-    report.arm_future != null ||
-    report.power_present != null ||
-    report.power_future != null
+  const gradeRows = [
+    {
+      label: 'Overall',
+      present: report.overall_present,
+      future: report.overall_future,
+    },
+    {
+      label: 'Hitting',
+      present: report.hitting_present,
+      future: report.hitting_future,
+    },
+    {
+      label: 'Power',
+      present: report.power_present,
+      future: report.power_future,
+    },
+    {
+      label: 'Fielding',
+      present: report.fielding_present,
+      future: report.fielding_future,
+    },
+    { label: 'Arm', present: report.arm_present, future: report.arm_future },
+    {
+      label: 'Speed',
+      present: report.speed_present,
+      future: report.speed_future,
+    },
+    {
+      label: 'Pitching',
+      present: report.pitching_present,
+      future: report.pitching_future,
+    },
+  ]
+  const hasGrades = gradeRows.some(
+    (r) =>
+      (r.present !== undefined && r.present !== null && r.present !== '') ||
+      (r.future !== undefined && r.future !== null && r.future !== '')
+  )
   const hasAthleticism =
     report.sixty_yard_dash != null || !!report.mlb_comparison
 
+  const scoutName = report.User
+    ? [report.User.first_name, report.User.last_name].filter(Boolean).join(' ')
+    : null
+
   return (
     <Main>
-      <div className='mx-auto max-w-4xl space-y-6'>
-        {/* Header */}
-        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-          <div className='flex items-center gap-3 sm:gap-4'>
+      <div className='mx-auto max-w-3xl space-y-4'>
+        {/* Header with back + Update Report button */}
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-3'>
             <Button variant='ghost' size='icon' asChild>
               <Link to='/scouting'>
                 <ArrowLeft className='size-4' />
@@ -202,267 +226,164 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
             </Button>
             <div className='min-w-0'>
               <h2 className='truncate text-xl font-bold tracking-tight sm:text-2xl'>
-                Report #{id} — {subjectName(report)}
+                {subjectName(report)}
               </h2>
               <CardDescription className='text-sm'>
                 {formatDate(report.report_date)} • {report.event_type || '—'}
               </CardDescription>
             </div>
           </div>
-          <Button
-            variant='outline'
-            className='w-full sm:w-auto'
-            onClick={() => setEditing(true)}
-          >
+          <Button onClick={() => setEditing(true)}>
             <Pencil className='size-4' />
-            Edit
+            Update Report
           </Button>
         </div>
 
-        {/* Subject & Event Info Card */}
+        {/* Single unified report card */}
         <Card>
-          <CardHeader className='pb-3'>
-            <CardTitle className='text-base'>Report Overview</CardTitle>
+          <CardHeader className='pb-4'>
+            {/* Report metadata row */}
+            <div className='flex flex-wrap items-center gap-x-6 gap-y-2 text-sm'>
+              <div className='flex items-center gap-1.5'>
+                <User className='size-3.5 text-muted-foreground' />
+                <span className='font-medium'>{subjectName(report)}</span>
+                {position && (
+                  <Badge variant='outline' className='ml-1'>
+                    {position}
+                  </Badge>
+                )}
+              </div>
+              <div className='flex items-center gap-1.5 text-muted-foreground'>
+                <Calendar className='size-3.5' />
+                {formatDate(report.report_date)}
+              </div>
+              <div className='flex items-center gap-1.5 text-muted-foreground'>
+                <MapPin className='size-3.5' />
+                <span className='capitalize'>{report.event_type || '—'}</span>
+              </div>
+              {scoutName && (
+                <div className='flex items-center gap-1.5 text-muted-foreground'>
+                  <User className='size-3.5' />
+                  Scout: {scoutName}
+                </div>
+              )}
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-              <div className='flex items-start gap-3'>
-                <User className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
-                <div>
-                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                    Subject
-                  </p>
-                  <p className='font-medium'>{subjectName(report)}</p>
-                  {position && (
-                    <Badge variant='outline' className='mt-1'>
-                      {position}
-                    </Badge>
+
+          <CardContent className='space-y-6'>
+            {/* Tool Grades */}
+            {hasGrades && (
+              <div>
+                <h3 className='mb-3 text-sm font-semibold tracking-wider text-muted-foreground uppercase'>
+                  Tool Grades
+                </h3>
+                <div className='overflow-x-auto'>
+                  <table className='w-full text-sm whitespace-nowrap'>
+                    <thead>
+                      <tr className='border-b'>
+                        <th className='pb-2 text-left font-medium text-muted-foreground'>
+                          Tool
+                        </th>
+                        <th className='pb-2 text-center font-medium text-muted-foreground'>
+                          Present
+                        </th>
+                        <th className='pb-2 text-center font-medium text-muted-foreground'>
+                          Future
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='divide-y'>
+                      {gradeRows.map((row) => (
+                        <tr key={row.label}>
+                          <td className='py-2.5 font-medium'>{row.label}</td>
+                          <td className='py-2.5 text-center'>
+                            <GradeBadge value={row.present} />
+                          </td>
+                          <td className='py-2.5 text-center'>
+                            <GradeBadge value={row.future} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {hasGrades && (hasAthleticism || report.notes) && <Separator />}
+
+            {/* Athleticism & Comparison */}
+            {hasAthleticism && (
+              <div>
+                <h3 className='mb-3 text-sm font-semibold tracking-wider text-muted-foreground uppercase'>
+                  Athleticism
+                </h3>
+                <div className='grid grid-cols-2 gap-4'>
+                  {report.sixty_yard_dash != null && (
+                    <div>
+                      <p className='text-xs text-muted-foreground'>
+                        60-Yard Dash
+                      </p>
+                      <p className='text-2xl font-bold tabular-nums'>
+                        {report.sixty_yard_dash}s
+                      </p>
+                    </div>
+                  )}
+                  {report.mlb_comparison && (
+                    <div>
+                      <p className='text-xs text-muted-foreground'>
+                        MLB Comparison
+                      </p>
+                      <p className='text-lg font-medium'>
+                        {report.mlb_comparison}
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
-              <div className='flex items-start gap-3'>
-                <Calendar className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
-                <div>
-                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                    Report Date
-                  </p>
-                  <p className='font-medium'>
-                    {formatDate(report.report_date)}
-                  </p>
-                </div>
-              </div>
-              <div className='flex items-start gap-3'>
-                <MapPin className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
-                <div>
-                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                    Event Type
-                  </p>
-                  <p className='font-medium capitalize'>
-                    {report.event_type || '—'}
-                  </p>
-                </div>
-              </div>
-              <div className='flex items-start gap-3'>
-                <Target className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
-                <div>
-                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                    Report ID
-                  </p>
-                  <p className='font-medium'>#{report.id}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            )}
 
-        {/* Grades Card */}
-        <Card>
-          <CardHeader className='pb-3'>
-            <CardTitle className='text-base'>Grades</CardTitle>
-            <CardDescription>
-              20–80 scale or letter grades (Present / Future)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {hasGrades ? (
-              <div className='overflow-x-auto'>
-                <table className='w-full text-sm whitespace-nowrap'>
-                  <thead>
-                    <tr className='border-b'>
-                      <th className='pb-2 text-left font-medium text-muted-foreground'>
-                        Skill
-                      </th>
-                      <th className='pb-2 text-center font-medium text-muted-foreground'>
-                        Present
-                      </th>
-                      <th className='pb-2 text-center font-medium text-muted-foreground'>
-                        Future
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='divide-y'>
-                    <GradeRow
-                      label='Overall'
-                      present={report.overall_present}
-                      future={report.overall_future}
-                    />
-                    <GradeRow
-                      label='Hitting'
-                      present={report.hitting_present}
-                      future={report.hitting_future}
-                    />
-                    <GradeRow
-                      label='Pitching'
-                      present={report.pitching_present}
-                      future={report.pitching_future}
-                    />
-                    <GradeRow
-                      label='Fielding'
-                      present={report.fielding_present}
-                      future={report.fielding_future}
-                    />
-                    <GradeRow
-                      label='Speed'
-                      present={report.speed_present}
-                      future={report.speed_future}
-                    />
-                    <GradeRow
-                      label='Arm'
-                      present={report.arm_present}
-                      future={report.arm_future}
-                    />
-                    <GradeRow
-                      label='Power'
-                      present={report.power_present}
-                      future={report.power_future}
-                    />
-                  </tbody>
-                </table>
+            {hasAthleticism && report.notes && <Separator />}
+
+            {/* Notes */}
+            {report.notes && (
+              <div>
+                <h3 className='mb-2 flex items-center gap-1.5 text-sm font-semibold tracking-wider text-muted-foreground uppercase'>
+                  <FileText className='size-3.5' />
+                  Scouting Notes
+                </h3>
+                <p className='text-sm leading-relaxed whitespace-pre-wrap text-foreground sm:text-base'>
+                  {report.notes}
+                </p>
               </div>
-            ) : (
-              <p className='text-sm text-muted-foreground'>
-                No grades recorded
+            )}
+
+            {!hasGrades && !hasAthleticism && !report.notes && (
+              <p className='py-4 text-center text-sm text-muted-foreground'>
+                No grades, athleticism data, or notes recorded yet.
               </p>
             )}
-          </CardContent>
-        </Card>
 
-        {/* Athleticism Card */}
-        <Card>
-          <CardHeader className='pb-3'>
-            <div className='flex items-center gap-2'>
-              <Zap className='size-4 text-muted-foreground' />
-              <CardTitle className='text-base'>
-                Athleticism & Comparison
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {hasAthleticism ? (
-              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6'>
-                <div>
-                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                    60-Yard Dash
-                  </p>
-                  <p className='mt-1 text-2xl font-bold tabular-nums'>
-                    {report.sixty_yard_dash != null
-                      ? `${report.sixty_yard_dash}s`
-                      : '—'}
-                  </p>
-                </div>
-                <div>
-                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                    MLB Comparison
-                  </p>
-                  <p className='mt-1 text-lg font-medium'>
-                    {report.mlb_comparison || '—'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p className='text-sm text-muted-foreground'>
-                No athleticism data recorded
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Notes Card */}
-        <Card>
-          <CardHeader className='pb-3'>
-            <div className='flex items-center gap-2'>
-              <FileText className='size-4 text-muted-foreground' />
-              <CardTitle className='text-base'>Scouting Notes</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {report.notes ? (
-              <p className='text-sm leading-relaxed whitespace-pre-wrap text-foreground sm:text-base'>
-                {report.notes}
-              </p>
-            ) : (
-              <p className='text-sm text-muted-foreground italic'>
-                No notes recorded for this report.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Metadata Footer */}
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2'>
-              {report.User && (
-                <div className='flex items-center gap-1.5'>
-                  <User className='size-3.5' />
-                  <span>
-                    Created by{' '}
-                    <span className='font-medium text-foreground'>
-                      {[report.User.first_name, report.User.last_name]
-                        .filter(Boolean)
-                        .join(' ') || 'Unknown'}
-                    </span>
-                  </span>
-                </div>
-              )}
+            {/* Metadata footer */}
+            <Separator />
+            <div className='flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-muted-foreground'>
+              <span>Report #{report.id}</span>
               {report.created_at && (
-                <div className='flex items-center gap-1.5'>
-                  <Clock className='size-3.5' />
-                  <span>Created {formatDateTime(report.created_at)}</span>
-                </div>
+                <span className='flex items-center gap-1'>
+                  <Clock className='size-3' />
+                  Created {formatDateTime(report.created_at)}
+                </span>
               )}
               {report.updated_at && report.updated_at !== report.created_at && (
-                <div className='flex items-center gap-1.5'>
-                  <Clock className='size-3.5' />
-                  <span>Updated {formatDateTime(report.updated_at)}</span>
-                </div>
+                <span className='flex items-center gap-1'>
+                  <Clock className='size-3' />
+                  Updated {formatDateTime(report.updated_at)}
+                </span>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
     </Main>
-  )
-}
-
-function GradeRow({
-  label,
-  present,
-  future,
-}: {
-  label: string
-  present?: unknown
-  future?: unknown
-}) {
-  return (
-    <tr>
-      <td className='py-3 font-medium'>{label}</td>
-      <td className='py-3 text-center'>
-        <GradeBadge value={present} />
-      </td>
-      <td className='py-3 text-center'>
-        <GradeBadge value={future} />
-      </td>
-    </tr>
   )
 }

@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { Main } from '@/components/layout/main'
 import { CreateProspectModal } from './create-prospect-modal'
 
@@ -420,10 +421,10 @@ export function CreateScoutingForm({
                   <FormItem>
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <Input
+                      <Textarea
                         {...field}
                         placeholder='Scouting notes...'
-                        className='min-h-[80px]'
+                        rows={4}
                       />
                     </FormControl>
                   </FormItem>
