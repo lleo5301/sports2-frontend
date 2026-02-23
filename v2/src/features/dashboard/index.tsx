@@ -18,7 +18,7 @@ export function Dashboard() {
   return (
     <>
       {/* ===== Sub Nav ===== */}
-      <div className='flex h-12 items-center px-4 sm:px-6 md:px-8 border-b bg-background'>
+      <div className='flex h-12 items-center border-b bg-background px-4 sm:px-6 md:px-8'>
         <TopNav links={topNav} />
         <div className='ms-auto flex items-center space-x-4'>
           <ConfigDrawer />
@@ -27,10 +27,10 @@ export function Dashboard() {
 
       {/* ===== Main ===== */}
       <Main>
-        <div className='mb-2 flex items-center justify-between space-y-2'>
+        <div className='mb-2 flex flex-wrap items-center justify-between gap-2'>
           <h1 className='text-2xl font-bold tracking-tight'>Dashboard</h1>
           <div className='flex items-center space-x-2'>
-            <Button>Download</Button>
+            <Button className='w-full sm:w-auto'>Download</Button>
           </div>
         </div>
         <Tabs
@@ -39,7 +39,7 @@ export function Dashboard() {
           className='space-y-4'
         >
           <div className='w-full overflow-x-auto pb-2'>
-            <TabsList>
+            <TabsList className='inline-flex w-auto flex-nowrap'>
               <TabsTrigger value='overview'>Overview</TabsTrigger>
               <TabsTrigger value='analytics'>Analytics</TabsTrigger>
               <TabsTrigger value='reports' disabled>
@@ -51,7 +51,7 @@ export function Dashboard() {
             </TabsList>
           </div>
           <TabsContent value='overview' className='space-y-4'>
-            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4'>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium'>
@@ -159,7 +159,7 @@ export function Dashboard() {
                 <CardHeader>
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
-                <CardContent className='ps-2'>
+                <CardContent className='min-h-[250px] ps-2'>
                   <Overview />
                 </CardContent>
               </Card>

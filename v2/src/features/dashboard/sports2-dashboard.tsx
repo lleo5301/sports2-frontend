@@ -3,9 +3,10 @@
  * Data: teams/me, teams/stats, teams/recent-schedules, teams/upcoming-schedules
  * Supplemental: schedules/stats, games/team-stats, depth-charts, prospects, rosters
  */
+import { parseISO, endOfDay } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { parseISO, endOfDay } from 'date-fns'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   Users,
   FileText,
@@ -20,15 +21,18 @@ import {
   UserPlus,
   List,
 } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { teamsApi } from '@/lib/teams-api'
-import { schedulesApi } from '@/lib/schedules-api'
-import { gamesApi, formatGameDateShort, formatGameLocation, type Game } from '@/lib/games-api'
-import { extendedStatsApi } from '@/lib/extended-stats-api'
 import { depthChartsApi } from '@/lib/depth-charts-api'
-import { prospectsApi } from '@/lib/prospects-api'
+import { extendedStatsApi } from '@/lib/extended-stats-api'
+import {
+  gamesApi,
+  formatGameDateShort,
+  formatGameLocation,
+  type Game,
+} from '@/lib/games-api'
 import { playersApi } from '@/lib/players-api'
-import { Main } from '@/components/layout/main'
+import { prospectsApi } from '@/lib/prospects-api'
+import { schedulesApi } from '@/lib/schedules-api'
+import { teamsApi } from '@/lib/teams-api'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -36,6 +40,7 @@ import {
   CardDescription,
   CardHeader,
 } from '@/components/ui/card'
+import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
 
 function formatGameLabel(game: Game) {
@@ -54,21 +59,19 @@ function formatGameResult(game: Game & { game_summary?: string | null }) {
 }
 
 /** Normalize extended-stats game (recent_games / game-log) to Game shape */
-function fromExtendedStats(
-  g: {
-    id: string | number
-    date: string
-    opponent: string
-    home_away?: string
-    result?: string | null
-    score?: string | null
-    game_summary?: string
-    running_record?: string | null
-    location?: string | null
-    venue_name?: string | null
-    opponent_logo_url?: string | null
-  }
-): Game {
+function fromExtendedStats(g: {
+  id: string | number
+  date: string
+  opponent: string
+  home_away?: string
+  result?: string | null
+  score?: string | null
+  game_summary?: string
+  running_record?: string | null
+  location?: string | null
+  venue_name?: string | null
+  opponent_logo_url?: string | null
+}): Game {
   let teamScore: number | undefined
   let oppScore: number | undefined
   if (g.score) {
@@ -79,7 +82,10 @@ function fromExtendedStats(
     }
   }
   return {
-    id: typeof g.id === 'number' ? g.id : (parseInt(String(g.id), 10) || g.id) as number,
+    id:
+      typeof g.id === 'number'
+        ? g.id
+        : ((parseInt(String(g.id), 10) || g.id) as number),
     opponent: g.opponent,
     opponent_logo_url: g.opponent_logo_url,
     date: g.date,
@@ -97,13 +103,21 @@ function fromExtendedStats(
 export function Sports2Dashboard() {
   const { user } = useAuth()
 
-  const { data: team, isLoading: teamLoading, error: teamError } = useQuery({
+  const {
+    data: team,
+    isLoading: teamLoading,
+    error: teamError,
+  } = useQuery({
     queryKey: ['team-me'],
     queryFn: () => teamsApi.getMyTeam(),
     retry: 1,
   })
 
-  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery({
     queryKey: ['team-stats'],
     queryFn: () => teamsApi.getTeamStats(),
   })
@@ -154,18 +168,25 @@ export function Sports2Dashboard() {
       }
     }
 
-    const sortByDateDesc = (a: Game | Record<string, unknown>, b: Game | Record<string, unknown>) => {
+    const sortByDateDesc = (
+      a: Game | Record<string, unknown>,
+      b: Game | Record<string, unknown>
+    ) => {
       const da = getGameDate(a) ?? ''
       const db = getGameDate(b) ?? ''
       return String(db).localeCompare(String(da))
     }
 
     const fromLog = Array.isArray(recentGamesFromLog) ? recentGamesFromLog : []
-    const pastFromLog = fromLog.filter((g) => isPastOrToday(g)).sort(sortByDateDesc)
+    const pastFromLog = fromLog
+      .filter((g) => isPastOrToday(g))
+      .sort(sortByDateDesc)
     if (pastFromLog.length > 0) return pastFromLog.slice(0, 5)
 
     const list = gamesListData?.data ?? []
-    const pastFromList = list.filter((g) => isPastOrToday(g)).sort(sortByDateDesc)
+    const pastFromList = list
+      .filter((g) => isPastOrToday(g))
+      .sort(sortByDateDesc)
     if (pastFromList.length > 0) return pastFromList.slice(0, 5)
 
     const fromDashboard = coachDashboard?.recent_games ?? []
@@ -234,21 +255,26 @@ export function Sports2Dashboard() {
   const error = teamError || statsError
 
   const teamStats = stats as Record<string, unknown> | undefined
-  const gamesStats = (gamesTeamStats ?? gamesSeasonStats) as Record<string, unknown> | undefined
+  const gamesStats = (gamesTeamStats ?? gamesSeasonStats) as
+    | Record<string, unknown>
+    | undefined
 
-  const teamPlayers = Number(teamStats?.players ?? teamStats?.player_count ?? teamStats?.total_players ?? 0) || 0
+  const teamPlayers =
+    Number(
+      teamStats?.players ??
+        teamStats?.player_count ??
+        teamStats?.total_players ??
+        0
+    ) || 0
 
   const statsData = {
     players:
       teamPlayers > 0 ? teamPlayers : (playersList?.pagination?.total ?? 0),
-    reports:
-      Number(teamStats?.reports ?? teamStats?.report_count ?? 0) || 0,
+    reports: Number(teamStats?.reports ?? teamStats?.report_count ?? 0) || 0,
     schedules:
       Number(teamStats?.schedules ?? teamStats?.schedule_count ?? 0) || 0,
-    wins:
-      Number(teamStats?.wins ?? gamesStats?.wins ?? 0) || 0,
-    losses:
-      Number(teamStats?.losses ?? gamesStats?.losses ?? 0) || 0,
+    wins: Number(teamStats?.wins ?? gamesStats?.wins ?? 0) || 0,
+    losses: Number(teamStats?.losses ?? gamesStats?.losses ?? 0) || 0,
     scheduleThisWeek: Number(scheduleStats?.thisWeek ?? 0) || 0,
     scheduleThisMonth: Number(scheduleStats?.thisMonth ?? 0) || 0,
     depthCharts: Array.isArray(depthCharts) ? depthCharts.length : 0,
@@ -264,7 +290,7 @@ export function Sports2Dashboard() {
       <Main>
         <div className='animate-pulse space-y-8 p-6'>
           <div className='h-10 w-64 rounded bg-muted' />
-          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+          <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4'>
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className='h-32 rounded-lg bg-muted' />
             ))}
@@ -360,7 +386,8 @@ export function Sports2Dashboard() {
                 </p>
                 <div className='mt-1 flex items-center justify-center gap-1.5'>
                   <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    {statsData.scheduleThisWeek > 0 || statsData.scheduleThisMonth > 0
+                    {statsData.scheduleThisWeek > 0 ||
+                    statsData.scheduleThisMonth > 0
                       ? `${statsData.scheduleThisWeek} Wk / ${statsData.scheduleThisMonth} Mo`
                       : 'Schedules'}
                   </p>
@@ -430,7 +457,7 @@ export function Sports2Dashboard() {
         {/* Recent & Upcoming Games */}
         <section className='grid gap-6 lg:grid-cols-2'>
           <Card>
-            <CardHeader className='flex flex-row items-center justify-between px-6 pb-2 pt-6'>
+            <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
               <h2 className='flex items-center gap-2 text-lg font-bold'>
                 <Trophy className='size-5 text-muted-foreground' />
                 Recent Games
@@ -460,7 +487,7 @@ export function Sports2Dashboard() {
                           size={32}
                           reserveSpace
                         />
-                        <span className='w-20 shrink-0 text-sm text-muted-foreground'>
+                        <span className='hidden w-20 shrink-0 text-sm text-muted-foreground sm:inline'>
                           {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>
@@ -472,10 +499,12 @@ export function Sports2Dashboard() {
                               </span>
                             )}
                           </p>
-                          {(formatGameLocation(game) || (game as Game).tournament?.name) && (
+                          {(formatGameLocation(game) ||
+                            (game as Game).tournament?.name) && (
                             <p className='flex items-center gap-1 text-sm text-muted-foreground'>
                               <MapPin className='size-3.5 shrink-0' />
-                              {formatGameLocation(game) || (game as Game).tournament?.name}
+                              {formatGameLocation(game) ||
+                                (game as Game).tournament?.name}
                             </p>
                           )}
                         </div>
@@ -493,7 +522,7 @@ export function Sports2Dashboard() {
           </Card>
 
           <Card>
-            <CardHeader className='flex flex-row items-center justify-between px-6 pb-2 pt-6'>
+            <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
               <h2 className='flex items-center gap-2 text-lg font-bold'>
                 <Trophy className='size-5 text-muted-foreground' />
                 Upcoming Games
@@ -523,17 +552,19 @@ export function Sports2Dashboard() {
                           size={32}
                           reserveSpace
                         />
-                        <span className='w-20 shrink-0 text-sm text-muted-foreground'>
+                        <span className='hidden w-20 shrink-0 text-sm text-muted-foreground sm:inline'>
                           {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>
                           <p className='truncate font-medium'>
                             {formatGameLabel(game)}
                           </p>
-                          {(formatGameLocation(game) || (game as Game).tournament?.name) && (
+                          {(formatGameLocation(game) ||
+                            (game as Game).tournament?.name) && (
                             <p className='flex items-center gap-1 text-sm text-muted-foreground'>
                               <MapPin className='size-3.5 shrink-0' />
-                              {formatGameLocation(game) || (game as Game).tournament?.name}
+                              {formatGameLocation(game) ||
+                                (game as Game).tournament?.name}
                             </p>
                           )}
                         </div>
@@ -553,7 +584,7 @@ export function Sports2Dashboard() {
 
         {/* Quick Actions */}
         <Card>
-          <CardHeader className='px-6 pb-2 pt-6'>
+          <CardHeader className='px-6 pt-6 pb-2'>
             <h2 className='flex items-center gap-2 text-lg font-bold'>
               <BarChart3 className='size-5' />
               Quick Actions
@@ -561,7 +592,7 @@ export function Sports2Dashboard() {
             <CardDescription>Common tasks and shortcuts</CardDescription>
           </CardHeader>
           <CardContent className='px-6 pb-6'>
-            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4'>
               <Button
                 variant='outline'
                 className='h-auto justify-start gap-3 py-4'
