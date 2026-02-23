@@ -1,8 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, BarChart3, ClipboardList, Layers, Loader2, User } from 'lucide-react'
-import { gamesApi, formatGameDateTime, formatGameLocation } from '@/lib/games-api'
-import { Main } from '@/components/layout/main'
+import {
+  ArrowLeft,
+  BarChart3,
+  ClipboardList,
+  Layers,
+  Loader2,
+  User,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import { defaultPositions } from '@/lib/depth-chart-constants'
+import { depthChartsApi } from '@/lib/depth-charts-api'
+import { extendedStatsApi } from '@/lib/extended-stats-api'
+import {
+  gamesApi,
+  formatGameDateTime,
+  formatGameLocation,
+} from '@/lib/games-api'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -11,13 +27,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { extendedStatsApi } from '@/lib/extended-stats-api'
+import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
-import { depthChartsApi } from '@/lib/depth-charts-api'
-import { defaultPositions } from '@/lib/depth-chart-constants'
-import { toast } from 'sonner'
 
 interface GameDetailProps {
   id: string
@@ -27,7 +38,11 @@ export function GameDetail({ id }: GameDetailProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const gameId = parseInt(id, 10)
-  const { data: game, isLoading, error } = useQuery({
+  const {
+    data: game,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['game', gameId],
     queryFn: () => gamesApi.getById(gameId),
     enabled: !Number.isNaN(gameId),
@@ -69,7 +84,9 @@ export function GameDetail({ id }: GameDetailProps) {
       }
       const updated = await depthChartsApi.getById(chart.id)
       const positions = updated?.DepthChartPositions ?? []
-      const positionByCode = Object.fromEntries(positions.map((p) => [p.position_code, p]))
+      const positionByCode = Object.fromEntries(
+        positions.map((p) => [p.position_code, p])
+      )
       let assigned = 0
       for (const lp of lineup.players) {
         const pid =
@@ -82,7 +99,11 @@ export function GameDetail({ id }: GameDetailProps) {
         const pos = positionByCode[lp.position]
         if (!pos) continue
         try {
-          await depthChartsApi.assignPlayer(pos.id, { player_id: pid, depth_order: 1, rank: 1 })
+          await depthChartsApi.assignPlayer(pos.id, {
+            player_id: pid,
+            depth_order: 1,
+            rank: 1,
+          })
           assigned++
         } catch {
           // Skip failed assigns; continue with others
@@ -150,231 +171,288 @@ export function GameDetail({ id }: GameDetailProps) {
 
   const dateStr = formatGameDateTime(game)
   const statsSource = (gameStats ?? game) as Record<string, unknown>
-  const teamStats = game.team_stats ?? statsSource?.team_stats as Record<string, string | number> | undefined
-  const opponentStats = game.opponent_stats ?? statsSource?.opponent_stats as Record<string, string | number> | undefined
+  const teamStats =
+    game.team_stats ??
+    (statsSource?.team_stats as Record<string, string | number> | undefined)
+  const opponentStats =
+    game.opponent_stats ??
+    (statsSource?.opponent_stats as Record<string, string | number> | undefined)
   const gameDuration = game.game_duration ?? teamStats?.['time']
 
   return (
     <>
       <Main>
         <div className='space-y-6'>
-        <div className='flex flex-wrap items-center gap-4'>
-          <Button variant='ghost' size='icon' asChild>
-            <Link to='/games'>
-              <ArrowLeft className='size-4' />
-            </Link>
-          </Button>
-          <div className="flex items-center gap-4">
-            <OpponentLogo opponent={game.opponent} logoUrl={game.opponent_logo_url} size={56} reserveSpace />
-            <div>
-              <h2 className='text-2xl font-bold tracking-tight'>
-                vs {game.opponent || `Game #${id}`}
-              </h2>
-              <CardDescription>
-                {dateStr}
-                {formatGameLocation(game) && ` • ${formatGameLocation(game)}`}
-              </CardDescription>
-            </div>
-          </div>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => createFromGameMutation.mutate()}
-            disabled={createFromGameMutation.isPending}
-          >
-            {createFromGameMutation.isPending ? (
-              <Loader2 className='size-4 animate-spin' />
-            ) : (
-              <>
-                <Layers className='size-4' />
-                Create depth chart from game
-              </>
-            )}
-          </Button>
-        </div>
-
-        <Card>
-          <CardContent className='p-6'>
-            {/* Row 1: Opponent | Venue | Event | Tournament | Date — vertically aligned */}
-            <div className='grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-5'>
-              <div>
-                <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Opponent</p>
-                <div className='mt-1 flex items-center gap-2'>
-                  <OpponentLogo
-                    opponent={game.opponent}
-                    logoUrl={game.opponent_logo_url}
-                    size={32}
-                    reserveSpace
-                  />
-                  <p className='font-semibold'>{game.opponent || '—'}</p>
-                </div>
-              </div>
-              {formatGameLocation(game) && (
-                <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Venue</p>
-                  <p className='mt-1 font-medium'>{formatGameLocation(game)}</p>
-                </div>
-              )}
-              {game.event_type && game.event_type !== 'game' && (
-                <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Event</p>
-                  <p className='mt-1 font-medium'>{game.event_type}</p>
-                </div>
-              )}
-              {game.tournament?.name && (
-                <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Tournament</p>
-                  <p className='mt-1 font-medium'>{game.tournament.name}</p>
-                </div>
-              )}
-              <div>
-                <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Date & time</p>
-                <p className='mt-1 font-medium'>{dateStr || '—'}</p>
-                {gameDuration && (
-                  <p className='mt-0.5 text-sm text-muted-foreground'>
-                    Duration: {String(gameDuration)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Row 2: Quick line stats (R–H–AB) when available */}
-            {(teamStats || opponentStats) && (
-              <div className='mt-6 flex flex-wrap items-center gap-4 rounded-lg bg-muted/50 px-4 py-3'>
-                <span className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Line score</span>
-                <div className='flex flex-wrap gap-6'>
-                  <span className='font-medium'>
-                    Us: {teamStats?.['r'] ?? '—'} R · {teamStats?.['h'] ?? '—'} H · {teamStats?.['ab'] ?? '—'} AB
-                  </span>
-                  <span className='text-muted-foreground'>|</span>
-                  <span className='font-medium'>
-                    {game.opponent}: {opponentStats?.['r'] ?? '—'} R · {opponentStats?.['h'] ?? '—'} H · {opponentStats?.['ab'] ?? '—'} AB
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Row 3: Score & badges */}
-            <div className='mt-6 flex flex-col flex-wrap items-start gap-4 border-t pt-6 sm:flex-row sm:items-center sm:gap-6'>
-              {(game.team_score != null || game.opponent_score != null) && (
-                <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>Final</p>
-                  <p className='text-3xl font-bold tabular-nums sm:text-4xl'>
-                    {game.team_score ?? '—'}
-                    <span className='mx-2 text-2xl text-muted-foreground'>–</span>
-                    {game.opponent_score ?? '—'}
-                  </p>
-                </div>
-              )}
-              <div className='flex flex-wrap gap-2'>
-                {game.result && (
-                  <Badge variant={game.result === 'Win' ? 'default' : 'secondary'} className='text-sm'>
-                    {game.result}
-                  </Badge>
-                )}
-                {game.home_away && (
-                  <Badge variant='outline'>{game.home_away}</Badge>
-                )}
-                {game.is_conference && (
-                  <Badge variant='outline'>Conference</Badge>
-                )}
-                {game.is_neutral && (
-                  <Badge variant='outline'>Neutral</Badge>
-                )}
-                {game.is_post_season && (
-                  <Badge variant='outline'>Post Season</Badge>
-                )}
-                {game.tournament && (
-                  <Badge variant='secondary'>{game.tournament.name}</Badge>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {(gameStats || (game && hasGameStats(game as unknown as Record<string, unknown>))) ? (
-          <Card>
-            <CardHeader>
-              <div className='flex items-center gap-2'>
-                <BarChart3 className='size-5 text-muted-foreground' />
-                <div>
-                  <CardTitle>Game statistics</CardTitle>
-                  <CardDescription>
-                    Box score and player stats for this game
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <GameStatsDisplay
-                stats={mergeGameStatsWithGame(normalizeGameStats(gameStats ?? (game as unknown as Record<string, unknown>)) ?? {}, game as unknown as Record<string, unknown>)}
-                opponentName={game?.opponent}
+          <div className='flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center'>
+            <div className='flex items-center gap-4'>
+              <Button variant='ghost' size='icon' asChild>
+                <Link to='/games'>
+                  <ArrowLeft className='size-4' />
+                </Link>
+              </Button>
+              <OpponentLogo
+                opponent={game.opponent}
+                logoUrl={game.opponent_logo_url}
+                size={56}
+                reserveSpace
               />
-            </CardContent>
-          </Card>
-        ) : gameStats === undefined ? null : (
-          <Card>
-            <CardContent className='py-8 text-center text-muted-foreground'>
-              No game statistics. Run Presto Stats sync to populate box scores.
-            </CardContent>
-          </Card>
-        )}
+              <div>
+                <h2 className='text-2xl font-bold tracking-tight'>
+                  vs {game.opponent || `Game #${id}`}
+                </h2>
+                <CardDescription>
+                  {dateStr}
+                  {formatGameLocation(game) && ` • ${formatGameLocation(game)}`}
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              className='w-full sm:w-auto'
+              onClick={() => createFromGameMutation.mutate()}
+              disabled={createFromGameMutation.isPending}
+            >
+              {createFromGameMutation.isPending ? (
+                <Loader2 className='size-4 animate-spin' />
+              ) : (
+                <>
+                  <Layers className='size-4' />
+                  Create depth chart from game
+                </>
+              )}
+            </Button>
+          </div>
 
-        {lineupLoading ? (
           <Card>
-            <CardContent className='flex justify-center py-12'>
-              <Loader2 className='size-8 animate-spin text-muted-foreground' />
-            </CardContent>
-          </Card>
-        ) : lineup?.players?.length ? (
-          <Card>
-            <CardHeader>
-              <div className='flex items-center gap-2'>
-                <ClipboardList className='size-5 text-muted-foreground' />
+            <CardContent className='p-6'>
+              {/* Row 1: Opponent | Venue | Event | Tournament | Date — vertically aligned */}
+              <div className='grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'>
                 <div>
-                  <CardTitle>Lineup</CardTitle>
-                  <CardDescription>
-                    Batting order for this game
-                  </CardDescription>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                    Opponent
+                  </p>
+                  <div className='mt-1 flex items-center gap-2'>
+                    <OpponentLogo
+                      opponent={game.opponent}
+                      logoUrl={game.opponent_logo_url}
+                      size={32}
+                      reserveSpace
+                    />
+                    <p className='font-semibold'>{game.opponent || '—'}</p>
+                  </div>
+                </div>
+                {formatGameLocation(game) && (
+                  <div>
+                    <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                      Venue
+                    </p>
+                    <p className='mt-1 font-medium'>
+                      {formatGameLocation(game)}
+                    </p>
+                  </div>
+                )}
+                {game.event_type && game.event_type !== 'game' && (
+                  <div>
+                    <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                      Event
+                    </p>
+                    <p className='mt-1 font-medium'>{game.event_type}</p>
+                  </div>
+                )}
+                {game.tournament?.name && (
+                  <div>
+                    <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                      Tournament
+                    </p>
+                    <p className='mt-1 font-medium'>{game.tournament.name}</p>
+                  </div>
+                )}
+                <div>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                    Date & time
+                  </p>
+                  <p className='mt-1 font-medium'>{dateStr || '—'}</p>
+                  {gameDuration && (
+                    <p className='mt-0.5 text-sm text-muted-foreground'>
+                      Duration: {String(gameDuration)}
+                    </p>
+                  )}
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className='h-96 overflow-y-auto'>
-                <div className='grid gap-3 pr-2 sm:grid-cols-2 lg:grid-cols-3'>
-                  {lineup.players.map((p, i) => (
-                    <div key={p.player_id ?? i} className='flex items-center gap-4 rounded-lg border p-4'>
-                      <Avatar className='size-16 shrink-0 lg:size-20'>
-                        <AvatarImage src={p.photo_url ?? undefined} alt={p.name} />
-                        <AvatarFallback><User className='size-8 lg:size-10' /></AvatarFallback>
-                      </Avatar>
-                      <div className='min-w-0 flex-1'>
-                        <div className='flex flex-wrap items-center gap-2'>
-                          {p.player_id ? (
-                            <Link to='/players/$id' params={{ id: p.player_id }} className='font-medium hover:underline'>
-                              {p.name}
-                            </Link>
-                          ) : (
-                            <span className='font-medium'>{p.name}</span>
-                          )}
-                          <span className='text-muted-foreground'>#{p.jersey_number}</span>
-                          <span className='rounded bg-muted px-1.5 py-0.5 text-xs font-medium'>{p.position}</span>
-                        </div>
-                        {p.batting && (
-                          <p className='mt-1 text-sm text-muted-foreground'>
-                            AB {p.batting.ab} · H {p.batting.h} · R {p.batting.r} · RBI {p.batting.rbi}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+
+              {/* Row 2: Quick line stats (R–H–AB) when available */}
+              {(teamStats || opponentStats) && (
+                <div className='mt-6 flex flex-col gap-2 rounded-lg bg-muted/50 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4'>
+                  <span className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                    Line score
+                  </span>
+                  <div className='flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-6'>
+                    <span className='font-medium'>
+                      Us: {teamStats?.['r'] ?? '—'} R ·{' '}
+                      {teamStats?.['h'] ?? '—'} H · {teamStats?.['ab'] ?? '—'}{' '}
+                      AB
+                    </span>
+                    <span className='text-muted-foreground'>|</span>
+                    <span className='font-medium'>
+                      {game.opponent}: {opponentStats?.['r'] ?? '—'} R ·{' '}
+                      {opponentStats?.['h'] ?? '—'} H ·{' '}
+                      {opponentStats?.['ab'] ?? '—'} AB
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Row 3: Score & badges */}
+              <div className='mt-6 flex flex-col flex-wrap items-start gap-4 border-t pt-6 sm:flex-row sm:items-center sm:gap-6'>
+                {(game.team_score != null || game.opponent_score != null) && (
+                  <div>
+                    <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+                      Final
+                    </p>
+                    <p className='text-4xl font-bold tabular-nums sm:text-5xl'>
+                      {game.team_score ?? '—'}
+                      <span className='mx-2 text-2xl text-muted-foreground sm:text-3xl'>
+                        –
+                      </span>
+                      {game.opponent_score ?? '—'}
+                    </p>
+                  </div>
+                )}
+                <div className='flex flex-wrap gap-2'>
+                  {game.result && (
+                    <Badge
+                      variant={game.result === 'Win' ? 'default' : 'secondary'}
+                      className='text-sm'
+                    >
+                      {game.result}
+                    </Badge>
+                  )}
+                  {game.home_away && (
+                    <Badge variant='outline'>{game.home_away}</Badge>
+                  )}
+                  {game.is_conference && (
+                    <Badge variant='outline'>Conference</Badge>
+                  )}
+                  {game.is_neutral && <Badge variant='outline'>Neutral</Badge>}
+                  {game.is_post_season && (
+                    <Badge variant='outline'>Post Season</Badge>
+                  )}
+                  {game.tournament && (
+                    <Badge variant='secondary'>{game.tournament.name}</Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
-        ) : null}
-      </div>
-    </Main>
+
+          {gameStats ||
+          (game && hasGameStats(game as unknown as Record<string, unknown>)) ? (
+            <Card>
+              <CardHeader>
+                <div className='flex items-center gap-2'>
+                  <BarChart3 className='size-5 text-muted-foreground' />
+                  <div>
+                    <CardTitle>Game statistics</CardTitle>
+                    <CardDescription>
+                      Box score and player stats for this game
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <GameStatsDisplay
+                  stats={mergeGameStatsWithGame(
+                    normalizeGameStats(
+                      gameStats ?? (game as unknown as Record<string, unknown>)
+                    ) ?? {},
+                    game as unknown as Record<string, unknown>
+                  )}
+                  opponentName={game?.opponent}
+                />
+              </CardContent>
+            </Card>
+          ) : gameStats === undefined ? null : (
+            <Card>
+              <CardContent className='py-8 text-center text-muted-foreground'>
+                No game statistics. Run Presto Stats sync to populate box
+                scores.
+              </CardContent>
+            </Card>
+          )}
+
+          {lineupLoading ? (
+            <Card>
+              <CardContent className='flex justify-center py-12'>
+                <Loader2 className='size-8 animate-spin text-muted-foreground' />
+              </CardContent>
+            </Card>
+          ) : lineup?.players?.length ? (
+            <Card>
+              <CardHeader>
+                <div className='flex items-center gap-2'>
+                  <ClipboardList className='size-5 text-muted-foreground' />
+                  <div>
+                    <CardTitle>Lineup</CardTitle>
+                    <CardDescription>
+                      Batting order for this game
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className='h-96 overflow-y-auto'>
+                  <div className='grid grid-cols-1 gap-3 pr-2 sm:grid-cols-2 lg:grid-cols-3'>
+                    {lineup.players.map((p, i) => (
+                      <div
+                        key={p.player_id ?? i}
+                        className='flex items-center gap-4 rounded-lg border p-4'
+                      >
+                        <Avatar className='size-16 shrink-0 lg:size-20'>
+                          <AvatarImage
+                            src={p.photo_url ?? undefined}
+                            alt={p.name}
+                          />
+                          <AvatarFallback>
+                            <User className='size-8 lg:size-10' />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex flex-wrap items-center gap-2'>
+                            {p.player_id ? (
+                              <Link
+                                to='/players/$id'
+                                params={{ id: p.player_id }}
+                                className='font-medium hover:underline'
+                              >
+                                {p.name}
+                              </Link>
+                            ) : (
+                              <span className='font-medium'>{p.name}</span>
+                            )}
+                            <span className='text-muted-foreground'>
+                              #{p.jersey_number}
+                            </span>
+                            <span className='rounded bg-muted px-1.5 py-0.5 text-xs font-medium'>
+                              {p.position}
+                            </span>
+                          </div>
+                          {p.batting && (
+                            <p className='mt-1 text-sm text-muted-foreground'>
+                              AB {p.batting.ab} · H {p.batting.h} · R{' '}
+                              {p.batting.r} · RBI {p.batting.rbi}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      </Main>
     </>
   )
 }
@@ -440,15 +518,39 @@ const TEAM_COMPARISON_KEYS: Array<[string, string]> = [
 function hasGameStats(stats: Record<string, unknown>): boolean {
   if (!stats || typeof stats !== 'object') return false
   // Unwrap nested data if API returns { data: { ...stats } }
-  const raw = stats?.data != null && typeof stats.data === 'object' && !Array.isArray(stats.data)
-    ? (stats.data as Record<string, unknown>)
-    : stats
+  const raw =
+    stats?.data != null &&
+    typeof stats.data === 'object' &&
+    !Array.isArray(stats.data)
+      ? (stats.data as Record<string, unknown>)
+      : stats
   const teamStats = raw.team_stats ?? raw.teamStats
   const opponentStats = raw.opponent_stats ?? raw.opponentStats
-  if (teamStats && typeof teamStats === 'object' && Object.keys(teamStats as object).length > 0) return true
-  if (opponentStats && typeof opponentStats === 'object' && Object.keys(opponentStats as object).length > 0) return true
+  if (
+    teamStats &&
+    typeof teamStats === 'object' &&
+    Object.keys(teamStats as object).length > 0
+  )
+    return true
+  if (
+    opponentStats &&
+    typeof opponentStats === 'object' &&
+    Object.keys(opponentStats as object).length > 0
+  )
+    return true
   const keys = Object.keys(raw).filter(
-    (k) => !['game', 'id', 'game_id', 'team_id', 'created_at', 'updated_at', 'team', 'team_stats', 'opponent_stats'].includes(k)
+    (k) =>
+      ![
+        'game',
+        'id',
+        'game_id',
+        'team_id',
+        'created_at',
+        'updated_at',
+        'team',
+        'team_stats',
+        'opponent_stats',
+      ].includes(k)
   )
   if (keys.length === 0) return false
   const hasScalar = keys.some((k) => {
@@ -461,38 +563,74 @@ function hasGameStats(stats: Record<string, unknown>): boolean {
     )
   })
   if (hasScalar) return true
-  const hasArray = keys.some((k) => Array.isArray(raw[k]) && (raw[k] as unknown[]).length > 0)
+  const hasArray = keys.some(
+    (k) => Array.isArray(raw[k]) && (raw[k] as unknown[]).length > 0
+  )
   return hasArray
 }
 
 /** Derive fielding rows from game_statistics when each row has nested fielding, flat po/a/e, or Presto keys */
-function deriveFieldingFromGameStats(rows: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+function deriveFieldingFromGameStats(
+  rows: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
   const result: Array<Record<string, unknown>> = []
   for (const row of rows) {
-    const field = (row.fielding ?? row.Fielding) as Record<string, unknown> | undefined
-    const po = field && typeof field === 'object'
-      ? (field.po ?? field.putouts ?? field.fieldingpo ?? row.putouts ?? row.po ?? row.fieldingpo ?? 0)
-      : (row.putouts ?? row.po ?? row.fieldingpo ?? 0)
-    const a = field && typeof field === 'object'
-      ? (field.a ?? field.assists ?? field.fieldinga ?? row.assists ?? row.a ?? row.fieldinga ?? 0)
-      : (row.assists ?? row.a ?? row.fieldinga ?? 0)
-    const e = field && typeof field === 'object'
-      ? (field.e ?? field.errors ?? field.fieldinge ?? row.errors ?? row.e ?? row.fieldinge ?? 0)
-      : (row.errors ?? row.e ?? row.fieldinge ?? 0)
-    const fpct = field && typeof field === 'object'
-      ? (field.fpct ?? field.fielding_percentage ?? field.fielding_pct ?? field.fieldingfldpct ?? row.fielding_percentage ?? row.fpct ?? row.fieldingfldpct)
-      : (row.fielding_percentage ?? row.fpct ?? row.fieldingfldpct ?? null)
-    if (Number(po) === 0 && Number(a) === 0 && Number(e) === 0 && fpct == null) continue
+    const field = (row.fielding ?? row.Fielding) as
+      | Record<string, unknown>
+      | undefined
+    const po =
+      field && typeof field === 'object'
+        ? (field.po ??
+          field.putouts ??
+          field.fieldingpo ??
+          row.putouts ??
+          row.po ??
+          row.fieldingpo ??
+          0)
+        : (row.putouts ?? row.po ?? row.fieldingpo ?? 0)
+    const a =
+      field && typeof field === 'object'
+        ? (field.a ??
+          field.assists ??
+          field.fieldinga ??
+          row.assists ??
+          row.a ??
+          row.fieldinga ??
+          0)
+        : (row.assists ?? row.a ?? row.fieldinga ?? 0)
+    const e =
+      field && typeof field === 'object'
+        ? (field.e ??
+          field.errors ??
+          field.fieldinge ??
+          row.errors ??
+          row.e ??
+          row.fieldinge ??
+          0)
+        : (row.errors ?? row.e ?? row.fieldinge ?? 0)
+    const fpct =
+      field && typeof field === 'object'
+        ? (field.fpct ??
+          field.fielding_percentage ??
+          field.fielding_pct ??
+          field.fieldingfldpct ??
+          row.fielding_percentage ??
+          row.fpct ??
+          row.fieldingfldpct)
+        : (row.fielding_percentage ?? row.fpct ?? row.fieldingfldpct ?? null)
+    if (Number(po) === 0 && Number(a) === 0 && Number(e) === 0 && fpct == null)
+      continue
     const total = Number(po) + Number(a) + Number(e)
-    const computedFpct = total > 0 && !fpct
-      ? ((Number(po) + Number(a)) / total).toFixed(3)
-      : fpct
+    const computedFpct =
+      total > 0 && !fpct ? ((Number(po) + Number(a)) / total).toFixed(3) : fpct
     result.push({
       ...row,
       player: row.player ?? row.Player,
       Player: row.Player ?? row.player,
       player_name: row.player_name ?? row.name,
-      position: row.position ?? (field && typeof field === 'object' ? field.position : null),
+      position:
+        row.position ??
+        (field && typeof field === 'object' ? field.position : null),
       po: Number(po) || 0,
       a: Number(a) || 0,
       e: Number(e) || 0,
@@ -509,38 +647,67 @@ function mergeGameStatsWithGame(
 ): Record<string, unknown> {
   if (!game || typeof game !== 'object') return stats
   const merged = { ...stats }
-  if (merged.team_stats == null && game.team_stats != null) merged.team_stats = game.team_stats
-  if (merged.opponent_stats == null && game.opponent_stats != null) merged.opponent_stats = game.opponent_stats
+  if (merged.team_stats == null && game.team_stats != null)
+    merged.team_stats = game.team_stats
+  if (merged.opponent_stats == null && game.opponent_stats != null)
+    merged.opponent_stats = game.opponent_stats
   if (merged.team == null && game.team != null) merged.team = game.team
-  if (merged.opponent == null && game.opponent != null) merged.opponent = game.opponent
+  if (merged.opponent == null && game.opponent != null)
+    merged.opponent = game.opponent
   return merged
 }
 
 /** Normalize stats from various backend shapes to { batting, pitching, fielding, player_stats } */
-function normalizeGameStats(stats: Record<string, unknown>): Record<string, unknown> | null {
+function normalizeGameStats(
+  stats: Record<string, unknown>
+): Record<string, unknown> | null {
   if (!stats || typeof stats !== 'object') return null
-  let raw = stats?.data != null && typeof stats.data === 'object' && !Array.isArray(stats.data)
-    ? (stats.data as Record<string, unknown>)
-    : stats
+  let raw =
+    stats?.data != null &&
+    typeof stats.data === 'object' &&
+    !Array.isArray(stats.data)
+      ? (stats.data as Record<string, unknown>)
+      : stats
   const aggregated = raw.aggregated_stats ?? raw.aggregatedStats
-  if (aggregated != null && typeof aggregated === 'object' && !Array.isArray(aggregated)) {
+  if (
+    aggregated != null &&
+    typeof aggregated === 'object' &&
+    !Array.isArray(aggregated)
+  ) {
     raw = { ...raw, ...(aggregated as Record<string, unknown>) }
   }
-  const batting = (raw.batting ?? raw.Batting) as Array<Record<string, unknown>> | undefined
-  const pitching = (raw.pitching ?? raw.Pitching) as Array<Record<string, unknown>> | undefined
-  let fielding = (raw.fielding ?? raw.Fielding) as Array<Record<string, unknown>> | undefined
-  const playerStats = (raw.player_stats ?? raw.playerStats) as Array<Record<string, unknown>> | undefined
-  const gameStats = (raw.game_statistics ?? raw.GameStatistics) as Array<Record<string, unknown>> | undefined
-  const players = (raw.players ?? raw.Players) as Array<Record<string, unknown>> | undefined
+  const batting = (raw.batting ?? raw.Batting) as
+    | Array<Record<string, unknown>>
+    | undefined
+  const pitching = (raw.pitching ?? raw.Pitching) as
+    | Array<Record<string, unknown>>
+    | undefined
+  let fielding = (raw.fielding ?? raw.Fielding) as
+    | Array<Record<string, unknown>>
+    | undefined
+  const playerStats = (raw.player_stats ?? raw.playerStats) as
+    | Array<Record<string, unknown>>
+    | undefined
+  const gameStats = (raw.game_statistics ?? raw.GameStatistics) as
+    | Array<Record<string, unknown>>
+    | undefined
+  const players = (raw.players ?? raw.Players) as
+    | Array<Record<string, unknown>>
+    | undefined
   const effectivePlayerStats = playerStats ?? gameStats ?? players
-  if (!Array.isArray(fielding) && Array.isArray(effectivePlayerStats) && effectivePlayerStats.length > 0) {
+  if (
+    !Array.isArray(fielding) &&
+    Array.isArray(effectivePlayerStats) &&
+    effectivePlayerStats.length > 0
+  ) {
     fielding = deriveFieldingFromGameStats(effectivePlayerStats)
   }
   const result = { ...raw } as Record<string, unknown>
   if (Array.isArray(batting)) result.batting = batting
   if (Array.isArray(pitching)) result.pitching = pitching
   if (Array.isArray(fielding) && fielding.length > 0) result.fielding = fielding
-  if (Array.isArray(effectivePlayerStats)) result.player_stats = effectivePlayerStats
+  if (Array.isArray(effectivePlayerStats))
+    result.player_stats = effectivePlayerStats
   return result
 }
 
@@ -559,14 +726,22 @@ function TeamComparison({
   const opp = opponentStats as Record<string, string | number>
   return (
     <div>
-      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>Team comparison</h4>
+      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+        Team comparison
+      </h4>
       <div className='overflow-x-auto rounded-lg border'>
         <table className='w-full text-sm whitespace-nowrap'>
           <thead>
             <tr className='border-b bg-muted/50'>
-              <th className='px-3 py-2 text-left text-muted-foreground'>Stat</th>
-              <th className='px-3 py-2 text-right font-medium'>{teamName ?? 'Us'}</th>
-              <th className='px-3 py-2 text-right font-medium'>{opponentName ?? 'Opponent'}</th>
+              <th className='sticky left-0 bg-muted/50 px-3 py-2 text-left text-muted-foreground'>
+                Stat
+              </th>
+              <th className='px-3 py-2 text-right font-medium'>
+                {teamName ?? 'Us'}
+              </th>
+              <th className='px-3 py-2 text-right font-medium'>
+                {opponentName ?? 'Opponent'}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -576,9 +751,15 @@ function TeamComparison({
               if (tVal == null && oVal == null) return null
               return (
                 <tr key={key} className='border-b last:border-0'>
-                  <td className='px-3 py-1.5 text-muted-foreground'>{label}</td>
-                  <td className='px-3 py-1.5 text-right'>{tVal != null ? String(tVal) : '—'}</td>
-                  <td className='px-3 py-1.5 text-right'>{oVal != null ? String(oVal) : '—'}</td>
+                  <td className='sticky left-0 bg-background px-3 py-1.5 text-muted-foreground'>
+                    {label}
+                  </td>
+                  <td className='px-3 py-1.5 text-right'>
+                    {tVal != null ? String(tVal) : '—'}
+                  </td>
+                  <td className='px-3 py-1.5 text-right'>
+                    {oVal != null ? String(oVal) : '—'}
+                  </td>
                 </tr>
               )
             })}
@@ -589,15 +770,34 @@ function TeamComparison({
   )
 }
 
-function GameStatsDisplay({ stats, teamName: _teamName, opponentName }: { stats: Record<string, unknown>; teamName?: string; opponentName?: string }) {
+function GameStatsDisplay({
+  stats,
+  teamName: _teamName,
+  opponentName,
+}: {
+  stats: Record<string, unknown>
+  teamName?: string
+  opponentName?: string
+}) {
   const batting = stats.batting as Array<Record<string, unknown>> | undefined
   const pitching = stats.pitching as Array<Record<string, unknown>> | undefined
   const fielding = stats.fielding as Array<Record<string, unknown>> | undefined
-  const playerStats = stats.player_stats as Array<Record<string, unknown>> | undefined
-  const teamStats = (stats.team_stats ?? stats.teamStats) as Record<string, unknown> | undefined
-  const opponentStats = (stats.opponent_stats ?? stats.opponentStats) as Record<string, unknown> | undefined
-  const hasTeamComparison = teamStats && opponentStats && typeof teamStats === 'object' && typeof opponentStats === 'object' &&
-    Object.keys(teamStats).length > 0 && Object.keys(opponentStats).length > 0
+  const playerStats = stats.player_stats as
+    | Array<Record<string, unknown>>
+    | undefined
+  const teamStats = (stats.team_stats ?? stats.teamStats) as
+    | Record<string, unknown>
+    | undefined
+  const opponentStats = (stats.opponent_stats ?? stats.opponentStats) as
+    | Record<string, unknown>
+    | undefined
+  const hasTeamComparison =
+    teamStats &&
+    opponentStats &&
+    typeof teamStats === 'object' &&
+    typeof opponentStats === 'object' &&
+    Object.keys(teamStats).length > 0 &&
+    Object.keys(opponentStats).length > 0
 
   const _scalarKeys = [
     'player_count',
@@ -621,7 +821,14 @@ function GameStatsDisplay({ stats, teamName: _teamName, opponentName }: { stats:
   const hasFielding = Array.isArray(fielding) && fielding.length > 0
   const hasPlayerStats = Array.isArray(playerStats) && playerStats.length > 0
 
-  if (!hasScalars && !hasBatting && !hasPitching && !hasFielding && !hasPlayerStats && !hasTeamComparison) {
+  if (
+    !hasScalars &&
+    !hasBatting &&
+    !hasPitching &&
+    !hasFielding &&
+    !hasPlayerStats &&
+    !hasTeamComparison
+  ) {
     return (
       <div className='rounded-lg border border-dashed p-6 text-center text-muted-foreground'>
         No game statistics available
@@ -640,7 +847,7 @@ function GameStatsDisplay({ stats, teamName: _teamName, opponentName }: { stats:
         />
       )}
       {hasScalars && (
-        <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'>
+        <div className='grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4'>
           {scalarEntries.map(([key, value]) => (
             <div key={key} className='rounded-lg border bg-muted/30 p-2'>
               <p className='text-xs text-muted-foreground'>
@@ -715,25 +922,35 @@ function StatsTable({
     if (p && typeof p === 'object') {
       const first = (p.first_name ?? p.firstName ?? '') as string
       const last = (p.last_name ?? p.lastName ?? '') as string
-      return ([first, last].filter(Boolean).join(' ') || (p.name as string)) ?? '—'
+      return (
+        ([first, last].filter(Boolean).join(' ') || (p.name as string)) ?? '—'
+      )
     }
     return (row.player_name ?? row.name ?? row.jersey_number ?? '—') as string
   }
 
   return (
-    <div className='overflow-x-auto'>
+    <div className='overflow-x-auto rounded-lg border'>
       <table className='w-full text-sm whitespace-nowrap'>
         <thead>
-          <tr className='border-b'>
-            {(type === 'batting' || type === 'pitching' || type === 'fielding' || type === 'player') && (
-              <th className='px-2 py-1.5 text-left text-muted-foreground'>
+          <tr className='border-b bg-muted/50'>
+            {(type === 'batting' ||
+              type === 'pitching' ||
+              type === 'fielding' ||
+              type === 'player') && (
+              <th className='sticky left-0 bg-muted/50 px-2 py-1.5 text-left text-muted-foreground'>
                 Player
               </th>
             )}
             {cols
-              .filter((c) => !['player', 'Player', 'player_name', 'name'].includes(c))
+              .filter(
+                (c) => !['player', 'Player', 'player_name', 'name'].includes(c)
+              )
               .map((c) => (
-                <th key={c} className='px-2 py-1.5 text-left text-muted-foreground'>
+                <th
+                  key={c}
+                  className='px-2 py-1.5 text-left text-muted-foreground'
+                >
                   {STAT_LABELS[c] ?? c.replace(/_/g, ' ')}
                 </th>
               ))}
@@ -742,8 +959,11 @@ function StatsTable({
         <tbody>
           {rows.map((row, i) => (
             <tr key={i} className='border-b last:border-0'>
-              {(type === 'batting' || type === 'pitching' || type === 'fielding' || type === 'player') && (
-                <td className='px-2 py-1.5 font-medium'>
+              {(type === 'batting' ||
+                type === 'pitching' ||
+                type === 'fielding' ||
+                type === 'player') && (
+                <td className='sticky left-0 bg-background px-2 py-1.5 font-medium'>
                   {getPlayerName(row)}
                 </td>
               )}
@@ -751,9 +971,7 @@ function StatsTable({
                 .filter((c) => !['player', 'player_name', 'name'].includes(c))
                 .map((c) => (
                   <td key={c} className='px-2 py-1.5'>
-                    {row[c] != null && row[c] !== ''
-                      ? String(row[c])
-                      : '—'}
+                    {row[c] != null && row[c] !== '' ? String(row[c]) : '—'}
                   </td>
                 ))}
             </tr>
