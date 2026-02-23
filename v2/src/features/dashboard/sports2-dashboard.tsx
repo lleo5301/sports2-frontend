@@ -40,6 +40,8 @@ import {
   CardDescription,
   CardHeader,
 } from '@/components/ui/card'
+import { GameResultBadge } from '@/components/ui/game-result-badge'
+import { StatCard } from '@/components/ui/stat-card'
 import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
 
@@ -56,6 +58,36 @@ function formatGameResult(game: Game & { game_summary?: string | null }) {
     return `${w ? 'W' : 'L'} ${game.team_score}-${game.opponent_score}`
   }
   return ''
+}
+
+/** Parse a result string like "W 5-3" into { result, score } for GameResultBadge */
+function parseGameResult(game: Game & { game_summary?: string | null }): {
+  result: 'W' | 'L' | 'T' | 'D'
+  score?: string
+} | null {
+  // Direct score comparison
+  if (game.team_score != null && game.opponent_score != null) {
+    const r =
+      game.team_score > game.opponent_score
+        ? 'W'
+        : game.team_score < game.opponent_score
+          ? 'L'
+          : 'T'
+    return {
+      result: r as 'W' | 'L' | 'T',
+      score: `${game.team_score}-${game.opponent_score}`,
+    }
+  }
+  // Parse from result / game_summary string
+  const raw = game.game_summary ?? game.result ?? ''
+  const match = raw.match(/^(W|L|T|D)\s*(.*)$/)
+  if (match) {
+    return {
+      result: match[1] as 'W' | 'L' | 'T' | 'D',
+      score: match[2] || undefined,
+    }
+  }
+  return null
 }
 
 /** Normalize extended-stats game (recent_games / game-log) to Game shape */
@@ -337,126 +369,63 @@ export function Sports2Dashboard() {
         {/* Stats cards */}
         <section className='grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6'>
           <Link to='/players'>
-            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
-              <div className='absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
-              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
-                <div className='mb-3 rounded-full bg-primary/10 p-2.5 text-primary'>
-                  <Users className='size-5 sm:size-6' />
-                </div>
-                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
-                  {statsData.players}
-                </p>
-                <div className='mt-1 flex items-center justify-center gap-1.5'>
-                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    Players
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              label='Players'
+              value={statsData.players}
+              icon={<Users className='size-5' />}
+            />
           </Link>
 
           <Link to='/scouting'>
-            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
-              <div className='absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
-              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
-                <div className='mb-3 rounded-full bg-secondary/10 p-2.5 text-secondary'>
-                  <FileText className='size-5 sm:size-6' />
-                </div>
-                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
-                  {statsData.reports}
-                </p>
-                <div className='mt-1 flex items-center justify-center gap-1.5'>
-                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    Reports
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              label='Reports'
+              value={statsData.reports}
+              icon={<FileText className='size-5' />}
+            />
           </Link>
 
           <Link to='/schedules'>
-            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
-              <div className='absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
-              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
-                <div className='mb-3 rounded-full bg-green-500/10 p-2.5 text-green-600'>
-                  <Calendar className='size-5 sm:size-6' />
-                </div>
-                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
-                  {statsData.schedules}
-                </p>
-                <div className='mt-1 flex items-center justify-center gap-1.5'>
-                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    {statsData.scheduleThisWeek > 0 ||
-                    statsData.scheduleThisMonth > 0
-                      ? `${statsData.scheduleThisWeek} Wk / ${statsData.scheduleThisMonth} Mo`
-                      : 'Schedules'}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              label='Schedules'
+              value={statsData.schedules}
+              sublabel={
+                statsData.scheduleThisWeek > 0 ||
+                statsData.scheduleThisMonth > 0
+                  ? `${statsData.scheduleThisWeek} Wk / ${statsData.scheduleThisMonth} Mo`
+                  : undefined
+              }
+              icon={<Calendar className='size-5' />}
+            />
           </Link>
 
           <Link to='/games'>
-            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
-              <div className='absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
-              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
-                <div className='mb-3 rounded-full bg-amber-500/10 p-2.5 text-amber-600'>
-                  <Trophy className='size-5 sm:size-6' />
-                </div>
-                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
-                  {statsData.wins}-{statsData.losses}
-                </p>
-                <div className='mt-1 flex items-center justify-center gap-1.5'>
-                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    Record
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              label='Record'
+              value={`${statsData.wins}-${statsData.losses}`}
+              icon={<Trophy className='size-5' />}
+            />
           </Link>
 
           <Link to='/depth-charts'>
-            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
-              <div className='absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
-              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
-                <div className='mb-3 rounded-full bg-blue-500/10 p-2.5 text-blue-600'>
-                  <List className='size-5 sm:size-6' />
-                </div>
-                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
-                  {statsData.depthCharts}
-                </p>
-                <div className='mt-1 flex items-center justify-center gap-1.5'>
-                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    Charts
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              label='Charts'
+              value={statsData.depthCharts}
+              icon={<List className='size-5' />}
+            />
           </Link>
 
           <Link to='/prospects'>
-            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
-              <div className='absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
-              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
-                <div className='mb-3 rounded-full bg-violet-500/10 p-2.5 text-violet-600'>
-                  <UserPlus className='size-5 sm:size-6' />
-                </div>
-                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
-                  {statsData.prospects}
-                </p>
-                <div className='mt-1 flex items-center justify-center gap-1.5'>
-                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
-                    Prospects
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              label='Prospects'
+              value={statsData.prospects}
+              icon={<UserPlus className='size-5' />}
+            />
           </Link>
         </section>
 
         {/* Recent & Upcoming Games */}
         <section className='grid gap-6 lg:grid-cols-2'>
-          <Card>
+          <Card variant='sport'>
             <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
               <h2 className='flex items-center gap-2 text-lg font-bold'>
                 <Trophy className='size-5 text-muted-foreground' />
@@ -491,13 +460,27 @@ export function Sports2Dashboard() {
                           {formatGameDateShort(game)}
                         </span>
                         <div className='min-w-0 flex-1'>
-                          <p className='truncate font-medium'>
-                            {formatGameLabel(game)}
-                            {formatGameResult(game) && (
-                              <span className='ms-2 text-muted-foreground'>
-                                {formatGameResult(game)}
-                              </span>
-                            )}
+                          <p className='flex items-center gap-2 truncate font-medium'>
+                            <span className='truncate'>
+                              {formatGameLabel(game)}
+                            </span>
+                            {(() => {
+                              const parsed = parseGameResult(game)
+                              if (parsed) {
+                                return (
+                                  <GameResultBadge
+                                    result={parsed.result}
+                                    score={parsed.score}
+                                  />
+                                )
+                              }
+                              const text = formatGameResult(game)
+                              return text ? (
+                                <span className='text-muted-foreground'>
+                                  {text}
+                                </span>
+                              ) : null
+                            })()}
                           </p>
                           {(formatGameLocation(game) ||
                             (game as Game).tournament?.name) && (
@@ -521,7 +504,7 @@ export function Sports2Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card variant='sport'>
             <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
               <h2 className='flex items-center gap-2 text-lg font-bold'>
                 <Trophy className='size-5 text-muted-foreground' />
