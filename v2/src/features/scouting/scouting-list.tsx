@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react'
 import { prospectsApi } from '@/lib/prospects-api'
 import { scoutingApi, type ScoutingReport } from '@/lib/scouting-api'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -113,7 +114,14 @@ export function ScoutingList() {
         const p = row.original.overall_present
         const f = row.original.overall_future
         if (!p && !f) return '—'
-        return `${p ?? '—'}/${f ?? '—'}`
+        const avg = p && f ? (Number(p) + Number(f)) / 2 : Number(p ?? f ?? 0)
+        const variant =
+          avg >= 60 ? 'success' : avg >= 45 ? 'warning' : 'secondary'
+        return (
+          <Badge variant={variant}>
+            {p ?? '—'}/{f ?? '—'}
+          </Badge>
+        )
       },
     },
     {

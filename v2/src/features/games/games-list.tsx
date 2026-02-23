@@ -33,6 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { GameResultBadge } from '@/components/ui/game-result-badge'
 import {
   Table,
   TableBody,
@@ -163,7 +164,21 @@ export function GamesList() {
       cell: ({ row }) => {
         const g = row.original
         if (g.team_score != null && g.opponent_score != null) {
-          return `${g.team_score}–${g.opponent_score}`
+          const won = g.team_score > g.opponent_score
+          const lost = g.team_score < g.opponent_score
+          return (
+            <span
+              className={
+                won
+                  ? 'font-semibold text-success'
+                  : lost
+                    ? 'font-semibold text-destructive'
+                    : ''
+              }
+            >
+              {g.team_score}–{g.opponent_score}
+            </span>
+          )
         }
         return '—'
       },
@@ -174,18 +189,31 @@ export function GamesList() {
       cell: ({ row }) => {
         const g = row.original
         const r = g.result
+        const resultMap: Record<string, 'W' | 'L' | 'T' | 'D'> = {
+          Win: 'W',
+          Loss: 'L',
+          Tie: 'T',
+          Draw: 'D',
+          W: 'W',
+          L: 'L',
+          T: 'T',
+          D: 'D',
+        }
+        const mapped = r ? resultMap[r] : undefined
         return (
           <div className='flex flex-wrap gap-1'>
-            {r && (
-              <Badge variant={r === 'Win' ? 'default' : 'secondary'}>{r}</Badge>
-            )}
+            {mapped ? (
+              <GameResultBadge result={mapped} />
+            ) : r ? (
+              <Badge variant='secondary'>{r}</Badge>
+            ) : null}
             {g.is_conference && (
               <Badge variant='outline' className='text-xs'>
                 Conf
               </Badge>
             )}
             {g.is_post_season && (
-              <Badge variant='outline' className='text-xs'>
+              <Badge variant='highlight' className='text-xs'>
                 Post
               </Badge>
             )}

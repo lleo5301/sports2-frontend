@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { PositionBadge } from '@/components/ui/position-badge'
 import {
   Select,
   SelectContent,
@@ -105,7 +106,14 @@ export function ProspectsList() {
           .filter(Boolean)
           .join(' ') || '—',
     },
-    { accessorKey: 'primary_position', header: 'Pos' },
+    {
+      accessorKey: 'primary_position',
+      header: 'Pos',
+      cell: ({ row }) => {
+        const pos = row.original.primary_position
+        return pos ? <PositionBadge position={pos} /> : '—'
+      },
+    },
     { accessorKey: 'school_type', header: 'Type' },
     { accessorKey: 'school_name', header: 'School' },
     {
@@ -117,7 +125,13 @@ export function ProspectsList() {
         return (
           <Badge
             variant={
-              s === 'committed' || s === 'signed' ? 'default' : 'secondary'
+              s === 'committed' || s === 'signed'
+                ? 'success'
+                : s === 'dead' || s === 'lost'
+                  ? 'destructive'
+                  : s === 'hot' || s === 'visit_scheduled'
+                    ? 'warning'
+                    : 'secondary'
             }
           >
             {s}

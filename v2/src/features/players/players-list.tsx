@@ -11,6 +11,7 @@ import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { playersApi, type Player } from '@/lib/players-api'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { PositionBadge } from '@/components/ui/position-badge'
 import {
   Select,
   SelectContent,
@@ -114,10 +116,37 @@ export function PlayersList() {
           .filter(Boolean)
           .join(' ') || '—',
     },
-    { accessorKey: 'position', header: 'Pos' },
+    {
+      accessorKey: 'position',
+      header: 'Pos',
+      cell: ({ row }) => {
+        const pos = row.original.position
+        return pos ? <PositionBadge position={pos} /> : '—'
+      },
+    },
     { accessorKey: 'school_type', header: 'Type' },
     { accessorKey: 'school', header: 'School' },
-    { accessorKey: 'status', header: 'Status' },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const s = row.original.status
+        if (!s) return '—'
+        return (
+          <Badge
+            variant={
+              s === 'active'
+                ? 'success'
+                : s === 'inactive'
+                  ? 'destructive'
+                  : 'secondary'
+            }
+          >
+            {s}
+          </Badge>
+        )
+      },
+    },
     {
       id: 'actions',
       cell: ({ row }) => (
