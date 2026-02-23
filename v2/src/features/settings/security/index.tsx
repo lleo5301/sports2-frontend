@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Loader2, Monitor, Smartphone } from 'lucide-react'
 import { formatDateTime } from '@/lib/format-date'
 import { settingsApi } from '@/lib/settings-api'
-import { ContentSection } from '../components/content-section'
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { ContentSection } from '../components/content-section'
 
 export function SettingsSecurity() {
   const { data: loginHistory = [], isLoading: historyLoading } = useQuery({
@@ -53,7 +53,7 @@ export function SettingsSecurity() {
                 {loginHistory.slice(0, 10).map((entry, i) => (
                   <div
                     key={entry.id ?? i}
-                    className='flex items-center justify-between rounded-lg border p-3'
+                    className='flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between'
                   >
                     <div className='flex items-center gap-3'>
                       <div className='rounded-full bg-muted p-2'>
@@ -97,7 +97,7 @@ export function SettingsSecurity() {
                 {sessions.map((session, i) => (
                   <div
                     key={session.id ?? i}
-                    className='flex items-center justify-between rounded-lg border p-3'
+                    className='flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between'
                   >
                     <div className='flex items-center gap-3'>
                       <div className='rounded-full bg-muted p-2'>
@@ -105,7 +105,9 @@ export function SettingsSecurity() {
                       </div>
                       <div>
                         <p className='text-sm font-medium'>
-                          {session.user_agent ?? session.ip_address ?? 'Unknown device'}
+                          {session.user_agent ??
+                            session.ip_address ??
+                            'Unknown device'}
                         </p>
                         <p className='text-xs text-muted-foreground'>
                           {session.ip_address ?? ''} • Last active:{' '}
