@@ -1,6 +1,7 @@
 /**
  * Scouting report detail view with edit.
  */
+import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
@@ -16,7 +17,7 @@ import {
   Target,
 } from 'lucide-react'
 import { scoutingApi, type ScoutingReport } from '@/lib/scouting-api'
-import { Main } from '@/components/layout/main'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,8 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
+import { Main } from '@/components/layout/main'
 import { EditScoutingForm } from './edit-scouting-form'
 
 interface ScoutingDetailProps {
@@ -84,7 +84,8 @@ function formatDateTime(dateStr?: string) {
 }
 
 function GradeBadge({ value }: { value?: unknown }) {
-  if (value === undefined || value === null || value === '') return <span className='text-muted-foreground'>—</span>
+  if (value === undefined || value === null || value === '')
+    return <span className='text-muted-foreground'>—</span>
   const display = String(value)
   // Determine color intensity based on grade type
   const numVal = Number(display)
@@ -95,7 +96,10 @@ function GradeBadge({ value }: { value?: unknown }) {
     else variant = 'outline'
   }
   return (
-    <Badge variant={variant} className='min-w-[2.5rem] justify-center text-sm font-semibold'>
+    <Badge
+      variant={variant}
+      className='min-w-[2.5rem] justify-center text-sm font-semibold'
+    >
       {display}
     </Badge>
   )
@@ -106,7 +110,11 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
   const [editing, setEditing] = useState(false)
 
   const reportId = parseInt(id, 10)
-  const { data: report, isLoading, error } = useQuery({
+  const {
+    data: report,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['scouting-report', reportId],
     queryFn: () => scoutingApi.getById(reportId),
     enabled: !Number.isNaN(reportId),
@@ -115,7 +123,9 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
   if (Number.isNaN(reportId)) {
     return (
       <Main>
-        <div className='py-8 text-center text-destructive'>Invalid report ID</div>
+        <div className='py-8 text-center text-destructive'>
+          Invalid report ID
+        </div>
       </Main>
     )
   }
@@ -151,7 +161,9 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
         report={report}
         onSuccess={() => {
           setEditing(false)
-          queryClient.invalidateQueries({ queryKey: ['scouting-report', reportId] })
+          queryClient.invalidateQueries({
+            queryKey: ['scouting-report', reportId],
+          })
         }}
         onCancel={() => setEditing(false)}
       />
@@ -170,29 +182,34 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
     report.fielding_future != null ||
     report.speed_present != null ||
     report.speed_future != null
-  const hasAthleticism = report.sixty_yard_dash != null || !!report.mlb_comparison
+  const hasAthleticism =
+    report.sixty_yard_dash != null || !!report.mlb_comparison
 
   return (
     <Main>
       <div className='mx-auto max-w-4xl space-y-6'>
         {/* Header */}
-        <div className='flex flex-wrap items-center justify-between gap-4'>
-          <div className='flex items-center gap-4'>
+        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+          <div className='flex items-center gap-3 sm:gap-4'>
             <Button variant='ghost' size='icon' asChild>
               <Link to='/scouting'>
                 <ArrowLeft className='size-4' />
               </Link>
             </Button>
-            <div>
-              <h2 className='text-2xl font-bold tracking-tight'>
+            <div className='min-w-0'>
+              <h2 className='truncate text-xl font-bold tracking-tight sm:text-2xl'>
                 Report #{id} — {subjectName(report)}
               </h2>
-              <CardDescription>
+              <CardDescription className='text-sm'>
                 {formatDate(report.report_date)} • {report.event_type || '—'}
               </CardDescription>
             </div>
           </div>
-          <Button variant='outline' onClick={() => setEditing(true)}>
+          <Button
+            variant='outline'
+            className='w-full sm:w-auto'
+            onClick={() => setEditing(true)}
+          >
             <Pencil className='size-4' />
             Edit
           </Button>
@@ -204,11 +221,11 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
             <CardTitle className='text-base'>Report Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <div className='flex items-start gap-3'>
                 <User className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
                 <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                     Subject
                   </p>
                   <p className='font-medium'>{subjectName(report)}</p>
@@ -222,16 +239,18 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
               <div className='flex items-start gap-3'>
                 <Calendar className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
                 <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                     Report Date
                   </p>
-                  <p className='font-medium'>{formatDate(report.report_date)}</p>
+                  <p className='font-medium'>
+                    {formatDate(report.report_date)}
+                  </p>
                 </div>
               </div>
               <div className='flex items-start gap-3'>
                 <MapPin className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
                 <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                     Event Type
                   </p>
                   <p className='font-medium capitalize'>
@@ -242,7 +261,7 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
               <div className='flex items-start gap-3'>
                 <Target className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
                 <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                     Report ID
                   </p>
                   <p className='font-medium'>#{report.id}</p>
@@ -307,7 +326,9 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
                 </table>
               </div>
             ) : (
-              <p className='text-sm text-muted-foreground'>No grades recorded</p>
+              <p className='text-sm text-muted-foreground'>
+                No grades recorded
+              </p>
             )}
           </CardContent>
         </Card>
@@ -317,14 +338,16 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
           <CardHeader className='pb-3'>
             <div className='flex items-center gap-2'>
               <Zap className='size-4 text-muted-foreground' />
-              <CardTitle className='text-base'>Athleticism & Comparison</CardTitle>
+              <CardTitle className='text-base'>
+                Athleticism & Comparison
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             {hasAthleticism ? (
-              <div className='grid gap-6 sm:grid-cols-2'>
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6'>
                 <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                     60-Yard Dash
                   </p>
                   <p className='mt-1 text-2xl font-bold tabular-nums'>
@@ -334,7 +357,7 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
                   </p>
                 </div>
                 <div>
-                  <p className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+                  <p className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
                     MLB Comparison
                   </p>
                   <p className='mt-1 text-lg font-medium'>
@@ -360,11 +383,11 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
           </CardHeader>
           <CardContent>
             {report.notes ? (
-              <p className='whitespace-pre-wrap leading-relaxed text-foreground'>
+              <p className='text-sm leading-relaxed whitespace-pre-wrap text-foreground sm:text-base'>
                 {report.notes}
               </p>
             ) : (
-              <p className='text-sm italic text-muted-foreground'>
+              <p className='text-sm text-muted-foreground italic'>
                 No notes recorded for this report.
               </p>
             )}
@@ -374,7 +397,7 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
         {/* Metadata Footer */}
         <Card>
           <CardContent className='pt-6'>
-            <div className='flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground'>
+            <div className='flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2'>
               {report.User && (
                 <div className='flex items-center gap-1.5'>
                   <User className='size-3.5' />
