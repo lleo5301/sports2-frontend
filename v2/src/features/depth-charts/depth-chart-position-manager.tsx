@@ -1,10 +1,19 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Edit, Hash, Palette, Plus, Save, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { sectionPresets } from '@/lib/depth-chart-constants'
 import { depthChartsApi } from '@/lib/depth-charts-api'
 import type { DepthChartPosition } from '@/lib/depth-charts-api'
-import { sectionPresets } from '@/lib/depth-chart-constants'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -15,15 +24,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { toast } from 'sonner'
 
 const COLOR_OPTIONS = [
   { value: '#EF4444', label: 'Red' },
@@ -177,13 +177,15 @@ export function DepthChartPositionManager({
     onError: (err) => toast.error((err as Error).message),
   })
 
-  const existingCodes = new Set(positions.map((p) => p.position_code.toUpperCase()))
+  const existingCodes = new Set(
+    positions.map((p) => p.position_code.toUpperCase())
+  )
 
   return (
     <div className='space-y-4'>
-      <div className='flex flex-wrap items-center justify-between gap-4'>
+      <div className='flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between'>
         <h3 className='text-lg font-semibold'>Position configuration</h3>
-        <div className='flex flex-wrap items-center gap-2'>
+        <div className='grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center'>
           {sectionPresets.map((preset) => {
             const exists = existingCodes.has(preset.position_code)
             return (
@@ -191,6 +193,7 @@ export function DepthChartPositionManager({
                 key={preset.position_code}
                 size='sm'
                 variant='outline'
+                className='min-h-[44px] w-full sm:min-h-0 sm:w-auto'
                 onClick={() => !exists && addSectionMutation.mutate(preset)}
                 disabled={exists || addSectionMutation.isPending}
               >
@@ -199,14 +202,18 @@ export function DepthChartPositionManager({
               </Button>
             )
           })}
-          <Button size='sm' onClick={() => setShowAddModal(true)}>
+          <Button
+            size='sm'
+            className='col-span-2 min-h-[44px] w-full sm:min-h-0 sm:w-auto'
+            onClick={() => setShowAddModal(true)}
+          >
             <Plus className='size-4' />
             Add position
           </Button>
         </div>
       </div>
 
-      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
         {positions.map((position) => (
           <div key={position.id} className='rounded-lg border p-4'>
             {editingPosition?.id === position.id ? (
@@ -234,6 +241,7 @@ export function DepthChartPositionManager({
                     <Button
                       size='icon'
                       variant='ghost'
+                      className='min-h-[44px] min-w-[44px] sm:size-9 sm:min-h-0 sm:min-w-0'
                       onClick={handleUpdate}
                       disabled={updateMutation.isPending}
                     >
@@ -242,6 +250,7 @@ export function DepthChartPositionManager({
                     <Button
                       size='icon'
                       variant='ghost'
+                      className='min-h-[44px] min-w-[44px] sm:size-9 sm:min-h-0 sm:min-w-0'
                       onClick={() => setEditingPosition(null)}
                     >
                       ×
@@ -261,9 +270,7 @@ export function DepthChartPositionManager({
                   <Select
                     value={editingPosition.color ?? '#6B7280'}
                     onValueChange={(v) =>
-                      setEditingPosition((p) =>
-                        p ? { ...p, color: v } : null
-                      )
+                      setEditingPosition((p) => (p ? { ...p, color: v } : null))
                     }
                   >
                     <SelectTrigger>
@@ -338,16 +345,15 @@ export function DepthChartPositionManager({
                     <Button
                       size='icon'
                       variant='ghost'
-                      onClick={() =>
-                        setEditingPosition({ ...position })
-                      }
+                      className='min-h-[44px] min-w-[44px] sm:size-9 sm:min-h-0 sm:min-w-0'
+                      onClick={() => setEditingPosition({ ...position })}
                     >
                       <Edit className='size-4' />
                     </Button>
                     <Button
                       size='icon'
                       variant='ghost'
-                      className='text-destructive hover:text-destructive'
+                      className='min-h-[44px] min-w-[44px] text-destructive hover:text-destructive sm:size-9 sm:min-h-0 sm:min-w-0'
                       onClick={() => handleDelete(position.id)}
                       disabled={deleteMutation.isPending}
                     >

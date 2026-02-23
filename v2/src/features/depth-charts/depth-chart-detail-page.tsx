@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   Copy,
   Edit,
@@ -14,18 +14,19 @@ import {
   UserPlus,
   Download,
 } from 'lucide-react'
-import { formatDateTime } from '@/lib/format-date'
+import { toast } from 'sonner'
+import { getPlayerStats, getPlayerStatus } from '@/lib/depth-chart-utils'
 import {
   depthChartsApi,
   type DepthChart,
   type DepthChartPosition,
   type DepthChartPlayerAssignment,
 } from '@/lib/depth-charts-api'
-import { getPlayerStats, getPlayerStatus } from '@/lib/depth-chart-utils'
+import { formatDateTime } from '@/lib/format-date'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { usePermissions } from '@/hooks/use-permissions'
-import { Main } from '@/components/layout/main'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -35,11 +36,11 @@ import {
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EnhancedBaseballFieldView } from '@/components/depth-chart/enhanced-baseball-field-view'
+import { Main } from '@/components/layout/main'
 import { AssignPlayerModal } from './assign-player-modal'
 import { BackfillFromGameDialog } from './backfill-from-game-dialog'
 import { DepthChartPositionManager } from './depth-chart-position-manager'
 import { DepthChartSheetView } from './depth-chart-sheet-view'
-import { toast } from 'sonner'
 
 type ViewMode = 'list' | 'field' | 'sheet'
 
@@ -60,7 +61,11 @@ function PositionCard({
 }) {
   const players = (position.DepthChartPlayers ?? []).filter(
     (a) => a.Player
-  ) as Array<DepthChartPlayerAssignment & { Player: NonNullable<DepthChartPlayerAssignment['Player']> }>
+  ) as Array<
+    DepthChartPlayerAssignment & {
+      Player: NonNullable<DepthChartPlayerAssignment['Player']>
+    }
+  >
 
   return (
     <Card>
@@ -81,6 +86,7 @@ function PositionCard({
             <Button
               size='sm'
               variant='outline'
+              className='min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0'
               onClick={onAssign}
               disabled={
                 position.max_players != null &&
@@ -102,7 +108,7 @@ function PositionCard({
             return (
               <div
                 key={assignment.id}
-                className='rounded-lg border p-4 transition-shadow hover:shadow-md'
+                className='rounded-lg border p-4 transition-shadow hover:shadow-md active:shadow-md'
               >
                 <div className='mb-3 flex items-start justify-between'>
                   <div>
@@ -119,7 +125,12 @@ function PositionCard({
                     </p>
                   </div>
                   <div className='flex gap-1'>
-                    <Button variant='ghost' size='icon' className='size-8' asChild>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='size-8'
+                      asChild
+                    >
                       <Link
                         to='/players/$id'
                         params={{ id: String(player.id) }}
@@ -148,11 +159,7 @@ function PositionCard({
                 {stats.length > 0 && (
                   <div className='mb-3 flex flex-wrap gap-1'>
                     {stats.map((stat, i) => (
-                      <Badge
-                        key={i}
-                        variant='secondary'
-                        className='text-xs'
-                      >
+                      <Badge key={i} variant='secondary' className='text-xs'>
                         {stat}
                       </Badge>
                     ))}
@@ -174,7 +181,12 @@ function PositionCard({
           <div className='rounded-lg border-2 border-dashed py-8 text-center'>
             <p className='text-muted-foreground'>No players assigned</p>
             {canAssign && (
-              <Button className='mt-2' size='sm' variant='outline' onClick={onAssign}>
+              <Button
+                className='mt-2'
+                size='sm'
+                variant='outline'
+                onClick={onAssign}
+              >
                 <UserPlus className='size-4' />
                 Add Player
               </Button>
@@ -189,10 +201,16 @@ function PositionCard({
 export function DepthChartDetailPage({ chartId }: { chartId: number }) {
   const queryClient = useQueryClient()
   const { has } = usePermissions()
+  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState<'chart' | 'positions' | 'history'>(
     'chart'
   )
   const [viewMode, setViewMode] = useState<ViewMode>('list')
+
+  // Default to list view on mobile, field view on larger screens
+  useEffect(() => {
+    setViewMode(isMobile ? 'list' : 'field')
+  }, [isMobile])
   const [assignModalOpen, setAssignModalOpen] = useState(false)
   const [backfillDialogOpen, setBackfillDialogOpen] = useState(false)
   const [selectedPosition, setSelectedPosition] =
@@ -204,7 +222,11 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
   const canEdit = has('depth_chart_edit')
   const canDelete = has('depth_chart_delete')
 
-  const { data: chart, isLoading, error } = useQuery({
+  const {
+    data: chart,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['depth-chart', chartId],
     queryFn: () => depthChartsApi.getById(chartId),
   })
@@ -294,13 +316,23 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
   return (
     <Main>
       <div className='space-y-6'>
-        <div className='flex flex-wrap items-center justify-between gap-4'>
-          <Button variant='outline' size='sm' asChild>
+        <div className='flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between'>
+          <Button
+            variant='outline'
+            size='sm'
+            className='w-full sm:w-auto'
+            asChild
+          >
             <Link to='/depth-charts'>← Back</Link>
           </Button>
-          <div className='flex gap-2'>
+          <div className='grid grid-cols-2 gap-2 sm:flex'>
             {canEdit && (
-              <Button variant='outline' size='sm' disabled>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full sm:w-auto'
+                disabled
+              >
                 <Edit className='size-4' />
                 Edit
               </Button>
@@ -309,8 +341,13 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
               <Button
                 variant='outline'
                 size='sm'
+                className='w-full sm:w-auto'
                 onClick={() => {
-                  if (window.confirm('Delete this depth chart? This cannot be undone.')) {
+                  if (
+                    window.confirm(
+                      'Delete this depth chart? This cannot be undone.'
+                    )
+                  ) {
                     deleteMutation.mutate()
                   }
                 }}
@@ -324,6 +361,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
               <Button
                 variant='outline'
                 size='sm'
+                className='w-full sm:w-auto'
                 onClick={() => setBackfillDialogOpen(true)}
               >
                 <Download className='size-4' />
@@ -333,6 +371,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
             <Button
               variant='outline'
               size='sm'
+              className='w-full sm:w-auto'
               onClick={() => duplicateMutation.mutate()}
               disabled={duplicateMutation.isPending}
             >
@@ -347,14 +386,20 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
           onOpenChange={setBackfillDialogOpen}
           chartId={chartId}
           existingPositionCodes={positions.map((p) => p.position_code)}
-          onBackfilled={() => queryClient.invalidateQueries({ queryKey: ['depth-chart', chartId] })}
+          onBackfilled={() =>
+            queryClient.invalidateQueries({
+              queryKey: ['depth-chart', chartId],
+            })
+          }
         />
 
         <Card>
           <CardHeader>
             <div className='flex flex-wrap items-center justify-between gap-4'>
               <div>
-                <CardTitle>{chart.name || `Depth Chart #${chart.id}`}</CardTitle>
+                <CardTitle>
+                  {chart.name || `Depth Chart #${chart.id}`}
+                </CardTitle>
                 {chart.description && (
                   <CardDescription className='mt-1'>
                     {chart.description}
@@ -362,9 +407,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
                 )}
               </div>
               <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                {chart.version != null && (
-                  <span>Version {chart.version}</span>
-                )}
+                {chart.version != null && <span>Version {chart.version}</span>}
                 {chart.Creator && (
                   <span>
                     By {chart.Creator.first_name} {chart.Creator.last_name}
@@ -397,10 +440,11 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
 
               <TabsContent value='chart' className='mt-4'>
                 <div className='space-y-4'>
-                  <div className='flex flex-wrap justify-center gap-2'>
+                  <div className='grid grid-cols-3 gap-2 sm:flex sm:justify-center'>
                     <Button
                       variant={viewMode === 'list' ? 'default' : 'outline'}
                       size='sm'
+                      className='w-full sm:w-auto'
                       onClick={() => setViewMode('list')}
                     >
                       <Layers className='size-4' />
@@ -409,6 +453,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
                     <Button
                       variant={viewMode === 'field' ? 'default' : 'outline'}
                       size='sm'
+                      className='w-full sm:w-auto'
                       onClick={() => setViewMode('field')}
                     >
                       Field
@@ -416,6 +461,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
                     <Button
                       variant={viewMode === 'sheet' ? 'default' : 'outline'}
                       size='sm'
+                      className='w-full sm:w-auto'
                       onClick={() => setViewMode('sheet')}
                     >
                       Sheet

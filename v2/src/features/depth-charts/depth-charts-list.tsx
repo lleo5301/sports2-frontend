@@ -1,12 +1,11 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
+import { toast } from 'sonner'
 import { depthChartsApi } from '@/lib/depth-charts-api'
-import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Card,
   CardContent,
@@ -22,7 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import { Main } from '@/components/layout/main'
 
 export function DepthChartsList() {
   const queryClient = useQueryClient()
@@ -30,7 +30,11 @@ export function DepthChartsList() {
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
 
-  const { data: charts = [], isLoading, error } = useQuery({
+  const {
+    data: charts = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['depth-charts'],
     queryFn: () => depthChartsApi.list(),
   })
@@ -52,12 +56,17 @@ export function DepthChartsList() {
   return (
     <Main>
       <div className='space-y-6'>
-        <div className='flex flex-wrap items-end justify-between gap-4'>
+        <div className='flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Depth Charts</h2>
-            <CardDescription>Manage depth charts and lineup views</CardDescription>
+            <CardDescription>
+              Manage depth charts and lineup views
+            </CardDescription>
           </div>
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button
+            className='w-full sm:w-auto'
+            onClick={() => setCreateOpen(true)}
+          >
             <Plus className='size-4' />
             Create Depth Chart
           </Button>
@@ -72,7 +81,9 @@ export function DepthChartsList() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className='py-8 text-center text-muted-foreground'>Loading...</p>
+              <p className='py-8 text-center text-muted-foreground'>
+                Loading...
+              </p>
             ) : error ? (
               <p className='py-8 text-center text-destructive'>
                 {(error as Error).message}
@@ -85,13 +96,13 @@ export function DepthChartsList() {
                 </Button>
               </div>
             ) : (
-              <ul className='divide-y'>
+              <ul className='divide-y sm:divide-y'>
                 {charts.map((chart) => (
-                  <li key={chart.id} className='flex items-center justify-between py-3'>
+                  <li key={chart.id}>
                     <Link
                       to='/depth-charts/$id'
                       params={{ id: String(chart.id) }}
-                      className='font-medium hover:underline'
+                      className='flex min-h-[44px] items-center rounded-lg px-2 py-3 font-medium hover:bg-muted hover:underline active:bg-muted sm:rounded-none sm:px-0'
                     >
                       {chart.name || `Depth Chart #${chart.id}`}
                     </Link>
@@ -108,14 +119,17 @@ export function DepthChartsList() {
           <DialogHeader>
             <DialogTitle>Create Depth Chart</DialogTitle>
             <DialogDescription>
-              Give your depth chart a name (e.g., &quot;Opening Day&quot;, &quot;vs State&quot;)
+              Give your depth chart a name (e.g., &quot;Opening Day&quot;,
+              &quot;vs State&quot;)
             </DialogDescription>
           </DialogHeader>
           <Input
             placeholder='Depth chart name'
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && createMutation.mutate(newName)}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && createMutation.mutate(newName)
+            }
           />
           <DialogFooter>
             <Button variant='outline' onClick={() => setCreateOpen(false)}>

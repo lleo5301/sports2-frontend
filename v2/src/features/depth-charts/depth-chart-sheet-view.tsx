@@ -1,10 +1,21 @@
 import html2canvas from 'html2canvas'
 import { Download, Printer } from 'lucide-react'
+import { toast } from 'sonner'
 import type { DepthChart } from '@/lib/depth-charts-api'
 import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 
-const POSITION_ORDER = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH']
+const POSITION_ORDER = [
+  'P',
+  'C',
+  '1B',
+  '2B',
+  '3B',
+  'SS',
+  'LF',
+  'CF',
+  'RF',
+  'DH',
+]
 const FALLBACK_NAMES: Record<string, string> = {
   P: 'Pitcher',
   C: 'Catcher',
@@ -90,14 +101,26 @@ export function DepthChartSheetView({ depthChart }: DepthChartSheetViewProps) {
         }
       `}</style>
 
-      <div className='mb-4 flex items-center justify-between print:hidden'>
-        <h2 className='text-xl font-bold'>Depth Chart — Sheet View</h2>
-        <div className='flex gap-2'>
-          <Button variant='outline' size='sm' onClick={handlePrint}>
+      <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden'>
+        <h2 className='text-lg font-bold sm:text-xl'>
+          Depth Chart — Sheet View
+        </h2>
+        <div className='grid grid-cols-2 gap-2 sm:flex'>
+          <Button
+            variant='outline'
+            size='sm'
+            className='w-full sm:w-auto'
+            onClick={handlePrint}
+          >
             <Printer className='size-4' />
             Print
           </Button>
-          <Button variant='outline' size='sm' onClick={handleExportImage}>
+          <Button
+            variant='outline'
+            size='sm'
+            className='w-full sm:w-auto'
+            onClick={handleExportImage}
+          >
             <Download className='size-4' />
             Export Image
           </Button>
@@ -106,13 +129,13 @@ export function DepthChartSheetView({ depthChart }: DepthChartSheetViewProps) {
 
       <div
         id='depth-chart-sheet'
-        className='rounded-lg border bg-background p-6 print:border-0'
+        className='rounded-lg border bg-background p-3 sm:p-6 print:border-0'
       >
-        <h2 className='mb-6 text-center text-2xl font-bold'>
+        <h2 className='mb-4 text-center text-xl font-bold sm:mb-6 sm:text-2xl'>
           {depthChart.name ?? 'Team Depth Chart'}
         </h2>
 
-        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3'>
           {POSITION_ORDER.map((code) => {
             const items = byCode(code, positions)
             const title = nameFor(code, positions)
