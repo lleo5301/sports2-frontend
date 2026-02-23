@@ -170,7 +170,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
             <div className='flex flex-col gap-6 lg:flex-row lg:items-start'>
               <div className='flex flex-col items-center gap-4 sm:flex-row lg:flex-col lg:items-center lg:shrink-0'>
                 <div className='relative'>
-                  <Avatar className='size-36 shrink-0 shadow-lg ring-2 ring-border sm:size-44 lg:size-52'>
+                  <Avatar className='size-24 shrink-0 shadow-lg ring-2 ring-border sm:size-36 lg:size-48'>
                     <AvatarImage
                       src={(statsResp?.player?.photo_url ?? player.photo_url) ?? undefined}
                       alt={[player.first_name, player.last_name].filter(Boolean).join(' ')}
@@ -180,7 +180,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
                       {[player.first_name?.[0], player.last_name?.[0]]
                         .filter(Boolean)
                         .join('')
-                        .toUpperCase() || <User className='size-16' />}
+                        .toUpperCase() || <User className='size-12 sm:size-16' />}
                     </AvatarFallback>
                   </Avatar>
                   {(statsResp?.player?.jersey_number ?? player.jersey_number) != null && (
@@ -674,7 +674,7 @@ function SeasonsTable({
   if (colsWithData.length === 0) return null
   return (
     <div className='overflow-x-auto'>
-      <table className='w-full text-sm'>
+      <table className='w-full text-sm whitespace-nowrap'>
         <thead>
           <tr className='border-b'>
             {colsWithData.map((c) => (

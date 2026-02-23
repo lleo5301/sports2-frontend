@@ -26,7 +26,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { useState } from 'react'
 import { EditScoutingForm } from './edit-scouting-form'
 
@@ -84,7 +83,7 @@ function formatDateTime(dateStr?: string) {
   }
 }
 
-function GradeBadge({ value, label }: { value?: unknown; label?: string }) {
+function GradeBadge({ value }: { value?: unknown }) {
   if (value === undefined || value === null || value === '') return <span className='text-muted-foreground'>—</span>
   const display = String(value)
   // Determine color intensity based on grade type
@@ -264,7 +263,7 @@ export function ScoutingDetail({ id }: ScoutingDetailProps) {
           <CardContent>
             {hasGrades ? (
               <div className='overflow-x-auto'>
-                <table className='w-full text-sm'>
+                <table className='w-full text-sm whitespace-nowrap'>
                   <thead>
                     <tr className='border-b'>
                       <th className='pb-2 text-left font-medium text-muted-foreground'>

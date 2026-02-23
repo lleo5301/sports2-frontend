@@ -8,12 +8,8 @@ import {
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfigDrawer } from '@/components/config-drawer'
-import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { TopNav } from '@/components/layout/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { Analytics } from './components/analytics'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
@@ -21,16 +17,13 @@ import { RecentSales } from './components/recent-sales'
 export function Dashboard() {
   return (
     <>
-      {/* ===== Top Heading ===== */}
-      <Header>
+      {/* ===== Sub Nav ===== */}
+      <div className='flex h-12 items-center px-4 sm:px-6 md:px-8 border-b bg-background'>
         <TopNav links={topNav} />
         <div className='ms-auto flex items-center space-x-4'>
-          <Search />
-          <ThemeSwitch />
           <ConfigDrawer />
-          <ProfileDropdown />
         </div>
-      </Header>
+      </div>
 
       {/* ===== Main ===== */}
       <Main>

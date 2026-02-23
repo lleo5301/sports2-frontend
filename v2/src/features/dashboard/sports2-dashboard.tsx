@@ -23,7 +23,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { teamsApi } from '@/lib/teams-api'
 import { schedulesApi } from '@/lib/schedules-api'
-import { gamesApi } from '@/lib/games-api'
+import { gamesApi, formatGameDateShort, formatGameLocation, type Game } from '@/lib/games-api'
 import { extendedStatsApi } from '@/lib/extended-stats-api'
 import { depthChartsApi } from '@/lib/depth-charts-api'
 import { prospectsApi } from '@/lib/prospects-api'
@@ -36,8 +36,6 @@ import {
   CardDescription,
   CardHeader,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { formatGameDateShort, formatGameLocation, type Game } from '@/lib/games-api'
 import { OpponentLogo } from '@/components/opponent-logo'
 
 function formatGameLabel(game: Game) {
@@ -311,101 +309,119 @@ export function Sports2Dashboard() {
         </header>
 
         {/* Stats cards */}
-        <section className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'>
+        <section className='grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6'>
           <Link to='/players'>
-            <Card className='transition-all hover:shadow-md'>
-              <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='rounded-xl bg-primary/10 p-3'>
-                    <Users className='size-6 text-primary' />
-                  </div>
-                  <Badge variant='outline'>Roster</Badge>
+            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
+              <div className='absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
+              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
+                <div className='mb-3 rounded-full bg-primary/10 p-2.5 text-primary'>
+                  <Users className='size-5 sm:size-6' />
                 </div>
-                <p className='mt-4 text-3xl font-bold'>{statsData.players}</p>
-                <p className='mt-1 text-sm text-muted-foreground'>Players</p>
+                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
+                  {statsData.players}
+                </p>
+                <div className='mt-1 flex items-center justify-center gap-1.5'>
+                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
+                    Players
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link to='/scouting'>
-            <Card className='transition-all hover:shadow-md'>
-              <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='rounded-xl bg-secondary/10 p-3'>
-                    <FileText className='size-6 text-secondary' />
-                  </div>
-                  <Badge variant='outline'>Reports</Badge>
+            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
+              <div className='absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
+              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
+                <div className='mb-3 rounded-full bg-secondary/10 p-2.5 text-secondary'>
+                  <FileText className='size-5 sm:size-6' />
                 </div>
-                <p className='mt-4 text-3xl font-bold'>{statsData.reports}</p>
-                <p className='mt-1 text-sm text-muted-foreground'>
-                  Scouting Reports
+                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
+                  {statsData.reports}
                 </p>
+                <div className='mt-1 flex items-center justify-center gap-1.5'>
+                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
+                    Reports
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link to='/schedules'>
-            <Card className='transition-all hover:shadow-md'>
-              <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='rounded-xl bg-green-500/10 p-3'>
-                    <Calendar className='size-6 text-green-600' />
-                  </div>
-                  <Badge variant='outline'>Schedule</Badge>
+            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
+              <div className='absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
+              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
+                <div className='mb-3 rounded-full bg-green-500/10 p-2.5 text-green-600'>
+                  <Calendar className='size-5 sm:size-6' />
                 </div>
-                <p className='mt-4 text-3xl font-bold'>{statsData.schedules}</p>
-                <p className='mt-1 text-sm text-muted-foreground'>
-                  {statsData.scheduleThisWeek > 0 || statsData.scheduleThisMonth > 0
-                    ? `Schedules • ${statsData.scheduleThisWeek} this week, ${statsData.scheduleThisMonth} this month`
-                    : 'Schedules'}
+                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
+                  {statsData.schedules}
                 </p>
+                <div className='mt-1 flex items-center justify-center gap-1.5'>
+                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
+                    {statsData.scheduleThisWeek > 0 || statsData.scheduleThisMonth > 0
+                      ? `${statsData.scheduleThisWeek} Wk / ${statsData.scheduleThisMonth} Mo`
+                      : 'Schedules'}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link to='/games'>
-            <Card className='transition-all hover:shadow-md'>
-              <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='rounded-xl bg-amber-500/10 p-3'>
-                    <Trophy className='size-6 text-amber-600' />
-                  </div>
-                  <Badge variant='outline'>Record</Badge>
+            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
+              <div className='absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
+              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
+                <div className='mb-3 rounded-full bg-amber-500/10 p-2.5 text-amber-600'>
+                  <Trophy className='size-5 sm:size-6' />
                 </div>
-                <p className='mt-4 text-3xl font-bold'>
+                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
                   {statsData.wins}-{statsData.losses}
                 </p>
-                <p className='mt-1 text-sm text-muted-foreground'>Wins-Losses</p>
+                <div className='mt-1 flex items-center justify-center gap-1.5'>
+                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
+                    Record
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link to='/depth-charts'>
-            <Card className='transition-all hover:shadow-md'>
-              <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='rounded-xl bg-blue-500/10 p-3'>
-                    <List className='size-6 text-blue-600' />
-                  </div>
-                  <Badge variant='outline'>Operations</Badge>
+            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
+              <div className='absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
+              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
+                <div className='mb-3 rounded-full bg-blue-500/10 p-2.5 text-blue-600'>
+                  <List className='size-5 sm:size-6' />
                 </div>
-                <p className='mt-4 text-3xl font-bold'>{statsData.depthCharts}</p>
-                <p className='mt-1 text-sm text-muted-foreground'>Depth Charts</p>
+                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
+                  {statsData.depthCharts}
+                </p>
+                <div className='mt-1 flex items-center justify-center gap-1.5'>
+                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
+                    Charts
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Link>
 
           <Link to='/prospects'>
-            <Card className='transition-all hover:shadow-md'>
-              <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='rounded-xl bg-violet-500/10 p-3'>
-                    <UserPlus className='size-6 text-violet-600' />
-                  </div>
-                  <Badge variant='outline'>Recruiting</Badge>
+            <Card className='group mx-0 overflow-hidden rounded-2xl border transition-all hover:shadow-md sm:rounded-xl'>
+              <div className='absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100' />
+              <CardContent className='flex flex-col items-center justify-center p-4 text-center sm:p-6'>
+                <div className='mb-3 rounded-full bg-violet-500/10 p-2.5 text-violet-600'>
+                  <UserPlus className='size-5 sm:size-6' />
                 </div>
-                <p className='mt-4 text-3xl font-bold'>{statsData.prospects}</p>
-                <p className='mt-1 text-sm text-muted-foreground'>Prospects</p>
+                <p className='text-3xl font-bold tracking-tight sm:text-4xl'>
+                  {statsData.prospects}
+                </p>
+                <div className='mt-1 flex items-center justify-center gap-1.5'>
+                  <p className='text-xs font-medium text-muted-foreground sm:text-sm'>
+                    Prospects
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </Link>

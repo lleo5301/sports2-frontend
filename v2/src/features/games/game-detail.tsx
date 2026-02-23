@@ -109,36 +109,42 @@ export function GameDetail({ id }: GameDetailProps) {
 
   if (Number.isNaN(gameId)) {
     return (
-      <Main>
-        <div className='py-8 text-center text-destructive'>
-          Invalid game ID
-        </div>
-      </Main>
+      <>
+        <Main>
+          <div className='py-8 text-center text-destructive'>
+            Invalid game ID
+          </div>
+        </Main>
+      </>
     )
   }
 
   if (isLoading) {
     return (
-      <Main>
-        <div className='flex items-center justify-center py-16'>
-          <Loader2 className='size-8 animate-spin text-muted-foreground' />
-        </div>
-      </Main>
+      <>
+        <Main>
+          <div className='flex items-center justify-center py-16'>
+            <Loader2 className='size-8 animate-spin text-muted-foreground' />
+          </div>
+        </Main>
+      </>
     )
   }
 
   if (error || !game) {
     return (
-      <Main>
-        <div className='py-8 text-center'>
-          <p className='text-destructive'>
-            {(error as Error)?.message ?? 'Game not found'}
-          </p>
-          <Button asChild className='mt-4' variant='outline'>
-            <Link to='/games'>Back to games</Link>
-          </Button>
-        </div>
-      </Main>
+      <>
+        <Main>
+          <div className='py-8 text-center'>
+            <p className='text-destructive'>
+              {(error as Error)?.message ?? 'Game not found'}
+            </p>
+            <Button asChild className='mt-4' variant='outline'>
+              <Link to='/games'>Back to games</Link>
+            </Button>
+          </div>
+        </Main>
+      </>
     )
   }
 
@@ -149,8 +155,9 @@ export function GameDetail({ id }: GameDetailProps) {
   const gameDuration = game.game_duration ?? teamStats?.['time']
 
   return (
-    <Main>
-      <div className='space-y-6'>
+    <>
+      <Main>
+        <div className='space-y-6'>
         <div className='flex flex-wrap items-center gap-4'>
           <Button variant='ghost' size='icon' asChild>
             <Link to='/games'>
@@ -368,6 +375,7 @@ export function GameDetail({ id }: GameDetailProps) {
         ) : null}
       </div>
     </Main>
+    </>
   )
 }
 
@@ -553,7 +561,7 @@ function TeamComparison({
     <div>
       <h4 className='mb-2 text-sm font-medium text-muted-foreground'>Team comparison</h4>
       <div className='overflow-x-auto rounded-lg border'>
-        <table className='w-full text-sm'>
+        <table className='w-full text-sm whitespace-nowrap'>
           <thead>
             <tr className='border-b bg-muted/50'>
               <th className='px-3 py-2 text-left text-muted-foreground'>Stat</th>
@@ -714,7 +722,7 @@ function StatsTable({
 
   return (
     <div className='overflow-x-auto'>
-      <table className='w-full text-sm'>
+      <table className='w-full text-sm whitespace-nowrap'>
         <thead>
           <tr className='border-b'>
             {(type === 'batting' || type === 'pitching' || type === 'fielding' || type === 'player') && (
