@@ -10,7 +10,10 @@ interface UseChatReturn {
   activeTools: string[]
   error: string | null
   tokenInfo: SSEMessageEnd['tokens'] | null
-  sendMessage: (content: string) => Promise<void>
+  sendMessage: (
+    content: string,
+    conversationIdOverride?: string
+  ) => Promise<void>
   cancelStream: () => void
   loadConversation: (conversationId: string) => Promise<void>
   clearMessages: () => void

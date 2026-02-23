@@ -70,7 +70,7 @@ function substituteVariables(
 ): string {
   let result = prompt
   for (const [key, value] of Object.entries(values)) {
-    result = result.replaceAll(`{${key}}`, value)
+    result = result.split(`{${key}}`).join(value)
   }
   return result
 }
