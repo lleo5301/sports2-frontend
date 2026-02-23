@@ -16,6 +16,7 @@ export function useConversations() {
   } = useAiStore()
 
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     limit: 20,
@@ -27,11 +28,17 @@ export function useConversations() {
     async (page = 1) => {
       setLoading(true)
       try {
+        setError(null)
         const result = await aiApi.listConversations({ page, limit: 20 })
         setConversations(result.data)
         setPagination(result.pagination)
-      } catch {
-        toast.error('Failed to load conversations')
+      } catch (err) {
+        const msg =
+          (err as { response?: { status?: number } })?.response?.status === 500
+            ? 'AI Coach backend is not available. Check that the AI service is running.'
+            : 'Failed to load conversations'
+        setError(msg)
+        toast.error(msg)
       } finally {
         setLoading(false)
       }
@@ -107,6 +114,7 @@ export function useConversations() {
     conversations,
     activeConversationId,
     loading,
+    error,
     pagination,
     setActiveConversation,
     fetchConversations,

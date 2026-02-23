@@ -49,8 +49,9 @@ export function useChat(): UseChatReturn {
   }, [])
 
   const sendMessage = useCallback(
-    async (content: string) => {
-      if (!activeConversationId || isStreaming) return
+    async (content: string, conversationIdOverride?: string) => {
+      const convId = conversationIdOverride || activeConversationId
+      if (!convId || isStreaming) return
 
       setError(null)
       setTokenInfo(null)
@@ -58,7 +59,7 @@ export function useChat(): UseChatReturn {
       // Optimistically add the user message to local state
       const userMessage: AiMessage = {
         id: `temp-${Date.now()}`,
-        conversation_id: activeConversationId,
+        conversation_id: convId,
         role: 'user',
         content,
         tool_name: null,
@@ -78,7 +79,7 @@ export function useChat(): UseChatReturn {
       // Start SSE stream
       let accumulatedText = ''
 
-      abortRef.current = aiApi.sendMessage(activeConversationId, content, {
+      abortRef.current = aiApi.sendMessage(convId, content, {
         onMessageStart: () => {
           // Stream has started
         },
@@ -100,7 +101,7 @@ export function useChat(): UseChatReturn {
             ...prev,
             {
               id: `tool-call-${Date.now()}`,
-              conversation_id: activeConversationId,
+              conversation_id: convId,
               role: 'tool_call' as const,
               content: null,
               tool_name: data.tool,
@@ -111,7 +112,7 @@ export function useChat(): UseChatReturn {
             },
             {
               id: `tool-result-${Date.now()}`,
-              conversation_id: activeConversationId,
+              conversation_id: convId,
               role: 'tool_result' as const,
               content: null,
               tool_name: data.tool,
@@ -129,7 +130,7 @@ export function useChat(): UseChatReturn {
             ...prev,
             {
               id: `assistant-${Date.now()}`,
-              conversation_id: activeConversationId,
+              conversation_id: convId,
               role: 'assistant',
               content: accumulatedText,
               tool_name: null,
@@ -145,7 +146,7 @@ export function useChat(): UseChatReturn {
           setTokenInfo(data.tokens)
 
           // Update the conversation's updated_at in the store
-          updateConversation(activeConversationId, {
+          updateConversation(convId, {
             updated_at: new Date().toISOString(),
           })
         },

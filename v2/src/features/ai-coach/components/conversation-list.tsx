@@ -7,6 +7,7 @@ import {
   Pencil,
   Trash2,
   MessageSquare,
+  Home,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -65,14 +66,24 @@ export function ConversationList({
       <div className='flex h-full w-72 flex-col border-r'>
         <div className='flex items-center justify-between border-b p-3'>
           <h2 className='text-sm font-semibold'>Conversations</h2>
-          <Button
-            size='sm'
-            variant='outline'
-            onClick={() => createConversation()}
-          >
-            <Plus className='mr-1 size-3.5' />
-            New
-          </Button>
+          <div className='flex gap-1'>
+            <Button
+              size='sm'
+              variant='ghost'
+              onClick={() => setActiveConversation(null)}
+              title='Back to prompts'
+            >
+              <Home className='size-3.5' />
+            </Button>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => createConversation()}
+            >
+              <Plus className='mr-1 size-3.5' />
+              New
+            </Button>
+          </div>
         </div>
 
         <ScrollArea className='flex-1'>
@@ -107,9 +118,12 @@ export function ConversationList({
                   </p>
                   <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
                     <span>
-                      {formatDistanceToNow(new Date(convo.updated_at), {
-                        addSuffix: true,
-                      })}
+                      {convo.updated_at &&
+                      !isNaN(new Date(convo.updated_at).getTime())
+                        ? formatDistanceToNow(new Date(convo.updated_at), {
+                            addSuffix: true,
+                          })
+                        : 'just now'}
                     </span>
                     <Badge
                       variant='secondary'

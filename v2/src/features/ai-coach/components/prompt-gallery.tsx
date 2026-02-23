@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Bot, Send } from 'lucide-react'
+import {
+  Bot,
+  Send,
+  TrendingUp,
+  Users,
+  ClipboardList,
+  Calendar,
+} from 'lucide-react'
 import { useAiStore } from '@/stores/ai-store'
 import { aiApi } from '@/lib/ai-api'
 import { Button } from '@/components/ui/button'
@@ -26,6 +33,36 @@ import type { PromptTemplate, PromptTemplates } from '../types'
 interface PromptGalleryProps {
   onSelectPrompt: (prompt: string) => Promise<void>
 }
+
+/** Hardcoded quick-start prompts shown when the API hasn't returned templates */
+const QUICK_PROMPTS = [
+  {
+    icon: TrendingUp,
+    label: 'Game Recap',
+    description: 'Get a recap of the most recent game',
+    prompt: 'Give me a comprehensive recap of our most recent completed game.',
+  },
+  {
+    icon: Users,
+    label: 'Top Performers',
+    description: 'See who is performing best this season',
+    prompt: 'Who are our top 5 performers this season? Show their key stats.',
+  },
+  {
+    icon: ClipboardList,
+    label: 'Scouting Summary',
+    description: 'Review recent scouting reports',
+    prompt:
+      'Summarize the most recent scouting reports and highlight standout prospects.',
+  },
+  {
+    icon: Calendar,
+    label: 'Upcoming Games',
+    description: 'Preview the next games on the schedule',
+    prompt:
+      'What are our upcoming games? Give me a preview and any matchup insights.',
+  },
+]
 
 function substituteVariables(
   prompt: string,
@@ -55,6 +92,9 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
         .then((data) => {
           if (data) setPrompts(data)
         })
+        .catch(() => {
+          // Ignore — we show quick prompts as fallback
+        })
         .finally(() => setLoading(false))
     }
   }, [prompts, setPrompts])
@@ -68,18 +108,10 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
     }
   }
 
-  const handleVariableSubmit = () => {
-    if (!selectedTemplate) return
-    const filled = substituteVariables(selectedTemplate.prompt, variableValues)
-    onSelectPrompt(filled)
-    setSelectedTemplate(null)
-    setVariableValues({})
-  }
-
   const categories = Object.keys(PROMPT_CATEGORY_LABELS)
 
   return (
-    <div className='flex h-full flex-col items-center justify-center p-4 sm:p-8'>
+    <div className='flex h-full flex-col items-center justify-center overflow-y-auto p-4 sm:p-8'>
       <div className='w-full max-w-3xl space-y-6'>
         {/* Header */}
         <div className='space-y-2 text-center'>
@@ -92,7 +124,7 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
           </p>
         </div>
 
-        {/* Prompt templates */}
+        {/* Prompt templates from API */}
         {loading ? (
           <div className='grid gap-3 sm:grid-cols-2'>
             {Array.from({ length: 4 }).map((_, i) => (
@@ -148,9 +180,32 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
             ))}
           </Tabs>
         ) : (
-          <p className='text-center text-sm text-muted-foreground'>
-            Start a conversation by typing a message below.
-          </p>
+          /* Fallback: hardcoded quick-start prompts */
+          <div className='grid gap-3 sm:grid-cols-2'>
+            {QUICK_PROMPTS.map((qp) => (
+              <Card
+                key={qp.label}
+                className='cursor-pointer transition-colors hover:bg-accent'
+                onClick={() => onSelectPrompt(qp.prompt)}
+              >
+                <CardHeader className='pb-2'>
+                  <CardTitle className='flex items-center gap-2 text-sm'>
+                    <qp.icon className='size-4 text-primary' />
+                    {qp.label}
+                  </CardTitle>
+                  <CardDescription className='text-xs'>
+                    {qp.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button size='sm' variant='ghost' className='h-7 text-xs'>
+                    <Send className='mr-1 size-3' />
+                    Ask
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </div>
 
@@ -211,4 +266,12 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
       </Dialog>
     </div>
   )
+
+  function handleVariableSubmit() {
+    if (!selectedTemplate) return
+    const filled = substituteVariables(selectedTemplate.prompt, variableValues)
+    onSelectPrompt(filled)
+    setSelectedTemplate(null)
+    setVariableValues({})
+  }
 }

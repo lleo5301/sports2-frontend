@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Send, Square } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import type { AiMessage } from '../types'
 import { MessageBubble } from './message-bubble'
@@ -14,7 +13,10 @@ interface ChatPanelProps {
   streamingText: string
   activeTools: string[]
   error: string | null
-  sendMessage: (content: string) => Promise<void>
+  sendMessage: (
+    content: string,
+    conversationIdOverride?: string
+  ) => Promise<void>
   cancelStream: () => void
 }
 
@@ -57,8 +59,8 @@ export function ChatPanel({
 
   return (
     <div className='flex h-full flex-col'>
-      {/* Messages area */}
-      <ScrollArea className='flex-1'>
+      {/* Messages area — native scroll */}
+      <div className='min-h-0 flex-1 overflow-y-auto'>
         <div className='flex flex-col py-4'>
           {error && (
             <div className='px-4 pb-2'>
@@ -82,10 +84,10 @@ export function ChatPanel({
           {isStreaming && streamingText && (
             <div className='flex justify-start px-4 py-2'>
               <div className='max-w-[85%] rounded-2xl bg-muted px-4 py-2.5 sm:max-w-[75%]'>
-                <p className='text-sm whitespace-pre-wrap'>
+                <div className='prose prose-sm max-w-none text-sm whitespace-pre-wrap dark:prose-invert'>
                   {streamingText}
                   <span className='ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-foreground' />
-                </p>
+                </div>
               </div>
             </div>
           )}
@@ -108,10 +110,10 @@ export function ChatPanel({
 
           <div ref={scrollRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input area */}
-      <div className='border-t bg-background p-4'>
+      <div className='shrink-0 border-t bg-background p-4'>
         <div className='flex items-end gap-2'>
           <Textarea
             value={input}
