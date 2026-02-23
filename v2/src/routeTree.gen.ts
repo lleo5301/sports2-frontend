@@ -51,6 +51,7 @@ import { Route as AuthenticatedDepthChartsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedCoachesIndexRouteImport } from './routes/_authenticated/coaches/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
+import { Route as AuthenticatedAiCoachIndexRouteImport } from './routes/_authenticated/ai-coach/index'
 import { Route as AuthenticatedVendorsCreateRouteImport } from './routes/_authenticated/vendors/create'
 import { Route as AuthenticatedVendorsIdRouteImport } from './routes/_authenticated/vendors/$id'
 import { Route as AuthenticatedTournamentsIdRouteImport } from './routes/_authenticated/tournaments/$id'
@@ -87,6 +88,8 @@ import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedDepthChartsIdRouteImport } from './routes/_authenticated/depth-charts/$id'
 import { Route as AuthenticatedCoachesCreateRouteImport } from './routes/_authenticated/coaches/create'
 import { Route as AuthenticatedCoachesIdRouteImport } from './routes/_authenticated/coaches/$id'
+import { Route as AuthenticatedAiCoachSettingsRouteImport } from './routes/_authenticated/ai-coach/settings'
+import { Route as AuthenticatedAiCoachInsightsRouteImport } from './routes/_authenticated/ai-coach/insights'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -318,6 +321,12 @@ const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCoachIndexRoute =
+  AuthenticatedAiCoachIndexRouteImport.update({
+    id: '/ai-coach/',
+    path: '/ai-coach/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedVendorsCreateRoute =
   AuthenticatedVendorsCreateRouteImport.update({
     id: '/vendors/create',
@@ -525,6 +534,18 @@ const AuthenticatedCoachesIdRoute = AuthenticatedCoachesIdRouteImport.update({
   path: '/coaches/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCoachSettingsRoute =
+  AuthenticatedAiCoachSettingsRouteImport.update({
+    id: '/ai-coach/settings',
+    path: '/ai-coach/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiCoachInsightsRoute =
+  AuthenticatedAiCoachInsightsRouteImport.update({
+    id: '/ai-coach/insights',
+    path: '/ai-coach/insights',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -543,6 +564,8 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/ai-coach/insights': typeof AuthenticatedAiCoachInsightsRoute
+  '/ai-coach/settings': typeof AuthenticatedAiCoachSettingsRoute
   '/coaches/$id': typeof AuthenticatedCoachesIdRoute
   '/coaches/create': typeof AuthenticatedCoachesCreateRoute
   '/depth-charts/$id': typeof AuthenticatedDepthChartsIdRoute
@@ -579,6 +602,7 @@ export interface FileRoutesByFullPath {
   '/tournaments/$id': typeof AuthenticatedTournamentsIdRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
+  '/ai-coach/': typeof AuthenticatedAiCoachIndexRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
   '/chats/': typeof AuthenticatedChatsIndexRoute
   '/coaches/': typeof AuthenticatedCoachesIndexRoute
@@ -621,6 +645,8 @@ export interface FileRoutesByTo {
   '/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/': typeof AuthenticatedIndexRoute
+  '/ai-coach/insights': typeof AuthenticatedAiCoachInsightsRoute
+  '/ai-coach/settings': typeof AuthenticatedAiCoachSettingsRoute
   '/coaches/$id': typeof AuthenticatedCoachesIdRoute
   '/coaches/create': typeof AuthenticatedCoachesCreateRoute
   '/depth-charts/$id': typeof AuthenticatedDepthChartsIdRoute
@@ -657,6 +683,7 @@ export interface FileRoutesByTo {
   '/tournaments/$id': typeof AuthenticatedTournamentsIdRoute
   '/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/vendors/create': typeof AuthenticatedVendorsCreateRoute
+  '/ai-coach': typeof AuthenticatedAiCoachIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/coaches': typeof AuthenticatedCoachesIndexRoute
@@ -702,6 +729,8 @@ export interface FileRoutesById {
   '/_authenticated/coach-dashboard': typeof AuthenticatedCoachDashboardRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/ai-coach/insights': typeof AuthenticatedAiCoachInsightsRoute
+  '/_authenticated/ai-coach/settings': typeof AuthenticatedAiCoachSettingsRoute
   '/_authenticated/coaches/$id': typeof AuthenticatedCoachesIdRoute
   '/_authenticated/coaches/create': typeof AuthenticatedCoachesCreateRoute
   '/_authenticated/depth-charts/$id': typeof AuthenticatedDepthChartsIdRoute
@@ -738,6 +767,7 @@ export interface FileRoutesById {
   '/_authenticated/tournaments/$id': typeof AuthenticatedTournamentsIdRoute
   '/_authenticated/vendors/$id': typeof AuthenticatedVendorsIdRoute
   '/_authenticated/vendors/create': typeof AuthenticatedVendorsCreateRoute
+  '/_authenticated/ai-coach/': typeof AuthenticatedAiCoachIndexRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/coaches/': typeof AuthenticatedCoachesIndexRoute
@@ -783,6 +813,8 @@ export interface FileRouteTypes {
     | '/503'
     | '/coach-dashboard'
     | '/dashboard'
+    | '/ai-coach/insights'
+    | '/ai-coach/settings'
     | '/coaches/$id'
     | '/coaches/create'
     | '/depth-charts/$id'
@@ -819,6 +851,7 @@ export interface FileRouteTypes {
     | '/tournaments/$id'
     | '/vendors/$id'
     | '/vendors/create'
+    | '/ai-coach/'
     | '/apps/'
     | '/chats/'
     | '/coaches/'
@@ -861,6 +894,8 @@ export interface FileRouteTypes {
     | '/coach-dashboard'
     | '/dashboard'
     | '/'
+    | '/ai-coach/insights'
+    | '/ai-coach/settings'
     | '/coaches/$id'
     | '/coaches/create'
     | '/depth-charts/$id'
@@ -897,6 +932,7 @@ export interface FileRouteTypes {
     | '/tournaments/$id'
     | '/vendors/$id'
     | '/vendors/create'
+    | '/ai-coach'
     | '/apps'
     | '/chats'
     | '/coaches'
@@ -941,6 +977,8 @@ export interface FileRouteTypes {
     | '/_authenticated/coach-dashboard'
     | '/_authenticated/dashboard'
     | '/_authenticated/'
+    | '/_authenticated/ai-coach/insights'
+    | '/_authenticated/ai-coach/settings'
     | '/_authenticated/coaches/$id'
     | '/_authenticated/coaches/create'
     | '/_authenticated/depth-charts/$id'
@@ -977,6 +1015,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tournaments/$id'
     | '/_authenticated/vendors/$id'
     | '/_authenticated/vendors/create'
+    | '/_authenticated/ai-coach/'
     | '/_authenticated/apps/'
     | '/_authenticated/chats/'
     | '/_authenticated/coaches/'
@@ -1316,6 +1355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai-coach/': {
+      id: '/_authenticated/ai-coach/'
+      path: '/ai-coach'
+      fullPath: '/ai-coach/'
+      preLoaderRoute: typeof AuthenticatedAiCoachIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/vendors/create': {
       id: '/_authenticated/vendors/create'
       path: '/vendors/create'
@@ -1568,6 +1614,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoachesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai-coach/settings': {
+      id: '/_authenticated/ai-coach/settings'
+      path: '/ai-coach/settings'
+      fullPath: '/ai-coach/settings'
+      preLoaderRoute: typeof AuthenticatedAiCoachSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai-coach/insights': {
+      id: '/_authenticated/ai-coach/insights'
+      path: '/ai-coach/insights'
+      fullPath: '/ai-coach/insights'
+      preLoaderRoute: typeof AuthenticatedAiCoachInsightsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -1601,6 +1661,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCoachDashboardRoute: typeof AuthenticatedCoachDashboardRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAiCoachInsightsRoute: typeof AuthenticatedAiCoachInsightsRoute
+  AuthenticatedAiCoachSettingsRoute: typeof AuthenticatedAiCoachSettingsRoute
   AuthenticatedCoachesIdRoute: typeof AuthenticatedCoachesIdRoute
   AuthenticatedCoachesCreateRoute: typeof AuthenticatedCoachesCreateRoute
   AuthenticatedDepthChartsIdRoute: typeof AuthenticatedDepthChartsIdRoute
@@ -1632,6 +1694,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTournamentsIdRoute: typeof AuthenticatedTournamentsIdRoute
   AuthenticatedVendorsIdRoute: typeof AuthenticatedVendorsIdRoute
   AuthenticatedVendorsCreateRoute: typeof AuthenticatedVendorsCreateRoute
+  AuthenticatedAiCoachIndexRoute: typeof AuthenticatedAiCoachIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedCoachesIndexRoute: typeof AuthenticatedCoachesIndexRoute
@@ -1663,6 +1726,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCoachDashboardRoute: AuthenticatedCoachDashboardRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAiCoachInsightsRoute: AuthenticatedAiCoachInsightsRoute,
+  AuthenticatedAiCoachSettingsRoute: AuthenticatedAiCoachSettingsRoute,
   AuthenticatedCoachesIdRoute: AuthenticatedCoachesIdRoute,
   AuthenticatedCoachesCreateRoute: AuthenticatedCoachesCreateRoute,
   AuthenticatedDepthChartsIdRoute: AuthenticatedDepthChartsIdRoute,
@@ -1697,6 +1762,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTournamentsIdRoute: AuthenticatedTournamentsIdRoute,
   AuthenticatedVendorsIdRoute: AuthenticatedVendorsIdRoute,
   AuthenticatedVendorsCreateRoute: AuthenticatedVendorsCreateRoute,
+  AuthenticatedAiCoachIndexRoute: AuthenticatedAiCoachIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedCoachesIndexRoute: AuthenticatedCoachesIndexRoute,
