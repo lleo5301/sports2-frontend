@@ -1,0 +1,134 @@
+/* Ink Black → Alabaster Grey palette
+   Ink Black #0d1b2a, Prussian Blue #1b263b, Dusk Blue #415a77,
+   Dusty Denim #778da9, Alabaster Grey #e0e1dd */
+:root {
+  --radius: 0.625rem;
+  /* Light mode: Alabaster base */
+  --background: #e0e1dd;
+  --foreground: #0d1b2a;
+  --card: #ffffff;
+  --card-foreground: #0d1b2a;
+  --popover: #ffffff;
+  --popover-foreground: #0d1b2a;
+  --primary: #415a77;
+  --primary-foreground: #e0e1dd;
+  --secondary: #778da9;
+  --secondary-foreground: #0d1b2a;
+  --muted: #e8e9e6;
+  --muted-foreground: #415a77;
+  --accent: #778da9;
+  --accent-foreground: #0d1b2a;
+  --destructive: #b91c1c;
+  --border: rgb(119 141 169 / 0.5);
+  --input: rgb(119 141 169 / 0.3);
+  --ring: #415a77;
+  --chart-1: #415a77;
+  --chart-2: #778da9;
+  --chart-3: #1b263b;
+  --chart-4: #5a6f8a;
+  --chart-5: #2d3d52;
+
+  --sidebar: #e8e9e6;
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --highlight: #f59e0b;
+  --highlight-foreground: #0d1b2a;
+}
+
+.dark {
+  /* Ink Black → Alabaster palette */
+  --background: #0d1b2a;
+  --foreground: #e0e1dd;
+  --card: #1b263b;
+  --card-foreground: #e0e1dd;
+  --popover: #1b263b;
+  --popover-foreground: #e0e1dd;
+  --primary: #778da9;
+  --primary-foreground: #0d1b2a;
+  --secondary: #415a77;
+  --secondary-foreground: #e0e1dd;
+  --muted: #1b263b;
+  --muted-foreground: #778da9;
+  --accent: #415a77;
+  --accent-foreground: #e0e1dd;
+  --destructive: #dc2626;
+  --border: rgb(65 90 119 / 0.5);
+  --input: rgb(65 90 119 / 0.3);
+  --ring: #778da9;
+  --chart-1: #415a77;
+  --chart-2: #778da9;
+  --chart-3: #5a6f8a;
+  --chart-4: #2d3d52;
+  --chart-5: #1b263b;
+
+  --sidebar: #1b263b;
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --success: #22c55e;
+  --success-foreground: #0d1b2a;
+  --warning: #f59e0b;
+  --warning-foreground: #0d1b2a;
+  --highlight: #fbbf24;
+  --highlight-foreground: #0d1b2a;
+}
+
+@theme inline {
+  --font-inter: 'Inter', 'sans-serif';
+  --font-manrope: 'Manrope', 'sans-serif';
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+}

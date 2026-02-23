@@ -1,39 +1,32 @@
-FROM node:18-alpine AS builder
+# Build v2 frontend only (Node 22 LTS)
+FROM node:22-alpine AS builder
 
-# Build arguments for environment variables
 ARG VITE_API_URL=/api
-ARG VITE_BASE_PATH=/app
+ARG VITE_BASE_PATH=
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy v2 package files
+COPY v2/package.json v2/package-lock.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy source code
-COPY . .
+# Copy v2 source
+COPY v2/ .
 
-# Set environment variables for build
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_BASE_PATH=$VITE_BASE_PATH
 
-# Build the application
+# Build v2
 RUN npm run build
 
 # Production stage
 FROM nginx:alpine
 
-# Copy built application
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom nginx config for SPA routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port
 EXPOSE 3000
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

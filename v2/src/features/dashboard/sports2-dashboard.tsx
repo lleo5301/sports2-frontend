@@ -1,0 +1,656 @@
+/**
+ * Sports2 Dashboard — Overview per frontend-build-spec §6.1
+ * Data: teams/me, teams/stats, teams/recent-schedules, teams/upcoming-schedules
+ * Supplemental: schedules/stats, games/team-stats, depth-charts, prospects, rosters
+ */
+import { parseISO, endOfDay } from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
+import { useAuth } from '@/contexts/AuthContext'
+import {
+  Users,
+  FileText,
+  Calendar,
+  Trophy,
+  MapPin,
+  Plus,
+  ClipboardList,
+  TrendingUp,
+  BarChart3,
+  ChevronRight,
+  UserPlus,
+  List,
+} from 'lucide-react'
+import { depthChartsApi } from '@/lib/depth-charts-api'
+import { extendedStatsApi } from '@/lib/extended-stats-api'
+import {
+  gamesApi,
+  formatGameDateShort,
+  formatGameLocation,
+  type Game,
+} from '@/lib/games-api'
+import { playersApi } from '@/lib/players-api'
+import { prospectsApi } from '@/lib/prospects-api'
+import { schedulesApi } from '@/lib/schedules-api'
+import { teamsApi } from '@/lib/teams-api'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from '@/components/ui/card'
+import { GameResultBadge } from '@/components/ui/game-result-badge'
+import { StatCard } from '@/components/ui/stat-card'
+import { Main } from '@/components/layout/main'
+import { OpponentLogo } from '@/components/opponent-logo'
+
+function formatGameLabel(game: Game) {
+  const opp = game.opponent ?? 'Opponent'
+  return game.result ? `vs ${opp}` : `vs ${opp}`
+}
+
+function formatGameResult(game: Game & { game_summary?: string | null }) {
+  if (game.game_summary) return game.game_summary
+  if (game.result) return game.result
+  if (game.team_score != null && game.opponent_score != null) {
+    const w = game.team_score > game.opponent_score
+    return `${w ? 'W' : 'L'} ${game.team_score}-${game.opponent_score}`
+  }
+  return ''
+}
+
+/** Parse a result string like "W 5-3" into { result, score } for GameResultBadge */
+function parseGameResult(game: Game & { game_summary?: string | null }): {
+  result: 'W' | 'L' | 'T' | 'D'
+  score?: string
+} | null {
+  // Direct score comparison
+  if (game.team_score != null && game.opponent_score != null) {
+    const r =
+      game.team_score > game.opponent_score
+        ? 'W'
+        : game.team_score < game.opponent_score
+          ? 'L'
+          : 'T'
+    return {
+      result: r as 'W' | 'L' | 'T',
+      score: `${game.team_score}-${game.opponent_score}`,
+    }
+  }
+  // Parse from result / game_summary string
+  const raw = game.game_summary ?? game.result ?? ''
+  const match = raw.match(/^(W|L|T|D)\s*(.*)$/)
+  if (match) {
+    return {
+      result: match[1] as 'W' | 'L' | 'T' | 'D',
+      score: match[2] || undefined,
+    }
+  }
+  return null
+}
+
+/** Normalize extended-stats game (recent_games / game-log) to Game shape */
+function fromExtendedStats(g: {
+  id: string | number
+  date: string
+  opponent: string
+  home_away?: string
+  result?: string | null
+  score?: string | null
+  game_summary?: string
+  running_record?: string | null
+  location?: string | null
+  venue_name?: string | null
+  opponent_logo_url?: string | null
+}): Game {
+  let teamScore: number | undefined
+  let oppScore: number | undefined
+  if (g.score) {
+    const [a, b] = g.score.split('-').map((x) => parseInt(x.trim(), 10))
+    if (!Number.isNaN(a) && !Number.isNaN(b)) {
+      teamScore = a
+      oppScore = b
+    }
+  }
+  return {
+    id:
+      typeof g.id === 'number'
+        ? g.id
+        : ((parseInt(String(g.id), 10) || g.id) as number),
+    opponent: g.opponent,
+    opponent_logo_url: g.opponent_logo_url,
+    date: g.date,
+    game_date: g.date,
+    home_away: g.home_away,
+    result: g.result ?? undefined,
+    team_score: teamScore,
+    opponent_score: oppScore,
+    game_summary: g.game_summary,
+    location: g.location ?? undefined,
+    venue_name: g.venue_name ?? undefined,
+  } as Game
+}
+
+export function Sports2Dashboard() {
+  const { user } = useAuth()
+
+  const {
+    data: team,
+    isLoading: teamLoading,
+    error: teamError,
+  } = useQuery({
+    queryKey: ['team-me'],
+    queryFn: () => teamsApi.getMyTeam(),
+    retry: 1,
+  })
+
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery({
+    queryKey: ['team-stats'],
+    queryFn: () => teamsApi.getTeamStats(),
+  })
+
+  const { data: recentGamesFromLog = [] } = useQuery({
+    queryKey: ['games-log', 5],
+    queryFn: () => gamesApi.getGameLog(5),
+  })
+
+  const { data: gamesListData } = useQuery({
+    queryKey: ['games-list-dashboard'],
+    queryFn: () => gamesApi.list({ limit: 30 }),
+  })
+
+  const { data: coachDashboard } = useQuery({
+    queryKey: ['coach-dashboard'],
+    queryFn: () => extendedStatsApi.getCoachDashboard(),
+  })
+
+  const { data: teamGameLog } = useQuery({
+    queryKey: ['teams-game-log'],
+    queryFn: () => extendedStatsApi.getTeamGameLog(),
+  })
+
+  const recentGames = (() => {
+    const now = new Date()
+    const endOfToday = endOfDay(now)
+
+    const getGameDate = (g: Game | Record<string, unknown>) => {
+      const r = g as Record<string, unknown>
+      return (
+        (g as Game).date ??
+        (g as Game).game_date ??
+        r.gameDate ??
+        r.scheduled_at ??
+        r.start_date
+      )
+    }
+
+    const isPastOrToday = (g: Game | Record<string, unknown>) => {
+      const d = getGameDate(g)
+      if (!d) return false
+      try {
+        const parsed = typeof d === 'string' ? parseISO(d) : d
+        return parsed <= endOfToday
+      } catch {
+        return false
+      }
+    }
+
+    const sortByDateDesc = (
+      a: Game | Record<string, unknown>,
+      b: Game | Record<string, unknown>
+    ) => {
+      const da = getGameDate(a) ?? ''
+      const db = getGameDate(b) ?? ''
+      return String(db).localeCompare(String(da))
+    }
+
+    const fromLog = Array.isArray(recentGamesFromLog) ? recentGamesFromLog : []
+    const pastFromLog = fromLog
+      .filter((g) => isPastOrToday(g))
+      .sort(sortByDateDesc)
+    if (pastFromLog.length > 0) return pastFromLog.slice(0, 5)
+
+    const list = gamesListData?.data ?? []
+    const pastFromList = list
+      .filter((g) => isPastOrToday(g))
+      .sort(sortByDateDesc)
+    if (pastFromList.length > 0) return pastFromList.slice(0, 5)
+
+    const fromDashboard = coachDashboard?.recent_games ?? []
+    if (fromDashboard.length > 0) {
+      return fromDashboard.slice(0, 5).map(fromExtendedStats)
+    }
+
+    const fromGameLog = Array.isArray(teamGameLog) ? teamGameLog : []
+    if (fromGameLog.length > 0) {
+      return fromGameLog.slice(0, 5).map((g) =>
+        fromExtendedStats({
+          id: g.id,
+          date: g.date,
+          opponent: g.opponent,
+          opponent_logo_url: g.opponent_logo_url,
+          home_away: g.home_away,
+          result: g.result,
+          score: g.score,
+          game_summary: g.game_summary,
+          running_record: g.running_record,
+          location: g.location,
+          venue_name: g.venue_name,
+        })
+      )
+    }
+
+    return []
+  })()
+
+  const { data: upcomingGames = [] } = useQuery({
+    queryKey: ['games-upcoming'],
+    queryFn: () => gamesApi.getUpcoming(),
+  })
+
+  const { data: scheduleStats } = useQuery({
+    queryKey: ['schedules-stats'],
+    queryFn: () => schedulesApi.getStats(),
+  })
+
+  const { data: gamesTeamStats } = useQuery({
+    queryKey: ['games-team-stats'],
+    queryFn: () => gamesApi.getTeamStats(),
+  })
+
+  const { data: gamesSeasonStats } = useQuery({
+    queryKey: ['games-season-stats'],
+    queryFn: () => gamesApi.getSeasonStats(),
+  })
+
+  const { data: depthCharts = [] } = useQuery({
+    queryKey: ['depth-charts'],
+    queryFn: () => depthChartsApi.list(),
+  })
+
+  const { data: prospectsList } = useQuery({
+    queryKey: ['prospects-dashboard-count'],
+    queryFn: () => prospectsApi.list({ limit: 1 }),
+  })
+
+  const { data: playersList } = useQuery({
+    queryKey: ['players-dashboard-count'],
+    queryFn: () => playersApi.list({ limit: 1 }),
+  })
+
+  const isLoading = teamLoading || statsLoading
+  const error = teamError || statsError
+
+  const teamStats = stats as Record<string, unknown> | undefined
+  const gamesStats = (gamesTeamStats ?? gamesSeasonStats) as
+    | Record<string, unknown>
+    | undefined
+
+  const teamPlayers =
+    Number(
+      teamStats?.players ??
+        teamStats?.player_count ??
+        teamStats?.total_players ??
+        0
+    ) || 0
+
+  const statsData = {
+    players:
+      teamPlayers > 0 ? teamPlayers : (playersList?.pagination?.total ?? 0),
+    reports: Number(teamStats?.reports ?? teamStats?.report_count ?? 0) || 0,
+    schedules:
+      Number(teamStats?.schedules ?? teamStats?.schedule_count ?? 0) || 0,
+    wins: Number(teamStats?.wins ?? gamesStats?.wins ?? 0) || 0,
+    losses: Number(teamStats?.losses ?? gamesStats?.losses ?? 0) || 0,
+    scheduleThisWeek: Number(scheduleStats?.thisWeek ?? 0) || 0,
+    scheduleThisMonth: Number(scheduleStats?.thisMonth ?? 0) || 0,
+    depthCharts: Array.isArray(depthCharts) ? depthCharts.length : 0,
+    prospects: prospectsList?.pagination?.total ?? 0,
+  }
+
+  const teamName = (team as { name?: string })?.name ?? 'Team'
+  const recent = Array.isArray(recentGames) ? recentGames : []
+  const upcoming = Array.isArray(upcomingGames) ? upcomingGames : []
+
+  if (isLoading) {
+    return (
+      <Main>
+        <div className='animate-pulse space-y-8 p-6'>
+          <div className='h-10 w-64 rounded bg-muted' />
+          <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4'>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className='h-32 rounded-lg bg-muted' />
+            ))}
+          </div>
+        </div>
+      </Main>
+    )
+  }
+
+  if (error) {
+    const errMsg =
+      (error as { response?: { data?: { error?: string } }; message?: string })
+        ?.response?.data?.error ??
+      (error as Error).message ??
+      'Failed to load dashboard'
+    return (
+      <Main>
+        <div className='p-8'>
+          <Card className='border-destructive'>
+            <CardContent className='p-6'>
+              <p className='font-medium text-destructive'>{errMsg}</p>
+              <Button className='mt-4' onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Main>
+    )
+  }
+
+  return (
+    <Main>
+      <div className='space-y-6 sm:space-y-8'>
+        <header>
+          <h1 className='text-3xl font-bold tracking-tight'>
+            Welcome back{user?.first_name ? `, ${user.first_name}` : ''}
+          </h1>
+          <p className='mt-2 text-lg text-muted-foreground'>
+            {teamName} — Overview
+          </p>
+        </header>
+
+        {/* Stats cards */}
+        <section className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6'>
+          <Link to='/players'>
+            <StatCard
+              label='Players'
+              value={statsData.players}
+              icon={<Users className='size-5' />}
+            />
+          </Link>
+
+          <Link to='/scouting'>
+            <StatCard
+              label='Reports'
+              value={statsData.reports}
+              icon={<FileText className='size-5' />}
+            />
+          </Link>
+
+          <Link to='/schedules'>
+            <StatCard
+              label='Schedules'
+              value={statsData.schedules}
+              sublabel={
+                statsData.scheduleThisWeek > 0 ||
+                statsData.scheduleThisMonth > 0
+                  ? `${statsData.scheduleThisWeek} Wk / ${statsData.scheduleThisMonth} Mo`
+                  : undefined
+              }
+              icon={<Calendar className='size-5' />}
+            />
+          </Link>
+
+          <Link to='/games'>
+            <StatCard
+              label='Record'
+              value={`${statsData.wins}-${statsData.losses}`}
+              icon={<Trophy className='size-5' />}
+            />
+          </Link>
+
+          <Link to='/depth-charts'>
+            <StatCard
+              label='Charts'
+              value={statsData.depthCharts}
+              icon={<List className='size-5' />}
+            />
+          </Link>
+
+          <Link to='/prospects'>
+            <StatCard
+              label='Prospects'
+              value={statsData.prospects}
+              icon={<UserPlus className='size-5' />}
+            />
+          </Link>
+        </section>
+
+        {/* Recent & Upcoming Games */}
+        <section className='grid gap-6 lg:grid-cols-2'>
+          <Card variant='sport'>
+            <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
+              <h2 className='flex items-center gap-2 text-lg font-bold'>
+                <Trophy className='size-5 text-muted-foreground' />
+                Recent Games
+              </h2>
+              <Button variant='ghost' size='sm' asChild>
+                <Link to='/games'>
+                  View all <ChevronRight className='size-4' />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className='px-6 pb-6'>
+              {recent.length > 0 ? (
+                <ul className='space-y-3'>
+                  {recent.slice(0, 5).map((game, i) => (
+                    <li
+                      key={game.id ?? i}
+                      className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
+                    >
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(game.id) }}
+                        className='flex items-center gap-3'
+                      >
+                        <OpponentLogo
+                          opponent={(game as Game).opponent}
+                          logoUrl={(game as Game).opponent_logo_url}
+                          size={32}
+                          reserveSpace
+                        />
+                        <span className='hidden w-20 shrink-0 text-sm text-muted-foreground sm:inline'>
+                          {formatGameDateShort(game)}
+                        </span>
+                        <div className='min-w-0 flex-1'>
+                          <p className='flex items-center gap-2 truncate font-medium'>
+                            <span className='truncate'>
+                              {formatGameLabel(game)}
+                            </span>
+                            {(() => {
+                              const parsed = parseGameResult(game)
+                              if (parsed) {
+                                return (
+                                  <GameResultBadge
+                                    result={parsed.result}
+                                    score={parsed.score}
+                                  />
+                                )
+                              }
+                              const text = formatGameResult(game)
+                              return text ? (
+                                <span className='text-muted-foreground'>
+                                  {text}
+                                </span>
+                              ) : null
+                            })()}
+                          </p>
+                          {(formatGameLocation(game) ||
+                            (game as Game).tournament?.name) && (
+                            <p className='flex items-center gap-1 text-sm text-muted-foreground'>
+                              <MapPin className='size-3.5 shrink-0' />
+                              {formatGameLocation(game) ||
+                                (game as Game).tournament?.name}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className='py-8 text-center text-muted-foreground'>
+                  <Trophy className='mx-auto mb-3 size-12 opacity-50' />
+                  <p>No recent games</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card variant='sport'>
+            <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
+              <h2 className='flex items-center gap-2 text-lg font-bold'>
+                <Trophy className='size-5 text-muted-foreground' />
+                Upcoming Games
+              </h2>
+              <Button variant='ghost' size='sm' asChild>
+                <Link to='/games'>
+                  View all <ChevronRight className='size-4' />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className='px-6 pb-6'>
+              {upcoming.length > 0 ? (
+                <ul className='space-y-3'>
+                  {upcoming.slice(0, 5).map((game, i) => (
+                    <li
+                      key={game.id ?? i}
+                      className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
+                    >
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(game.id) }}
+                        className='flex items-center gap-3'
+                      >
+                        <OpponentLogo
+                          opponent={(game as Game).opponent}
+                          logoUrl={(game as Game).opponent_logo_url}
+                          size={32}
+                          reserveSpace
+                        />
+                        <span className='hidden w-20 shrink-0 text-sm text-muted-foreground sm:inline'>
+                          {formatGameDateShort(game)}
+                        </span>
+                        <div className='min-w-0 flex-1'>
+                          <p className='truncate font-medium'>
+                            {formatGameLabel(game)}
+                          </p>
+                          {(formatGameLocation(game) ||
+                            (game as Game).tournament?.name) && (
+                            <p className='flex items-center gap-1 text-sm text-muted-foreground'>
+                              <MapPin className='size-3.5 shrink-0' />
+                              {formatGameLocation(game) ||
+                                (game as Game).tournament?.name}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className='py-8 text-center text-muted-foreground'>
+                  <Trophy className='mx-auto mb-3 size-12 opacity-50' />
+                  <p>No upcoming games</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader className='px-6 pt-6 pb-2'>
+            <h2 className='flex items-center gap-2 text-lg font-bold'>
+              <BarChart3 className='size-5' />
+              Quick Actions
+            </h2>
+            <CardDescription>Common tasks and shortcuts</CardDescription>
+          </CardHeader>
+          <CardContent className='px-4 pb-4 sm:px-6 sm:pb-6'>
+            <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4'>
+              <Button
+                variant='outline'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
+                asChild
+              >
+                <Link to='/players/create'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
+                    <Plus className='size-5' />
+                  </div>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Add Player</div>
+                    <div className='truncate text-xs text-muted-foreground'>
+                      Create roster entry
+                    </div>
+                  </div>
+                </Link>
+              </Button>
+
+              <Button
+                variant='outline'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
+                asChild
+              >
+                <Link to='/scouting/create'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
+                    <ClipboardList className='size-5' />
+                  </div>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Create Report</div>
+                    <div className='truncate text-xs text-muted-foreground'>
+                      New scouting report
+                    </div>
+                  </div>
+                </Link>
+              </Button>
+
+              <Button
+                variant='outline'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
+                asChild
+              >
+                <Link to='/reports/analytics'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
+                    <TrendingUp className='size-5' />
+                  </div>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Analytics</div>
+                    <div className='truncate text-xs text-muted-foreground'>
+                      View team metrics
+                    </div>
+                  </div>
+                </Link>
+              </Button>
+
+              <Button
+                variant='outline'
+                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
+                asChild
+              >
+                <Link to='/reports'>
+                  <div className='shrink-0 rounded-lg bg-muted p-2'>
+                    <BarChart3 className='size-5' />
+                  </div>
+                  <div className='min-w-0 text-left'>
+                    <div className='truncate font-semibold'>Reports</div>
+                    <div className='truncate text-xs text-muted-foreground'>
+                      Analytics & exports
+                    </div>
+                  </div>
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </Main>
+  )
+}

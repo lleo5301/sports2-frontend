@@ -1,0 +1,8 @@
+node_modules
+build
+.docusaurus
+*.log
+.git
+.gitignore
+README.md
+HERO_VIDEO_SCRIPT.md

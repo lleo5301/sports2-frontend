@@ -10,3 +10,8 @@ dist/
 # Logo asset
 Primary_Logo_-_.5x.png
 node_modules
+
+
+.agent
+.claude
+.cursor
