@@ -1,0 +1,1312 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@source "../node_modules/@heroui/react/dist/**/*.{js,ts,jsx,tsx}";
+
+/* ── DaisyUI → HeroUI v3 color bridge ──
+   MUST be @theme inline so var() references resolve in the ELEMENT's context
+   (respecting .dark class), not at :root scope (always light). */
+@theme inline {
+  --color-content1: var(--surface);
+  --color-content2: var(--surface-secondary);
+  --color-divider: var(--separator);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-foreground);
+  --color-primary-content: var(--accent-foreground);
+  --color-secondary: oklch(0.6532 0.2328 25.74);
+  --color-secondary-foreground: oklch(0.9911 0 0);
+  --color-info: oklch(0.6204 0.195 253.83);
+  --color-info-foreground: oklch(0.9911 0 0);
+  --color-error: var(--danger);
+  --color-error-foreground: var(--danger-foreground);
+  --color-neutral: var(--default);
+  --color-neutral-content: var(--default-foreground);
+  --color-base-content: var(--foreground);
+}
+
+/* Static theme tokens (fonts, animations, shadows, spacing, colors that
+   don't vary between light/dark). Regular @theme is fine here. */
+@theme {
+  --font-sans: "Inter", "system-ui", sans-serif;
+  --font-segoe: "Segoe UI", "system-ui", sans-serif;
+
+  --color-brand: #3b82f6;
+  --color-brand-hover: #2563eb;
+  --color-brand-light: #60a5fa;
+  --color-brand-subtle: rgba(59, 130, 246, 0.1);
+
+  --color-status-success: #10b981;
+  --color-status-warning: #f59e0b;
+  --color-status-error: #ef4444;
+  --color-status-info: #3b82f6;
+
+  --color-dataviz-purple: #8251ee;
+  --color-dataviz-blue: #3b82f6;
+  --color-dataviz-green: #10b981;
+  --color-dataviz-yellow: #f59e0b;
+  --color-dataviz-red: #ef4444;
+  --color-dataviz-pink: #ec4899;
+  --color-dataviz-cyan: #06b6d4;
+
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-slide-down: slideDown 0.3s ease-out;
+  --animate-scale-in: scaleIn 0.2s ease-out;
+  --animate-gentle-pulse: gentlePulse 2s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.5s linear infinite;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  @keyframes gentlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  --shadow-neu-sm: 4px 4px 8px rgba(0, 0, 0, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --shadow-neu-md: 6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.9);
+  --shadow-neu-lg: 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.9);
+  --shadow-neu-inset: inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-glass-lg: 0 12px 48px rgba(0, 0, 0, 0.12);
+  --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-elevated-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+  --shadow-glow-lg: 0 0 40px rgba(59, 130, 246, 0.4);
+
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  --spacing-safe-top: env(safe-area-inset-top);
+  --spacing-safe-bottom: env(safe-area-inset-bottom);
+  --spacing-safe-left: env(safe-area-inset-left);
+  --spacing-safe-right: env(safe-area-inset-right);
+  --spacing-touch: 44px;
+}
+
+/* ============================================
+   BASE LAYER - Modern Typography & Foundations
+   ============================================ */
+@layer base {
+  /* App-specific CSS custom properties (non-HeroUI).
+     These are consumed by ThemeContext and BrandingContext.
+     Do NOT put --color-success/error/etc here -- those are handled by
+     HeroUI's theme and our @theme inline bridge above. */
+  :root {
+    --color-bg-1: hsl(222, 47%, 11%);
+    --color-bg-2: hsl(222, 47%, 13%);
+    --color-bg-3: hsl(222, 47%, 15%);
+  }
+
+  /* Shared Foundation Variables */
+  :root {
+    --transition-fast: 150ms ease;
+    --transition-normal: 200ms ease;
+    --transition-slow: 300ms ease;
+
+    /* Common team defaults (can be overridden by context) */
+    --team-primary-rgb: 59, 130, 246; /* Navy Blue default */
+  }
+
+  html {
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-year-smoothing: grayscale;
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
+  body {
+    @apply antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2;
+    ring-offset-color: var(--background);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--surface-secondary, hsl(240, 5%, 12%));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--default, hsl(240, 4%, 22%));
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--default-foreground, hsl(240, 4%, 26%));
+  }
+
+  /* Page content area with subtle gradient */
+  .drawer-content {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(
+        at 100% 0%,
+        rgba(var(--team-primary-rgb, 130, 81, 238), 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        rgba(var(--team-secondary-rgb, 239, 68, 68), 0.03) 0%,
+        transparent 50%
+      );
+  }
+
+  /* Modern heading typography - FLUID SYSTEM */
+  h1, .text-display {
+    font-size: clamp(2.25rem, 5vw + 1rem, 4.5rem);
+    @apply font-bold tracking-tight;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--foreground);
+  }
+
+  h2, .text-h2 {
+    font-size: clamp(1.5rem, 3vw + 0.5rem, 2.75rem);
+    @apply font-semibold tracking-tight;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  h3, .text-h3 {
+    font-size: clamp(1.25rem, 2vw + 0.25rem, 1.75rem);
+    @apply font-semibold tracking-tight;
+    line-height: 1.2;
+    color: var(--foreground);
+  }
+
+  .text-lead {
+    font-size: clamp(1.125rem, 1.5vw + 0.5rem, 1.375rem);
+    @apply leading-relaxed;
+    color: var(--foreground-secondary, var(--foreground));
+  }
+
+  .text-body {
+    font-size: clamp(0.9375rem, 0.5vw + 0.75rem, 1rem);
+    @apply leading-relaxed;
+    color: var(--foreground);
+  }
+
+  .text-caption {
+    @apply text-xs font-medium uppercase tracking-[0.15em];
+    color: var(--foreground-secondary, var(--foreground));
+  }
+
+  /* HiDPI & Large Screen Refinements */
+  @media (min-width: 1536px) {
+    :root {
+      font-size: 110%; /* Scale up slightly for ultra-wide/HiDPI desktops */
+    }
+  }
+}
+
+/* ============================================
+   COMPONENTS LAYER - Modern UI Components
+   LEGACY STYLES - TO BE REMOVED AFTER FULL HEROUI MIGRATION
+   ============================================ */
+@layer components {
+  /* ----------------------------------------
+     UNIFIED HOVER SYSTEM
+     ---------------------------------------- */
+  .hover-lift {
+    @apply transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)];
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1 shadow-2xl brightness-110;
+    box-shadow: 0 10px 30px -10px rgba(var(--team-primary-rgb, 0,0,0), 0.3);
+  }
+
+  /* ----------------------------------------
+     CONTRAST-AWARE TEXT
+     ---------------------------------------- */
+  .text-contrast {
+    color: var(--text-color, var(--foreground));
+  }
+
+  .bg-adaptive {
+    background-color: var(--bg-color);
+    --text-color: var(--text-on-bg);
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-bold tracking-tight;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:pointer-events-none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
+  }
+
+  .btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn:active:not(:disabled) {
+    @apply translate-y-0 scale-[0.98];
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground;
+    box-shadow: 0 2px 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-primary/90;
+    box-shadow: 0 4px 12px rgba(var(--team-primary-rgb, 59, 130, 246), 0.4);
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground;
+    box-shadow: 0 2px 4px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.2);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-secondary/90;
+    box-shadow: 0 4px 12px rgba(var(--team-secondary-rgb, 239, 68, 68), 0.3);
+  }
+
+  .btn-outline {
+    @apply border-2 border-divider bg-transparent;
+  }
+
+  .btn-outline:hover {
+    @apply bg-surface;
+    border-color: var(--separator);
+  }
+
+  .btn-ghost {
+    @apply bg-transparent;
+    @apply hover:bg-surface/50;
+  }
+
+  .btn-glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+/* ----------------------------------------
+   BENTO GRID SYSTEM - DEPRECATED (Use Tailwind Grid)
+   ---------------------------------------- */
+/* Removed bento-* classes as they are replaced by Tailwind grid utilities */
+
+/* ----------------------------------------
+   STAT CARDS - DEPRECATED (Use HeroUI Card with Tailwind)
+   ---------------------------------------- */
+/* Removed stat-card-* classes */
+
+  .btn-glass:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .btn-sm {
+    @apply h-9 px-4 text-xs rounded-lg;
+  }
+
+  .btn-md {
+    @apply h-11 px-5 py-2.5;
+  }
+
+  .btn-lg {
+    @apply h-12 px-8 text-base rounded-xl;
+  }
+
+  /* ----------------------------------------
+     INPUTS - Modern with focus glow
+     ---------------------------------------- */
+  .input {
+    @apply flex h-11 w-full rounded-xl border-2 border-divider bg-background px-4 py-2.5 text-sm text-foreground;
+    @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
+    @apply placeholder:text-foreground/40;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .input:focus {
+    box-shadow: 0 0 0 4px rgba(var(--team-primary-rgb, 59, 130, 246), 0.1);
+  }
+
+  .input-neu {
+    @apply border-0;
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.08),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+  }
+
+  .input-neu:focus {
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.1),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.95),
+      0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+  }
+
+  .textarea {
+    @apply rounded-xl border-2 border-divider bg-background px-4 py-3 text-sm text-foreground;
+    @apply placeholder:text-foreground/40;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .select {
+    @apply h-11 rounded-xl border-2 border-divider bg-background px-4 text-sm text-foreground;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  /* ----------------------------------------
+     CARDS - Modern with hover lift
+     ---------------------------------------- */
+  .card {
+    @apply rounded-2xl border bg-surface text-foreground;
+    border-color: var(--separator);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .card:hover {
+    border-color: var(--separator);
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.2),
+      0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    @apply flex flex-col space-y-1.5 p-6 pb-2;
+  }
+
+  .card-title {
+    @apply text-lg font-bold leading-tight tracking-tight;
+    color: var(--foreground);
+  }
+
+  /* Branded card title variant */
+  .card-title-brand {
+    @apply text-lg font-bold leading-tight tracking-tight;
+    color: var(--color-brand);
+  }
+
+  .card-description {
+    @apply text-xs font-medium uppercase tracking-wider;
+    color: var(--muted);
+    opacity: 0.85;
+  }
+
+  .card-content {
+    @apply p-6 pt-2;
+  }
+
+  .card-footer {
+    @apply flex items-center p-6 pt-4 border-t;
+    border-color: var(--separator);
+  }
+
+  /* ----------------------------------------
+     GLASSMORPHISM UTILITIES
+     ---------------------------------------- */
+  /* ----------------------------------------
+     GLASSMORPHISM UTILITIES - Refined from skill
+     ---------------------------------------- */
+  .glass {
+    @apply backdrop-blur-md bg-white/5 border border-white/10;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/5 border border-white/10 rounded-xl;
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-lg bg-black/40 border border-white/5;
+  }
+
+  .glass-overlay {
+    @apply backdrop-blur-sm bg-black/60;
+  }
+
+  .glass-input {
+    @apply backdrop-blur-sm bg-white/5 border border-white/10 focus:border-brand focus:bg-white/10;
+  }
+
+  .card-glass {
+    @apply backdrop-blur-md rounded-xl text-foreground;
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    border: 1px solid var(--separator);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .glass-sm {
+    @apply backdrop-blur-sm bg-white/5 border border-white/5;
+  }
+
+  .glass-lg {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-md bg-black/40 border border-white/5;
+  }
+
+  .glass-primary {
+    background: rgba(var(--team-primary-rgb, 130, 81, 238), 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(var(--team-primary-rgb, 130, 81, 238), 0.2);
+  }
+
+
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Skeleton loading animations */
+  .animate-skeleton-pulse {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Staggered animation delays */
+  .stagger-1 {
+    animation-delay: 0.1s;
+  }
+  .stagger-2 {
+    animation-delay: 0.2s;
+  }
+  .stagger-3 {
+    animation-delay: 0.3s;
+  }
+  .stagger-4 {
+    animation-delay: 0.4s;
+  }
+  .stagger-5 {
+    animation-delay: 0.5s;
+  }
+
+  /* ----------------------------------------
+     MODERN TABLE STYLES
+     ---------------------------------------- */
+  .table-container {
+    @apply relative overflow-hidden rounded-2xl border backdrop-blur-md;
+    background: color-mix(in oklab, var(--surface-secondary) 20%, transparent);
+    border-color: var(--separator);
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .table-modern {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .table-modern thead {
+    @apply border-b;
+    background: color-mix(in oklab, var(--surface-secondary) 50%, transparent);
+    border-color: var(--separator);
+  }
+
+  .table-modern th {
+    @apply px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/50;
+  }
+
+  .table-modern tbody tr {
+    @apply border-b;
+    border-color: var(--separator);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .table-modern tbody tr:last-child {
+    @apply border-0;
+  }
+
+  .table-modern tbody tr:hover {
+    @apply bg-white/[0.03] translate-x-0.5;
+  }
+
+  .table-modern td {
+    @apply px-6 py-4 align-middle whitespace-nowrap;
+    color: var(--foreground);
+  }
+
+  /* Table density modifiers */
+  .table-compact th, .table-compact td {
+    @apply py-2 px-4;
+  }
+
+  .table-comfortable th, .table-comfortable td {
+    @apply py-6 px-8;
+  }
+
+  /* ----------------------------------------
+     MODERN MODAL/DIALOG
+     ---------------------------------------- */
+  .modal-box {
+    @apply rounded-2xl p-8;
+    background: var(--overlay);
+    color: var(--foreground);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* ----------------------------------------
+     MODERN BADGES
+     ---------------------------------------- */
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .badge:hover {
+    transform: scale(1.05);
+  }
+
+  .badge-glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .badge-pill {
+    @apply rounded-full px-4;
+  }
+
+  /* ----------------------------------------
+     DAISYUI COMPAT SHIMS - Temporary until HeroUI component migration
+     ---------------------------------------- */
+
+  /* Loading spinner */
+  .loading {
+    @apply inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+  }
+
+  .loading-spinner {
+    border-radius: 50%;
+  }
+
+  .loading-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .loading-md {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .loading-lg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Form control & label */
+  .form-control {
+    @apply flex flex-col gap-1;
+  }
+
+  .label {
+    @apply flex items-center justify-between py-1;
+  }
+
+  .label-text {
+    @apply text-sm font-medium text-foreground/70;
+  }
+
+  .label-text-alt {
+    @apply text-xs text-foreground/50;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent;
+    background-color: var(--muted);
+    transition: background-color 0.2s ease;
+  }
+
+  .toggle::after {
+    content: '';
+    @apply absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white;
+    transition: transform 0.2s ease;
+  }
+
+  .toggle:checked,
+  .toggle[aria-checked="true"] {
+    background-color: var(--accent);
+  }
+
+  .toggle:checked::after,
+  .toggle[aria-checked="true"]::after {
+    transform: translateX(1.25rem);
+  }
+
+  .toggle-primary:checked {
+    background-color: var(--accent);
+  }
+
+  /* Checkbox */
+  .checkbox {
+    @apply h-5 w-5 cursor-pointer rounded border-2 border-divider appearance-none;
+    transition: all 0.2s ease;
+  }
+
+  .checkbox:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+  }
+
+  .checkbox-primary:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Tabs */
+  .tabs {
+    @apply flex border-b border-divider;
+  }
+
+  .tab {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium cursor-pointer;
+    @apply text-foreground/60 border-b-2 border-transparent;
+    transition: all 0.2s ease;
+  }
+
+  .tab:hover {
+    @apply text-foreground/80;
+  }
+
+  .tab-active,
+  .tab[aria-selected="true"] {
+    @apply text-foreground;
+    border-bottom-color: var(--accent);
+  }
+
+  .tabs-boxed {
+    @apply rounded-xl p-1 border-0;
+    background: var(--surface-secondary);
+  }
+
+  .tabs-boxed .tab {
+    @apply rounded-lg border-0;
+  }
+
+  .tabs-boxed .tab-active,
+  .tabs-boxed .tab[aria-selected="true"] {
+    @apply text-foreground;
+    background: var(--surface);
+    border-bottom-color: transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Semantic button variants */
+  .btn-error {
+    @apply bg-error text-error-foreground;
+  }
+
+  .btn-error:hover:not(:disabled) {
+    @apply bg-error/90;
+  }
+
+  .btn-success {
+    @apply bg-success text-success-foreground;
+  }
+
+  .btn-success:hover:not(:disabled) {
+    @apply bg-success/90;
+  }
+
+  .btn-warning {
+    @apply bg-warning text-warning-foreground;
+  }
+
+  .btn-warning:hover:not(:disabled) {
+    @apply bg-warning/90;
+  }
+
+  .btn-info {
+    @apply bg-info text-info-foreground;
+  }
+
+  .btn-info:hover:not(:disabled) {
+    @apply bg-info/90;
+  }
+
+  /* Alert */
+  .alert {
+    @apply flex items-center gap-3 rounded-xl p-4 text-sm bg-content2 text-foreground;
+    border: 1px solid var(--separator, rgba(0, 0, 0, 0.08));
+  }
+
+  .alert-error {
+    background-color: color-mix(in oklab, var(--danger) 10%, transparent);
+    border-color: color-mix(in oklab, var(--danger) 30%, transparent);
+    color: var(--danger);
+  }
+
+  .alert-success {
+    background-color: color-mix(in oklab, var(--success) 10%, transparent);
+    border-color: color-mix(in oklab, var(--success) 30%, transparent);
+    color: var(--success);
+  }
+
+  .alert-warning {
+    background-color: color-mix(in oklab, var(--warning) 10%, transparent);
+    border-color: color-mix(in oklab, var(--warning) 30%, transparent);
+    color: var(--warning);
+  }
+
+  .alert-info {
+    background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+    border-color: color-mix(in oklab, var(--accent) 30%, transparent);
+    color: var(--accent);
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply relative inline-block;
+  }
+
+  .tooltip::before {
+    content: attr(data-tip);
+    @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs rounded-lg whitespace-nowrap;
+    @apply opacity-0 pointer-events-none;
+    background: var(--surface);
+    color: var(--foreground);
+    transition: opacity 0.15s ease;
+    z-index: 50;
+  }
+
+  .tooltip:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Modal action row */
+  .modal-action {
+    @apply flex justify-end gap-3 mt-6;
+  }
+
+  /* Select bordered, input bordered, textarea bordered */
+  .select-bordered,
+  .input-bordered,
+  .textarea-bordered {
+    border-color: var(--separator);
+  }
+
+  /* Dropdown */
+  .dropdown {
+    @apply relative inline-block;
+  }
+
+  .dropdown-content {
+    @apply absolute z-50 rounded-xl p-2 shadow-xl;
+    background: var(--surface);
+    border: 1px solid var(--separator);
+    min-width: 12rem;
+  }
+
+  /* Menu (commonly used with dropdowns) */
+  .menu {
+    @apply flex flex-col gap-0.5;
+  }
+
+  .menu li > a,
+  .menu li > button {
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground/80;
+    transition: all 0.15s ease;
+  }
+
+  .menu li > a:hover,
+  .menu li > button:hover {
+    @apply bg-content2 text-foreground;
+  }
+}
+
+/* ============================================
+   DARK MODE - Custom overrides only
+   HeroUI theme handles base colors via .dark class
+   ============================================ */
+html.dark,
+.dark {
+  /* Custom gradient for page content */
+  .drawer-content {
+    background: var(--background);
+    background-image:
+      radial-gradient(
+        at 100% 0%,
+        rgba(var(--team-primary-rgb, 130, 81, 238), 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        rgba(var(--team-secondary-rgb, 239, 68, 68), 0.05) 0%,
+        transparent 50%
+      );
+  }
+
+  /* Legacy .card (custom CSS) - use HeroUI vars */
+  .card {
+    background: var(--surface);
+    border-color: var(--separator);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.4),
+      0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  .card:hover {
+    background: var(--surface-secondary);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.5),
+      0 4px 6px -2px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Glass effects */
+  .card-glass,
+  .glass {
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    backdrop-filter: blur(12px);
+    border-color: var(--separator);
+  }
+
+  .glass-sm {
+    background: color-mix(in oklab, var(--surface) 50%, transparent);
+  }
+
+  .glass-lg {
+    background: color-mix(in oklab, var(--surface) 90%, transparent);
+  }
+
+  .card-neu {
+    box-shadow:
+      6px 6px 12px rgba(0, 0, 0, 0.6),
+      -6px -6px 12px rgba(255, 255, 255, 0.03);
+  }
+
+  /* Legacy input/select/textarea - use HeroUI vars */
+  .input,
+  .select,
+  .textarea {
+    background: var(--surface);
+    border-color: var(--separator);
+    color: var(--foreground);
+  }
+
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+  }
+}
+
+/* ============================================
+   LIGHT MODE - Custom overrides only
+   HeroUI theme handles base colors via .light class
+   ============================================ */
+html.light,
+[data-theme="light"] {
+  /* Custom gradient for page content */
+  .drawer-content {
+    background: var(--background);
+    background-image:
+      radial-gradient(
+        at 100% 0%,
+        rgba(var(--team-primary-rgb, 59, 130, 246), 0.04) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        rgba(var(--team-secondary-rgb, 239, 68, 68), 0.02) 0%,
+        transparent 50%
+      );
+  }
+
+  /* Legacy .card - use HeroUI vars */
+  .card {
+    background: var(--surface);
+    border-color: var(--separator);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .card:hover {
+    background: var(--surface-secondary);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-footer {
+    border-color: var(--separator);
+  }
+
+  /* Glass effects */
+  .card-glass,
+  .glass {
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    backdrop-filter: blur(12px);
+    border-color: var(--separator);
+  }
+
+  .glass-sm {
+    background: color-mix(in oklab, var(--surface) 50%, transparent);
+    border-color: var(--separator);
+  }
+
+  .glass-lg {
+    background: color-mix(in oklab, var(--surface) 90%, transparent);
+    border-color: var(--separator);
+  }
+
+  .glass-dark {
+    background: color-mix(in oklab, var(--foreground) 5%, transparent);
+    border-color: var(--separator);
+  }
+
+  .glass-primary {
+    background: color-mix(in oklab, var(--accent) 6%, transparent);
+    border-color: color-mix(in oklab, var(--accent) 15%, transparent);
+  }
+
+  /* Table styles */
+  .table-container {
+    background: var(--surface);
+    border-color: var(--separator);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .table-modern thead {
+    background: color-mix(in oklab, var(--foreground) 2%, var(--surface));
+    border-color: var(--separator);
+  }
+
+  .table-modern th {
+    color: var(--muted);
+  }
+
+  .table-modern tbody tr {
+    border-color: var(--separator);
+  }
+
+  .table-modern tbody tr:hover {
+    background: color-mix(in oklab, var(--foreground) 2%, var(--surface));
+  }
+
+  .table-modern td {
+    color: var(--foreground);
+  }
+
+  /* Legacy inputs */
+  .input,
+  .select,
+  .textarea {
+    background: var(--surface);
+    border-color: var(--separator);
+    color: var(--foreground);
+  }
+
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+  }
+
+  .input::placeholder,
+  .textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+  }
+
+  /* Modals, badges, buttons - use HeroUI vars */
+  .modal-box {
+    background: var(--overlay);
+    color: var(--foreground);
+  }
+
+  .badge-glass,
+  .btn-glass {
+    background: color-mix(in oklab, var(--foreground) 6%, transparent);
+    border-color: var(--separator);
+    color: var(--foreground);
+  }
+
+  .btn-glass:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+
+  .btn-outline {
+    border-color: var(--separator);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--border);
+  }
+
+  .dropdown-content {
+    background: var(--surface);
+    border-color: var(--separator);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar-track {
+    background: color-mix(in oklab, var(--foreground) 2%, var(--surface));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 15%, var(--surface));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--foreground) 25%, var(--surface));
+  }
+
+  .input-neu {
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.06),
+      inset -3px -3px 6px rgba(255, 255, 255, 1);
+  }
+
+  .input-neu:focus {
+    box-shadow:
+      inset 3px 3px 6px rgba(0, 0, 0, 0.08),
+      inset -3px -3px 6px rgba(255, 255, 255, 1),
+      0 0 0 3px color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--foreground) 5%, transparent) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(var(--team-primary-rgb, 59, 130, 246), 0.15);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - Keyboard Focus Indicators
+   ============================================ */
+/* Focus-visible styles for clickable cards with role="button" */
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.5);
+  border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 0.8);
+}
+
+/* Enhanced focus for dark mode with better visibility */
+html.dark [role="button"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(var(--team-primary-rgb, 59, 130, 246), 0.6);
+  border-color: rgba(var(--team-primary-rgb, 59, 130, 246), 1);
+}
+
+/* ============================================
+   ANIMATIONS - Utility Classes
+   ============================================ */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: revealUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes revealUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hover-lift:hover,
+  .hover-scale:hover,
+  .card:hover,
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   BROWSER COMPATIBILITY - Backdrop Filter Fallback
+   ============================================ */
+@supports not (backdrop-filter: blur(16px)) {
+  .glass,
+  .card-glass,
+  .glass-sm,
+  .glass-lg {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  html.dark .glass,
+  html.dark .card-glass,
+  html.dark .glass-sm,
+  html.dark .glass-lg {
+    background: rgba(30, 30, 36, 0.98);
+  }
+
+  .btn-glass {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}

@@ -1,0 +1,3932 @@
+openapi: 3.0.3
+info:
+  title: Sports2 API
+  description: |
+    REST API for the Sports2 collegiate baseball scouting and team management platform.
+
+    ## Authentication
+    All endpoints (except public ones) require:
+    - `Authorization: Bearer <JWT>` header
+    - `x-csrf-token` header on state-changing requests (POST, PUT, PATCH, DELETE)
+
+    Get a CSRF token first: `GET /api/v1/auth/csrf-token`
+
+    ## Response Format
+    Success: `{ "success": true, "data": {...} }`
+    Error: `{ "success": false, "error": "..." }`
+
+    ## Scouting System
+    See `docs/api/scouting-system-api.md` for the scouting system redesign including Prospects,
+    20-80 grading scale, present/future grades, and recruiting pipeline.
+
+    ## Stats & Analytics
+    See `docs/api/stats-analytics-api.md` for player season/career stats, videos, leaderboards,
+    and news releases (all populated by PrestoSports sync).
+
+    ## Extended Stats & Coach's Dashboard
+    See `docs/api/extended-stats-api.md` for split stats, raw Presto data, player/team game logs,
+    team aggregate stats, lineup, and the coach's dashboard endpoint.
+  version: 1.0.0
+  contact:
+    name: Sports2 Team
+
+servers:
+  - url: http://localhost:5000
+    description: Local development (reference only; each deployment has its own endpoint)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: OK }
+                  timestamp: { type: string, format: date-time }
+                  environment: { type: string }
+
+  /api/v1/health:
+    get:
+      summary: API health check
+      security: []
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  timestamp: { type: string, format: date-time }
+                  environment: { type: string }
+                  version: { type: string, example: v1 }
+
+  # ---- Auth ----
+  /api/v1/auth/csrf-token:
+    get:
+      summary: Get CSRF token
+      description: Required before any POST/PUT/DELETE. Include token in x-csrf-token header.
+      security: []
+      responses:
+        '200':
+          description: CSRF token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+
+  /api/v1/auth/login:
+    post:
+      summary: User login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+        '401':
+          description: Invalid credentials or account locked/deactivated
+
+  /api/v1/auth/register:
+    post:
+      summary: User registration
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, first_name, last_name, role]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string, enum: [head_coach, assistant_coach] }
+                phone: { type: string }
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Validation error
+
+  /api/v1/auth/logout:
+    post:
+      summary: User logout
+      responses:
+        '200':
+          description: Logout successful
+
+  /api/v1/auth/me:
+    get:
+      summary: Get current user profile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { $ref: '#/components/schemas/User' }
+    put:
+      summary: Update current user profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                phone: { type: string }
+      responses:
+        '200':
+          description: Profile updated
+
+  /api/v1/auth/change-password:
+    put:
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string }
+                new_password: { type: string }
+      responses:
+        '200':
+          description: Password changed
+        '400':
+          description: Validation failed
+
+  /api/v1/auth/permissions:
+    get:
+      summary: Get current user permissions
+      responses:
+        '200':
+          description: User permissions
+
+  /api/v1/auth/admin/users:
+    get:
+      summary: List users (super_admin only)
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Paginated user list
+    post:
+      summary: Create user (super_admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, first_name, last_name, role]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string, enum: [super_admin, head_coach, assistant_coach] }
+                phone: { type: string }
+      responses:
+        '201':
+          description: User created
+
+  /api/v1/auth/admin/users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Get user by ID (super_admin only)
+      responses:
+        '200':
+          description: User details
+    put:
+      summary: Update user (super_admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string }
+                phone: { type: string }
+      responses:
+        '200':
+          description: User updated
+    delete:
+      summary: Delete user (super_admin only)
+      responses:
+        '200':
+          description: User deleted
+
+  /api/v1/auth/admin/users/{userId}/reset-password:
+    put:
+      summary: Reset user password (super_admin only)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: { type: string }
+      responses:
+        '200':
+          description: Password reset
+
+  /api/v1/auth/revoke-all-sessions:
+    post:
+      summary: Revoke all sessions for current user
+      responses:
+        '200':
+          description: Sessions revoked
+
+  # ---- Players ----
+  /api/v1/players:
+    get:
+      summary: List players
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: school_type
+          in: query
+          schema: { type: string, enum: [HS, COLL] }
+        - name: position
+          in: query
+          schema: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH] }
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, inactive, graduated, transferred] }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: orderBy
+          in: query
+          schema: { type: string }
+        - name: sortDirection
+          in: query
+          schema: { type: string, enum: [ASC, DESC] }
+      responses:
+        '200':
+          description: Paginated player list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: array, items: { $ref: '#/components/schemas/Player' } }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+    post:
+      summary: Create player
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/PlayerCreateInput' }
+          application/json:
+            schema: { $ref: '#/components/schemas/PlayerCreateInput' }
+      responses:
+        '201':
+          description: Player created
+
+  /api/v1/players/byId/{id}:
+    get:
+      summary: Get player by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player details
+        '404':
+          description: Player not found
+    put:
+      summary: Update player
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/PlayerUpdateInput' }
+          application/json:
+            schema: { $ref: '#/components/schemas/PlayerUpdateInput' }
+      responses:
+        '200':
+          description: Player updated
+    delete:
+      summary: Delete player
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player deleted
+
+  /api/v1/players/byId/{id}/stats:
+    get:
+      summary: Get player season & career statistics
+      description: |
+        Returns data from PlayerSeasonStats and PlayerCareerStats tables (populated by PrestoSports sync).
+        Optionally filter to a specific season. The `current_season` field is the most recent season row.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: season
+          in: query
+          description: Filter to a specific season (e.g. "2025-26")
+          schema: { type: string }
+      responses:
+        '200':
+          description: Player stats with seasons and career
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      player:
+                        type: object
+                        properties:
+                          id: { type: integer }
+                          first_name: { type: string }
+                          last_name: { type: string }
+                          position: { type: string }
+                          jersey_number: { type: integer }
+                          class_year: { type: string }
+                          bats: { type: string }
+                          throws: { type: string }
+                          photo_url: { type: string }
+                      current_season: { $ref: '#/components/schemas/PlayerSeasonStats' }
+                      seasons:
+                        type: array
+                        items: { $ref: '#/components/schemas/PlayerSeasonStats' }
+                      career: { $ref: '#/components/schemas/PlayerCareerStats' }
+        '404':
+          description: Player not found or not on user's team
+
+  /api/v1/players/byId/{id}/videos:
+    get:
+      summary: Get player videos
+      description: Returns paginated videos from PlayerVideo table (populated by PrestoSports sync).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: video_type
+          in: query
+          description: Filter by type
+          schema: { type: string, enum: [highlight, game, interview, training, promotional, other] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 50 }
+      responses:
+        '200':
+          description: Paginated player videos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/PlayerVideo' }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+        '404':
+          description: Player not found or not on user's team
+
+  /api/v1/players/stats/summary:
+    get:
+      summary: Get players stats summary
+      responses:
+        '200':
+          description: Stats summary
+
+  /api/v1/players/performance:
+    get:
+      summary: Get player performance data
+      responses:
+        '200':
+          description: Performance data
+
+  /api/v1/players/bulk-delete:
+    post:
+      summary: Bulk delete players
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [player_ids]
+              properties:
+                player_ids: { type: array, items: { type: integer } }
+      responses:
+        '200':
+          description: Players deleted
+
+  /api/v1/players/byId/{id}/splits:
+    get:
+      summary: Player split stats (home/away/situational)
+      tags: [Players]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Split stats by situation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      player_id: { type: string, format: uuid }
+                      player_name: { type: string }
+                      season: { type: string, example: '2025-26' }
+                      season_name: { type: string, example: '2025-26 Baseball' }
+                      splits:
+                        type: object
+                        description: 'Keys: overall, home, away, conference, vs_lhp, vs_rhp, risp, two_outs, bases_loaded, bases_empty, leadoff, with_runners. Each is a JSONB object of stat keys → string values.'
+                        nullable: true
+        '404':
+          description: Player not found
+
+  /api/v1/players/byId/{id}/stats/raw:
+    get:
+      summary: Full 214-key Presto stats object
+      tags: [Players]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Raw Presto stats payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      player_id: { type: string, format: uuid }
+                      player_name: { type: string }
+                      season: { type: string, nullable: true }
+                      season_name: { type: string, nullable: true }
+                      raw_stats:
+                        type: object
+                        nullable: true
+                        description: 'Full Presto stats object with ~214 keys (hittingab, hittingavg, pitchingera, etc.). Null if not synced.'
+        '404':
+          description: Player not found
+
+  /api/v1/players/byId/{id}/game-log:
+    get:
+      summary: Player per-game stats with game context
+      tags: [Players]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Per-game batting, pitching, fielding stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      player_id: { type: string, format: uuid }
+                      player_name: { type: string }
+                      games:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            game:
+                              type: object
+                              properties:
+                                id: { type: string, format: uuid }
+                                opponent: { type: string }
+                                date: { type: string, format: date }
+                                home_away: { type: string, enum: [home, away] }
+                                result: { type: string, enum: [W, L, T], nullable: true }
+                                score: { type: string, example: '5-3', nullable: true }
+                                game_summary: { type: string, nullable: true }
+                                running_record: { type: string, nullable: true }
+                            batting:
+                              type: object
+                              properties:
+                                ab: { type: integer }
+                                r: { type: integer }
+                                h: { type: integer }
+                                doubles: { type: integer }
+                                triples: { type: integer }
+                                hr: { type: integer }
+                                rbi: { type: integer }
+                                bb: { type: integer }
+                                so: { type: integer }
+                                sb: { type: integer }
+                                hbp: { type: integer }
+                            pitching:
+                              type: object
+                              nullable: true
+                              description: 'Null if player did not pitch (innings_pitched = 0)'
+                              properties:
+                                ip: { type: number }
+                                h: { type: integer }
+                                r: { type: integer }
+                                er: { type: integer }
+                                bb: { type: integer }
+                                so: { type: integer }
+                                hr: { type: integer }
+                                pitches: { type: integer }
+                                win: { type: boolean }
+                                loss: { type: boolean }
+                                save: { type: boolean }
+                            fielding:
+                              type: object
+                              properties:
+                                po: { type: integer }
+                                a: { type: integer }
+                                e: { type: integer }
+                            position: { type: string, example: SS }
+        '404':
+          description: Player not found
+
+  # ---- Prospects (Scouting System) ----
+  /api/v1/prospects:
+    get:
+      summary: List prospects
+      description: Filter by school_type, primary_position, status, search. See docs/api/scouting-system-api.md
+      parameters:
+        - name: school_type
+          in: query
+          schema: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        - name: primary_position
+          in: query
+          schema: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [identified, evaluating, contacted, visiting, offered, committed, signed, passed]
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Paginated prospect list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: array, items: { $ref: '#/components/schemas/Prospect' } }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+    post:
+      summary: Create prospect
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProspectCreateInput' }
+      responses:
+        '201':
+          description: Prospect created
+
+  /api/v1/prospects/{id}:
+    get:
+      summary: Get prospect by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Prospect with media
+        '404':
+          description: Prospect not found
+    put:
+      summary: Update prospect (partial)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProspectUpdateInput' }
+      responses:
+        '200':
+          description: Prospect updated
+    delete:
+      summary: Delete prospect
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Prospect deleted
+
+  /api/v1/prospects/{id}/scouting-reports:
+    get:
+      summary: List scouting reports for prospect
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scouting reports (newest first)
+    post:
+      summary: Create scouting report for prospect
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScoutingReportProspectInput' }
+      responses:
+        '201':
+          description: Scouting report created
+
+  /api/v1/prospects/{id}/media:
+    post:
+      summary: Upload media or add external URL
+      description: |
+        Two modes:
+        1. File upload (multipart/form-data): file, title?, description?
+        2. External URL (application/json): url, media_type (video|photo|document), title?, description?
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                title: { type: string }
+                description: { type: string }
+          application/json:
+            schema:
+              type: object
+              required: [url, media_type]
+              properties:
+                url: { type: string }
+                media_type: { type: string, enum: [video, photo, document] }
+                title: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Media created
+
+  /api/v1/prospects/{id}/media/{mediaId}:
+    delete:
+      summary: Delete prospect media
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: mediaId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Media deleted
+
+  # ---- Recruits (Recruiting Board & Preference Lists) ----
+  /api/v1/recruits:
+    get:
+      summary: Recruiting board - list prospects
+      parameters:
+        - name: school_type
+          in: query
+          schema: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        - name: position
+          in: query
+          schema: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Prospects for recruiting board
+
+  /api/v1/recruits/preference-lists:
+    get:
+      summary: List preference lists
+      parameters:
+        - name: list_type
+          in: query
+          schema:
+            type: string
+            enum: [new_players, overall_pref_list, hs_pref_list, college_transfers, pitchers_pref_list]
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Preference list entries (Player or Prospect)
+    post:
+      summary: Add to preference list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              oneOf:
+                - required: [prospect_id]
+                  properties:
+                    prospect_id: { type: integer }
+                    list_type: { type: string }
+                    priority: { type: integer }
+                    notes: { type: string }
+                - required: [player_id]
+                  properties:
+                    player_id: { type: integer }
+                    list_type: { type: string }
+                    priority: { type: integer }
+                    notes: { type: string }
+      responses:
+        '201':
+          description: Added to preference list
+
+  /api/v1/recruits/preference-lists/{id}:
+    put:
+      summary: Update preference list entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority: { type: integer }
+                status: { type: string }
+                notes: { type: string }
+      responses:
+        '200':
+          description: Entry updated
+    delete:
+      summary: Remove from preference list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Entry removed
+
+  # ---- Reports ----
+  /api/v1/reports:
+    get:
+      summary: List custom reports
+      responses:
+        '200':
+          description: Custom reports list
+    post:
+      summary: Create custom report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, type]
+              properties:
+                title: { type: string }
+                type: { type: string }
+                description: { type: string }
+                status: { type: string, enum: [draft, published, archived] }
+                data_sources: { type: array }
+                sections: { type: array }
+                filters: { type: object }
+      responses:
+        '201':
+          description: Report created
+
+  /api/v1/reports/custom/{id}:
+    get:
+      summary: Get custom report by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Report details
+        '404':
+          description: Report not found
+
+  /api/v1/reports/byId/{id}:
+    get:
+      summary: Get report by ID (reports_view permission)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Report details
+    put:
+      summary: Update report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { type: string }
+                data_sources: { type: array }
+                sections: { type: array }
+                filters: { type: object }
+      responses:
+        '200':
+          description: Report updated
+    delete:
+      summary: Delete report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Report deleted
+
+  /api/v1/reports/scouting:
+    get:
+      summary: List scouting reports
+      description: Supports player_id or prospect_id filter. Returns reports for both players and prospects.
+      parameters:
+        - name: player_id
+          in: query
+          schema: { type: integer }
+        - name: prospect_id
+          in: query
+          schema: { type: integer }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated scouting reports
+    post:
+      summary: Create scouting report
+      description: Provide exactly one of player_id or prospect_id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id: { type: integer }
+                prospect_id: { type: integer }
+                report_date: { type: string, format: date }
+                event_type: { type: string, enum: [game, showcase, practice, workout, video] }
+                overall_present: { type: [integer, string] }
+                overall_future: { type: [integer, string] }
+                hitting_present: { type: [integer, string] }
+                hitting_future: { type: [integer, string] }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Scouting report created
+
+  /api/v1/reports/scouting/{id}:
+    get:
+      summary: Get scouting report by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scouting report details
+    put:
+      summary: Update scouting report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScoutingReportUpdateInput' }
+      responses:
+        '200':
+          description: Scouting report updated
+
+  /api/v1/reports/player-performance:
+    get:
+      summary: Player performance analytics
+      responses:
+        '200':
+          description: Performance data
+
+  /api/v1/reports/team-statistics:
+    get:
+      summary: Team statistics analytics
+      responses:
+        '200':
+          description: Team stats
+
+  /api/v1/reports/scouting-analysis:
+    get:
+      summary: Scouting analysis analytics
+      responses:
+        '200':
+          description: Scouting analysis
+
+  /api/v1/reports/recruitment-pipeline:
+    get:
+      summary: Recruitment pipeline analytics
+      responses:
+        '200':
+          description: Pipeline data
+
+  /api/v1/reports/generate-pdf:
+    post:
+      summary: Generate PDF report
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_id: { type: string }
+                report_type: { type: string }
+      responses:
+        '200':
+          description: PDF generated
+
+  /api/v1/reports/export-excel:
+    post:
+      summary: Export to Excel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_id: { type: string }
+                report_type: { type: string }
+      responses:
+        '200':
+          description: Excel file
+
+  # ---- Teams ----
+  /api/v1/teams:
+    get:
+      summary: List teams (public - for registration)
+      security: []
+      responses:
+        '200':
+          description: All teams
+    post:
+      summary: Create team (team_management permission)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                program_name: { type: string }
+                conference: { type: string }
+                division: { type: string, enum: [D1, D2, D3, NAIA, JUCO] }
+                city: { type: string }
+                state: { type: string }
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '201':
+          description: Team created
+
+  /api/v1/teams/me:
+    get:
+      summary: Get current user's team
+      responses:
+        '200':
+          description: Team details
+    put:
+      summary: Update current user's team
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                program_name: { type: string }
+                conference: { type: string }
+                division: { type: string }
+                city: { type: string }
+                state: { type: string }
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '200':
+          description: Team updated
+
+  /api/v1/teams/byId/{id}:
+    get:
+      summary: Get team by ID with users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Team with users
+
+  /api/v1/teams/recent-schedules:
+    get:
+      summary: Recent past schedule events
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+      responses:
+        '200':
+          description: Flattened event list
+
+  /api/v1/teams/upcoming-schedules:
+    get:
+      summary: Upcoming schedule events
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 5 }
+      responses:
+        '200':
+          description: Flattened event list
+
+  /api/v1/teams/logo:
+    post:
+      summary: Upload team logo
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Logo uploaded
+    delete:
+      summary: Remove team logo
+      responses:
+        '200':
+          description: Logo removed
+
+  /api/v1/teams/branding:
+    get:
+      summary: Get team branding
+      responses:
+        '200':
+          description: Name, logo, colors
+    put:
+      summary: Update brand colors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '200':
+          description: Branding updated
+
+  /api/v1/teams/users:
+    get:
+      summary: Get team users
+      responses:
+        '200':
+          description: Team members
+
+  /api/v1/teams/permissions:
+    get:
+      summary: Get team permissions
+      responses:
+        '200':
+          description: User permissions
+    post:
+      summary: Grant permission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, permission_type]
+              properties:
+                user_id: { type: integer }
+                permission_type: { type: string }
+                is_granted: { type: boolean }
+                expires_at: { type: string, format: date-time }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Permission granted
+
+  /api/v1/teams/permissions/{id}:
+    put:
+      summary: Update permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_granted: { type: boolean }
+                expires_at: { type: string }
+                notes: { type: string }
+      responses:
+        '200':
+          description: Permission updated
+    delete:
+      summary: Revoke permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Permission revoked
+
+  /api/v1/teams/stats:
+    get:
+      summary: Team statistics
+      responses:
+        '200':
+          description: Player counts, reports, schedules, games, wins/losses
+
+  /api/v1/teams/roster:
+    get:
+      summary: Roster by position group
+      responses:
+        '200':
+          description: Pitchers, catchers, infielders, outfielders, DH
+
+  /api/v1/teams/dashboard:
+    get:
+      summary: Coach's dashboard with record, leaders, recent games
+      tags: [Teams]
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      record:
+                        type: object
+                        properties:
+                          wins: { type: integer }
+                          losses: { type: integer }
+                          ties: { type: integer }
+                          conference_wins: { type: integer }
+                          conference_losses: { type: integer }
+                      team_batting:
+                        type: object
+                        description: 'JSONB aggregate team batting stats from Presto. Keys are strings like avg, runs, hits, etc.'
+                      team_pitching:
+                        type: object
+                        description: 'JSONB aggregate team pitching stats from Presto.'
+                      team_fielding:
+                        type: object
+                        description: 'JSONB aggregate team fielding stats from Presto.'
+                      recent_games:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: string, format: uuid }
+                            date: { type: string, format: date }
+                            opponent: { type: string }
+                            home_away: { type: string, enum: [home, away] }
+                            result: { type: string, enum: [W, L, T], nullable: true }
+                            score: { type: string, example: '5-3', nullable: true }
+                            game_summary: { type: string, nullable: true }
+                            running_record: { type: string, nullable: true }
+                            running_conference_record: { type: string, nullable: true }
+                      leaders:
+                        type: object
+                        description: 'Top 3 players per category. Each key maps to an array of { player_id, name, value }.'
+                        properties:
+                          batting_avg: { type: array, items: { $ref: '#/components/schemas/StatLeader' } }
+                          home_runs: { type: array, items: { $ref: '#/components/schemas/StatLeader' } }
+                          rbi: { type: array, items: { $ref: '#/components/schemas/StatLeader' } }
+                          stolen_bases: { type: array, items: { $ref: '#/components/schemas/StatLeader' } }
+                          era: { type: array, items: { $ref: '#/components/schemas/StatLeader' } }
+                          strikeouts: { type: array, items: { $ref: '#/components/schemas/StatLeader' } }
+                      stats_last_synced_at: { type: string, format: date-time, nullable: true }
+
+  /api/v1/teams/game-log:
+    get:
+      summary: Team game log with per-game stats
+      tags: [Teams]
+      responses:
+        '200':
+          description: All completed games with stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      games:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: string, format: uuid }
+                            date: { type: string, format: date }
+                            opponent: { type: string }
+                            home_away: { type: string, enum: [home, away] }
+                            result: { type: string, enum: [W, L, T] }
+                            score: { type: string, example: '5-3', nullable: true }
+                            location: { type: string, nullable: true }
+                            team_stats:
+                              type: object
+                              nullable: true
+                              description: 'Per-game team batting/pitching/fielding from Presto (JSONB)'
+                            game_summary: { type: string, nullable: true }
+                            running_record: { type: string, nullable: true }
+                            running_conference_record: { type: string, nullable: true }
+
+  /api/v1/teams/aggregate-stats:
+    get:
+      summary: Team batting/pitching/fielding aggregates
+      tags: [Teams]
+      responses:
+        '200':
+          description: Full team aggregate stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      batting:
+                        type: object
+                        description: 'JSONB with Presto team batting stats (string values)'
+                      pitching:
+                        type: object
+                        description: 'JSONB with Presto team pitching stats (string values)'
+                      fielding:
+                        type: object
+                        description: 'JSONB with Presto team fielding stats (string values)'
+                      last_synced_at: { type: string, format: date-time, nullable: true }
+
+  /api/v1/teams/lineup:
+    get:
+      summary: Most recent lineup from last game
+      tags: [Teams]
+      description: >-
+        Returns the lineup from the most recent completed game with complete stats.
+        Falls back to earlier games (up to 5) if the latest game has incomplete or
+        no player statistics (e.g., box score data not yet available from Presto).
+      responses:
+        '200':
+          description: Lineup derived from last completed game
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      source: { type: string, enum: [last_game, none] }
+                      game_id: { type: string, format: uuid, nullable: true }
+                      game_date: { type: string, format: date, nullable: true }
+                      opponent: { type: string, nullable: true }
+                      players:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            player_id: { type: string, format: uuid, nullable: true }
+                            name: { type: string }
+                            jersey_number: { type: string, nullable: true }
+                            position: { type: string, example: SS }
+                            photo_url: { type: string, nullable: true }
+                            batting:
+                              type: object
+                              properties:
+                                ab: { type: integer }
+                                h: { type: integer }
+                                r: { type: integer }
+                                rbi: { type: integer }
+                                bb: { type: integer }
+                      message: { type: string, description: 'Present when source is none' }
+
+  /api/v1/teams/{id}:
+    get:
+      summary: Get team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Team details
+    put:
+      summary: Update team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                program_name: { type: string }
+                conference: { type: string }
+                division: { type: string }
+                city: { type: string }
+                state: { type: string }
+                primary_color: { type: string }
+                secondary_color: { type: string }
+      responses:
+        '200':
+          description: Team updated
+
+  # ---- Schedules ----
+  /api/v1/schedules:
+    get:
+      summary: List schedules
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Paginated schedules
+    post:
+      summary: Create schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [team_name, program_name, date, sections]
+              properties:
+                team_name: { type: string }
+                program_name: { type: string }
+                date: { type: string, format: date }
+                sections: { type: array }
+      responses:
+        '201':
+          description: Schedule created
+
+  /api/v1/schedules/stats:
+    get:
+      summary: Schedule statistics
+      responses:
+        '200':
+          description: Schedule stats
+
+  /api/v1/schedules/byId/{id}:
+    get:
+      summary: Get schedule by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedule with sections and activities
+    put:
+      summary: Update schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                team_name: { type: string }
+                program_name: { type: string }
+                date: { type: string }
+                sections: { type: array }
+      responses:
+        '200':
+          description: Schedule updated
+    delete:
+      summary: Delete (soft) schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedule deleted
+
+  /api/v1/schedules/{id}/sections:
+    post:
+      summary: Add schedule section
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, title]
+              properties:
+                type: { type: string, enum: [general, position_players, pitchers, grinder_performance, grinder_hitting, grinder_defensive, bullpen, live_bp] }
+                title: { type: string }
+      responses:
+        '201':
+          description: Section created
+
+  /api/v1/schedules/sections/{sectionId}/activities:
+    post:
+      summary: Add activity to section
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [time, activity]
+              properties:
+                time: { type: string }
+                activity: { type: string }
+                location: { type: string }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Activity created
+
+  /api/v1/schedules/sections/{sectionId}:
+    delete:
+      summary: Delete section (and activities)
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Section deleted
+
+  /api/v1/schedules/activities/{activityId}:
+    delete:
+      summary: Delete activity
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Activity deleted
+
+  /api/v1/schedules/export-pdf:
+    get:
+      summary: Export schedule PDF
+      responses:
+        '200':
+          description: PDF file
+
+  # ---- Schedule Templates ----
+  /api/v1/schedule-templates:
+    get:
+      summary: List schedule templates
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Schedule templates
+    post:
+      summary: Create schedule template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Template created
+
+  /api/v1/schedule-templates/{id}:
+    get:
+      summary: Get schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Template details
+    put:
+      summary: Update schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+      responses:
+        '200':
+          description: Template updated
+    delete:
+      summary: Delete schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Template deleted
+
+  /api/v1/schedule-templates/{id}/duplicate:
+    post:
+      summary: Duplicate schedule template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '201':
+          description: Template duplicated
+
+  # ---- Schedule Events ----
+  /api/v1/schedule-events:
+    get:
+      summary: List schedule events
+      parameters:
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Schedule events
+    post:
+      summary: Create schedule event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                location_id: { type: integer }
+      responses:
+        '201':
+          description: Event created
+
+  /api/v1/schedule-events/{id}:
+    get:
+      summary: Get schedule event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Event details
+    put:
+      summary: Update schedule event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Event updated
+    delete:
+      summary: Delete schedule event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Event deleted
+
+  # ---- Locations ----
+  /api/v1/locations:
+    get:
+      summary: List locations
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated locations
+    post:
+      summary: Create location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                address: { type: string }
+                city: { type: string }
+                state: { type: string }
+                zip_code: { type: string }
+                location_type: { type: string }
+                capacity: { type: integer }
+      responses:
+        '201':
+          description: Location created
+
+  /api/v1/locations/{id}:
+    get:
+      summary: Get location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Location details
+    put:
+      summary: Update location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Location updated
+    delete:
+      summary: Delete location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Location deleted
+
+  # ---- Depth Charts ----
+  /api/v1/depth-charts:
+    get:
+      summary: List depth charts
+      responses:
+        '200':
+          description: Depth charts
+    post:
+      summary: Create depth chart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        '201':
+          description: Depth chart created
+
+  /api/v1/depth-charts/byId/{id}:
+    get:
+      summary: Get depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Depth chart details
+    put:
+      summary: Update depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Depth chart updated
+    delete:
+      summary: Delete depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Depth chart deleted
+
+  /api/v1/depth-charts/{id}/positions:
+    post:
+      summary: Add position to depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Position added
+
+  /api/v1/depth-charts/positions/{positionId}:
+    put:
+      summary: Update position
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Position updated
+    delete:
+      summary: Delete position
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Position deleted
+
+  /api/v1/depth-charts/positions/{positionId}/players:
+    post:
+      summary: Assign player to position
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id: { type: integer }
+                rank: { type: integer }
+      responses:
+        '201':
+          description: Player assigned
+
+  /api/v1/depth-charts/players/{assignmentId}:
+    delete:
+      summary: Remove player from position
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player removed
+
+  /api/v1/depth-charts/{id}/available-players:
+    get:
+      summary: Get available players for depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Available players
+
+  /api/v1/depth-charts/{id}/recommended-players/{positionId}:
+    get:
+      summary: Get recommended players for position
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Recommended players
+
+  /api/v1/depth-charts/{id}/duplicate:
+    post:
+      summary: Duplicate depth chart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '201':
+          description: Depth chart duplicated
+
+  /api/v1/depth-charts/{id}/history:
+    get:
+      summary: Get depth chart history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: History
+
+  # ---- Games ----
+  /api/v1/games:
+    get:
+      summary: List games
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated games
+    post:
+      summary: Create game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                opponent: { type: string }
+                date: { type: string, format: date }
+                location_id: { type: integer }
+      responses:
+        '201':
+          description: Game created
+
+  /api/v1/games/byId/{id}:
+    get:
+      summary: Get game by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Game details
+    put:
+      summary: Update game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Game updated
+    delete:
+      summary: Delete game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Game deleted
+
+  /api/v1/games/log:
+    get:
+      summary: Game log
+      responses:
+        '200':
+          description: Game log
+
+  /api/v1/games/team-stats:
+    get:
+      summary: Team stats
+      responses:
+        '200':
+          description: Team statistics
+
+  /api/v1/games/upcoming:
+    get:
+      summary: Upcoming games
+      responses:
+        '200':
+          description: Upcoming games
+
+  /api/v1/games/season-stats:
+    get:
+      summary: Season statistics
+      responses:
+        '200':
+          description: Season stats
+
+  /api/v1/games/player-stats/{playerId}:
+    get:
+      summary: Player stats
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Player statistics
+
+  /api/v1/games/leaderboard:
+    get:
+      summary: Player stat leaderboard
+      description: |
+        Returns ranked player leaders for a given stat from PlayerSeasonStats.
+        Stat must be from a whitelisted set. Qualifier minimums filter out small sample sizes.
+
+        **Batting stats (DESC):** batting_average, on_base_percentage, slugging_percentage, ops,
+        home_runs, rbi, hits, runs, stolen_bases, walks, doubles, triples
+
+        **Pitching stats:** era (ASC), whip (ASC), k_per_9 (DESC), bb_per_9 (ASC),
+        strikeouts_pitching (DESC), pitching_wins (DESC), saves (DESC), innings_pitched (DESC)
+
+        **Fielding:** fielding_percentage (DESC)
+      parameters:
+        - name: stat
+          in: query
+          required: true
+          description: Column from PlayerSeasonStats to rank by
+          schema:
+            type: string
+            enum:
+              - batting_average
+              - on_base_percentage
+              - slugging_percentage
+              - ops
+              - home_runs
+              - rbi
+              - hits
+              - runs
+              - stolen_bases
+              - walks
+              - doubles
+              - triples
+              - era
+              - whip
+              - k_per_9
+              - bb_per_9
+              - strikeouts_pitching
+              - pitching_wins
+              - saves
+              - innings_pitched
+              - fielding_percentage
+        - name: season
+          in: query
+          description: Season filter (defaults to team's most recent season)
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10, maximum: 50 }
+        - name: min_qualifier
+          in: query
+          description: Override minimum qualifying value (e.g. min at_bats for batting_average)
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Ranked leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      stat: { type: string }
+                      season: { type: string }
+                      leaders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            rank: { type: integer }
+                            player:
+                              type: object
+                              properties:
+                                id: { type: integer }
+                                first_name: { type: string }
+                                last_name: { type: string }
+                                position: { type: string }
+                                jersey_number: { type: integer }
+                                photo_url: { type: string }
+                            value: { type: number }
+                            qualifier_value: { type: integer, nullable: true }
+        '400':
+          description: Missing or invalid stat parameter
+
+  /api/v1/games/{gameId}/stats:
+    get:
+      summary: Game statistics
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Game stats
+
+  /api/v1/games/{gameId}/box-score:
+    get:
+      summary: Presto live box score
+      description: |
+        Fetches a full box score from PrestoSports for a game with a presto_event_id.
+        Returns both teams' data: linescore, batting, pitching, fielding for all players
+        (including opponent players with names, jersey numbers, and full stats).
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Full box score for both teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      game:
+                        type: object
+                        properties:
+                          id: { type: integer }
+                          opponent: { type: string }
+                          game_date: { type: string, format: date-time }
+                          home_away: { type: string, enum: [home, away] }
+                          result: { type: string, enum: [W, L, T], nullable: true }
+                          team_score: { type: integer, nullable: true }
+                          opponent_score: { type: integer, nullable: true }
+                          season_name: { type: string, nullable: true }
+                      box_score:
+                        $ref: '#/components/schemas/BoxScore'
+                      format: { type: string, enum: [parsed, raw] }
+        '400':
+          description: Game has no PrestoSports event linked
+        '404':
+          description: Game not found or not on user's team
+
+  /api/v1/integrations/presto/league-teams:
+    get:
+      summary: All league teams with logos
+      description: |
+        Returns all teams in the configured PrestoSports season with team names and logo URLs.
+        Logo URLs point to static.prestosports.com and can be used directly by the frontend.
+        Optionally pass `seasonId` query param to override the configured season.
+      parameters:
+        - name: seasonId
+          in: query
+          description: Override the configured season ID
+          schema: { type: string }
+      responses:
+        '200':
+          description: Array of league teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/LeagueTeam' }
+                  count: { type: integer }
+                  seasonId: { type: string }
+        '400':
+          description: No season configured
+
+  /api/v1/integrations/presto/sync/opponent-stats:
+    post:
+      summary: Sync opponent stats from box scores
+      description: |
+        Backfills opponent player stats from Presto box score XML for all completed games.
+        Stores per-player per-game opponent stats in opponent_game_stats table for aggregation.
+      responses:
+        '200':
+          description: Sync results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      gamesProcessed: { type: integer }
+                      playersCreated: { type: integer }
+                      playersUpdated: { type: integer }
+                      errors: { type: array, items: { type: object } }
+
+  /api/v1/games/opponent-stats:
+    get:
+      summary: Aggregated opponent team stats
+      description: |
+        Returns per-opponent batting/pitching/fielding totals across all games.
+        Includes derived stats like batting average and ERA.
+      parameters:
+        - name: opponent
+          in: query
+          description: Filter by opponent name (partial match, case-insensitive)
+          schema: { type: string }
+        - name: season
+          in: query
+          description: Filter by season ID
+          schema: { type: string }
+      responses:
+        '200':
+          description: Aggregated stats grouped by opponent team
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/OpponentTeamStats' }
+                  count: { type: integer }
+
+  /api/v1/games/opponent-stats/{opponent}/players:
+    get:
+      summary: Opponent player breakdown
+      description: |
+        Returns per-player stats for a specific opponent aggregated across all games.
+        Pitching stats only included for players who pitched.
+      parameters:
+        - name: opponent
+          in: path
+          required: true
+          description: URL-encoded opponent team name
+          schema: { type: string }
+        - name: season
+          in: query
+          description: Filter by season ID
+          schema: { type: string }
+      responses:
+        '200':
+          description: Player-level stats for the opponent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      opponent: { type: string }
+                      players:
+                        type: array
+                        items: { $ref: '#/components/schemas/OpponentPlayerStats' }
+                  count: { type: integer }
+
+  # ---- News Releases ----
+  /api/v1/news:
+    get:
+      summary: List news releases
+      description: |
+        Returns paginated news releases synced from PrestoSports.
+        The list view excludes the full `content` field for performance.
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category (e.g. recap, awards, announcement, preview)
+          schema: { type: string }
+        - name: player_id
+          in: query
+          description: Filter by associated player
+          schema: { type: integer }
+        - name: search
+          in: query
+          description: ILIKE search across title and summary
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 50 }
+      responses:
+        '200':
+          description: Paginated news releases (content excluded)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/NewsReleaseSummary' }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+
+  /api/v1/news/byId/{id}:
+    get:
+      summary: Get news release by ID
+      description: Returns the full news release including the `content` field.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Full news release
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { $ref: '#/components/schemas/NewsRelease' }
+        '404':
+          description: News release not found or not on user's team
+
+  # ---- Coaches, Scouts, Vendors, High School Coaches ----
+  /api/v1/coaches:
+    get:
+      summary: List coaches
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Coaches list
+    post:
+      summary: Create coach
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, school_name]
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                school_name: { type: string }
+                position: { type: string }
+                email: { type: string }
+                phone: { type: string }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Coach created
+
+  /api/v1/coaches/{id}:
+    get:
+      summary: Get coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach details
+    put:
+      summary: Update coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Coach updated
+    delete:
+      summary: Delete coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach deleted
+
+  /api/v1/scouts:
+    get:
+      summary: List scouts
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scouts list
+    post:
+      summary: Create scout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Scout created
+
+  /api/v1/scouts/{id}:
+    get:
+      summary: Get scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scout details
+    put:
+      summary: Update scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Scout updated
+    delete:
+      summary: Delete scout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scout deleted
+
+  /api/v1/vendors:
+    get:
+      summary: List vendors
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vendors list
+    post:
+      summary: Create vendor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Vendor created
+
+  /api/v1/vendors/{id}:
+    get:
+      summary: Get vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vendor details
+    put:
+      summary: Update vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Vendor updated
+    delete:
+      summary: Delete vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vendor deleted
+
+  /api/v1/high-school-coaches:
+    get:
+      summary: List high school coaches
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: High school coaches list
+    post:
+      summary: Create high school coach
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, school_name]
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                school_name: { type: string }
+                position: { type: string }
+                email: { type: string }
+                phone: { type: string }
+      responses:
+        '201':
+          description: High school coach created
+
+  /api/v1/high-school-coaches/{id}:
+    get:
+      summary: Get high school coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach details
+    put:
+      summary: Update high school coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Coach updated
+    delete:
+      summary: Delete high school coach
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Coach deleted
+
+  # ---- Integrations (PrestoSports) ----
+  /api/v1/integrations/presto/status:
+    get:
+      summary: Get Presto integration status
+      responses:
+        '200':
+          description: Integration status
+
+  /api/v1/integrations/presto/configure:
+    post:
+      summary: Configure Presto integration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                credentials: { type: object }
+      responses:
+        '200':
+          description: Configuration updated
+
+  /api/v1/integrations/presto/test:
+    post:
+      summary: Test Presto connection
+      responses:
+        '200':
+          description: Connection test result
+
+  /api/v1/integrations/presto/disconnect:
+    delete:
+      summary: Disconnect Presto integration
+      responses:
+        '200':
+          description: Disconnected
+
+  /api/v1/integrations/presto/seasons:
+    get:
+      summary: List Presto seasons
+      responses:
+        '200':
+          description: Available seasons
+
+  /api/v1/integrations/presto/teams:
+    get:
+      summary: List Presto teams
+      responses:
+        '200':
+          description: Available teams
+
+  /api/v1/integrations/presto/settings:
+    put:
+      summary: Update Presto settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Settings updated
+
+  /api/v1/integrations/presto/sync/schedule:
+    post:
+      summary: Sync schedule from Presto
+      responses:
+        '200':
+          description: Sync initiated
+
+  /api/v1/integrations/presto/sync/roster:
+    post:
+      summary: Sync roster from Presto
+      responses:
+        '200':
+          description: Sync initiated
+
+  /api/v1/integrations/presto/sync/stats:
+    post:
+      summary: Sync stats from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Sync initiated
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/record:
+    post:
+      summary: Sync team record (W-L) from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Team record synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/season-stats:
+    post:
+      summary: Sync season stats from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Season stats synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/career-stats:
+    post:
+      summary: Sync career stats from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Career stats synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/player-details:
+    post:
+      summary: Sync player details (bio, hometown, high school) from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Player details synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/player-photos:
+    post:
+      summary: Sync player photos from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Player photos synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/press-releases:
+    post:
+      summary: Sync press releases/news from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Press releases synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/historical-stats:
+    post:
+      summary: Sync historical season-by-season stats from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Historical stats synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/player-videos:
+    post:
+      summary: Sync player video/highlights from Presto
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Player videos synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/live-stats/{gameId}:
+    post:
+      summary: Sync live stats for a specific game
+      tags: [Integrations]
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema: { type: integer }
+          description: Game ID to sync live stats for
+      responses:
+        '200':
+          description: Live stats synced
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/all:
+    post:
+      summary: Full sync from Presto
+      tags: [Integrations]
+      description: >-
+        Runs all sync operations sequentially (roster, schedule, stats, game log,
+        team record, season stats, split stats, team aggregates, career stats,
+        player details, player photos, historical stats, player videos, press
+        releases, opponent stats). Each sub-sync is individually error-handled;
+        failures in one don't stop others. Pass `force: true` to bypass TTL/skip
+        logic and re-fetch all data.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                force:
+                  type: boolean
+                  default: false
+                  description: >-
+                    When true, bypasses already-synced checks and TTL-based skip
+                    logic for stats, career stats, player details, player photos,
+                    historical stats, player videos, and opponent stats.
+      responses:
+        '200':
+          description: Full sync completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: object
+                        properties:
+                          roster: { type: object }
+                          schedule: { type: object }
+                          stats: { type: object }
+                          gameLog: { type: object }
+                          teamRecord: { type: object }
+                          seasonStats: { type: object }
+                          splitStats: { type: object }
+                          teamAggregateStats: { type: object }
+                          careerStats: { type: object }
+                          playerDetails: { type: object }
+                          playerPhotos: { type: object }
+                          historicalStats: { type: object }
+                          playerVideos: { type: object }
+                          pressReleases: { type: object }
+                          opponentStats: { type: object }
+                          errors:
+                            type: array
+                            items: { type: string }
+        '500':
+          description: Sync failed
+
+  /api/v1/integrations/presto/sync/history:
+    get:
+      summary: Get sync history audit log
+      tags: [Integrations]
+      description: >-
+        Retrieves paginated sync operation history for the team. Shows when syncs
+        were triggered, by whom, duration, and result. Requires authentication.
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 25, maximum: 100 }
+        - in: query
+          name: sync_type
+          schema:
+            type: string
+            enum: [roster, schedule, stats, team_record, season_stats, career_stats, full, player_details, player_photos, press_releases, historical_stats, historical_season_stats, player_videos, live_stats]
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [started, completed, partial, failed]
+      responses:
+        '200':
+          description: Sync history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, format: uuid }
+                        sync_type: { type: string }
+                        status: { type: string, enum: [started, completed, partial, failed] }
+                        trigger: { type: string, enum: [manual, scheduled] }
+                        triggered_by: { type: string, nullable: true }
+                        started_at: { type: string, format: date-time }
+                        completed_at: { type: string, format: date-time, nullable: true }
+                        duration_ms: { type: integer, nullable: true }
+                        items_created: { type: integer }
+                        items_updated: { type: integer }
+                        items_skipped: { type: integer }
+                        items_failed: { type: integer }
+                        error_message: { type: string, nullable: true }
+                        response_summary: { type: object, nullable: true }
+                  pagination:
+                    type: object
+                    properties:
+                      page: { type: integer }
+                      limit: { type: integer }
+                      total: { type: integer }
+                      pages: { type: integer }
+
+  /api/v1/integrations/presto/games/live:
+    get:
+      summary: List games eligible for live stats (today's games)
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Live-eligible games
+        '500':
+          description: Failed to fetch live games
+
+  /api/v1/integrations/presto/diagnostics:
+    get:
+      summary: Presto API diagnostics (recent requests, stats)
+      tags: [Integrations]
+      responses:
+        '200':
+          description: Diagnostics data
+        '500':
+          description: Failed to fetch diagnostics
+
+  /api/v1/integrations/presto/seasons/{seasonId}/teams:
+    get:
+      summary: List teams in a Presto season
+      tags: [Integrations]
+      parameters:
+        - in: path
+          name: seasonId
+          required: true
+          schema: { type: string }
+          description: Presto season identifier
+      responses:
+        '200':
+          description: Teams in the season
+        '500':
+          description: Failed to fetch teams
+
+  # ---- Settings ----
+  /api/v1/settings:
+    get:
+      summary: Get all settings
+      responses:
+        '200':
+          description: User settings
+
+  /api/v1/settings/general:
+    put:
+      summary: Update general settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Settings updated
+
+  /api/v1/settings/account:
+    put:
+      summary: Update account settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Account updated
+    delete:
+      summary: Delete account
+      responses:
+        '200':
+          description: Account deleted
+
+  /api/v1/settings/notifications:
+    put:
+      summary: Update notification settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Notifications updated
+
+  /api/v1/settings/security:
+    put:
+      summary: Update security settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Security updated
+
+  /api/v1/settings/change-password:
+    put:
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string }
+                new_password: { type: string }
+      responses:
+        '200':
+          description: Password changed
+
+  /api/v1/settings/two-factor:
+    put:
+      summary: Enable/disable two-factor auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: 2FA updated
+
+  /api/v1/settings/two-factor/qr:
+    get:
+      summary: Get 2FA QR code
+      responses:
+        '200':
+          description: QR code for authenticator
+
+  /api/v1/settings/two-factor/verify:
+    post:
+      summary: Verify 2FA code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+      responses:
+        '200':
+          description: 2FA verified
+
+  /api/v1/settings/login-history:
+    get:
+      summary: Get login history
+      responses:
+        '200':
+          description: Login history
+
+  /api/v1/settings/sessions:
+    get:
+      summary: Get active sessions
+      responses:
+        '200':
+          description: Active sessions
+
+  /api/v1/settings/export-data:
+    get:
+      summary: Export user data
+      responses:
+        '200':
+          description: Data export
+
+  /api/v1/settings/profile-picture:
+    put:
+      summary: Update profile picture
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Profile picture updated
+
+  /api/v1/settings/privacy:
+    get:
+      summary: Get privacy settings
+      responses:
+        '200':
+          description: Privacy settings
+    put:
+      summary: Update privacy settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Privacy updated
+
+  /api/v1/settings/notifications/preferences:
+    get:
+      summary: Get notification preferences
+      responses:
+        '200':
+          description: Preferences
+    put:
+      summary: Update notification preferences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Preferences updated
+
+  /api/v1/settings/notifications/test-email:
+    post:
+      summary: Send test email
+      responses:
+        '200':
+          description: Test email sent
+
+  /api/v1/tournaments:
+    get:
+      summary: List tournaments for the team
+      tags: [Tournaments]
+      parameters:
+        - name: season
+          in: query
+          schema: { type: string }
+          description: Filter by season ID
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Paginated list of tournaments with game counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tournament'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /api/v1/tournaments/{id}/games:
+    get:
+      summary: Get all games in a tournament
+      tags: [Tournaments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+          description: Tournament ID
+      responses:
+        '200':
+          description: Tournament with its games ordered by date
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      tournament:
+                        $ref: '#/components/schemas/Tournament'
+                      games:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Game'
+        '404':
+          description: Tournament not found
+
+components:
+  parameters:
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: integer }
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    csrfToken:
+      type: apiKey
+      in: header
+      name: x-csrf-token
+      description: Required for POST, PUT, PATCH, DELETE
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data: {}
+        error: { type: string }
+
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        pages: { type: integer }
+
+    StatLeader:
+      type: object
+      properties:
+        player_id: { type: string, format: uuid }
+        name: { type: string, example: 'John Smith' }
+        value: { description: 'Stat value (string or number from Presto)' }
+
+    Tournament:
+      type: object
+      properties:
+        id: { type: integer }
+        team_id: { type: integer }
+        name: { type: string, example: 'Snowbird Classic' }
+        season: { type: string, nullable: true }
+        season_name: { type: string, nullable: true }
+        tournament_type: { type: string, enum: [tournament, invitational, scrimmage], nullable: true }
+        game_count: { type: integer, description: 'Number of games in this tournament (included in list endpoint)' }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Game:
+      type: object
+      properties:
+        id: { type: integer }
+        opponent: { type: string }
+        opponent_logo_url: { type: string, format: uri, nullable: true, description: 'Logo URL from PrestoSports (static.prestosports.com)' }
+        game_date: { type: string, format: date-time, nullable: true }
+        game_time: { type: string, nullable: true }
+        home_away: { type: string, enum: [home, away] }
+        team_score: { type: integer, nullable: true }
+        opponent_score: { type: integer, nullable: true }
+        result: { type: string, enum: [W, L, T], nullable: true }
+        location: { type: string, nullable: true }
+        venue_name: { type: string, nullable: true, description: 'Stadium / field name' }
+        event_type: { type: string, nullable: true, description: 'scrimmage | regular' }
+        is_conference: { type: boolean, default: false }
+        is_neutral: { type: boolean, default: false }
+        is_post_season: { type: boolean, default: false }
+        tournament_id: { type: integer, nullable: true }
+        season: { type: string, nullable: true }
+        season_name: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        game_status: { type: string, enum: [scheduled, completed, cancelled, postponed] }
+        game_summary: { type: string, nullable: true }
+        running_record: { type: string, nullable: true }
+        running_conference_record: { type: string, nullable: true }
+        source_system: { type: string, enum: [manual, presto] }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        email: { type: string, format: email }
+        first_name: { type: string }
+        last_name: { type: string }
+        role: { type: string, enum: [super_admin, head_coach, assistant_coach] }
+        team_id: { type: integer }
+        phone: { type: string }
+        avatar_url: { type: string }
+        is_active: { type: boolean }
+        last_login: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Player:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        position: { type: string }
+        school_type: { type: string }
+        school: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        status: { type: string }
+        team_id: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    PlayerCreateInput:
+      type: object
+      required: [first_name, last_name, position]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH] }
+        school_type: { type: string, enum: [HS, COLL] }
+        school: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        weight: { type: integer }
+        height: { type: string }
+        email: { type: string }
+        phone: { type: string }
+
+    PlayerUpdateInput:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        position: { type: string }
+        school_type: { type: string }
+        school: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        weight: { type: integer }
+        height: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        status: { type: string }
+
+    Prospect:
+      type: object
+      description: Someone you're recruiting (vs Player on roster). See docs/api/scouting-system-api.md
+      properties:
+        id: { type: integer }
+        team_id: { type: integer }
+        created_by: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        primary_position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        secondary_position: { type: string }
+        school_type: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        school_name: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        class_year: { type: string, enum: [FR, SO, JR, SR, GR] }
+        bats: { type: string, enum: [L, R, S] }
+        throws: { type: string, enum: [L, R] }
+        status:
+          type: string
+          enum: [identified, evaluating, contacted, visiting, offered, committed, signed, passed]
+        notes: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    ProspectCreateInput:
+      type: object
+      required: [first_name, last_name, primary_position]
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        primary_position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        secondary_position: { type: string, enum: [P, C, 1B, 2B, 3B, SS, LF, CF, RF, OF, DH, UTL] }
+        school_type: { type: string, enum: [HS, JUCO, D1, D2, D3, NAIA, Independent] }
+        school_name: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer, minimum: 2020, maximum: 2035 }
+        class_year: { type: string, enum: [FR, SO, JR, SR, GR] }
+        bats: { type: string, enum: [L, R, S] }
+        throws: { type: string, enum: [L, R] }
+        height: { type: string }
+        weight: { type: integer, minimum: 100, maximum: 350 }
+        sixty_yard_dash: { type: number }
+        fastball_velocity: { type: integer, minimum: 40, maximum: 110 }
+        exit_velocity: { type: integer, minimum: 40, maximum: 130 }
+        gpa: { type: number, minimum: 0, maximum: 4 }
+        sat_score: { type: integer, minimum: 400, maximum: 1600 }
+        act_score: { type: integer, minimum: 1, maximum: 36 }
+        status:
+          type: string
+          enum: [identified, evaluating, contacted, visiting, offered, committed, signed, passed]
+        notes: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+
+    ProspectUpdateInput:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        primary_position: { type: string }
+        secondary_position: { type: string }
+        school_type: { type: string }
+        school_name: { type: string }
+        city: { type: string }
+        state: { type: string }
+        graduation_year: { type: integer }
+        class_year: { type: string }
+        bats: { type: string }
+        throws: { type: string }
+        height: { type: string }
+        weight: { type: integer }
+        status: { type: string }
+        notes: { type: string }
+        email: { type: string }
+        phone: { type: string }
+
+    ScoutingReportProspectInput:
+      type: object
+      description: |
+        Grades can be numeric (20-80) or letter (B+, A, etc). Event types: game, showcase, practice, workout, video.
+        Present/future grade pairs for each skill. See docs/api/scouting-system-api.md.
+      properties:
+        report_date: { type: string, format: date }
+        event_type: { type: string, enum: [game, showcase, practice, workout, video] }
+        overall_present: { type: [integer, string] }
+        overall_future: { type: [integer, string] }
+        hitting_present: { type: [integer, string] }
+        hitting_future: { type: [integer, string] }
+        pitching_present: { type: [integer, string] }
+        pitching_future: { type: [integer, string] }
+        fielding_present: { type: [integer, string] }
+        fielding_future: { type: [integer, string] }
+        speed_present: { type: [integer, string] }
+        speed_future: { type: [integer, string] }
+        sixty_yard_dash: { type: number }
+        mlb_comparison: { type: string }
+        notes: { type: string }
+
+    ScoutingReportUpdateInput:
+      type: object
+      properties:
+        report_date: { type: string, format: date }
+        event_type: { type: string }
+        overall_present: { type: [integer, string] }
+        overall_future: { type: [integer, string] }
+        notes: { type: string }
+
+    PlayerSeasonStats:
+      type: object
+      description: Season statistics from PrestoSports sync
+      properties:
+        id: { type: integer }
+        player_id: { type: integer }
+        team_id: { type: integer }
+        season: { type: string, example: "2025-26" }
+        # Batting
+        games_played: { type: integer }
+        games_started: { type: integer }
+        at_bats: { type: integer }
+        runs: { type: integer }
+        hits: { type: integer }
+        doubles: { type: integer }
+        triples: { type: integer }
+        home_runs: { type: integer }
+        rbi: { type: integer }
+        walks: { type: integer }
+        strikeouts: { type: integer }
+        stolen_bases: { type: integer }
+        caught_stealing: { type: integer }
+        hit_by_pitch: { type: integer }
+        sacrifice_flies: { type: integer }
+        sacrifice_bunts: { type: integer }
+        batting_average: { type: number, format: decimal, example: 0.345 }
+        on_base_percentage: { type: number, format: decimal, example: 0.410 }
+        slugging_percentage: { type: number, format: decimal, example: 0.580 }
+        ops: { type: number, format: decimal, example: 0.990 }
+        # Pitching
+        pitching_appearances: { type: integer }
+        pitching_starts: { type: integer }
+        innings_pitched: { type: number, format: decimal, example: 60.0 }
+        pitching_wins: { type: integer }
+        pitching_losses: { type: integer }
+        saves: { type: integer }
+        holds: { type: integer }
+        hits_allowed: { type: integer }
+        runs_allowed: { type: integer }
+        earned_runs: { type: integer }
+        walks_allowed: { type: integer }
+        strikeouts_pitching: { type: integer }
+        home_runs_allowed: { type: integer }
+        era: { type: number, format: decimal, example: 3.50 }
+        whip: { type: number, format: decimal, example: 1.20 }
+        k_per_9: { type: number, format: decimal, example: 10.50 }
+        bb_per_9: { type: number, format: decimal, example: 2.50 }
+        # Fielding
+        fielding_games: { type: integer }
+        putouts: { type: integer }
+        assists: { type: integer }
+        errors: { type: integer }
+        fielding_percentage: { type: number, format: decimal, example: 0.975 }
+        # Meta
+        source_system: { type: string, enum: [manual, presto] }
+        last_synced_at: { type: string, format: date-time, nullable: true }
+
+    PlayerCareerStats:
+      type: object
+      description: Career totals from PrestoSports sync
+      properties:
+        id: { type: integer }
+        player_id: { type: integer }
+        seasons_played: { type: integer }
+        career_games: { type: integer }
+        career_at_bats: { type: integer }
+        career_runs: { type: integer }
+        career_hits: { type: integer }
+        career_doubles: { type: integer }
+        career_triples: { type: integer }
+        career_home_runs: { type: integer }
+        career_rbi: { type: integer }
+        career_walks: { type: integer }
+        career_strikeouts: { type: integer }
+        career_stolen_bases: { type: integer }
+        career_batting_average: { type: number, format: decimal }
+        career_obp: { type: number, format: decimal }
+        career_slg: { type: number, format: decimal }
+        career_ops: { type: number, format: decimal }
+        career_pitching_appearances: { type: integer }
+        career_innings_pitched: { type: number, format: decimal }
+        career_wins: { type: integer }
+        career_losses: { type: integer }
+        career_saves: { type: integer }
+        career_earned_runs: { type: integer }
+        career_strikeouts_pitching: { type: integer }
+        career_era: { type: number, format: decimal }
+        career_whip: { type: number, format: decimal }
+        source_system: { type: string, enum: [manual, presto] }
+
+    PlayerVideo:
+      type: object
+      description: Player video from PrestoSports sync
+      properties:
+        id: { type: integer }
+        player_id: { type: integer }
+        team_id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        url: { type: string }
+        thumbnail_url: { type: string }
+        embed_url: { type: string }
+        duration: { type: integer, description: Duration in seconds }
+        video_type: { type: string, enum: [highlight, game, interview, training, promotional, other] }
+        provider: { type: string, description: "youtube, vimeo, hudl, etc." }
+        published_at: { type: string, format: date-time }
+        view_count: { type: integer }
+        source_system: { type: string }
+        created_at: { type: string, format: date-time }
+
+    NewsReleaseSummary:
+      type: object
+      description: News release without full content (list view)
+      properties:
+        id: { type: integer }
+        team_id: { type: integer }
+        title: { type: string }
+        summary: { type: string }
+        author: { type: string }
+        publish_date: { type: string, format: date-time }
+        category: { type: string }
+        image_url: { type: string }
+        source_url: { type: string }
+        player_id: { type: integer, nullable: true }
+        player:
+          type: object
+          nullable: true
+          properties:
+            id: { type: integer }
+            first_name: { type: string }
+            last_name: { type: string }
+
+    NewsRelease:
+      type: object
+      description: Full news release including content
+      allOf:
+        - $ref: '#/components/schemas/NewsReleaseSummary'
+        - type: object
+          properties:
+            content: { type: string, description: Full HTML content }
+
+    OpponentTeamStats:
+      type: object
+      description: Aggregated stats for one opponent team across all games
+      properties:
+        opponent_name: { type: string }
+        opponent_presto_team_id: { type: string, nullable: true }
+        games_played: { type: integer }
+        batting:
+          type: object
+          properties:
+            ab: { type: integer }
+            r: { type: integer }
+            h: { type: integer }
+            doubles: { type: integer }
+            triples: { type: integer }
+            hr: { type: integer }
+            rbi: { type: integer }
+            bb: { type: integer }
+            so: { type: integer }
+            sb: { type: integer }
+            hbp: { type: integer }
+            avg: { type: string, description: Batting average as ".XXX" }
+        pitching:
+          type: object
+          properties:
+            ip: { type: number }
+            ha: { type: integer, description: Hits allowed }
+            er: { type: integer }
+            bb: { type: integer }
+            so: { type: integer }
+            hr: { type: integer }
+            era: { type: string }
+        fielding:
+          type: object
+          properties:
+            errors: { type: integer }
+
+    OpponentPlayerStats:
+      type: object
+      description: Stats for one opponent player aggregated across games
+      properties:
+        player_name: { type: string, nullable: true }
+        jersey_number: { type: string, nullable: true }
+        position: { type: string, nullable: true }
+        games: { type: integer }
+        batting:
+          type: object
+          properties:
+            ab: { type: integer }
+            r: { type: integer }
+            h: { type: integer }
+            hr: { type: integer }
+            rbi: { type: integer }
+            bb: { type: integer }
+            so: { type: integer }
+            avg: { type: string }
+        fielding:
+          type: object
+          properties:
+            po: { type: integer }
+            a: { type: integer }
+            e: { type: integer }
+        pitching:
+          type: object
+          nullable: true
+          description: Only present for players who pitched
+          properties:
+            ip: { type: number }
+            h: { type: integer }
+            er: { type: integer }
+            bb: { type: integer }
+            so: { type: integer }
+            pitches: { type: integer }
+            era: { type: string }
+
+    LeagueTeam:
+      type: object
+      description: A team from the PrestoSports season with logo URL
+      properties:
+        teamId: { type: string, description: PrestoSports team ID }
+        name: { type: string, description: Team display name }
+        logo: { type: string, format: uri, description: Logo URL from static.prestosports.com }
+        conference: { type: string, nullable: true }
+        division: { type: string, nullable: true }
+
+    BoxScore:
+      type: object
+      description: Full box score with both teams' data
+      properties:
+        visitor:
+          $ref: '#/components/schemas/BoxScoreTeam'
+        home:
+          $ref: '#/components/schemas/BoxScoreTeam'
+        gameInfo:
+          type: object
+          properties:
+            date: { type: string, nullable: true }
+            location: { type: string, nullable: true }
+            attendance: { type: string, nullable: true }
+            duration: { type: string, nullable: true }
+
+    BoxScoreTeam:
+      type: object
+      properties:
+        role: { type: string, enum: [visitor, home] }
+        id: { type: string, nullable: true }
+        name: { type: string, nullable: true }
+        linescore:
+          type: object
+          properties:
+            innings:
+              type: array
+              items:
+                type: object
+                properties:
+                  number: { type: string }
+                  score: { type: string }
+            runs: { type: string }
+            hits: { type: string }
+            errors: { type: string, nullable: true }
+            lob: { type: string, nullable: true }
+        totals:
+          type: object
+          properties:
+            hitting: { type: object, additionalProperties: { type: string } }
+            pitching: { type: object, additionalProperties: { type: string } }
+            fielding: { type: object, additionalProperties: { type: string } }
+        batters:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScorePlayer'
+        pitchers:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoxScorePlayer'
+
+    BoxScorePlayer:
+      type: object
+      properties:
+        playerId: { type: string, nullable: true }
+        name: { type: string, nullable: true, description: May be empty for some opponent players }
+        uni: { type: string, nullable: true, description: Jersey number }
+        pos: { type: string, nullable: true }
+        hitting: { type: object, additionalProperties: { type: string }, description: ab, r, h, rbi, bb, so, etc. }
+        pitching: { type: object, additionalProperties: { type: string }, description: ip, h, r, er, bb, so, pitches, etc. }
+        fielding: { type: object, additionalProperties: { type: string }, description: po, a, e }
