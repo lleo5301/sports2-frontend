@@ -34,6 +34,86 @@ export const EVENT_TYPES = [
 /** Grade: 20-80 numeric or letter (B+, A, etc.) */
 export type GradeValue = number | string
 
+/* ── Tool Grades (JSONB) ── */
+
+export interface PresentFutureGrade {
+  present?: number
+  future?: number
+  description?: string
+}
+
+export interface GradeWithDescription {
+  grade?: number
+  description?: string
+}
+
+export interface FuturePositionEntry {
+  position: string
+  pct?: number
+  grade?: number
+  description?: string
+}
+
+export interface ToolGrades {
+  body?: { grade?: number; projection?: string; description?: string }
+  athleticism?: { grade?: number; description?: string }
+  bat?: {
+    hit?: PresentFutureGrade
+    power?: PresentFutureGrade
+    raw_power?: PresentFutureGrade
+    bat_speed?: PresentFutureGrade
+    contact?: string
+    swing_decisions?: string
+    contact_quality?: string
+  }
+  field?: {
+    arm_strength?: PresentFutureGrade
+    arm_accuracy?: PresentFutureGrade
+    current_position?: string
+    defense_present?: number
+    pop_times?: string
+    fielding_grade?: number
+    fielding_description?: string
+    future_positions?: FuturePositionEntry[]
+  }
+  run?: {
+    speed?: GradeWithDescription
+    times_to_first?: string
+    baserunning?: GradeWithDescription
+    instincts?: GradeWithDescription
+    compete?: GradeWithDescription
+  }
+  pitching?: {
+    fastball?: PresentFutureGrade
+    slider?: PresentFutureGrade
+    curveball?: PresentFutureGrade
+    changeup?: PresentFutureGrade
+    command?: number
+    control?: number
+    delivery?: string
+    description?: string
+  }
+}
+
+export type ReportType = 'hitter' | 'pitcher'
+
+export const REPORT_CONFIDENCE_OPTIONS = ['High', 'Medium', 'Low'] as const
+export const BODY_PROJECTION_OPTIONS = [
+  'Positive Projection',
+  'Neutral Projection',
+  'Negative Projection',
+] as const
+export const QUALITY_SCALE_OPTIONS = [
+  'Well Below Average',
+  'Below Average',
+  'Average',
+  'Above Average',
+  'Well Above Average',
+] as const
+export const GRADE_SCALE = [
+  20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80,
+] as const
+
 export interface ScoutingReport {
   id: number
   prospect_id?: number
@@ -41,6 +121,7 @@ export interface ScoutingReport {
   created_by?: number
   report_date?: string
   event_type?: string
+  // Legacy flat grade columns (backward compat)
   overall_present?: GradeValue
   overall_future?: GradeValue
   hitting_present?: GradeValue
@@ -58,6 +139,24 @@ export interface ScoutingReport {
   sixty_yard_dash?: number
   mlb_comparison?: string
   notes?: string
+  // New expanded fields
+  report_type?: ReportType
+  role?: number
+  round_would_take?: string
+  money_save?: boolean
+  overpay?: boolean
+  dollar_amount?: string
+  report_confidence?: string
+  impact_statement?: string
+  summary?: string
+  look_recommendation?: number
+  look_recommendation_desc?: string
+  player_comparison?: string
+  date_seen_start?: string
+  date_seen_end?: string
+  video_report?: boolean
+  tool_grades?: ToolGrades
+  // Timestamps & relations
   created_at?: string
   updated_at?: string
   User?: { id: number; first_name?: string; last_name?: string }
@@ -80,6 +179,7 @@ export interface ScoutingReportCreateInput {
   player_id?: number
   report_date: string
   event_type: string
+  // Legacy flat grade fields
   overall_present?: GradeValue
   overall_future?: GradeValue
   hitting_present?: GradeValue
@@ -97,6 +197,23 @@ export interface ScoutingReportCreateInput {
   sixty_yard_dash?: number
   mlb_comparison?: string
   notes?: string
+  // New expanded fields
+  report_type?: ReportType
+  role?: number
+  round_would_take?: string
+  money_save?: boolean
+  overpay?: boolean
+  dollar_amount?: string
+  report_confidence?: string
+  impact_statement?: string
+  summary?: string
+  look_recommendation?: number
+  look_recommendation_desc?: string
+  player_comparison?: string
+  date_seen_start?: string
+  date_seen_end?: string
+  video_report?: boolean
+  tool_grades?: ToolGrades
 }
 
 export interface ScoutingReportListParams {

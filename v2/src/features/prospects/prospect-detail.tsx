@@ -11,8 +11,6 @@ import {
   Pencil,
   Plus,
   Trash2,
-  FileText,
-  Calendar,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { prospectsApi } from '@/lib/prospects-api'
@@ -24,7 +22,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card'
 import {
   DropdownMenu,
@@ -34,31 +31,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Main } from '@/components/layout/main'
 import { AddToPreferenceListModal } from '@/features/preference-lists/add-to-preference-list-modal'
+import { ScoutingReportCard } from '@/features/scouting/scouting-report-card'
 import { EditProspectForm } from './edit-prospect-form'
 
 interface ProspectDetailProps {
   id: string
-}
-
-function GradeBadge({ value }: { value?: unknown }) {
-  if (value === undefined || value === null || value === '')
-    return <span className='text-muted-foreground'>—</span>
-  const display = String(value)
-  const numVal = Number(display)
-  let variant: 'default' | 'secondary' | 'outline' = 'secondary'
-  if (!Number.isNaN(numVal)) {
-    if (numVal >= 60) variant = 'default'
-    else if (numVal >= 40) variant = 'secondary'
-    else variant = 'outline'
-  }
-  return (
-    <Badge
-      variant={variant}
-      className='min-w-[2.5rem] justify-center text-sm font-semibold'
-    >
-      {display}
-    </Badge>
-  )
 }
 
 function OFPBadge({ reports }: { reports: ScoutingReport[] }) {
@@ -86,173 +63,6 @@ function OFPBadge({ reports }: { reports: ScoutingReport[] }) {
 
   return (
     <Badge className={`px-3 py-1 text-base ${className}`}>OFP: {display}</Badge>
-  )
-}
-
-function formatDate(dateStr?: string) {
-  if (!dateStr) return '—'
-  try {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  } catch {
-    return dateStr
-  }
-}
-
-function ReportCard({ report }: { report: ScoutingReport }) {
-  const gradeRows = [
-    {
-      label: 'Overall',
-      present: report.overall_present,
-      future: report.overall_future,
-    },
-    {
-      label: 'Hitting',
-      present: report.hitting_present,
-      future: report.hitting_future,
-    },
-    {
-      label: 'Power',
-      present: report.power_present,
-      future: report.power_future,
-    },
-    {
-      label: 'Fielding',
-      present: report.fielding_present,
-      future: report.fielding_future,
-    },
-    { label: 'Arm', present: report.arm_present, future: report.arm_future },
-    {
-      label: 'Speed',
-      present: report.speed_present,
-      future: report.speed_future,
-    },
-    {
-      label: 'Pitching',
-      present: report.pitching_present,
-      future: report.pitching_future,
-    },
-  ].filter(
-    (r) =>
-      (r.present !== undefined && r.present !== null && r.present !== '') ||
-      (r.future !== undefined && r.future !== null && r.future !== '')
-  )
-
-  const scoutName = report.User
-    ? [report.User.first_name, report.User.last_name].filter(Boolean).join(' ')
-    : null
-
-  return (
-    <Card>
-      <CardHeader className='pb-3'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <CardTitle className='flex items-center gap-2 text-base'>
-              <Calendar className='size-4 text-muted-foreground' />
-              {formatDate(report.report_date)}
-              {report.event_type && (
-                <Badge variant='outline' className='capitalize'>
-                  {report.event_type}
-                </Badge>
-              )}
-              {report.overall_future != null && (
-                <Badge className='bg-primary text-primary-foreground'>
-                  OFP: {String(report.overall_future)}
-                </Badge>
-              )}
-            </CardTitle>
-            {scoutName && (
-              <CardDescription className='mt-1'>
-                Scout: {scoutName}
-              </CardDescription>
-            )}
-          </div>
-          <Button variant='outline' size='sm' asChild>
-            <Link to='/scouting/$id' params={{ id: String(report.id) }}>
-              <Pencil className='size-3.5' />
-              Update Report
-            </Link>
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className='space-y-4 pt-0'>
-        {/* Grades Table */}
-        {gradeRows.length > 0 && (
-          <div className='overflow-x-auto'>
-            <table className='w-full text-sm'>
-              <thead>
-                <tr className='border-b'>
-                  <th className='pb-2 text-left font-medium text-muted-foreground'>
-                    Tool
-                  </th>
-                  <th className='pb-2 text-center font-medium text-muted-foreground'>
-                    Present
-                  </th>
-                  <th className='pb-2 text-center font-medium text-muted-foreground'>
-                    Future
-                  </th>
-                </tr>
-              </thead>
-              <tbody className='divide-y'>
-                {gradeRows.map((row) => (
-                  <tr key={row.label}>
-                    <td className='py-2 font-medium'>{row.label}</td>
-                    <td className='py-2 text-center'>
-                      <GradeBadge value={row.present} />
-                    </td>
-                    <td className='py-2 text-center'>
-                      <GradeBadge value={row.future} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Athleticism */}
-        {(report.sixty_yard_dash != null || report.mlb_comparison) && (
-          <div className='grid grid-cols-2 gap-4'>
-            {report.sixty_yard_dash != null && (
-              <div>
-                <p className='text-xs font-medium text-muted-foreground uppercase'>
-                  60-Yard Dash
-                </p>
-                <p className='text-lg font-bold tabular-nums'>
-                  {report.sixty_yard_dash}s
-                </p>
-              </div>
-            )}
-            {report.mlb_comparison && (
-              <div>
-                <p className='text-xs font-medium text-muted-foreground uppercase'>
-                  MLB Comparison
-                </p>
-                <p className='text-lg font-medium'>{report.mlb_comparison}</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Notes */}
-        {report.notes && (
-          <div>
-            <div className='mb-1 flex items-center gap-1.5'>
-              <FileText className='size-3.5 text-muted-foreground' />
-              <p className='text-xs font-medium text-muted-foreground uppercase'>
-                Scouting Notes
-              </p>
-            </div>
-            <p className='text-sm leading-relaxed whitespace-pre-wrap'>
-              {report.notes}
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
   )
 }
 
@@ -474,8 +284,12 @@ export function ProspectDetail({ id }: ProspectDetailProps) {
             </Card>
           ) : (
             <div className='space-y-3'>
-              {reports.map((report) => (
-                <ReportCard key={report.id} report={report} />
+              {reports.map((report, i) => (
+                <ScoutingReportCard
+                  key={report.id}
+                  report={report}
+                  defaultExpanded={i === 0}
+                />
               ))}
             </div>
           )}
