@@ -2,8 +2,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import { Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { playersApi, type Player } from '@/lib/players-api'
 import { Button } from '@/components/ui/button'
@@ -60,12 +59,14 @@ interface EditPlayerFormProps {
   player: Player
   onSuccess: () => void
   onCancel: () => void
+  embedded?: boolean
 }
 
 export function EditPlayerForm({
   player,
   onSuccess,
   onCancel,
+  embedded,
 }: EditPlayerFormProps) {
   const queryClient = useQueryClient()
 
@@ -110,8 +111,20 @@ export function EditPlayerForm({
     },
   })
 
+  const Wrapper = embedded
+    ? ({ children }: { children: React.ReactNode }) => (
+        <div className='space-y-4 p-6'>{children}</div>
+      )
+    : Main
+
   return (
-    <Main>
+    <Wrapper>
+      {embedded && (
+        <Button variant='ghost' size='sm' onClick={onCancel} className='mb-2'>
+          <ArrowLeft className='size-4' />
+          Back to player
+        </Button>
+      )}
       <Card className='max-w-2xl'>
         <CardHeader>
           <CardTitle>Edit Player</CardTitle>
@@ -282,14 +295,6 @@ export function EditPlayerForm({
               <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
                 <Button
                   type='button'
-                  variant='ghost'
-                  asChild
-                  className='w-full sm:w-auto'
-                >
-                  <Link to='/players'>Back to roster</Link>
-                </Button>
-                <Button
-                  type='button'
                   variant='outline'
                   onClick={onCancel}
                   className='w-full sm:w-auto'
@@ -311,6 +316,6 @@ export function EditPlayerForm({
           </Form>
         </CardContent>
       </Card>
-    </Main>
+    </Wrapper>
   )
 }

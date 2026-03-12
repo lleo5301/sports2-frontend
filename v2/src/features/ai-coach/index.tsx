@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { AlertTriangle, Bot, Menu } from 'lucide-react'
 import { useAiStore } from '@/stores/ai-store'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -14,6 +15,7 @@ import { useConversations } from './hooks/use-conversations'
 export function AiCoach() {
   const conversations = useConversations()
   const chat = useChat()
+  const isMobile = useIsMobile()
   const { sidebarOpen, setSidebarOpen } = useAiStore()
 
   // When active conversation changes, load its messages
@@ -38,7 +40,7 @@ export function AiCoach() {
     <Main fixed fluid className='p-0'>
       {/* Mobile conversation list toggle */}
       <div className='flex items-center gap-2 border-b px-4 py-2 md:hidden'>
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <Sheet open={isMobile && sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger asChild>
             <Button variant='ghost' size='icon'>
               <Menu className='size-4' />

@@ -2,11 +2,16 @@
  * Depth Charts API.
  * Backend may return { data } with or without success flag.
  */
-
 import api from './api'
 
-function getData<T>(res: { success?: boolean; data?: T; [k: string]: unknown }): T | undefined {
-  return res?.success !== false && res?.data !== undefined ? (res.data as T) : undefined
+function getData<T>(res: {
+  success?: boolean
+  data?: T
+  [k: string]: unknown
+}): T | undefined {
+  return res?.success !== false && res?.data !== undefined
+    ? (res.data as T)
+    : undefined
 }
 
 export interface DepthChartPosition {
@@ -46,6 +51,7 @@ export interface DepthChartPlayerAssignment {
     has_medical_issues?: boolean
     has_comparison?: boolean
     status?: string
+    photo_url?: string | null
   }
 }
 
@@ -76,7 +82,9 @@ export const depthChartsApi = {
     const r = await api.get<{ success?: boolean; data?: DepthChart[] }>(
       '/depth-charts'
     )
-    const data = getData<DepthChart[]>(r.data as { success?: boolean; data?: DepthChart[] })
+    const data = getData<DepthChart[]>(
+      r.data as { success?: boolean; data?: DepthChart[] }
+    )
     return Array.isArray(data) ? data : []
   },
 
@@ -84,7 +92,9 @@ export const depthChartsApi = {
     const r = await api.get<{ success?: boolean; data?: DepthChart }>(
       `/depth-charts/byId/${id}`
     )
-    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(
+      r.data as { success?: boolean; data?: DepthChart }
+    )
   },
 
   create: async (name: string) => {
@@ -92,7 +102,9 @@ export const depthChartsApi = {
       '/depth-charts',
       { name }
     )
-    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(
+      r.data as { success?: boolean; data?: DepthChart }
+    )
   },
 
   update: async (id: number, data: { name?: string; description?: string }) => {
@@ -100,7 +112,9 @@ export const depthChartsApi = {
       `/depth-charts/byId/${id}`,
       data
     )
-    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(
+      r.data as { success?: boolean; data?: DepthChart }
+    )
   },
 
   delete: async (id: number) => {
@@ -111,7 +125,9 @@ export const depthChartsApi = {
     const r = await api.post<{ success?: boolean; data?: DepthChart }>(
       `/depth-charts/byId/${id}/duplicate`
     )
-    return getData<DepthChart>(r.data as { success?: boolean; data?: DepthChart })
+    return getData<DepthChart>(
+      r.data as { success?: boolean; data?: DepthChart }
+    )
   },
 
   getAvailablePlayers: async (chartId: number) => {
@@ -131,9 +147,10 @@ export const depthChartsApi = {
   },
 
   getHistory: async (chartId: number) => {
-    const r = await api.get<{ success?: boolean; data?: DepthChartHistoryEntry[] }>(
-      `/depth-charts/${chartId}/history`
-    )
+    const r = await api.get<{
+      success?: boolean
+      data?: DepthChartHistoryEntry[]
+    }>(`/depth-charts/${chartId}/history`)
     const data = getData(r.data as { success?: boolean; data?: unknown })
     return Array.isArray(data) ? data : []
   },
@@ -180,9 +197,17 @@ export const depthChartsApi = {
 
   assignPlayer: async (
     positionId: number,
-    data: { player_id: number; rank?: number; depth_order?: number; notes?: string }
+    data: {
+      player_id: number
+      rank?: number
+      depth_order?: number
+      notes?: string
+    }
   ) => {
-    const depth_order = Math.max(1, Math.floor(Number(data.depth_order ?? data.rank ?? 1)))
+    const depth_order = Math.max(
+      1,
+      Math.floor(Number(data.depth_order ?? data.rank ?? 1))
+    )
     const r = await api.post<{ success?: boolean; data?: unknown }>(
       `/depth-charts/positions/${positionId}/players`,
       { player_id: Number(data.player_id), depth_order }

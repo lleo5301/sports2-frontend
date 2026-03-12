@@ -22,7 +22,7 @@ export const useAiStore = create<AiState>()((set) => ({
   conversations: [],
   activeConversationId: null,
   prompts: null,
-  sidebarOpen: true,
+  sidebarOpen: false,
 
   setConversations: (conversations) => set({ conversations }),
 
