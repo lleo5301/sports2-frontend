@@ -274,6 +274,7 @@ export const scoutingApi = {
     } else if (data.player_id != null) {
       payload.player_id = data.player_id
     }
+    // Legacy flat grade fields
     const gradeFields = [
       'overall_present',
       'overall_future',
@@ -299,6 +300,31 @@ export const scoutingApi = {
     if (data.mlb_comparison?.trim())
       payload.mlb_comparison = data.mlb_comparison.trim()
     if (data.notes?.trim()) payload.notes = data.notes.trim()
+    // New expanded fields
+    const expandedStringFields = [
+      'report_type',
+      'round_would_take',
+      'dollar_amount',
+      'report_confidence',
+      'impact_statement',
+      'summary',
+      'look_recommendation_desc',
+      'player_comparison',
+      'date_seen_start',
+      'date_seen_end',
+    ] as const
+    for (const k of expandedStringFields) {
+      const v = data[k]
+      if (v !== undefined && v !== null && v !== '') payload[k] = v
+    }
+    if (data.role != null) payload.role = data.role
+    if (data.look_recommendation != null)
+      payload.look_recommendation = data.look_recommendation
+    if (data.money_save != null) payload.money_save = data.money_save
+    if (data.overpay != null) payload.overpay = data.overpay
+    if (data.video_report != null) payload.video_report = data.video_report
+    if (data.tool_grades != null && Object.keys(data.tool_grades).length > 0)
+      payload.tool_grades = data.tool_grades
 
     const r = await api.post<{ success?: boolean; data?: ScoutingReport }>(
       '/reports/scouting',
