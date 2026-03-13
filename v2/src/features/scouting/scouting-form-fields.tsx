@@ -568,7 +568,7 @@ export function ScoutingFormFields({
       </Section>
 
       {/* ── Section 3: Body & Athleticism ── */}
-      <Section title='Body & Athleticism'>
+      <Section title='Body & Athleticism' defaultOpen>
         <div className='grid grid-cols-[1fr_auto] items-end gap-2'>
           <div className='grid gap-4 sm:grid-cols-2'>
             <FormField
@@ -643,7 +643,7 @@ export function ScoutingFormFields({
       </Section>
 
       {/* ── Section 4: Bat (hitter tools) ── */}
-      <Section title='Bat'>
+      <Section title='Bat' defaultOpen>
         <PresentFutureRow
           form={form}
           basePath='tool_grades.bat.hit'
@@ -685,7 +685,7 @@ export function ScoutingFormFields({
       </Section>
 
       {/* ── Section 5: Field ── */}
-      <Section title='Field'>
+      <Section title='Field' defaultOpen>
         <PresentFutureRow
           form={form}
           basePath='tool_grades.field.arm_strength'
@@ -791,7 +791,7 @@ export function ScoutingFormFields({
       </Section>
 
       {/* ── Section 6: Run ── */}
-      <Section title='Run'>
+      <Section title='Run' defaultOpen>
         <GradeWithDescRow
           form={form}
           basePath='tool_grades.run.speed'
@@ -831,7 +831,7 @@ export function ScoutingFormFields({
       </Section>
 
       {/* ── Section 7: Pitching ── */}
-      <Section title='Pitching'>
+      <Section title='Pitching' defaultOpen>
         <PresentFutureRow
           form={form}
           basePath='tool_grades.pitching.fastball'
