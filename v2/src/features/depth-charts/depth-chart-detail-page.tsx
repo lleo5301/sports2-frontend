@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import {
@@ -15,7 +15,7 @@ import {
   Download,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { getPlayerStats, getPlayerStatus } from '@/lib/depth-chart-utils'
+import { getPlayerStats } from '@/lib/depth-chart-utils'
 import {
   depthChartsApi,
   type DepthChart,
@@ -23,8 +23,10 @@ import {
   type DepthChartPlayerAssignment,
 } from '@/lib/depth-charts-api'
 import { formatDateTime } from '@/lib/format-date'
+import { playersApi } from '@/lib/players-api'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { usePermissions } from '@/hooks/use-permissions'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -51,6 +53,7 @@ function PositionCard({
   onAssign,
   onUnassign,
   isUnassigning,
+  photoMap,
 }: {
   position: DepthChartPosition
   canAssign: boolean
@@ -58,6 +61,7 @@ function PositionCard({
   onAssign: () => void
   onUnassign: (id: number) => void
   isUnassigning: boolean
+  photoMap: Map<number, string>
 }) {
   const players = (position.DepthChartPlayers ?? []).filter(
     (a) => a.Player
@@ -103,15 +107,27 @@ function PositionCard({
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           {players.map((assignment) => {
             const player = assignment.Player
-            const status = getPlayerStatus(player)
             const stats = getPlayerStats(player)
+            const photoUrl = photoMap.get(player.id)
+            const initials = `${(player.first_name ?? '')[0] ?? ''}${(player.last_name ?? '')[0] ?? ''}`
             return (
               <div
                 key={assignment.id}
                 className='rounded-lg border p-4 transition-shadow hover:shadow-md active:shadow-md'
               >
-                <div className='mb-3 flex items-start justify-between'>
-                  <div>
+                <div className='mb-3 flex items-start gap-3'>
+                  <Avatar className='size-10'>
+                    {photoUrl && (
+                      <AvatarImage
+                        src={photoUrl}
+                        alt={`${player.first_name} ${player.last_name}`}
+                      />
+                    )}
+                    <AvatarFallback className='text-xs'>
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className='min-w-0 flex-1'>
                     <div className='flex items-center justify-between'>
                       <h4 className='font-semibold'>
                         {player.first_name} {player.last_name}
@@ -151,13 +167,8 @@ function PositionCard({
                     )}
                   </div>
                 </div>
-                {player.graduation_year && (
-                  <p className='mb-2 text-sm text-muted-foreground'>
-                    Grad: {player.graduation_year}
-                  </p>
-                )}
                 {stats.length > 0 && (
-                  <div className='mb-3 flex flex-wrap gap-1'>
+                  <div className='flex flex-wrap gap-1'>
                     {stats.map((stat, i) => (
                       <Badge key={i} variant='secondary' className='text-xs'>
                         {stat}
@@ -165,9 +176,6 @@ function PositionCard({
                     ))}
                   </div>
                 )}
-                <Badge variant='outline' className={status.color}>
-                  {status.label}
-                </Badge>
                 {assignment.notes && (
                   <p className='mt-2 text-xs text-muted-foreground'>
                     {assignment.notes}
@@ -236,6 +244,23 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
     queryFn: () => depthChartsApi.getHistory(chartId),
     enabled: activeTab === 'history',
   })
+
+  // Fetch all players once to get photo_url (not included in depth chart API)
+  const { data: playersData } = useQuery({
+    queryKey: ['players-photos'],
+    queryFn: () => playersApi.list({ limit: 500 }),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const photoMap = useMemo(() => {
+    const map = new Map<number, string>()
+    if (playersData?.data) {
+      for (const p of playersData.data) {
+        if (p.photo_url) map.set(p.id, p.photo_url)
+      }
+    }
+    return map
+  }, [playersData])
 
   const duplicateMutation = useMutation({
     mutationFn: () => depthChartsApi.duplicate(chartId),
@@ -497,6 +522,7 @@ export function DepthChartDetailPage({ chartId }: { chartId: number }) {
                           onAssign={() => openAssignModal(position)}
                           onUnassign={unassignMutation.mutate}
                           isUnassigning={unassignMutation.isPending}
+                          photoMap={photoMap}
                         />
                       ))}
                     </div>

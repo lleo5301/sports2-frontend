@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
+  type SortingState,
 } from '@tanstack/react-table'
-import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { ArrowDown, ArrowUp, ArrowUpDown, Plus } from 'lucide-react'
 import { playersApi, type Player } from '@/lib/players-api'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -19,12 +20,6 @@ import {
   CardDescription,
   CardHeader,
 } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { PositionBadge } from '@/components/ui/position-badge'
 import {
@@ -35,6 +30,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet'
+import {
   Table,
   TableBody,
   TableCell,
@@ -44,6 +46,7 @@ import {
 } from '@/components/ui/table'
 import { DataTableCardView } from '@/components/data-table/card-view'
 import { Main } from '@/components/layout/main'
+import { PlayerDetail } from './player-detail'
 
 const POSITIONS = [
   'P',
@@ -61,14 +64,41 @@ const POSITIONS = [
 const SCHOOL_TYPES = ['HS', 'COLL'] as const
 const STATUSES = ['active', 'inactive', 'graduated', 'transferred'] as const
 
+function SortableHeader<T>({
+  column,
+  label,
+}: {
+  column: import('@tanstack/react-table').Column<T>
+  label: string
+}) {
+  const sorted = column.getIsSorted()
+  return (
+    <button
+      type='button'
+      className='flex items-center gap-1 hover:text-foreground'
+      onClick={() => column.toggleSorting()}
+    >
+      {label}
+      {sorted === 'asc' ? (
+        <ArrowUp className='size-3.5' />
+      ) : sorted === 'desc' ? (
+        <ArrowDown className='size-3.5' />
+      ) : (
+        <ArrowUpDown className='size-3.5 text-muted-foreground/50' />
+      )}
+    </button>
+  )
+}
+
 export function PlayersList() {
   const isMobile = useIsMobile()
-  const queryClient = useQueryClient()
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [position, setPosition] = useState<string>('')
   const [status, setStatus] = useState<string>('')
   const [schoolType, setSchoolType] = useState<string>('')
+  const [sorting, setSorting] = useState<SortingState>([])
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['players', page, search, position, status, schoolType],
@@ -83,108 +113,87 @@ export function PlayersList() {
       }),
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => playersApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['players'] })
-      toast.success('Player deleted')
-    },
-    onError: (err) => {
-      toast.error((err as Error).message || 'Failed to delete')
-    },
-  })
-
   const columns: ColumnDef<Player>[] = [
     {
-      accessorKey: 'id',
-      header: 'ID',
-      cell: ({ row }) => (
-        <Link
-          to='/players/$id'
-          params={{ id: String(row.original.id) }}
-          className='font-medium text-primary hover:underline'
-        >
-          {row.original.id}
-        </Link>
-      ),
-    },
-    {
       id: 'name',
-      header: 'Name',
-      cell: ({ row }) =>
-        [row.original.first_name, row.original.last_name]
-          .filter(Boolean)
-          .join(' ') || '—',
+      accessorFn: (row) =>
+        [row.last_name, row.first_name].filter(Boolean).join(', '),
+      header: ({ column }) => <SortableHeader column={column} label='Name' />,
+      cell: ({ row }) => {
+        const p = row.original
+        const name =
+          [p.first_name, p.last_name].filter(Boolean).join(' ') || '—'
+        const initials = `${(p.first_name ?? '')[0] ?? ''}${(p.last_name ?? '')[0] ?? ''}`
+        return (
+          <div className='flex items-center gap-3'>
+            <Avatar className='size-10'>
+              {p.photo_url && <AvatarImage src={p.photo_url} alt={name} />}
+              <AvatarFallback className='text-xs'>{initials}</AvatarFallback>
+            </Avatar>
+            <div>
+              <span className='font-medium'>{name}</span>
+              {p.jersey_number != null && (
+                <span className='ml-1.5 text-xs text-muted-foreground'>
+                  #{p.jersey_number}
+                </span>
+              )}
+            </div>
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'position',
-      header: 'Pos',
+      header: ({ column }) => <SortableHeader column={column} label='Pos' />,
       cell: ({ row }) => {
         const pos = row.original.position
         return pos ? <PositionBadge position={pos} /> : '—'
       },
     },
-    { accessorKey: 'school_type', header: 'Type' },
-    { accessorKey: 'school', header: 'School' },
     {
-      accessorKey: 'status',
-      header: 'Status',
+      id: 'bt',
+      accessorFn: (row) => [row.bats, row.throws].filter(Boolean).join('/'),
+      header: ({ column }) => <SortableHeader column={column} label='B/T' />,
       cell: ({ row }) => {
-        const s = row.original.status
-        if (!s) return '—'
+        const { bats, throws: t } = row.original
+        if (!bats && !t) return '—'
         return (
-          <Badge
-            variant={
-              s === 'active'
-                ? 'success'
-                : s === 'inactive'
-                  ? 'destructive'
-                  : 'secondary'
-            }
-          >
-            {s}
-          </Badge>
+          <span className='text-sm text-muted-foreground'>
+            {(bats ?? '—').charAt(0).toUpperCase()}/
+            {(t ?? '—').charAt(0).toUpperCase()}
+          </span>
         )
       },
     },
     {
-      id: 'actions',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' size='icon'>
-              <MoreHorizontal className='size-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem asChild>
-              <Link to='/players/$id' params={{ id: String(row.original.id) }}>
-                View
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className='text-destructive'
-              onClick={() => deleteMutation.mutate(row.original.id)}
-            >
-              <Trash2 className='size-4' />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      id: 'size',
+      accessorFn: (row) => row.weight ?? 0,
+      header: ({ column }) => <SortableHeader column={column} label='Ht/Wt' />,
+      cell: ({ row }) => {
+        const { height, weight } = row.original
+        if (!height && !weight) return '—'
+        return (
+          <span className='text-sm whitespace-nowrap text-muted-foreground'>
+            {[height, weight ? `${weight}` : null].filter(Boolean).join(' / ')}
+          </span>
+        )
+      },
     },
   ]
 
   const table = useReactTable({
     data: data?.data ?? [],
     columns,
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   })
 
   const pagination = data?.pagination
 
   return (
-    <Main>
+    <Main fluid>
       <div className='space-y-6'>
         <div className='flex flex-wrap items-end justify-between gap-4'>
           <div>
@@ -278,7 +287,11 @@ export function PlayersList() {
                     <TableBody>
                       {table.getRowModel().rows.length ? (
                         table.getRowModel().rows.map((row) => (
-                          <TableRow key={row.id}>
+                          <TableRow
+                            key={row.id}
+                            className='cursor-pointer'
+                            onClick={() => setSelectedPlayerId(row.original.id)}
+                          >
                             {row.getVisibleCells().map((cell) => (
                               <TableCell key={cell.id}>
                                 {flexRender(
@@ -333,6 +346,28 @@ export function PlayersList() {
           </CardContent>
         </Card>
       </div>
+
+      <Sheet
+        open={selectedPlayerId != null}
+        onOpenChange={(open) => !open && setSelectedPlayerId(null)}
+      >
+        <SheetContent
+          side='right'
+          className='w-full overflow-y-auto p-0 sm:max-w-4xl'
+        >
+          <SheetHeader className='sr-only'>
+            <SheetTitle>Player Details</SheetTitle>
+            <SheetDescription>View player profile and stats</SheetDescription>
+          </SheetHeader>
+          {selectedPlayerId != null && (
+            <PlayerDetail
+              id={String(selectedPlayerId)}
+              embedded
+              onClose={() => setSelectedPlayerId(null)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </Main>
   )
 }

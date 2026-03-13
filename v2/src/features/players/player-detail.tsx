@@ -47,9 +47,12 @@ import { PlayerSplitsTab } from './player-splits-tab'
 
 interface PlayerDetailProps {
   id: string
+  /** When true, renders without Main wrapper and back button (for use inside sheets/modals) */
+  embedded?: boolean
+  onClose?: () => void
 }
 
-export function PlayerDetail({ id }: PlayerDetailProps) {
+export function PlayerDetail({ id, embedded, onClose }: PlayerDetailProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState(false)
@@ -95,38 +98,46 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
     },
   })
 
+  const Wrapper = embedded
+    ? ({ children }: { children: React.ReactNode }) => (
+        <div className='space-y-6 overflow-y-auto p-6'>{children}</div>
+      )
+    : Main
+
   if (Number.isNaN(playerId)) {
     return (
-      <Main>
+      <Wrapper>
         <div className='py-8 text-center text-destructive'>
           Invalid player ID
         </div>
-      </Main>
+      </Wrapper>
     )
   }
 
   if (isLoading) {
     return (
-      <Main>
+      <Wrapper>
         <div className='flex items-center justify-center py-16'>
           <Loader2 className='size-8 animate-spin text-muted-foreground' />
         </div>
-      </Main>
+      </Wrapper>
     )
   }
 
   if (error || !player) {
     return (
-      <Main>
+      <Wrapper>
         <div className='py-8 text-center'>
           <p className='text-destructive'>
             {(error as Error)?.message ?? 'Player not found'}
           </p>
-          <Button asChild className='mt-4' variant='outline'>
-            <Link to='/players'>Back to roster</Link>
-          </Button>
+          {!embedded && (
+            <Button asChild className='mt-4' variant='outline'>
+              <Link to='/players'>Back to roster</Link>
+            </Button>
+          )}
         </div>
-      </Main>
+      </Wrapper>
     )
   }
 
@@ -139,20 +150,23 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
           queryClient.invalidateQueries({ queryKey: ['player', playerId] })
         }}
         onCancel={() => setEditing(false)}
+        embedded={embedded}
       />
     )
   }
 
   return (
-    <Main>
+    <Wrapper>
       <div className='space-y-6'>
         <div className='flex flex-wrap items-center justify-between gap-4'>
           <div className='flex items-center gap-4'>
-            <Button variant='ghost' size='icon' asChild>
-              <Link to='/players'>
-                <ArrowLeft className='size-4' />
-              </Link>
-            </Button>
+            {!embedded && (
+              <Button variant='ghost' size='icon' asChild>
+                <Link to='/players'>
+                  <ArrowLeft className='size-4' />
+                </Link>
+              </Button>
+            )}
             <div>
               <h2 className='text-2xl font-extrabold tracking-tight sm:text-3xl'>
                 {[player.first_name, player.last_name]
@@ -571,7 +585,7 @@ export function PlayerDetail({ id }: PlayerDetailProps) {
           </TabsContent>
         </Tabs>
       </div>
-    </Main>
+    </Wrapper>
   )
 }
 

@@ -52,13 +52,7 @@ export const sidebarData: SidebarData = {
           icon: Users,
           items: [
             { title: 'Players', url: '/players', icon: Users },
-            { title: 'Create Player', url: '/players/create', icon: UserPlus },
             { title: 'Rosters', url: '/rosters', icon: ClipboardList },
-            {
-              title: 'Create Roster',
-              url: '/rosters/create',
-              icon: ClipboardList,
-            },
           ],
         },
         {
@@ -67,9 +61,10 @@ export const sidebarData: SidebarData = {
           items: [
             { title: 'Prospects', url: '/prospects', icon: Users },
             {
-              title: 'Create Prospect',
-              url: '/prospects/create',
-              icon: UserPlus,
+              title: 'Scouting Reports',
+              url: '/scouting',
+              icon: FileSearch,
+              permission: 'reports_view',
             },
             {
               title: 'Recruiting Board',
@@ -80,24 +75,6 @@ export const sidebarData: SidebarData = {
               title: 'Preference Lists',
               url: '/preference-lists',
               icon: ClipboardList,
-            },
-          ],
-        },
-        {
-          title: 'Scouting',
-          icon: FileSearch,
-          items: [
-            {
-              title: 'Reports',
-              url: '/scouting',
-              icon: FileSearch,
-              permission: 'reports_view',
-            },
-            {
-              title: 'Create Report',
-              url: '/scouting/create',
-              icon: FileSearch,
-              permission: 'reports_create',
             },
           ],
         },
@@ -117,12 +94,6 @@ export const sidebarData: SidebarData = {
               icon: Calendar,
               permission: 'schedule_view',
             },
-            {
-              title: 'Create Schedule',
-              url: '/schedules/create',
-              icon: Calendar,
-              permission: 'schedule_create',
-            },
             { title: 'Games', url: '/games', icon: Trophy },
             { title: 'Tournaments', url: '/tournaments', icon: Award },
             {
@@ -139,18 +110,6 @@ export const sidebarData: SidebarData = {
               permission: 'depth_chart_view',
             },
             { title: 'News', url: '/news', icon: Newspaper },
-          ],
-        },
-        {
-          title: 'Reports',
-          icon: BarChart3,
-          items: [
-            {
-              title: 'Reports',
-              url: '/reports',
-              icon: BarChart3,
-              permission: 'reports_view',
-            },
             {
               title: 'Analytics',
               url: '/reports/analytics',
@@ -160,23 +119,21 @@ export const sidebarData: SidebarData = {
           ],
         },
         {
+          title: 'Reports',
+          url: '/reports',
+          icon: BarChart3,
+          permission: 'reports_view',
+        },
+        {
           title: 'Contacts',
           icon: Contact,
           items: [
             { title: 'Coaches', url: '/coaches', icon: Contact },
-            { title: 'Add Coach', url: '/coaches/create', icon: Contact },
             { title: 'Scouts', url: '/scouts', icon: Contact },
-            { title: 'Add Scout', url: '/scouts/create', icon: Contact },
             { title: 'Vendors', url: '/vendors', icon: Contact },
-            { title: 'Add Vendor', url: '/vendors/create', icon: Contact },
             {
               title: 'High School Coaches',
               url: '/high-school-coaches',
-              icon: Contact,
-            },
-            {
-              title: 'Add HS Coach',
-              url: '/high-school-coaches/create',
               icon: Contact,
             },
           ],

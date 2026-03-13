@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { CheckCircle, Star, UserPlus, Users } from 'lucide-react'
+import { Star, UserPlus, Users } from 'lucide-react'
+import { toast } from 'sonner'
 import { depthChartsApi } from '@/lib/depth-charts-api'
 import type { DepthChartPosition } from '@/lib/depth-charts-api'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -20,8 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 type ViewMode = 'recommended' | 'all'
 
@@ -42,8 +50,8 @@ export function AssignPlayerModal({
 }: AssignPlayerModalProps) {
   const queryClient = useQueryClient()
   const [playerSearch, setPlayerSearch] = useState('')
-  const [positionFilter, setPositionFilter] = useState('')
-  const [viewMode, setViewMode] = useState<ViewMode>('recommended')
+  const [positionFilter, setPositionFilter] = useState('all')
+  const [viewMode, setViewMode] = useState<ViewMode>('all')
 
   const { data: recommendedPlayers = [] } = useQuery({
     queryKey: ['recommended-players', chartId, position?.id],
@@ -106,13 +114,19 @@ export function AssignPlayerModal({
         }>)
 
   const filteredPlayers = players.filter((p) => {
-    const name = `${p.first_name ?? ''} ${p.last_name ?? ''}`.trim().toLowerCase()
+    const name = `${p.first_name ?? ''} ${p.last_name ?? ''}`
+      .trim()
+      .toLowerCase()
     const search = playerSearch.toLowerCase()
-    if (search && !name.includes(search) && !(p.position ?? '').toLowerCase().includes(search))
+    if (
+      search &&
+      !name.includes(search) &&
+      !(p.position ?? '').toLowerCase().includes(search)
+    )
       return false
     if (
       viewMode === 'all' &&
-      positionFilter &&
+      positionFilter !== 'all' &&
       p.position !== positionFilter
     )
       return false
@@ -126,24 +140,35 @@ export function AssignPlayerModal({
 
   if (!position) return null
 
+  const currentPlayers = (position.DepthChartPlayers ?? []).sort(
+    (a, b) => a.depth_order - b.depth_order
+  )
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[90vh] overflow-hidden flex flex-col max-w-2xl'>
+      <DialogContent className='flex max-h-[90vh] w-[90vw] max-w-5xl flex-col overflow-hidden'>
         <DialogHeader>
-          <DialogTitle>
-            Assign Player to {position.position_name}
-          </DialogTitle>
+          <DialogTitle>Assign Player to {position.position_name}</DialogTitle>
           <DialogDescription>
-            Select a player to add to this position
+            {currentPlayers.length > 0
+              ? `${currentPlayers.length} player${currentPlayers.length > 1 ? 's' : ''} currently assigned`
+              : 'No players currently assigned'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-4 overflow-y-auto'>
+        {currentPlayers.length > 0 && (
+          <div className='flex flex-wrap gap-2'>
+            {currentPlayers.map((cp) => (
+              <Badge key={cp.id} variant='secondary' className='text-xs'>
+                #{cp.depth_order} {cp.Player?.first_name} {cp.Player?.last_name}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <div className='flex flex-col space-y-3 overflow-hidden'>
           <div className='flex gap-4'>
             <div className='flex-1'>
-              <label className='mb-1 block text-sm font-medium'>
-                Search Players
-              </label>
               <Input
                 placeholder='Search by name or position...'
                 value={playerSearch}
@@ -151,10 +176,7 @@ export function AssignPlayerModal({
               />
             </div>
             {viewMode === 'all' && (
-              <div className='w-40'>
-                <label className='mb-1 block text-sm font-medium'>
-                  Position
-                </label>
+              <div className='w-32'>
                 <Select
                   value={positionFilter}
                   onValueChange={setPositionFilter}
@@ -163,14 +185,23 @@ export function AssignPlayerModal({
                     <SelectValue placeholder='All' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=''>All</SelectItem>
-                    {['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'].map(
-                      (pos) => (
-                        <SelectItem key={pos} value={pos}>
-                          {pos}
-                        </SelectItem>
-                      )
-                    )}
+                    <SelectItem value='all'>All</SelectItem>
+                    {[
+                      'P',
+                      'C',
+                      '1B',
+                      '2B',
+                      '3B',
+                      'SS',
+                      'LF',
+                      'CF',
+                      'RF',
+                      'DH',
+                    ].map((pos) => (
+                      <SelectItem key={pos} value={pos}>
+                        {pos}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -196,122 +227,80 @@ export function AssignPlayerModal({
             </Button>
           </div>
 
-          <div className='max-h-96 space-y-4 overflow-y-auto'>
-            {viewMode === 'recommended' && (
-              <div>
-                <h4 className='mb-3 flex items-center gap-2 font-semibold'>
-                  <Star className='size-5 text-yellow-500' />
-                  Top recommendations for {position.position_name}
-                </h4>
-                <div className='grid gap-4 sm:grid-cols-2'>
-                  {filteredPlayers.map((player) => (
-                    <button
-                      key={player.id}
-                      type='button'
-                      onClick={() => handleAssign(player.id)}
-                      disabled={assignMutation.isPending}
-                      className='rounded-lg border-2 border-primary/20 bg-primary/5 p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/10'
-                    >
-                      <div className='mb-2 flex items-center justify-between'>
-                        <span className='font-bold'>
-                          {player.first_name} {player.last_name}
-                        </span>
-                        <div className='flex items-center gap-2'>
-                          <Badge variant='secondary'>
-                            {player.position ?? '—'}
-                          </Badge>
-                          {'score' in player && player.score != null && (
-                            <span className='text-sm font-bold text-primary'>
-                              Score: {String(player.score)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className='mb-2 text-sm text-muted-foreground'>
-                        {player.school_type}
-                        {player.graduation_year && ` • Grad: ${player.graduation_year}`}
-                        {player.height && player.weight &&
-                          ` • ${player.height} • ${player.weight} lbs`}
-                      </div>
-                          {'reasons' in player &&
+          <div className='min-h-0 flex-1 overflow-y-auto'>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-20' />
+                  <TableHead>Name</TableHead>
+                  <TableHead className='w-16'>Pos</TableHead>
+                  {viewMode === 'recommended' && (
+                    <TableHead className='w-16'>Score</TableHead>
+                  )}
+                  <TableHead className='w-24'>Ht / Wt</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredPlayers.map((player) => (
+                  <TableRow key={player.id} className='hover:bg-muted/50'>
+                    <TableCell>
+                      <Button
+                        size='sm'
+                        variant={
+                          viewMode === 'recommended' ? 'default' : 'outline'
+                        }
+                        onClick={() => handleAssign(player.id)}
+                        disabled={assignMutation.isPending}
+                      >
+                        <UserPlus className='size-3' />
+                        Assign
+                      </Button>
+                    </TableCell>
+                    <TableCell className='font-medium'>
+                      {player.first_name} {player.last_name}
+                      {viewMode === 'recommended' &&
+                        'reasons' in player &&
                         Array.isArray(player.reasons) &&
                         player.reasons.length > 0 && (
-                          <div className='space-y-1 text-xs text-primary'>
-                            {player.reasons.slice(0, 3).map((r, i) => (
-                              <div key={i} className='flex items-center gap-1'>
-                                <CheckCircle className='size-3' />
-                                {typeof r === 'string' ? r : String(r)}
-                              </div>
-                            ))}
-                          </div>
+                          <p className='max-w-56 truncate text-xs text-muted-foreground'>
+                            {player.reasons[0]}
+                          </p>
                         )}
-                      <Button
-                        size='sm'
-                        className='mt-2'
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleAssign(player.id)
-                        }}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          viewMode === 'recommended' ? 'secondary' : 'outline'
+                        }
+                        className='text-xs'
                       >
-                        <UserPlus className='size-3' />
-                        Assign
-                      </Button>
-                    </button>
-                  ))}
-                </div>
-                {filteredPlayers.length === 0 && (
-                  <div className='py-8 text-center text-muted-foreground'>
-                    No recommendations. Try &quot;All Players&quot; view.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {viewMode === 'all' && (
-              <div>
-                <h4 className='mb-3 flex items-center gap-2 font-semibold'>
-                  <Users className='size-5' />
-                  All available players
-                </h4>
-                <div className='grid gap-4 sm:grid-cols-2'>
-                  {filteredPlayers.map((player) => (
-                    <button
-                      key={player.id}
-                      type='button'
-                      onClick={() => handleAssign(player.id)}
-                      disabled={assignMutation.isPending}
-                      className='rounded-lg border p-4 text-left transition-all hover:border-primary/50 hover:bg-muted/50'
-                    >
-                      <div className='mb-2 flex items-center justify-between'>
-                        <span className='font-bold'>
-                          {player.first_name} {player.last_name}
-                        </span>
-                        <Badge variant='outline'>{player.position}</Badge>
-                      </div>
-                      <div className='text-sm text-muted-foreground'>
-                        {player.school_type}
-                        {player.graduation_year && ` • Grad: ${player.graduation_year}`}
-                      </div>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        className='mt-2'
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleAssign(player.id)
-                        }}
-                      >
-                        <UserPlus className='size-3' />
-                        Assign
-                      </Button>
-                    </button>
-                  ))}
-                </div>
-                {filteredPlayers.length === 0 && (
-                  <div className='py-8 text-center text-muted-foreground'>
-                    No players match your filters
-                  </div>
-                )}
+                        {player.position ?? '—'}
+                      </Badge>
+                    </TableCell>
+                    {viewMode === 'recommended' && (
+                      <TableCell className='font-semibold text-primary'>
+                        {'score' in player && player.score != null
+                          ? String(player.score)
+                          : '—'}
+                      </TableCell>
+                    )}
+                    <TableCell className='text-xs whitespace-nowrap text-muted-foreground'>
+                      {[
+                        player.height,
+                        player.weight ? `${player.weight}` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' / ')}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {filteredPlayers.length === 0 && (
+              <div className='py-8 text-center text-muted-foreground'>
+                {viewMode === 'recommended'
+                  ? 'No recommendations. Try "All Players" view.'
+                  : 'No players match your filters'}
               </div>
             )}
           </div>
