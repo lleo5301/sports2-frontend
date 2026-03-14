@@ -102,7 +102,7 @@ export function GamesList() {
     },
   })
 
-  const columns: ColumnDef<Game>[] = [
+  const sharedColumns: ColumnDef<Game>[] = [
     {
       accessorKey: 'id',
       header: 'ID',
@@ -158,6 +158,62 @@ export function GamesList() {
         )
       },
     },
+  ]
+
+  const actionsColumn: ColumnDef<Game> = {
+    id: 'actions',
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='ghost' size='icon'>
+            <MoreHorizontal className='size-4' />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuItem asChild>
+            <Link to='/games/$id' params={{ id: String(row.original.id) }}>
+              View
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className='text-destructive'
+            onClick={() => deleteMutation.mutate(row.original.id)}
+          >
+            <Trash2 className='size-4' />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  }
+
+  const tagsBadges = (g: Game) => (
+    <div className='flex flex-wrap gap-1'>
+      {g.is_conference && (
+        <Badge variant='outline' className='text-xs'>
+          Conf
+        </Badge>
+      )}
+      {g.is_post_season && (
+        <Badge variant='highlight' className='text-xs'>
+          Post
+        </Badge>
+      )}
+    </div>
+  )
+
+  const upcomingColumns: ColumnDef<Game>[] = [
+    ...sharedColumns,
+    {
+      id: 'tags',
+      header: '',
+      cell: ({ row }) => tagsBadges(row.original),
+    },
+    actionsColumn,
+  ]
+
+  const previousColumns: ColumnDef<Game>[] = [
+    ...sharedColumns,
     {
       id: 'score',
       header: 'Score',
@@ -207,114 +263,82 @@ export function GamesList() {
             ) : r ? (
               <Badge variant='secondary'>{r}</Badge>
             ) : null}
-            {g.is_conference && (
-              <Badge variant='outline' className='text-xs'>
-                Conf
-              </Badge>
-            )}
-            {g.is_post_season && (
-              <Badge variant='highlight' className='text-xs'>
-                Post
-              </Badge>
-            )}
+            {tagsBadges(g)}
           </div>
         )
       },
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' size='icon'>
-              <MoreHorizontal className='size-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem asChild>
-              <Link to='/games/$id' params={{ id: String(row.original.id) }}>
-                View
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className='text-destructive'
-              onClick={() => deleteMutation.mutate(row.original.id)}
-            >
-              <Trash2 className='size-4' />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
+    actionsColumn,
   ]
 
   const upcomingTable = useReactTable<Game>({
     data: upcoming,
-    columns,
+    columns: upcomingColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
   const previousTable = useReactTable<Game>({
     data: previous,
-    columns,
+    columns: previousColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const renderTableBody = (table: ReturnType<typeof useReactTable<Game>>) => (
-    <>
-      {table.getRowModel().rows.length ? (
-        table.getRowModel().rows.map((row) => (
-          <TableRow
-            key={row.id}
-            className='cursor-pointer'
-            onClick={(e) => {
-              if ((e.target as HTMLElement).closest('[data-row-actions]'))
-                return
-              navigate({
-                to: '/games/$id',
-                params: { id: String(row.original.id) },
-              })
-            }}
-          >
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {cell.column.id === 'actions' ? (
-                  <div data-row-actions>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
-                ) : (
-                  flexRender(cell.column.columnDef.cell, cell.getContext())
-                )}
-              </TableCell>
+  const renderTable = (table: ReturnType<typeof useReactTable<Game>>) => (
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((hg) => (
+          <TableRow key={hg.id}>
+            {hg.headers.map((h) => (
+              <TableHead key={h.id}>
+                {flexRender(h.column.columnDef.header, h.getContext())}
+              </TableHead>
             ))}
           </TableRow>
-        ))
-      ) : (
-        <TableRow>
-          <TableCell
-            colSpan={columns.length}
-            className='py-6 text-center text-muted-foreground'
-          >
-            No games
-          </TableCell>
-        </TableRow>
-      )}
-    </>
-  )
-
-  const tableHeader = (
-    <TableHeader>
-      {upcomingTable.getHeaderGroups().map((hg) => (
-        <TableRow key={hg.id}>
-          {hg.headers.map((h) => (
-            <TableHead key={h.id}>
-              {flexRender(h.column.columnDef.header, h.getContext())}
-            </TableHead>
-          ))}
-        </TableRow>
-      ))}
-    </TableHeader>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows.length ? (
+          table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              className='cursor-pointer'
+              onClick={(e) => {
+                if ((e.target as HTMLElement).closest('[data-row-actions]'))
+                  return
+                navigate({
+                  to: '/games/$id',
+                  params: { id: String(row.original.id) },
+                })
+              }}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {cell.column.id === 'actions' ? (
+                    <div data-row-actions>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </div>
+                  ) : (
+                    flexRender(cell.column.columnDef.cell, cell.getContext())
+                  )}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell
+              colSpan={table.getAllColumns().length}
+              className='py-6 text-center text-muted-foreground'
+            >
+              No games
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   )
 
   return (
@@ -353,10 +377,7 @@ export function GamesList() {
                     titleColumnId='opponent'
                   />
                 ) : (
-                  <Table>
-                    {tableHeader}
-                    <TableBody>{renderTableBody(upcomingTable)}</TableBody>
-                  </Table>
+                  renderTable(upcomingTable)
                 )}
               </CardContent>
             </Card>
@@ -374,10 +395,7 @@ export function GamesList() {
                     titleColumnId='opponent'
                   />
                 ) : (
-                  <Table>
-                    {tableHeader}
-                    <TableBody>{renderTableBody(previousTable)}</TableBody>
-                  </Table>
+                  renderTable(previousTable)
                 )}
               </CardContent>
             </Card>
