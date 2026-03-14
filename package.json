@@ -12,7 +12,8 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
-    "demo:record": "node tests/demo/record-demo.js",
+    "demo:record": "node tests/demo/record-demo.cjs",
+    "demo:capture": "node tests/demo/capture-assets.cjs",
     "prepare": "husky"
   },
   "devDependencies": {
