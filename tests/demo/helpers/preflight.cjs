@@ -1,5 +1,5 @@
 // tests/demo/helpers/preflight.js
-const { BASE_URL } = require('./auth');
+const { BASE_URL } = require('./auth.cjs');
 
 /**
  * Run preflight checks to verify demo data is present.

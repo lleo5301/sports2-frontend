@@ -17,6 +17,7 @@ import {
   formatGameLocation,
   type Game,
 } from '@/lib/games-api'
+import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,7 +34,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { GameResultBadge } from '@/components/ui/game-result-badge'
+import {
+  GameResultBadge,
+  StreakIndicator,
+} from '@/components/ui/game-result-badge'
 import {
   Table,
   TableBody,
@@ -45,6 +49,43 @@ import {
 import { DataTableCardView } from '@/components/data-table/card-view'
 import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
+
+const resultMap: Record<string, 'W' | 'L' | 'T' | 'D'> = {
+  Win: 'W',
+  Loss: 'L',
+  Tie: 'T',
+  Draw: 'D',
+  W: 'W',
+  L: 'L',
+  T: 'T',
+  D: 'D',
+}
+
+function getResultForRow(g: Game): 'W' | 'L' | 'T' | 'D' | null {
+  return g.result ? (resultMap[g.result] ?? null) : null
+}
+
+function getCountdownText(game: Game): string {
+  const d = getGameDate(game)
+  if (!d) return ''
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.round(
+    (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  )
+  if (days === 0) return 'Today'
+  if (days === 1) return 'Tomorrow'
+  if (days > 1) return `${days}d`
+  return ''
+}
+
+function formatHomeAway(game: Game): string | null {
+  const ha = game.home_away?.toUpperCase()
+  if (ha === 'H' || ha === 'HOME') return 'Home'
+  if (ha === 'A' || ha === 'AWAY') return 'Away'
+  if (ha === 'N' || ha === 'NEUTRAL') return 'Neutral'
+  return null
+}
 
 function getGameDate(game: Game): Date | null {
   const d = game.date ?? game.game_date
@@ -102,20 +143,29 @@ export function GamesList() {
     },
   })
 
+  const streakResults = useMemo(() => {
+    return [...previous]
+      .sort(
+        (a, b) =>
+          (getGameDate(b)?.getTime() ?? 0) - (getGameDate(a)?.getTime() ?? 0)
+      )
+      .map(getResultForRow)
+      .filter((r): r is 'W' | 'L' | 'T' | 'D' => r !== null)
+      .slice(0, 10)
+  }, [previous])
+
+  const currentStreak = useMemo(() => {
+    if (!streakResults.length) return null
+    const first = streakResults[0]
+    let count = 0
+    for (const r of streakResults) {
+      if (r === first) count++
+      else break
+    }
+    return { result: first, count }
+  }, [streakResults])
+
   const sharedColumns: ColumnDef<Game>[] = [
-    {
-      accessorKey: 'id',
-      header: 'ID',
-      cell: ({ row }) => (
-        <Link
-          to='/games/$id'
-          params={{ id: String(row.original.id) }}
-          className='font-medium text-primary hover:underline'
-        >
-          {row.original.id}
-        </Link>
-      ),
-    },
     {
       id: 'opponent',
       header: 'Opponent',
@@ -245,16 +295,6 @@ export function GamesList() {
       cell: ({ row }) => {
         const g = row.original
         const r = g.result
-        const resultMap: Record<string, 'W' | 'L' | 'T' | 'D'> = {
-          Win: 'W',
-          Loss: 'L',
-          Tie: 'T',
-          Draw: 'D',
-          W: 'W',
-          L: 'L',
-          T: 'T',
-          D: 'D',
-        }
         const mapped = r ? resultMap[r] : undefined
         return (
           <div className='flex flex-wrap gap-1'>
@@ -283,7 +323,10 @@ export function GamesList() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const renderTable = (table: ReturnType<typeof useReactTable<Game>>) => (
+  const renderTable = (
+    table: ReturnType<typeof useReactTable<Game>>,
+    options?: { getRowClassName?: (row: Game) => string }
+  ) => (
     <Table>
       <TableHeader>
         {table.getHeaderGroups().map((hg) => (
@@ -301,7 +344,10 @@ export function GamesList() {
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className='cursor-pointer'
+              className={cn(
+                'cursor-pointer',
+                options?.getRowClassName?.(row.original)
+              )}
               onClick={(e) => {
                 if ((e.target as HTMLElement).closest('[data-row-actions]'))
                   return
@@ -363,12 +409,111 @@ export function GamesList() {
           </Card>
         ) : (
           <div className='space-y-8'>
+            {upcoming.length > 0 &&
+              (() => {
+                const next = upcoming[0]
+                const second = upcoming[1]
+                const countdown = getCountdownText(next)
+                const venue = formatGameLocation(next)
+                const homeAway = formatHomeAway(next)
+                const tournament = next.tournament?.name
+                const isToday = countdown === 'Today'
+                return (
+                  <Card className='overflow-hidden'>
+                    <CardContent className='p-5 sm:p-6'>
+                      <div className='mb-4 flex items-center gap-2'>
+                        <span className='text-xs font-semibold tracking-widest text-muted-foreground uppercase'>
+                          Next Game
+                        </span>
+                        {next.is_conference && (
+                          <Badge variant='outline' className='text-xs'>
+                            Conf
+                          </Badge>
+                        )}
+                        {next.is_post_season && (
+                          <Badge variant='highlight' className='text-xs'>
+                            Post
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className='flex items-start justify-between gap-4'>
+                        <div className='flex min-w-0 items-start gap-4'>
+                          <OpponentLogo
+                            opponent={next.opponent}
+                            logoUrl={next.opponent_logo_url}
+                            size={52}
+                            reserveSpace
+                            className='mt-1 shrink-0'
+                          />
+                          <div className='min-w-0'>
+                            <h3 className='text-2xl leading-tight font-bold tracking-tight sm:text-3xl'>
+                              {next.opponent || 'TBD'}
+                            </h3>
+                            <p className='mt-1 text-sm text-muted-foreground'>
+                              {formatGameDateTime(next)}
+                            </p>
+                            {(venue || homeAway || tournament) && (
+                              <p className='mt-0.5 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground'>
+                                {venue && <span>{venue}</span>}
+                                {homeAway && (
+                                  <>
+                                    {venue && <span>·</span>}
+                                    <span className='font-medium text-foreground'>
+                                      {homeAway}
+                                    </span>
+                                  </>
+                                )}
+                                {tournament && (
+                                  <>
+                                    <span>·</span>
+                                    <span>{tournament}</span>
+                                  </>
+                                )}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {countdown && (
+                          <div className='shrink-0 text-right'>
+                            <span
+                              className={cn(
+                                'text-3xl font-bold tabular-nums sm:text-4xl',
+                                isToday ? 'text-warning' : 'text-primary'
+                              )}
+                            >
+                              {countdown}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {second && (
+                        <div className='mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-sm text-muted-foreground'>
+                          <div className='flex items-center gap-2'>
+                            <OpponentLogo
+                              opponent={second.opponent}
+                              logoUrl={second.opponent_logo_url}
+                              size={18}
+                              reserveSpace
+                            />
+                            <span>{second.opponent || 'TBD'}</span>
+                          </div>
+                          <span className='tabular-nums'>
+                            {getCountdownText(second)}
+                          </span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )
+              })()}
+
             <Card>
               <CardHeader className='pb-2'>
                 <CardTitle>Upcoming</CardTitle>
-                <CardDescription>
-                  Soonest first (ascending by date)
-                </CardDescription>
+                <CardDescription>{upcoming.length} scheduled</CardDescription>
               </CardHeader>
               <CardContent>
                 {isMobile ? (
@@ -383,10 +528,32 @@ export function GamesList() {
             </Card>
             <Card>
               <CardHeader className='pb-2'>
-                <CardTitle>Previous</CardTitle>
-                <CardDescription>
-                  Oldest first (ascending by date)
-                </CardDescription>
+                <div className='flex items-start justify-between'>
+                  <div>
+                    <CardTitle>Previous</CardTitle>
+                    <CardDescription>
+                      {previous.length} games played
+                    </CardDescription>
+                  </div>
+                  {streakResults.length > 0 && (
+                    <div className='flex items-center gap-3'>
+                      {currentStreak && (
+                        <span
+                          className={cn(
+                            'text-sm font-bold tabular-nums',
+                            currentStreak.result === 'W'
+                              ? 'text-success'
+                              : 'text-destructive'
+                          )}
+                        >
+                          {currentStreak.result}
+                          {currentStreak.count}
+                        </span>
+                      )}
+                      <StreakIndicator results={streakResults} />
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {isMobile ? (
@@ -395,7 +562,14 @@ export function GamesList() {
                     titleColumnId='opponent'
                   />
                 ) : (
-                  renderTable(previousTable)
+                  renderTable(previousTable, {
+                    getRowClassName: (g) => {
+                      const r = getResultForRow(g)
+                      if (r === 'W') return 'bg-success/10'
+                      if (r === 'L') return 'bg-destructive/10'
+                      return ''
+                    },
+                  })
                 )}
               </CardContent>
             </Card>

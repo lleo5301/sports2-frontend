@@ -200,6 +200,18 @@ export const aiApi = {
   // Insights
   // ------------------------------------------
 
+  createInsight: async (data: {
+    title: string
+    content: string
+    category: InsightCategory
+  }): Promise<AiInsight | undefined> => {
+    const r = await api.post<{ success?: boolean; data?: AiInsight }>(
+      '/ai/insights',
+      data
+    )
+    return getData(r.data as { success?: boolean; data?: AiInsight })
+  },
+
   generateInsight: async (data: {
     category: InsightCategory
     prompt?: string

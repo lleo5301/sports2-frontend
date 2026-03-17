@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   flexRender,
@@ -9,7 +9,15 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown, Plus } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+} from 'lucide-react'
+import { toast } from 'sonner'
 import { playersApi, type Player } from '@/lib/players-api'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -20,6 +28,12 @@ import {
   CardDescription,
   CardHeader,
 } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { PositionBadge } from '@/components/ui/position-badge'
 import {
@@ -92,6 +106,7 @@ function SortableHeader<T>({
 
 export function PlayersList() {
   const isMobile = useIsMobile()
+  const queryClient = useQueryClient()
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -113,6 +128,17 @@ export function PlayersList() {
       }),
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => playersApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['players'] })
+      toast.success('Player deleted')
+    },
+    onError: (err) => {
+      toast.error((err as Error).message || 'Failed to delete')
+    },
+  })
+
   const columns: ColumnDef<Player>[] = [
     {
       id: 'name',
@@ -130,13 +156,39 @@ export function PlayersList() {
               {p.photo_url && <AvatarImage src={p.photo_url} alt={name} />}
               <AvatarFallback className='text-xs'>{initials}</AvatarFallback>
             </Avatar>
-            <div>
+            <div className='min-w-0 flex-1'>
               <span className='font-medium'>{name}</span>
               {p.jersey_number != null && (
                 <span className='ml-1.5 text-xs text-muted-foreground'>
                   #{p.jersey_number}
                 </span>
               )}
+            </div>
+            <div data-row-actions>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant='ghost' size='icon' className='size-8'>
+                    <MoreHorizontal className='size-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='start'>
+                  <DropdownMenuItem onClick={() => setSelectedPlayerId(p.id)}>
+                    View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to='/players/$id' params={{ id: String(p.id) }}>
+                      Open full page
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className='text-destructive'
+                    onClick={() => deleteMutation.mutate(p.id)}
+                  >
+                    <Trash2 className='size-4' />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         )
@@ -290,7 +342,15 @@ export function PlayersList() {
                           <TableRow
                             key={row.id}
                             className='cursor-pointer'
-                            onClick={() => setSelectedPlayerId(row.original.id)}
+                            onClick={(e) => {
+                              if (
+                                (e.target as HTMLElement).closest(
+                                  '[data-row-actions]'
+                                )
+                              )
+                                return
+                              setSelectedPlayerId(row.original.id)
+                            }}
                           >
                             {row.getVisibleCells().map((cell) => (
                               <TableCell key={cell.id}>

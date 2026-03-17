@@ -6,7 +6,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import {
   ArrowLeft,
-  BarChart3,
   Loader2,
   Mail,
   Pencil,
@@ -14,7 +13,6 @@ import {
   Play,
   Trash2,
   User,
-  Video,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { extendedStatsApi } from '@/lib/extended-stats-api'
@@ -24,20 +22,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { GameResultBadge } from '@/components/ui/game-result-badge'
 import { PositionBadge } from '@/components/ui/position-badge'
-import { StatCard } from '@/components/ui/stat-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Main } from '@/components/layout/main'
 import { EditPlayerForm } from './edit-player-form'
@@ -155,10 +146,45 @@ export function PlayerDetail({ id, embedded, onClose }: PlayerDetailProps) {
     )
   }
 
+  const playerName =
+    [player.first_name, player.last_name].filter(Boolean).join(' ') ||
+    `Player #${id}`
+
+  /** Semantic color for hero stat based on performance quality */
+  const statColor = (
+    value: unknown,
+    thresholds: { good: number; bad: number; lowerIsBetter?: boolean }
+  ) => {
+    const n = parseFloat(String(value ?? ''))
+    if (Number.isNaN(n)) return ''
+    if (thresholds.lowerIsBetter) {
+      if (n <= thresholds.good) return 'text-success'
+      if (n >= thresholds.bad) return 'text-destructive'
+      return ''
+    }
+    if (n >= thresholds.good) return 'text-success'
+    if (n <= thresholds.bad) return 'text-destructive'
+    return ''
+  }
+
+  const seasonBlock = statsResp?.current_season
+    ? (() => {
+        const s = statsResp.current_season as Record<string, unknown>
+        const hasBatting = Number(s.at_bats ?? 0) > 0
+        const hasPitching =
+          Number(s.innings_pitched ?? s.pitching_appearances ?? 0) > 0
+        const gp = s.games_played ?? s.games_started
+        const lastGame = gameLogData?.games?.[0]
+        if (!hasBatting && !hasPitching && !gp && !lastGame) return null
+        return { s, hasBatting, hasPitching, gp, lastGame }
+      })()
+    : null
+
   return (
     <Wrapper>
-      <div className='space-y-6'>
-        <div className='flex flex-wrap items-center justify-between gap-4'>
+      <div>
+        {/* ── Identity Strip ── */}
+        <section className='flex flex-wrap items-start gap-5'>
           <div className='flex items-center gap-4'>
             {!embedded && (
               <Button variant='ghost' size='icon' asChild>
@@ -167,13 +193,56 @@ export function PlayerDetail({ id, embedded, onClose }: PlayerDetailProps) {
                 </Link>
               </Button>
             )}
-            <div>
-              <h2 className='text-2xl font-extrabold tracking-tight sm:text-3xl'>
-                {[player.first_name, player.last_name]
-                  .filter(Boolean)
-                  .join(' ') || `Player #${id}`}
-              </h2>
-              <CardDescription>Roster profile</CardDescription>
+            <div className='relative'>
+              <Avatar className='size-20 shrink-0 sm:size-24'>
+                <AvatarImage
+                  src={
+                    statsResp?.player?.photo_url ??
+                    player.photo_url ??
+                    undefined
+                  }
+                  alt={playerName}
+                  className='object-cover'
+                />
+                <AvatarFallback className='bg-muted text-2xl font-medium sm:text-3xl'>
+                  {[player.first_name?.[0], player.last_name?.[0]]
+                    .filter(Boolean)
+                    .join('')
+                    .toUpperCase() || <User className='size-8 sm:size-10' />}
+                </AvatarFallback>
+              </Avatar>
+              {(statsResp?.player?.jersey_number ?? player.jersey_number) !=
+                null && (
+                <div className='absolute -right-1.5 -bottom-1.5 flex size-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground'>
+                  #
+                  {String(
+                    statsResp?.player?.jersey_number ?? player.jersey_number
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className='min-w-0 flex-1'>
+            <h2 className='text-2xl font-extrabold tracking-tight sm:text-3xl'>
+              {playerName}
+            </h2>
+            <div className='mt-1 flex flex-wrap items-center gap-2'>
+              {player.position && <PositionBadge position={player.position} />}
+              {player.school_type && (
+                <Badge variant='outline'>{player.school_type}</Badge>
+              )}
+              {player.status && (
+                <Badge
+                  variant={player.status === 'active' ? 'default' : 'secondary'}
+                  className={
+                    player.status === 'active'
+                      ? 'bg-success text-success-foreground'
+                      : undefined
+                  }
+                >
+                  {player.status}
+                </Badge>
+              )}
             </div>
           </div>
           <div className='flex gap-2'>
@@ -198,352 +267,288 @@ export function PlayerDetail({ id, embedded, onClose }: PlayerDetailProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+        </section>
 
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex flex-col gap-6 lg:flex-row lg:items-start'>
-              <div className='flex flex-col items-center gap-4 sm:flex-row lg:shrink-0 lg:flex-col lg:items-center'>
-                <div className='relative'>
-                  <Avatar className='size-24 shrink-0 shadow-lg ring-2 ring-border sm:size-36 lg:size-48'>
-                    <AvatarImage
-                      src={
-                        statsResp?.player?.photo_url ??
-                        player.photo_url ??
-                        undefined
-                      }
-                      alt={[player.first_name, player.last_name]
-                        .filter(Boolean)
-                        .join(' ')}
-                      className='object-cover'
-                    />
-                    <AvatarFallback className='bg-muted text-3xl font-medium sm:text-4xl'>
-                      {[player.first_name?.[0], player.last_name?.[0]]
-                        .filter(Boolean)
-                        .join('')
-                        .toUpperCase() || (
-                        <User className='size-12 sm:size-16' />
-                      )}
-                    </AvatarFallback>
-                  </Avatar>
-                  {(statsResp?.player?.jersey_number ?? player.jersey_number) !=
-                    null && (
-                    <div className='absolute -right-2 -bottom-2 flex size-10 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-md'>
-                      #
-                      {String(
-                        statsResp?.player?.jersey_number ?? player.jersey_number
-                      )}
+        {/* ── Season Summary (promoted — second thing a coach sees) ── */}
+        {seasonBlock &&
+          (() => {
+            const { s, hasBatting, hasPitching, gp, lastGame } = seasonBlock
+            return (
+              <>
+                <div className='my-8 border-t border-border/40 sm:my-10' />
+                <section className='space-y-3'>
+                  <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
+                    This season
+                    {gp != null && (gp as number) > 0 && (
+                      <span className='ml-2 tracking-normal normal-case'>
+                        · {formatStatValue(gp)} GP
+                      </span>
+                    )}
+                  </p>
+                  {hasBatting && (
+                    <div className='flex items-baseline gap-6'>
+                      <div>
+                        <p
+                          className={`font-display text-5xl font-extrabold tracking-tighter tabular-nums ${statColor(s.batting_average, { good: 0.3, bad: 0.22 })}`}
+                        >
+                          {formatStatValue(s.batting_average)}
+                        </p>
+                        <p className='text-xs text-muted-foreground'>AVG</p>
+                      </div>
+                      <div className='flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-muted-foreground'>
+                        {Number(s.home_runs ?? 0) > 0 && (
+                          <span>
+                            <span className='font-display font-bold text-foreground tabular-nums'>
+                              {formatStatValue(s.home_runs)}
+                            </span>{' '}
+                            HR
+                          </span>
+                        )}
+                        {Number(s.rbi ?? 0) > 0 && (
+                          <span>
+                            <span className='font-display font-bold text-foreground tabular-nums'>
+                              {formatStatValue(s.rbi)}
+                            </span>{' '}
+                            RBI
+                          </span>
+                        )}
+                        <span>
+                          <span className='font-display font-bold text-foreground tabular-nums'>
+                            {formatStatValue(s.on_base_percentage)}
+                          </span>{' '}
+                          OBP
+                        </span>
+                      </div>
                     </div>
                   )}
-                </div>
-                <div className='text-center sm:text-left lg:text-center'>
-                  {player.position ? (
-                    <PositionBadge
-                      position={player.position}
-                      className='px-2.5 py-1 text-sm'
-                    />
-                  ) : (
-                    <h3 className='text-lg font-semibold'>Player</h3>
-                  )}
-                  <p className='text-sm text-muted-foreground'>
-                    {[
-                      statsResp?.player?.bats ?? player.bats,
-                      statsResp?.player?.throws ?? player.throws,
-                    ]
-                      .filter(Boolean)
-                      .join(' / ') || '—'}
-                  </p>
-                  {(statsResp?.player?.class_year ?? player.class_year) && (
-                    <p className='text-sm text-muted-foreground'>
-                      {statsResp?.player?.class_year ?? player.class_year}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className='min-w-0 flex-1 space-y-4'>
-                <div className='flex flex-wrap items-center gap-2'>
-                  {player.position && (
-                    <PositionBadge position={player.position} />
-                  )}
-                  {player.school_type && (
-                    <Badge variant='outline'>{player.school_type}</Badge>
-                  )}
-                  {player.status && (
-                    <Badge
-                      variant={
-                        player.status === 'active' ? 'default' : 'secondary'
-                      }
-                    >
-                      {player.status}
-                    </Badge>
-                  )}
-                </div>
-                <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3'>
-                  <DetailRow label='Position' value={player.position} />
-                  <DetailRow
-                    label='Jersey'
-                    value={
-                      statsResp?.player?.jersey_number ??
-                      player.jersey_number ??
-                      undefined
-                    }
-                  />
-                  <DetailRow
-                    label='Bats / Throws'
-                    value={
-                      [
-                        statsResp?.player?.bats ?? player.bats,
-                        statsResp?.player?.throws ?? player.throws,
-                      ]
-                        .filter(Boolean)
-                        .join(' / ') || undefined
-                    }
-                  />
-                  <DetailRow
-                    label='Class'
-                    value={
-                      statsResp?.player?.class_year ??
-                      player.class_year ??
-                      undefined
-                    }
-                  />
-                  <DetailRow
-                    label='Height'
-                    value={player.height ?? undefined}
-                  />
-                  <DetailRow
-                    label='Weight'
-                    value={
-                      player.weight != null ? `${player.weight} lbs` : undefined
-                    }
-                  />
-                  <DetailRow label='School' value={player.school} />
-                  <DetailRow label='City' value={player.city} />
-                  <DetailRow label='State' value={player.state} />
-                  <DetailRow
-                    label='Graduation year'
-                    value={player.graduation_year?.toString()}
-                  />
-                </div>
-                <div className='flex flex-wrap gap-4 border-t pt-4'>
-                  {player.email && (
-                    <a
-                      href={`mailto:${player.email}`}
-                      className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
-                    >
-                      <Mail className='size-4' />
-                      {player.email}
-                    </a>
-                  )}
-                  {player.phone && (
-                    <a
-                      href={`tel:${player.phone}`}
-                      className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
-                    >
-                      <Phone className='size-4' />
-                      {player.phone}
-                    </a>
-                  )}
-                </div>
-                {statsResp?.current_season &&
-                  (() => {
-                    const s = statsResp.current_season as Record<
-                      string,
-                      unknown
-                    >
-                    const hasBatting = Number(s.at_bats ?? 0) > 0
-                    const hasPitching =
-                      Number(s.innings_pitched ?? s.pitching_appearances ?? 0) >
-                      0
-                    const gp = s.games_played ?? s.games_started
-                    const lastGame = gameLogData?.games?.[0]
-                    if (!hasBatting && !hasPitching && !gp && !lastGame)
-                      return null
-                    return (
-                      <div className='space-y-4 rounded-lg border bg-muted/30 p-4'>
-                        <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
-                          This season
+                  {hasPitching && (
+                    <div className='flex items-baseline gap-6'>
+                      <div>
+                        <p
+                          className={`font-display text-5xl font-extrabold tracking-tighter tabular-nums ${statColor(s.era, { good: 3.0, bad: 5.0, lowerIsBetter: true })}`}
+                        >
+                          {formatStatValue(s.era)}
                         </p>
-                        <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'>
-                          {gp != null && (gp as number) > 0 && (
-                            <StatCard
-                              label='GP'
-                              value={formatStatValue(gp)}
-                              size='compact'
-                            />
-                          )}
-                          {hasBatting && (
-                            <>
-                              <StatCard
-                                label='AVG'
-                                value={formatStatValue(s.batting_average)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='AB'
-                                value={formatStatValue(s.at_bats)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='H'
-                                value={formatStatValue(s.hits)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='HR'
-                                value={formatStatValue(s.home_runs)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='RBI'
-                                value={formatStatValue(s.rbi)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='OBP'
-                                value={formatStatValue(s.on_base_percentage)}
-                                size='compact'
-                              />
-                            </>
-                          )}
-                          {hasPitching && (
-                            <>
-                              <StatCard
-                                label='ERA'
-                                value={formatStatValue(s.era)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='IP'
-                                value={formatStatValue(s.innings_pitched)}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='W-L'
-                                value={`${formatStatValue(s.pitching_wins)}-${formatStatValue(s.pitching_losses)}`}
-                                size='compact'
-                              />
-                              <StatCard
-                                label='K'
-                                value={formatStatValue(s.strikeouts_pitching)}
-                                size='compact'
-                              />
-                            </>
-                          )}
-                        </div>
-                        {lastGame && (
-                          <div className='border-t pt-3'>
-                            <p className='mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase'>
-                              Last game
-                            </p>
-                            <Link
-                              to='/games/$id'
-                              params={{ id: String(lastGame.game.id) }}
-                              className='group flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm hover:underline'
-                            >
-                              <span className='font-medium'>
-                                vs {lastGame.game.opponent}
-                              </span>
-                              <span className='text-muted-foreground'>
-                                {formatDateShort(lastGame.game.date)}
-                              </span>
-                              <span className='text-muted-foreground'>
-                                ·{' '}
-                                {lastGame.game.game_summary ||
-                                  lastGame.game.score}
-                              </span>
-                              {lastGame.batting?.ab != null &&
-                                lastGame.batting.ab > 0 && (
-                                  <span>
-                                    {lastGame.batting.h}-{lastGame.batting.ab}
-                                    {lastGame.batting.rbi != null &&
-                                      lastGame.batting.rbi > 0 &&
-                                      `, ${lastGame.batting.rbi} RBI`}
-                                    {lastGame.batting.hr != null &&
-                                      lastGame.batting.hr > 0 &&
-                                      `, ${lastGame.batting.hr} HR`}
-                                  </span>
-                                )}
-                              {lastGame.pitching &&
-                                (Number(lastGame.pitching.ip) > 0 ||
-                                  Number(lastGame.pitching.so) > 0) && (
-                                  <span>
-                                    {lastGame.pitching.ip} IP
-                                    {lastGame.pitching.er != null &&
-                                      lastGame.pitching.er > 0 &&
-                                      `, ${lastGame.pitching.er} ER`}
-                                    {lastGame.pitching.so > 0 &&
-                                      `, ${lastGame.pitching.so} K`}
-                                  </span>
-                                )}
-                            </Link>
-                          </div>
-                        )}
+                        <p className='text-xs text-muted-foreground'>ERA</p>
                       </div>
-                    )
-                  })()}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                      <div className='flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-muted-foreground'>
+                        <span>
+                          <span className='font-display font-bold text-foreground tabular-nums'>
+                            {formatStatValue(s.pitching_wins)}-
+                            {formatStatValue(s.pitching_losses)}
+                          </span>{' '}
+                          W-L
+                        </span>
+                        {Number(s.strikeouts_pitching ?? 0) > 0 && (
+                          <span>
+                            <span className='font-display font-bold text-foreground tabular-nums'>
+                              {formatStatValue(s.strikeouts_pitching)}
+                            </span>{' '}
+                            K
+                          </span>
+                        )}
+                        <span>
+                          <span className='font-display font-bold text-foreground tabular-nums'>
+                            {formatStatValue(s.innings_pitched)}
+                          </span>{' '}
+                          IP
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {lastGame && (
+                    <div className='border-t border-border/40 pt-3'>
+                      <p className='mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase'>
+                        Last game
+                      </p>
+                      <Link
+                        to='/games/$id'
+                        params={{ id: String(lastGame.game.id) }}
+                        className='group flex flex-wrap items-center gap-x-2 gap-y-1 text-sm hover:underline'
+                      >
+                        <span className='font-medium'>
+                          vs {lastGame.game.opponent}
+                        </span>
+                        {(() => {
+                          const summary =
+                            lastGame.game.game_summary ||
+                            lastGame.game.score ||
+                            ''
+                          const match =
+                            String(summary).match(/^(W|L|T)\s*(.*)$/)
+                          if (match) {
+                            return (
+                              <GameResultBadge
+                                result={match[1] as 'W' | 'L' | 'T'}
+                                score={match[2] || undefined}
+                              />
+                            )
+                          }
+                          return summary ? (
+                            <span className='text-muted-foreground'>
+                              {summary}
+                            </span>
+                          ) : null
+                        })()}
+                        <span className='text-muted-foreground'>
+                          {formatDateShort(lastGame.game.date)}
+                        </span>
+                        {lastGame.batting?.ab != null &&
+                          lastGame.batting.ab > 0 && (
+                            <span>
+                              {lastGame.batting.h}-{lastGame.batting.ab}
+                              {lastGame.batting.rbi != null &&
+                                lastGame.batting.rbi > 0 &&
+                                `, ${lastGame.batting.rbi} RBI`}
+                              {lastGame.batting.hr != null &&
+                                lastGame.batting.hr > 0 &&
+                                `, ${lastGame.batting.hr} HR`}
+                            </span>
+                          )}
+                        {lastGame.pitching &&
+                          (Number(lastGame.pitching.ip) > 0 ||
+                            Number(lastGame.pitching.so) > 0) && (
+                            <span>
+                              {lastGame.pitching.ip} IP
+                              {lastGame.pitching.er != null &&
+                                lastGame.pitching.er > 0 &&
+                                `, ${lastGame.pitching.er} ER`}
+                              {lastGame.pitching.so > 0 &&
+                                `, ${lastGame.pitching.so} K`}
+                            </span>
+                          )}
+                      </Link>
+                    </div>
+                  )}
+                </section>
+              </>
+            )
+          })()}
 
+        {/* ── Profile Details (reference data) ── */}
+        <div className='my-8 border-t border-border/40 sm:my-10' />
+        <section>
+          <h3 className='mb-3 text-sm font-semibold tracking-wide text-muted-foreground uppercase'>
+            Profile
+          </h3>
+          <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4'>
+            <DetailRow
+              label='Bats / Throws'
+              value={
+                [
+                  statsResp?.player?.bats ?? player.bats,
+                  statsResp?.player?.throws ?? player.throws,
+                ]
+                  .filter(Boolean)
+                  .join(' / ') || undefined
+              }
+            />
+            <DetailRow
+              label='Class'
+              value={
+                statsResp?.player?.class_year ?? player.class_year ?? undefined
+              }
+            />
+            <DetailRow label='Height' value={player.height ?? undefined} />
+            <DetailRow
+              label='Weight'
+              value={player.weight != null ? `${player.weight} lbs` : undefined}
+            />
+            <DetailRow label='School' value={player.school} />
+          </div>
+          {(player.city || player.state || player.graduation_year) && (
+            <div className='mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground'>
+              {player.city && <span>{player.city}</span>}
+              {player.city && player.state && <span>·</span>}
+              {player.state && <span>{player.state}</span>}
+              {player.graduation_year && (
+                <span>
+                  {player.city || player.state ? '·' : ''} Class of{' '}
+                  {player.graduation_year}
+                </span>
+              )}
+            </div>
+          )}
+          {(player.email || player.phone) && (
+            <div className='mt-4 flex flex-wrap gap-4 border-t border-border/40 pt-4'>
+              {player.email && (
+                <a
+                  href={`mailto:${player.email}`}
+                  className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
+                >
+                  <Mail className='size-4 text-primary' />
+                  {player.email}
+                </a>
+              )}
+              {player.phone && (
+                <a
+                  href={`tel:${player.phone}`}
+                  className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
+                >
+                  <Phone className='size-4 text-primary' />
+                  {player.phone}
+                </a>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* ── Tabs ── */}
+        <div className='my-8 border-t border-border/40 sm:my-10' />
         <Tabs defaultValue='stats' className='space-y-4'>
           <div className='overflow-x-auto'>
             <TabsList className='flex-nowrap'>
               <TabsTrigger value='stats'>Stats</TabsTrigger>
               <TabsTrigger value='splits'>Splits</TabsTrigger>
-              <TabsTrigger value='raw'>Raw stats</TabsTrigger>
+              <TabsTrigger value='raw'>Raw</TabsTrigger>
               <TabsTrigger value='game-log'>Game log</TabsTrigger>
               <TabsTrigger value='videos'>Videos</TabsTrigger>
             </TabsList>
           </div>
-          <TabsContent value='stats' className='space-y-4'>
+          <TabsContent value='stats' className='space-y-8'>
             {statsResp && hasStats(statsResp) ? (
-              <Card variant='sport'>
-                <CardHeader>
-                  <div className='flex items-center gap-2'>
-                    <BarChart3 className='size-5 text-primary' />
-                    <CardTitle>Statistics</CardTitle>
+              <>
+                {statsResp.current_season && (
+                  <div>
+                    <h3 className='mb-4 font-display text-base font-bold tracking-tight'>
+                      Current season
+                      {(statsResp.current_season as { season_name?: string })
+                        .season_name && (
+                        <span className='ml-2 text-sm font-normal text-muted-foreground'>
+                          {
+                            (
+                              statsResp.current_season as {
+                                season_name?: string
+                              }
+                            ).season_name
+                          }
+                        </span>
+                      )}
+                    </h3>
+                    <SeasonStatsGrid season={statsResp.current_season} />
                   </div>
-                  <CardDescription>
-                    Season and career stats from PrestoSports
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className='space-y-6'>
-                  {statsResp.current_season && (
-                    <div>
-                      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-                        Current season{' '}
-                        {(statsResp.current_season as { season_name?: string })
-                          .season_name ?? ''}
-                      </h4>
-                      <SeasonStatsGrid season={statsResp.current_season} />
-                    </div>
-                  )}
-                  {statsResp.seasons && statsResp.seasons.length > 1 && (
-                    <div>
-                      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-                        Season history
-                      </h4>
-                      <SeasonsTable seasons={statsResp.seasons} />
-                    </div>
-                  )}
-                  {statsResp.career && (
-                    <div>
-                      <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-                        Career totals
-                      </h4>
-                      <CareerStatsGrid career={statsResp.career} />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                )}
+                {statsResp.seasons && statsResp.seasons.length > 1 && (
+                  <div className='border-t border-border/40 pt-6'>
+                    <h3 className='mb-4 font-display text-base font-bold tracking-tight'>
+                      Season history
+                    </h3>
+                    <SeasonsTable seasons={statsResp.seasons} />
+                  </div>
+                )}
+                {statsResp.career && (
+                  <div className='border-t border-border/40 pt-6'>
+                    <h3 className='mb-4 font-display text-base font-bold tracking-tight'>
+                      Career totals
+                    </h3>
+                    <CareerStatsGrid career={statsResp.career} />
+                  </div>
+                )}
+              </>
             ) : (
-              <Card>
-                <CardContent className='py-8 text-center text-muted-foreground'>
-                  No stats available. Sync with PrestoSports.
-                </CardContent>
-              </Card>
+              <p className='py-8 text-center text-muted-foreground'>
+                No stats available. Sync with PrestoSports.
+              </p>
             )}
           </TabsContent>
           <TabsContent value='splits'>
@@ -561,26 +566,11 @@ export function PlayerDetail({ id, embedded, onClose }: PlayerDetailProps) {
           </TabsContent>
           <TabsContent value='videos'>
             {videosResp && videosResp.data.length > 0 ? (
-              <Card>
-                <CardHeader>
-                  <div className='flex items-center gap-2'>
-                    <Video className='size-5 text-muted-foreground' />
-                    <CardTitle>Videos</CardTitle>
-                  </div>
-                  <CardDescription>
-                    Highlight reels and game footage
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <PlayerVideosGrid videos={videosResp.data} />
-                </CardContent>
-              </Card>
+              <PlayerVideosGrid videos={videosResp.data} />
             ) : (
-              <Card>
-                <CardContent className='py-8 text-center text-muted-foreground'>
-                  No videos
-                </CardContent>
-              </Card>
+              <p className='py-8 text-center text-muted-foreground'>
+                No videos
+              </p>
             )}
           </TabsContent>
         </Tabs>
@@ -599,8 +589,8 @@ function DetailRow({
   if (value === undefined || value === null || value === '') return null
   return (
     <div>
-      <p className='text-sm text-muted-foreground'>{label}</p>
-      <p className='font-medium'>{value}</p>
+      <p className='text-xs text-muted-foreground'>{label}</p>
+      <p className='font-display text-base font-bold tabular-nums'>{value}</p>
     </div>
   )
 }
@@ -766,13 +756,15 @@ function StatSection({
       <h5 className='mb-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase'>
         {title}
       </h5>
-      <div className='grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+      <div className='grid grid-cols-3 gap-x-4 gap-y-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'>
         {entries.map(([key, value]) => (
-          <div key={key} className='rounded-lg border bg-muted/30 p-2'>
-            <p className='text-xs text-muted-foreground'>
+          <div key={key}>
+            <p className='text-[11px] text-muted-foreground'>
               {STAT_LABELS[key] ?? key.replace(/_/g, ' ')}
             </p>
-            <p className='font-semibold'>{formatStatValue(value)}</p>
+            <p className='font-display text-base font-bold tabular-nums'>
+              {formatStatValue(value)}
+            </p>
           </div>
         ))}
       </div>
@@ -860,7 +852,7 @@ function SeasonsTable({
             {colsWithData.map((c) => (
               <th
                 key={c}
-                className='px-2 py-1.5 text-left text-muted-foreground'
+                className='px-2 py-1.5 text-left text-[11px] text-muted-foreground'
               >
                 {STAT_LABELS[c] ?? c.replace(/_/g, ' ')}
               </th>
@@ -874,7 +866,10 @@ function SeasonsTable({
                 const val = s[c]
                 const display = val
                 return (
-                  <td key={c} className='px-2 py-1.5'>
+                  <td
+                    key={c}
+                    className='px-2 py-1.5 font-display font-semibold tabular-nums'
+                  >
                     {display != null && display !== ''
                       ? formatStatValue(display)
                       : '—'}

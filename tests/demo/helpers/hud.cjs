@@ -170,4 +170,129 @@ async function showOutro(page, lines) {
   }, lines);
 }
 
-module.exports = { showHUD, removeHUD, highlightElement, removeHighlight, showOutro };
+/**
+ * Brief dark overlay transition between scenes.
+ * Fades in, holds briefly, then fades out — gives the viewer a visual breath.
+ */
+async function sceneTransition(page, { holdMs = 600 } = {}) {
+  await page.evaluate(() => {
+    const curtain = document.createElement('div');
+    curtain.id = 'demo-curtain';
+    Object.assign(curtain.style, {
+      position: 'fixed',
+      inset: '0',
+      background: 'rgba(0, 0, 0, 0.85)',
+      zIndex: '10000',
+      opacity: '0',
+      transition: 'opacity 400ms ease',
+      pointerEvents: 'none',
+    });
+    document.body.appendChild(curtain);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        curtain.style.opacity = '1';
+      });
+    });
+  });
+  // Wait for fade-in + hold
+  await page.waitForTimeout(400 + holdMs);
+  // Fade out
+  await page.evaluate(() => {
+    const curtain = document.getElementById('demo-curtain');
+    if (!curtain) return;
+    curtain.style.opacity = '0';
+    setTimeout(() => curtain.remove(), 400);
+  });
+  await page.waitForTimeout(450);
+}
+
+/**
+ * Inject a fake cursor into the page that tracks mouse movements.
+ * Playwright doesn't render the real cursor in video recordings.
+ * Shows a click ripple animation on mousedown.
+ */
+async function initCursor(page) {
+  await page.evaluate(() => {
+    if (document.getElementById('demo-cursor')) return;
+
+    const style = document.createElement('style');
+    style.id = 'demo-cursor-style';
+    style.textContent = `
+      @keyframes demo-click-ripple {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.6; }
+        100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+      }
+      #demo-cursor {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        z-index: 99999;
+        pointer-events: none;
+        transition: transform 80ms ease, left 120ms ease, top 120ms ease;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      }
+      #demo-cursor.clicking {
+        transform: translate(-50%, -50%) scale(0.75);
+      }
+      .demo-click-ripple {
+        position: fixed;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid rgba(59, 130, 246, 0.5);
+        pointer-events: none;
+        z-index: 99998;
+        animation: demo-click-ripple 400ms ease-out forwards;
+      }
+    `;
+    document.head.appendChild(style);
+
+    const cursor = document.createElement('div');
+    cursor.id = 'demo-cursor';
+    cursor.style.left = '-100px';
+    cursor.style.top = '-100px';
+    document.body.appendChild(cursor);
+
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    document.addEventListener('mousedown', (e) => {
+      cursor.classList.add('clicking');
+      const ripple = document.createElement('div');
+      ripple.className = 'demo-click-ripple';
+      ripple.style.left = e.clientX + 'px';
+      ripple.style.top = e.clientY + 'px';
+      document.body.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 400);
+    });
+
+    document.addEventListener('mouseup', () => {
+      cursor.classList.remove('clicking');
+    });
+  });
+}
+
+/**
+ * Smoothly animate the fake cursor to a target element before clicking.
+ * Moves the mouse in a natural arc, pauses briefly, then clicks.
+ */
+async function moveCursorTo(page, locator, { pauseMs = 300 } = {}) {
+  const box = await locator.boundingBox();
+  if (!box) return;
+
+  // Target the center of the element
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+
+  // Move mouse smoothly to the target
+  await page.mouse.move(x, y, { steps: 15 });
+  await page.waitForTimeout(pauseMs);
+}
+
+module.exports = { showHUD, removeHUD, highlightElement, removeHighlight, showOutro, sceneTransition, initCursor, moveCursorTo };

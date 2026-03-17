@@ -1,34 +1,73 @@
-/* Ink Black → Alabaster Grey palette
-   Ink Black #0d1b2a, Prussian Blue #1b263b, Dusk Blue #415a77,
-   Dusty Denim #778da9, Alabaster Grey #e0e1dd */
+/* Ink Black → Alabaster palette — OKLCH for perceptual uniformity
+   Ink Black   oklch(0.218 0.038 255)
+   Prussian    oklch(0.269 0.046 266)
+   Dusk Blue   oklch(0.460 0.060 256)
+   Dusty Denim oklch(0.636 0.053 258)
+   Alabaster   oklch(0.908 0.006 118)
+
+   TODO: Would OKLCH-based generation let you produce consistent hover
+         states, focus rings, and chart scales automatically?
+   TODO: If you printed the light mode on paper, does Alabaster feel
+         intentional or like a low-toner printout? Consider L≈0.94.
+   TODO: Derive success/warning/destructive from the navy palette hue
+         family for deeper harmonic cohesion.
+   TODO: Can a coach distinguish primary buttons from muted labels at
+         a glance? Validate with real users.
+*/
+
 :root {
   --radius: 0.625rem;
-  /* Light mode: Alabaster base */
-  --background: #e0e1dd;
-  --foreground: #0d1b2a;
-  --card: #ffffff;
-  --card-foreground: #0d1b2a;
-  --popover: #ffffff;
-  --popover-foreground: #0d1b2a;
-  --primary: #415a77;
-  --primary-foreground: #e0e1dd;
-  --secondary: #778da9;
-  --secondary-foreground: #0d1b2a;
-  --muted: #e8e9e6;
-  --muted-foreground: #415a77;
-  --accent: #778da9;
-  --accent-foreground: #0d1b2a;
-  --destructive: #b91c1c;
-  --border: rgb(119 141 169 / 0.5);
-  --input: rgb(119 141 169 / 0.3);
-  --ring: #415a77;
-  --chart-1: #415a77;
-  --chart-2: #778da9;
-  --chart-3: #1b263b;
-  --chart-4: #5a6f8a;
-  --chart-5: #2d3d52;
 
-  --sidebar: #e8e9e6;
+  /* Light mode: Alabaster base */
+  --background: oklch(0.908 0.006 118);
+  --foreground: oklch(0.218 0.038 255);
+
+  /* Cards: warm off-white, not pure #fff */
+  --card: oklch(0.969 0.005 121);
+  --card-foreground: oklch(0.218 0.038 255);
+  --popover: oklch(0.969 0.005 121);
+  --popover-foreground: oklch(0.218 0.038 255);
+
+  /* Primary: Dusk Blue */
+  --primary: oklch(0.460 0.060 256);
+  --primary-foreground: oklch(0.908 0.006 118);
+
+  /* Secondary: Dusty Denim */
+  --secondary: oklch(0.636 0.053 258);
+  --secondary-foreground: oklch(0.218 0.038 255);
+
+  /* Muted: slightly lighter than background */
+  --muted: oklch(0.932 0.005 121);
+  --muted-foreground: oklch(0.535 0.053 259);
+
+  /* Accent: differentiated from secondary (slightly lighter, warmer) */
+  --accent: oklch(0.650 0.040 250);
+  --accent-foreground: oklch(0.218 0.038 255);
+
+  /* Status */
+  --destructive: oklch(0.500 0.180 28);
+  --destructive-foreground: oklch(0.969 0.005 121);
+  --success: oklch(0.550 0.150 155);
+  --success-foreground: oklch(0.969 0.005 121);
+  --warning: oklch(0.666 0.165 63);
+  --warning-foreground: oklch(0.969 0.005 121);
+  --highlight: oklch(0.769 0.179 75);
+  --highlight-foreground: oklch(0.218 0.038 255);
+
+  /* Borders & inputs */
+  --border: oklch(0.636 0.053 258 / 0.5);
+  --input: oklch(0.636 0.053 258 / 0.3);
+  --ring: oklch(0.460 0.060 256);
+
+  /* Charts: wide hue separation for data viz */
+  --chart-1: oklch(0.460 0.060 256);
+  --chart-2: oklch(0.580 0.080 200);
+  --chart-3: oklch(0.720 0.120 75);
+  --chart-4: oklch(0.600 0.100 15);
+  --chart-5: oklch(0.620 0.080 150);
+
+  /* Sidebar */
+  --sidebar: oklch(0.932 0.005 121);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -36,41 +75,59 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  --success: #16a34a;
-  --success-foreground: #ffffff;
-  --warning: #d97706;
-  --warning-foreground: #ffffff;
-  --highlight: #f59e0b;
-  --highlight-foreground: #0d1b2a;
 }
 
 .dark {
-  /* Ink Black → Alabaster palette */
-  --background: #0d1b2a;
-  --foreground: #e0e1dd;
-  --card: #1b263b;
-  --card-foreground: #e0e1dd;
-  --popover: #1b263b;
-  --popover-foreground: #e0e1dd;
-  --primary: #778da9;
-  --primary-foreground: #0d1b2a;
-  --secondary: #415a77;
-  --secondary-foreground: #e0e1dd;
-  --muted: #1b263b;
-  --muted-foreground: #778da9;
-  --accent: #415a77;
-  --accent-foreground: #e0e1dd;
-  --destructive: #dc2626;
-  --border: rgb(65 90 119 / 0.5);
-  --input: rgb(65 90 119 / 0.3);
-  --ring: #778da9;
-  --chart-1: #415a77;
-  --chart-2: #778da9;
-  --chart-3: #5a6f8a;
-  --chart-4: #2d3d52;
-  --chart-5: #1b263b;
+  /* Dark mode: Ink Black base */
+  --background: oklch(0.218 0.038 255);
+  --foreground: oklch(0.908 0.006 118);
 
-  --sidebar: #1b263b;
+  /* Cards: Prussian Blue */
+  --card: oklch(0.269 0.046 266);
+  --card-foreground: oklch(0.908 0.006 118);
+  --popover: oklch(0.269 0.046 266);
+  --popover-foreground: oklch(0.908 0.006 118);
+
+  /* Primary: Dusty Denim (swapped for dark) */
+  --primary: oklch(0.636 0.053 258);
+  --primary-foreground: oklch(0.218 0.038 255);
+
+  /* Secondary: Dusk Blue */
+  --secondary: oklch(0.460 0.060 256);
+  --secondary-foreground: oklch(0.908 0.006 118);
+
+  /* Muted: slightly lighter than card to avoid collision */
+  --muted: oklch(0.294 0.047 260);
+  --muted-foreground: oklch(0.601 0.053 255);
+
+  /* Accent: differentiated from secondary */
+  --accent: oklch(0.440 0.040 252);
+  --accent-foreground: oklch(0.908 0.006 118);
+
+  /* Status — brighter for dark backgrounds */
+  --destructive: oklch(0.580 0.200 27);
+  --destructive-foreground: oklch(0.908 0.006 118);
+  --success: oklch(0.700 0.160 155);
+  --success-foreground: oklch(0.218 0.038 255);
+  --warning: oklch(0.769 0.179 75);
+  --warning-foreground: oklch(0.218 0.038 255);
+  --highlight: oklch(0.837 0.185 89);
+  --highlight-foreground: oklch(0.218 0.038 255);
+
+  /* Borders & inputs */
+  --border: oklch(0.460 0.060 256 / 0.5);
+  --input: oklch(0.460 0.060 256 / 0.3);
+  --ring: oklch(0.636 0.053 258);
+
+  /* Charts: wide hue separation */
+  --chart-1: oklch(0.500 0.060 256);
+  --chart-2: oklch(0.580 0.080 200);
+  --chart-3: oklch(0.700 0.100 75);
+  --chart-4: oklch(0.560 0.080 15);
+  --chart-5: oklch(0.600 0.070 150);
+
+  /* Sidebar */
+  --sidebar: oklch(0.269 0.046 266);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -78,17 +135,14 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  --success: #22c55e;
-  --success-foreground: #0d1b2a;
-  --warning: #f59e0b;
-  --warning-foreground: #0d1b2a;
-  --highlight: #fbbf24;
-  --highlight-foreground: #0d1b2a;
 }
 
 @theme inline {
+  --font-dm-sans: 'DM Sans', 'sans-serif';
   --font-inter: 'Inter', 'sans-serif';
   --font-manrope: 'Manrope', 'sans-serif';
+  --font-display: 'Manrope', 'sans-serif';
+  --font-system: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -109,6 +163,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

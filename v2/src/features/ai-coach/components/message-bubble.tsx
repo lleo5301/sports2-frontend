@@ -1,18 +1,30 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, Wrench } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronRight,
+  Database,
+  Info,
+  Pin,
+  Wrench,
+} from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import { TOOL_LABELS } from '../constants'
 import type { AiMessage } from '../types'
 
 interface MessageBubbleProps {
   message: AiMessage
-  isLast?: boolean
+  /** True if any tool calls preceded this assistant message in the thread */
+  usedTools?: boolean
+  onSaveInsight?: (message: AiMessage) => void
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  usedTools,
+  onSaveInsight,
+}: MessageBubbleProps) {
   const [expanded, setExpanded] = useState(false)
 
   // Tool call/result messages render as small collapsible badges
@@ -46,32 +58,61 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   const isUser = message.role === 'user'
 
-  return (
-    <div
-      className={cn('flex px-4 py-2', isUser ? 'justify-end' : 'justify-start')}
-    >
-      <div
-        className={cn(
-          'max-w-[85%] rounded-2xl px-4 py-2.5 sm:max-w-[75%]',
-          isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
-        )}
-      >
-        {isUser ? (
+  if (isUser) {
+    return (
+      <div className='flex justify-end px-4 py-2'>
+        <div className='max-w-[85%] rounded-2xl bg-primary px-4 py-2.5 text-primary-foreground sm:max-w-[75%]'>
           <p className='text-sm whitespace-pre-wrap'>{message.content}</p>
-        ) : (
-          <div className='prose prose-sm dark:prose-invert max-w-none'>
+        </div>
+      </div>
+    )
+  }
+
+  // Assistant message — document style, no bubble
+  return (
+    <div className='group flex justify-start px-4 py-3'>
+      <div className='w-full max-w-[85%] sm:max-w-[75%]'>
+        <div className='border-l-2 border-primary/30 pl-4'>
+          <div className='prose prose-sm max-w-none dark:prose-invert [&>p:first-child]:text-sm [&>p:first-child]:leading-snug [&>p:first-child]:font-medium'>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content || ''}
             </ReactMarkdown>
           </div>
-        )}
-        {message.role === 'assistant' && message.tokens_used && (
-          <div className='mt-1.5 flex justify-end'>
-            <Badge variant='secondary' className='text-[10px]'>
-              {message.tokens_used.toLocaleString()} tokens
-            </Badge>
-          </div>
-        )}
+        </div>
+
+        {/* Footer row — data signal (always visible) + save action (hover) */}
+        <div className='mt-2 flex items-center justify-between pl-4'>
+          {/* Data confidence signal */}
+          <span
+            className={cn(
+              'flex items-center gap-1 text-xs',
+              usedTools ? 'text-success/70' : 'text-muted-foreground/60'
+            )}
+          >
+            {usedTools ? (
+              <>
+                <Database className='size-2.5' />
+                Live data
+              </>
+            ) : (
+              <>
+                <Info className='size-2.5' />
+                General knowledge
+              </>
+            )}
+          </span>
+
+          {/* Save as insight — hover only */}
+          {onSaveInsight && (
+            <button
+              onClick={() => onSaveInsight(message)}
+              className='flex items-center gap-1.5 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground'
+            >
+              <Pin className='size-2.5' />
+              Save as insight
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

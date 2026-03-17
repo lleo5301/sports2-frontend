@@ -10,7 +10,6 @@ import {
   Home,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -38,6 +37,7 @@ interface ConversationListProps {
   archiveConversation: (id: string) => Promise<void>
   renameConversation: (id: string, title: string) => Promise<void>
   deleteConversation: (id: string) => Promise<void>
+  className?: string
 }
 
 export function ConversationList({
@@ -49,6 +49,7 @@ export function ConversationList({
   archiveConversation,
   renameConversation,
   deleteConversation,
+  className,
 }: ConversationListProps) {
   const [renameId, setRenameId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -63,7 +64,7 @@ export function ConversationList({
 
   return (
     <>
-      <div className='flex h-full w-72 flex-col border-r'>
+      <div className={cn('flex h-full w-72 flex-col border-r', className)}>
         <div className='flex items-center justify-between border-b p-3'>
           <h2 className='text-sm font-semibold'>Conversations</h2>
           <div className='flex gap-1'>
@@ -116,22 +117,14 @@ export function ConversationList({
                   <p className='truncate font-medium'>
                     {convo.title || 'New conversation'}
                   </p>
-                  <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
-                    <span>
-                      {convo.updated_at &&
-                      !isNaN(new Date(convo.updated_at).getTime())
-                        ? formatDistanceToNow(new Date(convo.updated_at), {
-                            addSuffix: true,
-                          })
-                        : 'just now'}
-                    </span>
-                    <Badge
-                      variant='secondary'
-                      className='px-1 py-0 text-[10px]'
-                    >
-                      {convo.model.replace('claude-', '').split('-')[0]}
-                    </Badge>
-                  </div>
+                  <span className='text-xs text-muted-foreground'>
+                    {convo.updated_at &&
+                    !isNaN(new Date(convo.updated_at).getTime())
+                      ? formatDistanceToNow(new Date(convo.updated_at), {
+                          addSuffix: true,
+                        })
+                      : 'just now'}
+                  </span>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger

@@ -4,13 +4,6 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { extendedStatsApi } from '@/lib/extended-stats-api'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 
 // Short Presto keys → display labels
 const PRESTO_LABELS: Record<string, string> = {
@@ -443,11 +436,9 @@ export function PlayerRawStatsTab({
   }
   if (!rawStats || Object.keys(rawStats).length === 0) {
     return (
-      <Card>
-        <CardContent className='py-8 text-center text-muted-foreground'>
-          No raw stats. Sync with PrestoSports to populate.
-        </CardContent>
-      </Card>
+      <p className='py-8 text-center text-muted-foreground'>
+        No raw stats. Sync with PrestoSports to populate.
+      </p>
     )
   }
 
@@ -463,16 +454,18 @@ export function PlayerRawStatsTab({
     if (items.length === 0) return null
     return (
       <div>
-        <h4 className='mb-2 text-sm font-medium text-muted-foreground'>
+        <h5 className='mb-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase'>
           {title}
-        </h4>
-        <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4'>
+        </h5>
+        <div className='grid grid-cols-3 gap-x-4 gap-y-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'>
           {items.map(([k, v]) => (
-            <div key={k} className='rounded border bg-muted/30 px-2 py-1.5'>
-              <p className='text-xs text-muted-foreground'>
+            <div key={k}>
+              <p className='text-[11px] text-muted-foreground'>
                 {formatStatKey(k)}
               </p>
-              <p className='font-semibold'>{v}</p>
+              <p className='font-display text-base font-bold tabular-nums'>
+                {v}
+              </p>
             </div>
           ))}
         </div>
@@ -481,19 +474,19 @@ export function PlayerRawStatsTab({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Raw stats</CardTitle>
-        <CardDescription>
-          {seasonName ? `${seasonName} · ` : ''}Full Presto payload
-        </CardDescription>
-      </CardHeader>
-      <CardContent className='space-y-6'>
-        {renderSection('Batting', batting)}
-        {renderSection('Pitching', pitching)}
-        {renderSection('Fielding', fielding)}
-        {other.length > 0 && renderSection('Other', other)}
-      </CardContent>
-    </Card>
+    <div className='space-y-6'>
+      <h3 className='font-display text-base font-bold tracking-tight'>
+        Raw stats
+        {seasonName && (
+          <span className='ml-2 text-sm font-normal text-muted-foreground'>
+            {seasonName}
+          </span>
+        )}
+      </h3>
+      {renderSection('Batting', batting)}
+      {renderSection('Pitching', pitching)}
+      {renderSection('Fielding', fielding)}
+      {other.length > 0 && renderSection('Other', other)}
+    </div>
   )
 }

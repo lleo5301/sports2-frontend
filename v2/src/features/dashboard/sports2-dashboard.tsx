@@ -1,27 +1,18 @@
 /**
- * Sports2 Dashboard — Overview per frontend-build-spec §6.1
- * Data: teams/me, teams/stats, teams/recent-schedules, teams/upcoming-schedules
- * Supplemental: schedules/stats, games/team-stats, depth-charts, prospects, rosters
+ * Sports2 Dashboard — distilled to essentials.
+ * Hero: season record + streak. Next game spotlight. Recent/upcoming games.
+ * Navigation counts removed — sidebar handles all navigation.
  */
-import { parseISO, endOfDay } from 'date-fns'
+import {
+  parseISO,
+  endOfDay,
+  differenceInCalendarDays,
+  differenceInHours,
+  format,
+} from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useAuth } from '@/contexts/AuthContext'
-import {
-  Users,
-  FileText,
-  Calendar,
-  Trophy,
-  MapPin,
-  Plus,
-  ClipboardList,
-  TrendingUp,
-  BarChart3,
-  ChevronRight,
-  UserPlus,
-  List,
-} from 'lucide-react'
-import { depthChartsApi } from '@/lib/depth-charts-api'
+import { MapPin, ChevronRight, Clock } from 'lucide-react'
 import { extendedStatsApi } from '@/lib/extended-stats-api'
 import {
   gamesApi,
@@ -29,19 +20,13 @@ import {
   formatGameLocation,
   type Game,
 } from '@/lib/games-api'
-import { playersApi } from '@/lib/players-api'
-import { prospectsApi } from '@/lib/prospects-api'
-import { schedulesApi } from '@/lib/schedules-api'
 import { teamsApi } from '@/lib/teams-api'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from '@/components/ui/card'
-import { GameResultBadge } from '@/components/ui/game-result-badge'
-import { StatCard } from '@/components/ui/stat-card'
+  GameResultBadge,
+  StreakIndicator,
+} from '@/components/ui/game-result-badge'
 import { Main } from '@/components/layout/main'
 import { OpponentLogo } from '@/components/opponent-logo'
 
@@ -133,8 +118,6 @@ function fromExtendedStats(g: {
 }
 
 export function Sports2Dashboard() {
-  const { user } = useAuth()
-
   const {
     data: team,
     isLoading: teamLoading,
@@ -253,11 +236,6 @@ export function Sports2Dashboard() {
     queryFn: () => gamesApi.getUpcoming(),
   })
 
-  const { data: scheduleStats } = useQuery({
-    queryKey: ['schedules-stats'],
-    queryFn: () => schedulesApi.getStats(),
-  })
-
   const { data: gamesTeamStats } = useQuery({
     queryKey: ['games-team-stats'],
     queryFn: () => gamesApi.getTeamStats(),
@@ -268,21 +246,6 @@ export function Sports2Dashboard() {
     queryFn: () => gamesApi.getSeasonStats(),
   })
 
-  const { data: depthCharts = [] } = useQuery({
-    queryKey: ['depth-charts'],
-    queryFn: () => depthChartsApi.list(),
-  })
-
-  const { data: prospectsList } = useQuery({
-    queryKey: ['prospects-dashboard-count'],
-    queryFn: () => prospectsApi.list({ limit: 1 }),
-  })
-
-  const { data: playersList } = useQuery({
-    queryKey: ['players-dashboard-count'],
-    queryFn: () => playersApi.list({ limit: 1 }),
-  })
-
   const isLoading = teamLoading || statsLoading
   const error = teamError || statsError
 
@@ -291,41 +254,76 @@ export function Sports2Dashboard() {
     | Record<string, unknown>
     | undefined
 
-  const teamPlayers =
-    Number(
-      teamStats?.players ??
-        teamStats?.player_count ??
-        teamStats?.total_players ??
-        0
-    ) || 0
-
   const statsData = {
-    players:
-      teamPlayers > 0 ? teamPlayers : (playersList?.pagination?.total ?? 0),
-    reports: Number(teamStats?.reports ?? teamStats?.report_count ?? 0) || 0,
-    schedules:
-      Number(teamStats?.schedules ?? teamStats?.schedule_count ?? 0) || 0,
     wins: Number(teamStats?.wins ?? gamesStats?.wins ?? 0) || 0,
     losses: Number(teamStats?.losses ?? gamesStats?.losses ?? 0) || 0,
-    scheduleThisWeek: Number(scheduleStats?.thisWeek ?? 0) || 0,
-    scheduleThisMonth: Number(scheduleStats?.thisMonth ?? 0) || 0,
-    depthCharts: Array.isArray(depthCharts) ? depthCharts.length : 0,
-    prospects: prospectsList?.pagination?.total ?? 0,
   }
 
   const teamName = (team as { name?: string })?.name ?? 'Team'
   const recent = Array.isArray(recentGames) ? recentGames : []
   const upcoming = Array.isArray(upcomingGames) ? upcomingGames : []
 
+  const streakResults = recent
+    .map((g) => parseGameResult(g))
+    .filter(Boolean)
+    .map((r) => r!.result)
+
+  const currentStreak = (() => {
+    if (streakResults.length === 0) return null
+    const first = streakResults[0]
+    let count = 0
+    for (const r of streakResults) {
+      if (r === first) count++
+      else break
+    }
+    return { type: first, count }
+  })()
+
+  const nextGame = upcoming[0] ?? null
+  const nextGameCountdown = (() => {
+    if (!nextGame) return null
+    const d = (nextGame as Game).date ?? (nextGame as Game).game_date
+    if (!d) return null
+    try {
+      const gameDate = parseISO(String(d))
+      const now = new Date()
+      const days = differenceInCalendarDays(gameDate, now)
+      if (days < 0) return null
+      if (days === 0) {
+        const hours = differenceInHours(gameDate, now)
+        return hours > 0 ? `${hours}h` : 'Now'
+      }
+      if (days === 1) return 'Tomorrow'
+      return `${days} days`
+    } catch {
+      return null
+    }
+  })()
+
   if (isLoading) {
     return (
       <Main>
-        <div className='animate-pulse space-y-8 p-6'>
-          <div className='h-10 w-64 rounded bg-muted' />
-          <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4'>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className='h-32 rounded-lg bg-muted' />
-            ))}
+        <div className='animate-pulse'>
+          <div className='grid gap-5 lg:grid-cols-5 lg:gap-8'>
+            <div className='flex flex-col gap-2 lg:col-span-2'>
+              <div className='h-3 w-20 rounded bg-muted' />
+              <div className='h-16 w-40 rounded bg-muted' />
+              <div className='mt-1 h-3 w-32 rounded bg-muted' />
+            </div>
+            <div className='h-32 rounded-lg bg-muted lg:col-span-3' />
+          </div>
+          <div className='my-10 border-t border-border/40 sm:my-12' />
+          <div className='grid gap-10 lg:grid-cols-2 lg:gap-16'>
+            <div className='space-y-2'>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className='h-12 rounded bg-muted' />
+              ))}
+            </div>
+            <div className='space-y-2'>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className='h-12 rounded bg-muted' />
+              ))}
+            </div>
           </div>
         </div>
       </Main>
@@ -356,300 +354,237 @@ export function Sports2Dashboard() {
 
   return (
     <Main>
-      <div className='space-y-6 sm:space-y-8'>
-        <header>
-          <h1 className='text-3xl font-bold tracking-tight'>
-            Welcome back{user?.first_name ? `, ${user.first_name}` : ''}
-          </h1>
-          <p className='mt-2 text-lg text-muted-foreground'>
-            {teamName} — Overview
-          </p>
-        </header>
+      <div>
+        {/* ── Hero: Record + Next Game ── */}
+        <section className='grid items-stretch gap-5 pb-1 lg:grid-cols-5 lg:gap-8'>
+          <div className='flex flex-col justify-center lg:col-span-2'>
+            <p className='font-display text-[11px] font-semibold tracking-widest text-muted-foreground/70 uppercase'>
+              {teamName}
+            </p>
+            <Link to='/games' className='group'>
+              <h1 className='-mt-0.5 text-6xl leading-none font-extrabold tracking-tighter tabular-nums sm:text-7xl'>
+                {statsData.wins}-{statsData.losses}
+              </h1>
+            </Link>
+            {(currentStreak || streakResults.length > 0) && (
+              <div className='mt-2 flex items-center gap-2.5'>
+                {currentStreak && (
+                  <span
+                    className={`text-[13px] font-semibold ${
+                      currentStreak.type === 'W'
+                        ? 'text-success'
+                        : currentStreak.type === 'L'
+                          ? 'text-destructive'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
+                    {currentStreak.count}
+                    {currentStreak.type} streak
+                  </span>
+                )}
+                {streakResults.length > 0 && (
+                  <StreakIndicator results={[...streakResults].reverse()} />
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Stats cards */}
-        <section className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6'>
-          <Link to='/players'>
-            <StatCard
-              label='Players'
-              value={statsData.players}
-              icon={<Users className='size-5' />}
-            />
-          </Link>
-
-          <Link to='/scouting'>
-            <StatCard
-              label='Reports'
-              value={statsData.reports}
-              icon={<FileText className='size-5' />}
-            />
-          </Link>
-
-          <Link to='/schedules'>
-            <StatCard
-              label='Schedules'
-              value={statsData.schedules}
-              sublabel={
-                statsData.scheduleThisWeek > 0 ||
-                statsData.scheduleThisMonth > 0
-                  ? `${statsData.scheduleThisWeek} Wk / ${statsData.scheduleThisMonth} Mo`
-                  : undefined
-              }
-              icon={<Calendar className='size-5' />}
-            />
-          </Link>
-
-          <Link to='/games'>
-            <StatCard
-              label='Record'
-              value={`${statsData.wins}-${statsData.losses}`}
-              icon={<Trophy className='size-5' />}
-            />
-          </Link>
-
-          <Link to='/depth-charts'>
-            <StatCard
-              label='Charts'
-              value={statsData.depthCharts}
-              icon={<List className='size-5' />}
-            />
-          </Link>
-
-          <Link to='/prospects'>
-            <StatCard
-              label='Prospects'
-              value={statsData.prospects}
-              icon={<UserPlus className='size-5' />}
-            />
-          </Link>
-        </section>
-
-        {/* Recent & Upcoming Games */}
-        <section className='grid gap-6 lg:grid-cols-2'>
-          <Card variant='sport'>
-            <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
-              <h2 className='flex items-center gap-2 text-lg font-bold'>
-                <Trophy className='size-5 text-muted-foreground' />
-                Recent Games
-              </h2>
-              <Button variant='ghost' size='sm' asChild>
-                <Link to='/games'>
-                  View all <ChevronRight className='size-4' />
+          <Card className='lg:col-span-3'>
+            <CardContent className='flex h-full flex-col justify-center px-6 py-5 sm:px-8 sm:py-6'>
+              {nextGame ? (
+                <Link
+                  to='/games/$id'
+                  params={{ id: String(nextGame.id) }}
+                  className='group block'
+                >
+                  <div className='flex items-center gap-1.5 text-[11px] font-semibold tracking-widest text-muted-foreground/70 uppercase'>
+                    <Clock className='size-3' />
+                    {nextGameCountdown
+                      ? `Next game · ${nextGameCountdown}`
+                      : 'Next game'}
+                  </div>
+                  <div className='mt-2.5 flex items-center gap-4'>
+                    <OpponentLogo
+                      opponent={(nextGame as Game).opponent}
+                      logoUrl={(nextGame as Game).opponent_logo_url}
+                      size={44}
+                      reserveSpace
+                    />
+                    <div className='min-w-0 flex-1'>
+                      <p className='font-display text-xl font-bold tracking-tight group-hover:underline sm:text-2xl'>
+                        vs {(nextGame as Game).opponent ?? 'Opponent'}
+                      </p>
+                      <div className='mt-0.5 flex flex-wrap items-center gap-x-3 text-[13px] text-muted-foreground'>
+                        {(() => {
+                          const d =
+                            (nextGame as Game).date ??
+                            (nextGame as Game).game_date
+                          if (!d) return null
+                          try {
+                            return (
+                              <span>
+                                {format(
+                                  parseISO(String(d)),
+                                  'EEE, MMM d · h:mm a'
+                                )}
+                              </span>
+                            )
+                          } catch {
+                            return <span>{formatGameDateShort(nextGame)}</span>
+                          }
+                        })()}
+                        {(formatGameLocation(nextGame) ||
+                          (nextGame as Game).tournament?.name) && (
+                          <span className='flex items-center gap-1'>
+                            <MapPin className='size-3' />
+                            {formatGameLocation(nextGame) ||
+                              (nextGame as Game).tournament?.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </Link>
-              </Button>
-            </CardHeader>
-            <CardContent className='px-6 pb-6'>
-              {recent.length > 0 ? (
-                <ul className='space-y-3'>
-                  {recent.slice(0, 5).map((game, i) => (
-                    <li
-                      key={game.id ?? i}
-                      className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
-                    >
-                      <Link
-                        to='/games/$id'
-                        params={{ id: String(game.id) }}
-                        className='flex items-center gap-3'
-                      >
-                        <OpponentLogo
-                          opponent={(game as Game).opponent}
-                          logoUrl={(game as Game).opponent_logo_url}
-                          size={32}
-                          reserveSpace
-                        />
-                        <span className='hidden w-20 shrink-0 text-sm text-muted-foreground sm:inline'>
-                          {formatGameDateShort(game)}
-                        </span>
-                        <div className='min-w-0 flex-1'>
-                          <p className='flex items-center gap-2 truncate font-medium'>
-                            <span className='truncate'>
-                              {formatGameLabel(game)}
-                            </span>
-                            {(() => {
-                              const parsed = parseGameResult(game)
-                              if (parsed) {
-                                return (
-                                  <GameResultBadge
-                                    result={parsed.result}
-                                    score={parsed.score}
-                                  />
-                                )
-                              }
-                              const text = formatGameResult(game)
-                              return text ? (
-                                <span className='text-muted-foreground'>
-                                  {text}
-                                </span>
-                              ) : null
-                            })()}
-                          </p>
-                          {(formatGameLocation(game) ||
-                            (game as Game).tournament?.name) && (
-                            <p className='flex items-center gap-1 text-sm text-muted-foreground'>
-                              <MapPin className='size-3.5 shrink-0' />
-                              {formatGameLocation(game) ||
-                                (game as Game).tournament?.name}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
               ) : (
-                <div className='py-8 text-center text-muted-foreground'>
-                  <Trophy className='mx-auto mb-3 size-12 opacity-50' />
-                  <p>No recent games</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card variant='sport'>
-            <CardHeader className='flex flex-row items-center justify-between px-6 pt-6 pb-2'>
-              <h2 className='flex items-center gap-2 text-lg font-bold'>
-                <Trophy className='size-5 text-muted-foreground' />
-                Upcoming Games
-              </h2>
-              <Button variant='ghost' size='sm' asChild>
-                <Link to='/games'>
-                  View all <ChevronRight className='size-4' />
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent className='px-6 pb-6'>
-              {upcoming.length > 0 ? (
-                <ul className='space-y-3'>
-                  {upcoming.slice(0, 5).map((game, i) => (
-                    <li
-                      key={game.id ?? i}
-                      className='cursor-pointer rounded-xl bg-muted/50 p-3 transition-colors hover:bg-muted'
-                    >
-                      <Link
-                        to='/games/$id'
-                        params={{ id: String(game.id) }}
-                        className='flex items-center gap-3'
-                      >
-                        <OpponentLogo
-                          opponent={(game as Game).opponent}
-                          logoUrl={(game as Game).opponent_logo_url}
-                          size={32}
-                          reserveSpace
-                        />
-                        <span className='hidden w-20 shrink-0 text-sm text-muted-foreground sm:inline'>
-                          {formatGameDateShort(game)}
-                        </span>
-                        <div className='min-w-0 flex-1'>
-                          <p className='truncate font-medium'>
-                            {formatGameLabel(game)}
-                          </p>
-                          {(formatGameLocation(game) ||
-                            (game as Game).tournament?.name) && (
-                            <p className='flex items-center gap-1 text-sm text-muted-foreground'>
-                              <MapPin className='size-3.5 shrink-0' />
-                              {formatGameLocation(game) ||
-                                (game as Game).tournament?.name}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className='py-8 text-center text-muted-foreground'>
-                  <Trophy className='mx-auto mb-3 size-12 opacity-50' />
-                  <p>No upcoming games</p>
+                <div className='py-2 text-center text-muted-foreground'>
+                  <p className='text-sm'>No upcoming games scheduled</p>
+                  <Button variant='ghost' size='sm' className='mt-1.5' asChild>
+                    <Link to='/games'>View schedule</Link>
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
         </section>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader className='px-6 pt-6 pb-2'>
-            <h2 className='flex items-center gap-2 text-lg font-bold'>
-              <BarChart3 className='size-5' />
-              Quick Actions
-            </h2>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
-          </CardHeader>
-          <CardContent className='px-4 pb-4 sm:px-6 sm:pb-6'>
-            <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4'>
-              <Button
-                variant='outline'
-                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
-                asChild
-              >
-                <Link to='/players/create'>
-                  <div className='shrink-0 rounded-lg bg-muted p-2'>
-                    <Plus className='size-5' />
-                  </div>
-                  <div className='min-w-0 text-left'>
-                    <div className='truncate font-semibold'>Add Player</div>
-                    <div className='truncate text-xs text-muted-foreground'>
-                      Create roster entry
-                    </div>
-                  </div>
-                </Link>
-              </Button>
+        {/* ── Separator ── */}
+        <div className='my-10 border-t border-border/40 sm:my-12' />
 
+        {/* ── Recent & Upcoming Games ── */}
+        <section className='grid gap-10 lg:grid-cols-2 lg:gap-16'>
+          <div>
+            <div className='mb-3 flex items-baseline justify-between'>
+              <h2 className='text-sm font-semibold tracking-wide text-muted-foreground uppercase'>
+                Recent
+              </h2>
               <Button
-                variant='outline'
-                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
+                variant='ghost'
+                size='sm'
+                className='-mr-2 h-auto px-2 py-1 text-xs'
                 asChild
               >
-                <Link to='/scouting/create'>
-                  <div className='shrink-0 rounded-lg bg-muted p-2'>
-                    <ClipboardList className='size-5' />
-                  </div>
-                  <div className='min-w-0 text-left'>
-                    <div className='truncate font-semibold'>Create Report</div>
-                    <div className='truncate text-xs text-muted-foreground'>
-                      New scouting report
-                    </div>
-                  </div>
-                </Link>
-              </Button>
-
-              <Button
-                variant='outline'
-                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
-                asChild
-              >
-                <Link to='/reports/analytics'>
-                  <div className='shrink-0 rounded-lg bg-muted p-2'>
-                    <TrendingUp className='size-5' />
-                  </div>
-                  <div className='min-w-0 text-left'>
-                    <div className='truncate font-semibold'>Analytics</div>
-                    <div className='truncate text-xs text-muted-foreground'>
-                      View team metrics
-                    </div>
-                  </div>
-                </Link>
-              </Button>
-
-              <Button
-                variant='outline'
-                className='h-auto min-w-0 justify-start gap-3 overflow-hidden py-3 sm:py-4'
-                asChild
-              >
-                <Link to='/reports'>
-                  <div className='shrink-0 rounded-lg bg-muted p-2'>
-                    <BarChart3 className='size-5' />
-                  </div>
-                  <div className='min-w-0 text-left'>
-                    <div className='truncate font-semibold'>Reports</div>
-                    <div className='truncate text-xs text-muted-foreground'>
-                      Analytics & exports
-                    </div>
-                  </div>
+                <Link to='/games'>
+                  All games <ChevronRight className='ml-0.5 size-3' />
                 </Link>
               </Button>
             </div>
-          </CardContent>
-        </Card>
+            {recent.length > 0 ? (
+              <ul className='divide-y divide-border/40'>
+                {recent.slice(0, 5).map((game, i) => (
+                  <li key={game.id ?? i}>
+                    <Link
+                      to='/games/$id'
+                      params={{ id: String(game.id) }}
+                      className='flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/60'
+                    >
+                      <OpponentLogo
+                        opponent={(game as Game).opponent}
+                        logoUrl={(game as Game).opponent_logo_url}
+                        size={28}
+                        reserveSpace
+                      />
+                      <div className='min-w-0 flex-1'>
+                        <p className='flex items-center gap-2 text-sm font-medium'>
+                          <span className='truncate'>
+                            {formatGameLabel(game)}
+                          </span>
+                          {(() => {
+                            const parsed = parseGameResult(game)
+                            if (parsed) {
+                              return (
+                                <GameResultBadge
+                                  result={parsed.result}
+                                  score={parsed.score}
+                                />
+                              )
+                            }
+                            const text = formatGameResult(game)
+                            return text ? (
+                              <span className='text-xs text-muted-foreground'>
+                                {text}
+                              </span>
+                            ) : null
+                          })()}
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
+                          {formatGameDateShort(game)}
+                          {formatGameLocation(game) &&
+                            ` · ${formatGameLocation(game)}`}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className='py-10 text-center text-sm text-muted-foreground'>
+                No recent games
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className='mb-3 flex items-baseline justify-between'>
+              <h2 className='text-sm font-semibold tracking-wide text-muted-foreground uppercase'>
+                Upcoming
+              </h2>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='-mr-2 h-auto px-2 py-1 text-xs'
+                asChild
+              >
+                <Link to='/games'>
+                  Schedule <ChevronRight className='ml-0.5 size-3' />
+                </Link>
+              </Button>
+            </div>
+            {upcoming.length > 0 ? (
+              <ul className='divide-y divide-border/40'>
+                {upcoming.slice(0, 5).map((game, i) => (
+                  <li key={game.id ?? i}>
+                    <Link
+                      to='/games/$id'
+                      params={{ id: String(game.id) }}
+                      className='flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/60'
+                    >
+                      <OpponentLogo
+                        opponent={(game as Game).opponent}
+                        logoUrl={(game as Game).opponent_logo_url}
+                        size={28}
+                        reserveSpace
+                      />
+                      <div className='min-w-0 flex-1'>
+                        <p className='truncate text-sm font-medium'>
+                          vs {(game as Game).opponent ?? 'Opponent'}
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
+                          {formatGameDateShort(game)}
+                          {formatGameLocation(game) &&
+                            ` · ${formatGameLocation(game)}`}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className='py-10 text-center text-sm text-muted-foreground'>
+                No upcoming games
+              </p>
+            )}
+          </div>
+        </section>
       </div>
     </Main>
   )

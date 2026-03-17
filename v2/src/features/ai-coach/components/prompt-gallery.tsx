@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  Bot,
-  Send,
+  ArrowRight,
   TrendingUp,
   Users,
   ClipboardList,
@@ -12,7 +11,6 @@ import { aiApi } from '@/lib/ai-api'
 import { Button } from '@/components/ui/button'
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -114,13 +112,12 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
     <div className='flex h-full flex-col items-center justify-center overflow-y-auto p-4 sm:p-8'>
       <div className='w-full max-w-3xl space-y-6'>
         {/* Header */}
-        <div className='space-y-2 text-center'>
-          <div className='mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10'>
-            <Bot className='size-6 text-primary' />
-          </div>
-          <h1 className='text-2xl font-bold'>AI Coach Assistant</h1>
-          <p className='text-muted-foreground'>
-            Get insights about your team, players, and strategy
+        <div className='space-y-1'>
+          <h1 className='text-xl font-semibold tracking-tight'>
+            Ask your coaching staff anything
+          </h1>
+          <p className='text-sm text-muted-foreground'>
+            Start with a question or pick from common analyses below.
           </p>
         </div>
 
@@ -151,27 +148,20 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
                     (template) => (
                       <Card
                         key={template.id}
-                        className='cursor-pointer transition-colors hover:bg-accent'
+                        className='group cursor-pointer transition-colors hover:bg-accent'
                         onClick={() => handleTemplateClick(template)}
                       >
-                        <CardHeader className='pb-2'>
-                          <CardTitle className='text-sm'>
-                            {template.label}
-                          </CardTitle>
-                          <CardDescription className='text-xs'>
-                            {template.description}
-                          </CardDescription>
+                        <CardHeader className='flex-row items-start justify-between gap-2 space-y-0 pb-2'>
+                          <div className='space-y-1'>
+                            <CardTitle className='text-sm'>
+                              {template.label}
+                            </CardTitle>
+                            <CardDescription className='text-xs'>
+                              {template.description}
+                            </CardDescription>
+                          </div>
+                          <ArrowRight className='size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100' />
                         </CardHeader>
-                        <CardContent>
-                          <Button
-                            size='sm'
-                            variant='ghost'
-                            className='h-7 text-xs'
-                          >
-                            <Send className='mr-1 size-3' />
-                            Use
-                          </Button>
-                        </CardContent>
                       </Card>
                     )
                   )}
@@ -185,24 +175,21 @@ export function PromptGallery({ onSelectPrompt }: PromptGalleryProps) {
             {QUICK_PROMPTS.map((qp) => (
               <Card
                 key={qp.label}
-                className='cursor-pointer transition-colors hover:bg-accent'
+                className='group cursor-pointer transition-colors hover:bg-accent'
                 onClick={() => onSelectPrompt(qp.prompt)}
               >
-                <CardHeader className='pb-2'>
-                  <CardTitle className='flex items-center gap-2 text-sm'>
-                    <qp.icon className='size-4 text-primary' />
-                    {qp.label}
-                  </CardTitle>
-                  <CardDescription className='text-xs'>
-                    {qp.description}
-                  </CardDescription>
+                <CardHeader className='flex-row items-start justify-between gap-2 space-y-0 pb-2'>
+                  <div className='space-y-1'>
+                    <CardTitle className='flex items-center gap-2 text-sm'>
+                      <qp.icon className='size-4 text-primary' />
+                      {qp.label}
+                    </CardTitle>
+                    <CardDescription className='text-xs'>
+                      {qp.description}
+                    </CardDescription>
+                  </div>
+                  <ArrowRight className='size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100' />
                 </CardHeader>
-                <CardContent>
-                  <Button size='sm' variant='ghost' className='h-7 text-xs'>
-                    <Send className='mr-1 size-3' />
-                    Ask
-                  </Button>
-                </CardContent>
               </Card>
             ))}
           </div>

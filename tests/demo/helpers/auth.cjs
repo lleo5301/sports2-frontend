@@ -1,6 +1,6 @@
 // tests/demo/helpers/auth.js
 
-const BASE_URL = process.env.DEMO_BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.DEMO_BASE_URL || 'http://localhost:5173';
 
 /**
  * Log in via the login form UI.
@@ -10,11 +10,11 @@ async function login(page, { email = 'admin@sports2.com', password = 'Admin123!'
   await page.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded' });
 
   // Wait for login form to render
-  await page.getByLabel('Email').waitFor({ state: 'visible', timeout: 10000 });
+  await page.locator('input[name="email"]').waitFor({ state: 'visible', timeout: 10000 });
 
-  // Fill credentials
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
+  // Fill credentials (using name selectors to avoid TanStack Router DevTools conflicts)
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
 
   // Submit
   await page.getByRole('button', { name: /Sign in/i }).click();

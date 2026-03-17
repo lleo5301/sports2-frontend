@@ -1,27 +1,14 @@
-import { Link, useLocation } from '@tanstack/react-router'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Main } from '@/components/layout/main'
+import { AiCoachTabs } from './components/ai-coach-tabs'
 import { ApiKeySettings } from './components/api-key-settings'
 import { UsageSummary } from './components/usage-summary'
 
 export function AiCoachSettings() {
-  const { pathname } = useLocation()
-
   return (
     <Main>
-      <Tabs value={pathname} className='mb-6 w-full'>
-        <TabsList>
-          <TabsTrigger value='/ai-coach' asChild>
-            <Link to='/ai-coach'>Chat</Link>
-          </TabsTrigger>
-          <TabsTrigger value='/ai-coach/insights' asChild>
-            <Link to='/ai-coach/insights'>Insights</Link>
-          </TabsTrigger>
-          <TabsTrigger value='/ai-coach/settings' asChild>
-            <Link to='/ai-coach/settings'>Settings</Link>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className='mb-6'>
+        <AiCoachTabs />
+      </div>
       <div className='space-y-6'>
         <div>
           <h1 className='text-2xl font-bold'>AI Coach Settings</h1>

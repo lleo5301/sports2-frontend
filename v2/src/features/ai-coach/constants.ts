@@ -37,19 +37,13 @@ export const INSIGHT_CATEGORY_LABELS: Record<string, string> = {
 }
 
 export const INSIGHT_CATEGORY_COLORS: Record<string, string> = {
-  player_performance:
-    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  pitching_analysis:
-    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  recruiting:
-    'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  lineup:
-    'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-  scouting:
-    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  game_recap: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  weekly_digest:
-    'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+  player_performance: 'bg-primary/15 text-primary border-primary/25',
+  pitching_analysis: 'bg-success/15 text-success border-success/25',
+  recruiting: 'bg-secondary/20 text-secondary-foreground border-secondary/30',
+  lineup: 'bg-warning/15 text-warning border-warning/25',
+  scouting: 'bg-highlight/15 text-highlight-foreground border-highlight/25',
+  game_recap: 'bg-destructive/10 text-destructive border-destructive/20',
+  weekly_digest: 'bg-muted text-muted-foreground border-border',
 }
 
 /**
