@@ -153,8 +153,11 @@ export const sidebarData: SidebarData = {
         },
         {
           title: 'Integrations',
-          url: '/integrations',
           icon: Plug,
+          items: [
+            { title: 'PrestoSports', url: '/integrations' },
+            { title: 'Synergy Sports', url: '/integrations/synergy' },
+          ],
         },
       ],
     },
