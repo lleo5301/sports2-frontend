@@ -11,7 +11,11 @@ import { useState } from 'react'
 import { useQueries } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Loader2, Search, X } from 'lucide-react'
-import { gamesApi, type LeaderEntry } from '@/lib/games-api'
+import {
+  gamesApi,
+  type LeaderEntry,
+  type LeaderboardResponse,
+} from '@/lib/games-api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -228,7 +232,7 @@ function SearchResults({
     typeof useQueries<
       {
         queryKey: string[]
-        queryFn: () => Promise<{ leaders: LeaderEntry[]; season_name?: string }>
+        queryFn: () => Promise<LeaderboardResponse | undefined>
       }[]
     >
   >
