@@ -18,6 +18,8 @@ type BaseNavItem = {
   icon?: React.ElementType
   /** Required permission to show (e.g. depth_chart_view). Omit to always show. */
   permission?: string
+  /** Show only to super_admin users. */
+  superAdminOnly?: boolean
 }
 
 type NavLink = BaseNavItem & {

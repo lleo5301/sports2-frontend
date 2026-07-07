@@ -62,8 +62,7 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     pagination: { defaultPage: 1, defaultPageSize: 10 },
     globalFilter: { enabled: false },
     columnFilters: [
-      // username per-column text filter
-      { columnId: 'username', searchKey: 'username', type: 'string' },
+      { columnId: 'fullName', searchKey: 'name', type: 'string' },
       { columnId: 'status', searchKey: 'status', type: 'array' },
       { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
@@ -108,7 +107,7 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
       <DataTableToolbar
         table={table}
         searchPlaceholder='Filter users...'
-        searchKey='username'
+        searchKey='fullName'
         filters={[
           {
             columnId: 'status',
@@ -116,8 +115,6 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
             options: [
               { label: 'Active', value: 'active' },
               { label: 'Inactive', value: 'inactive' },
-              { label: 'Invited', value: 'invited' },
-              { label: 'Suspended', value: 'suspended' },
             ],
           },
           {
@@ -130,8 +127,8 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
       {isMobile ? (
         <DataTableCardView
           table={table}
-          titleColumnId='username'
-          visibleColumnIds={['username', 'fullName', 'email', 'status', 'role']}
+          titleColumnId='fullName'
+          visibleColumnIds={['fullName', 'email', 'status', 'role']}
         />
       ) : (
         <div className='overflow-hidden rounded-md border'>

@@ -1,81 +1,72 @@
 'use client'
 
-import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ConfirmDialog } from '@/components/confirm-dialog'
+import { AxiosError } from 'axios'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { adminUsersApi } from '@/lib/admin-users-api'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { type User } from '../data/schema'
 
-type UserDeleteDialogProps = {
+type Props = {
+  currentRow: User
   open: boolean
   onOpenChange: (open: boolean) => void
-  currentRow: User
 }
 
-export function UsersDeleteDialog({
-  open,
-  onOpenChange,
-  currentRow,
-}: UserDeleteDialogProps) {
-  const [value, setValue] = useState('')
+export function UsersDeleteDialog({ currentRow, open, onOpenChange }: Props) {
+  const queryClient = useQueryClient()
 
-  const handleDelete = () => {
-    if (value.trim() !== currentRow.username) return
-
-    onOpenChange(false)
-    showSubmittedData(currentRow, 'The following user has been deleted:')
-  }
+  const mutation = useMutation({
+    mutationFn: () => adminUsersApi.remove(currentRow.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+      toast.success(`Deleted ${currentRow.firstName} ${currentRow.lastName}`)
+      onOpenChange(false)
+    },
+    onError: (err) => {
+      const msg =
+        err instanceof AxiosError
+          ? ((err.response?.data as { error?: string })?.error ??
+            'Delete failed')
+          : 'Delete failed'
+      toast.error(msg)
+    },
+  })
 
   return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.username}
-      title={
-        <span className='text-destructive'>
-          <AlertTriangle
-            className='me-1 inline-block stroke-destructive'
-            size={18}
-          />{' '}
-          Delete User
-        </span>
-      }
-      desc={
-        <div className='space-y-4'>
-          <p className='mb-2'>
-            Are you sure you want to delete{' '}
-            <span className='font-bold'>{currentRow.username}</span>?
-            <br />
-            This action will permanently remove the user with the role of{' '}
-            <span className='font-bold'>
-              {currentRow.role.toUpperCase()}
-            </span>{' '}
-            from the system. This cannot be undone.
-          </p>
-
-          <Label className='my-2'>
-            Username:
-            <Input
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder='Enter username to confirm deletion.'
-            />
-          </Label>
-
-          <Alert variant='destructive'>
-            <AlertTitle>Warning!</AlertTitle>
-            <AlertDescription>
-              Please be careful, this operation can not be rolled back.
-            </AlertDescription>
-          </Alert>
-        </div>
-      }
-      confirmText='Delete'
-      destructive
-    />
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete user</AlertDialogTitle>
+          <AlertDialogDescription>
+            This permanently removes {currentRow.firstName}{' '}
+            {currentRow.lastName} ({currentRow.email}). This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={mutation.isPending}
+            onClick={(e) => {
+              e.preventDefault()
+              mutation.mutate()
+            }}
+            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
