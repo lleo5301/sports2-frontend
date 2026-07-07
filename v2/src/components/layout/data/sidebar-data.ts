@@ -13,6 +13,7 @@ import {
   Award,
   Newspaper,
   Bot,
+  UserCog,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -137,6 +138,17 @@ export const sidebarData: SidebarData = {
               icon: Contact,
             },
           ],
+        },
+      ],
+    },
+    {
+      title: 'Administration',
+      items: [
+        {
+          title: 'User Management',
+          url: '/users',
+          icon: UserCog,
+          superAdminOnly: true,
         },
       ],
     },

@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
+import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
 import { adminUsersApi } from '@/lib/admin-users-api'
+import { Card, CardContent } from '@/components/ui/card'
 import { Main } from '@/components/layout/main'
 import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
@@ -11,13 +13,28 @@ import { UsersTable } from './components/users-table'
 const route = getRouteApi('/_authenticated/users/')
 
 export function Users() {
+  const { user } = useAuth()
   const search = route.useSearch()
   const navigate = route.useNavigate()
+  const isSuperAdmin = user?.role === 'super_admin'
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: () => adminUsersApi.list({ limit: 100 }),
+    enabled: isSuperAdmin,
   })
+
+  if (!isSuperAdmin) {
+    return (
+      <Main>
+        <Card>
+          <CardContent className='py-12 text-center text-muted-foreground'>
+            You need super admin access to manage users.
+          </CardContent>
+        </Card>
+      </Main>
+    )
+  }
 
   const users = data?.users ?? []
 

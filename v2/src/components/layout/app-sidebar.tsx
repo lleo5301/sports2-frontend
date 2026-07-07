@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { useLayout } from '@/context/layout-provider'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBranding } from '@/contexts/BrandingContext'
-import { usePermissions } from '@/hooks/use-permissions'
 import { teamsApi } from '@/lib/teams-api'
+import { useLayout } from '@/context/layout-provider'
+import { usePermissions } from '@/hooks/use-permissions'
 import {
   Sidebar,
   SidebarContent,
@@ -27,23 +27,34 @@ export function AppSidebar() {
     queryFn: () => teamsApi.getMyTeam() as Promise<Record<string, unknown>>,
   })
 
-  const filterByPermission = (items: { permission?: string }[]) =>
-    items.filter((item) => !item.permission || has(item.permission))
+  const isSuperAdmin = user?.role === 'super_admin'
 
-  const navGroups: typeof sidebarData.navGroups = sidebarData.navGroups.map((group) => ({
-    ...group,
-    items: group.items
-      .map((item) => {
-        if ('items' in item && Array.isArray(item.items)) {
-          const filtered = filterByPermission(item.items)
-          if (filtered.length === 0) return null
-          return { ...item, items: filtered } as (typeof group.items)[number]
-        }
-        if ('permission' in item && item.permission && !has(item.permission)) return null
-        return item
-      })
-      .filter(Boolean) as (typeof group.items)[number][],
-  }))
+  const allowItem = (item: { permission?: string; superAdminOnly?: boolean }) =>
+    (!item.permission || has(item.permission)) &&
+    (!item.superAdminOnly || isSuperAdmin)
+
+  const filterByPermission = (
+    items: { permission?: string; superAdminOnly?: boolean }[]
+  ) => items.filter(allowItem)
+
+  const navGroups: typeof sidebarData.navGroups = sidebarData.navGroups.map(
+    (group) => ({
+      ...group,
+      items: group.items
+        .map((item) => {
+          if ('items' in item && Array.isArray(item.items)) {
+            const filtered = filterByPermission(item.items)
+            if (filtered.length === 0) return null
+            return { ...item, items: filtered } as (typeof group.items)[number]
+          }
+          if ('permission' in item || 'superAdminOnly' in item) {
+            if (!allowItem(item)) return null
+          }
+          return item
+        })
+        .filter(Boolean) as (typeof group.items)[number][],
+    })
+  )
 
   // Priority: team name → program name → branding name → fallback
   const teamName =
@@ -54,7 +65,7 @@ export function AppSidebar() {
 
   // Use program_name as the subtitle if we have a team name, otherwise fallback
   const teamPlan =
-    (teamData?.name && teamData?.program_name)
+    teamData?.name && teamData?.program_name
       ? String(teamData.program_name)
       : sidebarData.teams[0].plan
 
@@ -69,7 +80,9 @@ export function AppSidebar() {
 
   const displayUser = user
     ? {
-        name: [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email,
+        name:
+          [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+          user.email,
         email: user.email,
         avatar: user.avatar || '',
       }
