@@ -1,32 +1,26 @@
 import { z } from 'zod'
+import { type AdminUser, type AdminRole } from '@/lib/admin-users-api'
 
-const userStatusSchema = z.union([
-  z.literal('active'),
-  z.literal('inactive'),
-  z.literal('invited'),
-  z.literal('suspended'),
-])
-export type UserStatus = z.infer<typeof userStatusSchema>
-
-const userRoleSchema = z.union([
-  z.literal('superadmin'),
-  z.literal('admin'),
-  z.literal('cashier'),
-  z.literal('manager'),
+export const userRoleSchema = z.union([
+  z.literal('super_admin'),
+  z.literal('head_coach'),
+  z.literal('assistant_coach'),
 ])
 
-const userSchema = z.object({
-  id: z.string(),
+export type UserRole = AdminRole
+
+export const userSchema = z.object({
+  id: z.number(),
   firstName: z.string(),
   lastName: z.string(),
-  username: z.string(),
   email: z.string(),
-  phoneNumber: z.string(),
-  status: userStatusSchema,
+  phone: z.string().optional(),
   role: userRoleSchema,
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  isActive: z.boolean(),
+  teamName: z.string().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 })
-export type User = z.infer<typeof userSchema>
 
-export const userListSchema = z.array(userSchema)
+// The feature's canonical row type is the API's AdminUser.
+export type User = AdminUser
