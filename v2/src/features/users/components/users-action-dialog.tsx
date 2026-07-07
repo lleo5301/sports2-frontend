@@ -52,6 +52,34 @@ const formSchema = z
         message: 'Password must be at least 8 characters.',
       })
     }
+    if (!/[A-Z]/.test(data.password)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['password'],
+        message: 'Password must contain an uppercase letter.',
+      })
+    }
+    if (!/[a-z]/.test(data.password)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['password'],
+        message: 'Password must contain a lowercase letter.',
+      })
+    }
+    if (!/[0-9]/.test(data.password)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['password'],
+        message: 'Password must contain a number.',
+      })
+    }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(data.password)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['password'],
+        message: 'Password must contain a special character.',
+      })
+    }
     if (data.password !== data.confirmPassword) {
       ctx.addIssue({
         code: 'custom',

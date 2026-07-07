@@ -35,12 +35,18 @@ export function UsersMultiDeleteDialog<TData>({
   const mutation = useMutation({
     mutationFn: async (ids: number[]) => {
       const deletable = ids.filter((id) => String(id) !== String(user?.id))
-      await Promise.all(deletable.map((id) => adminUsersApi.remove(id)))
-      return { attempted: ids.length, deleted: deletable.length }
+      const results = await Promise.allSettled(
+        deletable.map((id) => adminUsersApi.remove(id))
+      )
+      const deleted = results.filter((r) => r.status === 'fulfilled').length
+      const failed = results.filter((r) => r.status === 'rejected').length
+      return { attempted: ids.length, deleted, failed }
     },
-    onSuccess: ({ attempted, deleted }) => {
+    onSuccess: ({ attempted, deleted, failed }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })
-      if (deleted < attempted) {
+      if (failed > 0) {
+        toast.error(`Deleted ${deleted}, ${failed} failed`)
+      } else if (deleted < attempted) {
         toast.success(
           `Deleted ${deleted} user(s); your own account was skipped.`
         )

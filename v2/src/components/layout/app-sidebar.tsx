@@ -37,8 +37,8 @@ export function AppSidebar() {
     items: { permission?: string; superAdminOnly?: boolean }[]
   ) => items.filter(allowItem)
 
-  const navGroups: typeof sidebarData.navGroups = sidebarData.navGroups.map(
-    (group) => ({
+  const navGroups: typeof sidebarData.navGroups = sidebarData.navGroups
+    .map((group) => ({
       ...group,
       items: group.items
         .map((item) => {
@@ -53,8 +53,8 @@ export function AppSidebar() {
           return item
         })
         .filter(Boolean) as (typeof group.items)[number][],
-    })
-  )
+    }))
+    .filter((group) => group.items.length > 0)
 
   // Priority: team name → program name → branding name → fallback
   const teamName =
