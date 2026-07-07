@@ -2,7 +2,6 @@
  * Auth service: login, register, getProfile, logout.
  * JWT is in httpOnly cookie; responses use { success, data }.
  */
-
 import api from './api'
 
 export interface User {
@@ -73,6 +72,25 @@ export async function changePassword(data: {
   new_password: string
 }): Promise<void> {
   await api.put('/auth/change-password', data)
+}
+
+export async function forgotPassword(email: string): Promise<string> {
+  const response = await api.post<{ success: boolean; message: string }>(
+    '/auth/forgot-password',
+    { email }
+  )
+  return response.data.message
+}
+
+export async function resetPassword(data: {
+  token: string
+  new_password: string
+}): Promise<string> {
+  const response = await api.post<{ success: boolean; message: string }>(
+    '/auth/reset-password',
+    data
+  )
+  return response.data.message
 }
 
 export async function logout(): Promise<void> {

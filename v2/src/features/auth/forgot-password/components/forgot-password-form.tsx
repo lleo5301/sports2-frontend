@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { z } from 'zod'
+import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from '@tanstack/react-router'
-import { ArrowRight, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { sleep, cn } from '@/lib/utils'
+import { ArrowRight, Loader2, MailCheck } from 'lucide-react'
+import { forgotPassword } from '@/lib/auth'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -27,29 +27,39 @@ export function ForgotPasswordForm({
   className,
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) {
-  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
+  const [sentMessage, setSentMessage] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: '' },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
+    form.clearErrors()
+    try {
+      const message = await forgotPassword(data.email)
+      setSentMessage(message)
+    } catch (err) {
+      const msg =
+        err instanceof AxiosError
+          ? ((err.response?.data as { error?: string })?.error ??
+            'Could not send reset email. Please try again.')
+          : 'Could not send reset email. Please try again.'
+      form.setError('root', { message: msg })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-    toast.promise(sleep(2000), {
-      loading: 'Sending email...',
-      success: () => {
-        setIsLoading(false)
-        form.reset()
-        navigate({ to: '/otp' })
-        return `Email sent to ${data.email}`
-      },
-      error: 'Error',
-    })
+  if (sentMessage) {
+    return (
+      <div className='flex flex-col items-center gap-3 py-4 text-center'>
+        <MailCheck className='size-8 text-muted-foreground' />
+        <p className='text-sm text-muted-foreground'>{sentMessage}</p>
+      </div>
+    )
   }
 
   return (
@@ -72,6 +82,11 @@ export function ForgotPasswordForm({
             </FormItem>
           )}
         />
+        {form.formState.errors.root && (
+          <p className='text-sm text-destructive'>
+            {form.formState.errors.root.message}
+          </p>
+        )}
         <Button className='mt-2' disabled={isLoading}>
           Continue
           {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
