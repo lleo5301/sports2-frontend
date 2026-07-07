@@ -38,6 +38,7 @@ export const usersColumns: ColumnDef<User>[] = [
   },
   {
     id: 'fullName',
+    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Name' />
     ),
