@@ -1,14 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { type Table } from '@tanstack/react-table'
+import { useAuth } from '@/contexts/AuthContext'
 import { AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
-import { sleep } from '@/lib/utils'
+import { adminUsersApi } from '@/lib/admin-users-api'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { type User } from '../data/schema'
 
 type UserMultiDeleteDialogProps<TData> = {
   open: boolean
@@ -24,8 +27,32 @@ export function UsersMultiDeleteDialog<TData>({
   table,
 }: UserMultiDeleteDialogProps<TData>) {
   const [value, setValue] = useState('')
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   const selectedRows = table.getFilteredSelectedRowModel().rows
+
+  const mutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      const deletable = ids.filter((id) => String(id) !== String(user?.id))
+      await Promise.all(deletable.map((id) => adminUsersApi.remove(id)))
+      return { attempted: ids.length, deleted: deletable.length }
+    },
+    onSuccess: ({ attempted, deleted }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+      if (deleted < attempted) {
+        toast.success(
+          `Deleted ${deleted} user(s); your own account was skipped.`
+        )
+      } else {
+        toast.success(`Deleted ${deleted} user(s)`)
+      }
+      setValue('')
+      table.resetRowSelection()
+      onOpenChange(false)
+    },
+    onError: () => toast.error('Bulk delete failed'),
+  })
 
   const handleDelete = () => {
     if (value.trim() !== CONFIRM_WORD) {
@@ -33,19 +60,8 @@ export function UsersMultiDeleteDialog<TData>({
       return
     }
 
-    onOpenChange(false)
-
-    toast.promise(sleep(2000), {
-      loading: 'Deleting users...',
-      success: () => {
-        setValue('')
-        table.resetRowSelection()
-        return `Deleted ${selectedRows.length} ${
-          selectedRows.length > 1 ? 'users' : 'user'
-        }`
-      },
-      error: 'Error',
-    })
+    const ids = selectedRows.map((row) => (row.original as User).id)
+    mutation.mutate(ids)
   }
 
   return (
@@ -53,7 +69,7 @@ export function UsersMultiDeleteDialog<TData>({
       open={open}
       onOpenChange={onOpenChange}
       handleConfirm={handleDelete}
-      disabled={value.trim() !== CONFIRM_WORD}
+      disabled={value.trim() !== CONFIRM_WORD || mutation.isPending}
       title={
         <span className='text-destructive'>
           <AlertTriangle
