@@ -1,16 +1,15 @@
 /**
  * Core API client with axios: JWT via httpOnly cookies, CSRF for mutations.
  */
-
 import axios from 'axios'
+import { toast } from 'sonner'
+import csrfService from './csrf'
 
 declare module 'axios' {
   interface AxiosRequestConfig {
     skipErrorToast?: boolean
   }
 }
-import { toast } from 'sonner'
-import csrfService from './csrf'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api/v1',
@@ -40,7 +39,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const skipToast = (error.config as { skipErrorToast?: boolean })?.skipErrorToast
+    const skipToast = (error.config as { skipErrorToast?: boolean })
+      ?.skipErrorToast
     if (skipToast) return Promise.reject(error)
     const message =
       (error.response?.data as { error?: string; message?: string })?.error ??
@@ -49,7 +49,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const basePath = import.meta.env.VITE_BASE_PATH || ''
       const path = window.location.pathname
-      const isAuthPage = path.includes('/login') || path.includes('/register')
+      const isAuthPage =
+        path.includes('/login') ||
+        path.includes('/register') ||
+        path.includes('/forgot-password') ||
+        path.includes('/reset-password')
       const isAuthMe = error.config?.url?.includes('/auth/me')
 
       if (!isAuthPage && !isAuthMe) {
