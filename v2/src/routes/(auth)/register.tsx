@@ -23,7 +23,7 @@ function RegisterPage() {
             Create an account
           </CardTitle>
           <CardDescription>
-            Enter your details to create your Sports2 account
+            Enter your details to create your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -32,7 +32,10 @@ function RegisterPage() {
         <CardFooter>
           <p className='px-8 text-center text-sm text-muted-foreground'>
             Already have an account?{' '}
-            <Link to='/login' className='underline underline-offset-4 hover:text-primary'>
+            <Link
+              to='/login'
+              className='underline underline-offset-4 hover:text-primary'
+            >
               Sign in
             </Link>
           </p>

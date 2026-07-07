@@ -16,7 +16,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   }, [])
 
   const logoUrl = branding?.logo_url
-  const teamName = branding?.name || 'Sports2'
+  const teamName = branding?.name || 'The Program 1814'
 
   return (
     <div className='container grid h-svh max-w-none items-center justify-center'>
@@ -29,7 +29,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               className='me-3 size-10 rounded-lg object-contain'
             />
           ) : (
-            <div className='me-3 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground text-lg font-bold'>
+            <div className='me-3 flex size-10 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground'>
               {teamName.charAt(0)}
             </div>
           )}

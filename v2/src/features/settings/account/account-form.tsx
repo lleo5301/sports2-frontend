@@ -133,7 +133,7 @@ export function AccountForm() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `sports2-data-export-${new Date().toISOString().split('T')[0]}.json`
+      a.download = `theprogram1814-data-export-${new Date().toISOString().split('T')[0]}.json`
       a.click()
       URL.revokeObjectURL(url)
       toast.success('Data export started')
@@ -292,7 +292,7 @@ export function AccountForm() {
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => deleteAccountMutation.mutate()}
-                    className='text-destructive-foreground bg-destructive hover:bg-destructive/90'
+                    className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
                   >
                     {deleteAccountMutation.isPending ? (
                       <Loader2 className='size-4 animate-spin' />
