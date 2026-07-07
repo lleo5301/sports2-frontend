@@ -24,7 +24,7 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: 'Sports2',
+      name: 'The Program 1814',
       logo: LayoutDashboard,
       plan: 'Team Management',
     },
